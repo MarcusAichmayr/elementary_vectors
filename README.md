@@ -2,7 +2,7 @@
 
 ## Installation
 
-From folder
+from folder
 ```
 make install
 ```
