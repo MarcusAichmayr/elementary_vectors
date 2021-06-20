@@ -9,7 +9,7 @@ make install
 
 from github
 ```
-sage -pip install git+https://github.com/IceTyp/sign_vectors.git
+sage -pip install git+https://github.com/MarcusAichmayr/sign_vectors.git
 ```
 
 To load the module `elementary_vectors`, run
