@@ -11,9 +11,9 @@ setup(
     description='A package for SageMath to work with sign vectors and oriented matroids',
     long_description = readfile("README.md"),
     long_description_content_type="text/markdown",
-    url='todo github',
+    url='https://github.com/MarcusAichmayr/sign_vectors',
     author='Marcus Aichmayr',
-    author_email='todo',
+#    author_email='',
     license='GPLv3',
     classifiers=[
       # How mature is this project? Common values are
@@ -28,9 +28,9 @@ setup(
     ], # classifiers list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords = ['sign vectors', 'elementary vectors', 'oriented matroids'],
     packages = [
-            'elementary_vectors',
-            'sign_vectors',
-            'sign_vectors.oriented_matroids',
+        'elementary_vectors',
+        'sign_vectors',
+        'sign_vectors.oriented_matroids',
     ],
 #    setup_requires   = ['sage-package'],
 #    install_requires = ['sage-package', 'sphinx'],
