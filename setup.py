@@ -8,14 +8,14 @@ def readfile(filename):
 setup(
     name = "sign_vectors",
     version = readfile("VERSION").strip(), # the VERSION file is shared with the documentation
-    description='A package for SageMath to work with sign vectors and oriented matroids',
+    description = 'a Sage package to work with sign vectors, oriented matroids and elementary vectors',
     long_description = readfile("README.md"),
-    long_description_content_type="text/markdown",
-    url='https://github.com/MarcusAichmayr/sign_vectors',
-    author='Marcus Aichmayr',
-#    author_email='',
+    long_description_content_type = "text/markdown",
+    url = 'https://github.com/MarcusAichmayr/sign_vectors',
+    author = 'Marcus Aichmayr',
+    author_email = 'aichmayr.marcus@gmail.com',
     license='GPLv3',
-    classifiers=[
+    classifiers = [
       # How mature is this project? Common values are
       #   3 - Alpha
       #   4 - Beta

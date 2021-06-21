@@ -33,7 +33,7 @@ shorthand::
 
     $ make install
 
-### Install from github
+### Install from GitHub
 
 To download and install the latest development version on a system where Sage
 was built from source or installed from official packages, run
@@ -42,7 +42,7 @@ was built from source or installed from official packages, run
 
 or
 
-    sage -pip install --user git+https://github.com/MarcusAichmayr/sign_vectors.git
+    $ sage -pip install --user git+https://github.com/MarcusAichmayr/sign_vectors.git
 
 The optional --user flag causes the package to be installed in your .sage directory instead of the Sage installation tree.
 
