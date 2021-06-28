@@ -13,7 +13,7 @@ from sage.modules.free_module_element import zero_vector
 
 def elementary_vectors(M, kernel=False):
     r"""
-    Compute elementary vectors of a subspace determined by the matrix ``M``.
+    Computes elementary vectors of a subspace determined by the matrix ``M``.
     
     INPUT:
     
@@ -23,11 +23,11 @@ def elementary_vectors(M, kernel=False):
     
     OUTPUT:
     
+    - If ``kernel`` is false, returns a list of elementary vectors lying in
+      the row space of ``M``. (default)
+
     - If ``kernel`` is true, returns a list of elementary vectors lying in
       the kernel of ``M``.
-    
-    - If ``kernel`` is false, returns a list of elementary vectors lying in
-      the row space of ``M``
     """
     n = M.ncols()
     if kernel:

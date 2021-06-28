@@ -25,7 +25,7 @@ def closure(W, separate=False):
     
     OUTPUT:
     
-    If ``separate`` is false (default), return the closure of ``W``.
+    If ``separate`` is false, return the closure of ``W``. (default)
     
     If ``separate`` is true, separate the closure into lists, where each element
     has the same number of zero entries.

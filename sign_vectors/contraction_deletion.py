@@ -34,15 +34,17 @@ def contraction(F, R, keep_components=False):
     
     INPUT:
     
-    - ``F`` -- a list of sign vectors, a list of vectors or a matrix.
+    - ``F`` -- a list of sign vectors, a list of vectors, or a matrix.
     
     - ``R`` -- a list of indices.
     
     - ``keep_components`` -- a boolean (default: ``False``).
-        
-        - If ``keep_components`` is false (default), remove entries in ``R``.
-        
-        - If ``keep_components`` is true, keep entries in ``R``.
+    
+    OUTPUT:
+    
+    - If ``keep_components`` is false, remove entries in ``R``. (default)
+    
+    - If ``keep_components`` is true, keep entries in ``R``.
     """
     if F == []:
         return F
@@ -74,7 +76,7 @@ def deletion(F, R):
     
     INPUT:
     
-    - ``F`` -- a list of sign vectors, a list of real vectors or a matrix.
+    - ``F`` -- a list of sign vectors, a list of real vectors, or a matrix.
     
     - ``R`` -- a list of indices.
     """

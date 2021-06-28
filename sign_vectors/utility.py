@@ -10,7 +10,7 @@
 
 def loops(W):
     r"""
-    Compute the list of loops of a given list of sign vectors ``W``.
+    Computes the list of loops of a given list of sign vectors ``W``.
     
     ..NOTE::
     
@@ -58,7 +58,7 @@ def is_parallel(W,e,f):
 
 def parallel_classes(W):
     r"""
-    Compute the parallel classes of a given set of sign vectors ``W``.
+    Computes the parallel classes of a given set of sign vectors ``W``.
 
     INPUT:
 

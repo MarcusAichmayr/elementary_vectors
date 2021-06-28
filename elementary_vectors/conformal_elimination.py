@@ -31,8 +31,8 @@ def conformal_elimination(x, y, S=[]):
         
     .. NOTE::
         
-        If ``S`` is the empty list ``[]`` (default),
-        the whole list of separating elements will be considered instead.
+        If ``S`` is the empty list ``[]``, the whole list of separating elements
+        will be considered instead. (default)
     """
     assert x.length() == y.length(), 'Vectors have different length.'
     X = sign_vector(x)

@@ -15,7 +15,7 @@ from sign_vectors.utility import classes_same_support, parallel_classes
 
 def lower_faces(W):
     r"""
-    Compute a list of lower faces.
+    Computes a list of lower faces.
     
     INPUT:
     
@@ -23,7 +23,7 @@ def lower_faces(W):
     
     OUTPUT:
     
-    - a list of covectors of rank ``r-1`` of the oriented matroid.
+    Returns a list of covectors of rank ``r-1`` of the oriented matroid.
     """
     assert W, 'List is empty.'
     n = W[0].length()
@@ -53,8 +53,8 @@ def face_enumeration(W):
     
     OUTPUT:
     
-    - a list of lists. Every list consists of all covectors of the same rank
-      smaller ``r`` of the oriented matroid.
+    Returns a list of lists. Every list consists of all covectors of the same rank
+    smaller than or equal to ``r`` of the oriented matroid.
     """
     assert W, 'List is empty.'
     L = [W]

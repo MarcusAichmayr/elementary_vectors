@@ -124,7 +124,7 @@ class SignVector(SageObject):
         - ``other`` -- sign vector
         
         OUTPUT:
-        List of elements ``e``, such that ``self[e] == -other[e] != 0``.
+        List of elements ``e`` such that ``self[e] == -other[e] != 0``.
         """
         assert self.length() == other.length(), 'Sign vectors have different length.'
         return [e for e in self.support() if self[e] == -other[e]]
@@ -231,7 +231,7 @@ def sign_vector(v):
     
     - ``v`` -- different inputs are accepted:
     
-        - a list of real values or a real vector.
+        - an iterable (e.g. a list or vector) of real values.
     
         - a string consisting of '-', '+', '0'. Other characters are treated as '0'.
     

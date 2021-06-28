@@ -18,7 +18,7 @@ from sage.misc.flatten import flatten
 
 def topes_from_matrix(A, kernel=False):
     r"""
-    Return a list of topes of the oriented matroid corresponding to the matrix ``A``.
+    Returns a list of topes of the oriented matroid corresponding to the matrix ``A``.
     
     INPUT:
     
@@ -29,7 +29,7 @@ def topes_from_matrix(A, kernel=False):
     OUTPUT:
     
     - If ``kernel`` is false, returns a list of topes determined by the row space
-      of the matrix ``A``.
+      of the matrix ``A``. (default)
 
     - If ``kernel`` is true, returns a list of topes determined by the kernel of
       the matrix ``A``.
@@ -51,7 +51,7 @@ def covectors_from_topes(T, separate=False):
     The list of covectors of the corresponding oriented matroid.
     
     - If ``separate`` is false, returns a list of covectors. The covectors are
-      sorted by rank (default).
+      sorted by rank. (default)
 
     - If ``separate`` is true, returns a list of lists of covectors, separated
       by their rank.
@@ -78,7 +78,7 @@ def cocircuits_from_topes(T):
 
 def covectors_from_matrix(A, kernel=False, algorithm=None, separate=False):
     r"""
-    Return a list of covectors of the oriented matroid corresponding to the
+    Returns a list of covectors of the oriented matroid corresponding to the
     matrix ``A``.
     
     INPUT:
@@ -93,10 +93,11 @@ def covectors_from_matrix(A, kernel=False, algorithm=None, separate=False):
     
     OUTPUT:
     
-    The list of covectors of an oriented matroid corresponding to the matrix ``A``.
+    Returns the list of covectors of an oriented matroid corresponding to the
+    matrix ``A``.
     
     - If ``kernel`` is false, the returned covectors will be determined by the
-      row space of the matrix ``A``.
+      row space of the matrix ``A``. (default)
 
     - If ``kernel`` is true, the returned covectors will be determined by the
       kernel of the matrix ``A``.
