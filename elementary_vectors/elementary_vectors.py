@@ -31,8 +31,11 @@ def elementary_vectors(M, kernel=False):
     """
     n = M.ncols()
     if kernel:
-        ind = M.pivot_rows()
-        M1 = M.matrix_from_rows(ind)
+        try:
+            ind = M.pivot_rows() # would not work for polynomial matrices
+            M1 = M.matrix_from_rows(ind)
+        except:
+            M1 = M
     else:
         M1 = M.right_kernel_matrix()
     r = M1.nrows()
