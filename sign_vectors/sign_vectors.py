@@ -23,8 +23,8 @@ class SignVector(SageObject):
         try:
             self.__sv = vector(ZZ, [sign(x) for x in l])
         except:
-            # todo: unit tests
             def sign_sym(a):
+                r"""Returns appropriate sign of symbolic expression. Prints warning and returns ``0`` if sign cannot be computed."""
                 if SR(a).is_positive():
                     return 1
                 elif SR(a).is_negative():
