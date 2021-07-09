@@ -13,12 +13,29 @@ from sage.modules.free_module_element import vector
 from sage.functions.generalized import sign
 from sage.modules.free_module_element import zero_vector
 from sage.misc.prandom import randint
+from sage.rings.integer_ring import ZZ
+from sage.symbolic.ring import SR
 
 class SignVector(SageObject):
     r"""A sign vector is an element of ``{-,+,0}^n``."""
     def __init__(self, l):
         r"""Creates a sign vector from a list ``l``."""
-        self.__sv = vector([sign(x) for x in l])
+        try:
+            self.__sv = vector(ZZ, [sign(x) for x in l])
+        except:
+            # todo: unit tests
+            def sign_sym(a):
+                if SR(a).is_positive():
+                    return 1
+                elif SR(a).is_negative():
+                    return -1
+                elif SR(a).is_zero():
+                    return 0
+                else:
+                    print('Warning: Cannot determine sign of symbolic expression, returning 0 instead.') # todo
+                    return 0
+            self.__sv = vector(ZZ, [sign_sym(x) for x in l])
+
 
     def _repr_(self):
         r"""Represents a sign vector by a string containing '-', '+' and '0'."""
