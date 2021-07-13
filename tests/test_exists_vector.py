@@ -14,16 +14,16 @@ class Tests(unittest.TestCase):
         L = [2,5,-1] # lower halves of the intervals
         R = [5,6,1] # upper halves of the intervals
         
-        self.assertEqual(exists_vector(M, L, R), True)
-        self.assertEqual(exists_vector(M, L, R, r=True), True)
-        self.assertEqual(exists_vector(M, L, R, l=True, r=True), True)
+        self.assertTrue(exists_vector(M, L, R))
+        self.assertTrue(exists_vector(M, L, R, r=True))
+        self.assertTrue(exists_vector(M, L, R, l=True, r=True))
 
     def test_exists_vector_open(self):
         M = matrix([1,1,0])
         L = [2,5,-1] # lower halves of the intervals
         R = [5,6,1] # upper halves of the intervals
         
-        self.assertEqual(exists_vector(M, L, R, l=False, r=False), False)
+        self.assertFalse(exists_vector(M, L, R, l=False, r=False))
 
     def test_exists_vector_mixed(self):
         M = matrix([1,1,0])
@@ -32,7 +32,7 @@ class Tests(unittest.TestCase):
         l = [True,True,False]
         r = [False,True,True]
         
-        self.assertEqual(exists_vector(M, L, R, l=l, r=r), False)
+        self.assertFalse(exists_vector(M, L, R, l=l, r=r))
 
     def test_exists_vector_infinity(self):
         M = matrix([[1,0,1,0],[0,1,1,1]])
@@ -41,7 +41,7 @@ class Tests(unittest.TestCase):
         l = [True,True,False,False]
         r = [False,False,False,True]
         
-        self.assertEqual(exists_vector(M, L, R, l=l, r=r), True)
+        self.assertTrue(exists_vector(M, L, R, l=l, r=r))
         
 
 if __name__ == '__main__':
