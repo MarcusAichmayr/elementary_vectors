@@ -36,7 +36,33 @@ def elementary_vectors(M, kernel=True, reduce=True):
       the row space of ``M``.
     
     - If ``reduce`` is true, returned elementary vectors have distinct support
-      and common factors are canceled. 
+      and common factors are canceled.
+      
+    EXAMPLES::
+    
+        sage: from elementary_vectors import elementary_vectors
+        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
+        [ 0  0  1 -1  0]
+        [ 2  0  0  0  2]
+        [ 1  1  1  1  1]
+        sage: elementary_vectors(M)
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors(M, kernel=True)
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors(M, kernel=False)
+        [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (1, 0, 0, 0, 1), (0, 0, 1, -1, 0)]
+    
+    By default, the output is reduced, that is, each returned elementary vector
+    has distinct support and common factors are canceled.
+    
+        sage: elementary_vectors(M, reduce=True)
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors(M, reduce=False)
+        [(0, 4, -2, -2, 0),
+         (2, 0, 0, 0, -2),
+         (-2, 0, 0, 0, 2),
+         (-4, 0, 0, 0, 4),
+         (0, -4, 2, 2, 0)]
     """
     if kernel:
         try:
@@ -80,7 +106,29 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
     corresponding matrix.
 
     - If ``reduce`` is true, returned elementary vectors have distinct support
-      and common factors are canceled. 
+      and common factors are canceled.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors import elementary_vectors_from_minors
+        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
+        [ 0  0  1 -1  0]
+        [ 2  0  0  0  2]
+        [ 1  1  1  1  1]
+        sage: m = M.minors(3); m
+        [2, -2, 0, -4, 0, 0, 0, 2, -2, -4]
+        sage: elementary_vectors_from_minors(m,[3,5])
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors_from_minors(m, M.dimensions())
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors_from_minors(m, M.dimensions(), reduce=False)
+        [(0, 4, -2, -2, 0),
+         (2, 0, 0, 0, -2),
+         (-2, 0, 0, 0, 2),
+         (-4, 0, 0, 0, 4),
+         (0, -4, 2, 2, 0)]
+        sage: elementary_vectors_from_minors(m, M.dimensions(), ring=QQ)
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
     """
     L = []
     r, n = dim
