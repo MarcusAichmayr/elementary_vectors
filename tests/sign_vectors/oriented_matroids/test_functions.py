@@ -4,6 +4,8 @@ from elementary_vectors import *
 from sign_vectors.oriented_matroids import *
 import unittest
 
+# Todo: do unit tests
+
 # tests if appropriate functions are available
 class SignVectorsTests(unittest.TestCase):
     def setUp(self):
@@ -29,7 +31,7 @@ class SignVectorsTests(unittest.TestCase):
     def test_others(self):
         deletion(self.ccA, [0])
         contraction(self.ccA, [1])
-        conformal_elimination(vector([1,2]), vector([-1,3]))
+#        conformal_elimination(vector([1,2]), vector([-1,3]))
         closure(self.ccA)
 
 if __name__ == '__main__':

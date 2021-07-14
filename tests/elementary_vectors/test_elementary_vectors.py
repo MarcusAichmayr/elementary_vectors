@@ -1,12 +1,6 @@
 from sage.all import *
-from elementary_vectors.elementary_vectors import elementary_vectors, elementary_vectors_from_minors, reduce_by_support
+from elementary_vectors.elementary_vectors import elementary_vectors, elementary_vectors_from_minors
 import unittest
-
-# Todo:
-# * tests with output vector
-# * tests with given elementary vectors
-# * tests with kernel=False
-# * cover special input cases (e.g. l = True, r = None)
 
 class Tests(unittest.TestCase):
     def test_elementary_vectors(self):
@@ -45,10 +39,5 @@ class Tests(unittest.TestCase):
         
         elementary_vectors(B, kernel=False) # works for QQ[x]
 
-    def test_reduce_by_support(self):
-        l = [vector([1,3,2]), vector([0,0,1]), vector([2,2,0]), vector([0,0,-5])]
-        
-        self.assertEqual(reduce_by_support(l), l[0:3])
-        
 if __name__ == '__main__':
     unittest.main()
