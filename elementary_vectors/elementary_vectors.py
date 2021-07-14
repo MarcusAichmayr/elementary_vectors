@@ -13,6 +13,7 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.structure.element import get_coercion_model
 from sage.functions.other import binomial
 from sage.arith.misc import gcd
+from .utility import reduce_by_support
 
 def elementary_vectors(M, kernel=True, reduce=True):
     r"""
@@ -112,26 +113,3 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
         return out
     else:
         return L
-
-
-# Todo: change name?
-def reduce_by_support(L):
-    r"""
-    Returns a sublist of vectors where each vector has distinct support.
-    
-    INPUT:
-    
-    - ``L`` -- a list of vectors
-    
-    OUTPUT:
-    
-    Returns a sublist of ``L`` such that each vector has distinct support.
-    """
-    supp = []
-    out = []
-    for v in L:
-        s = v.support()
-        if s not in supp:
-            supp.append(s)
-            out.append(v)
-    return out
