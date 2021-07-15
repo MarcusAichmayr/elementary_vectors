@@ -22,11 +22,18 @@ class SignVectorsTests(unittest.TestCase):
         self.assertTrue(is_parallel(self.ccT2,0,4))
 
     def test_is_parallel_for_real_vectors(self):
-        L = [vector([1,1,2,3,0,0]), vector([-2,1,-4,3,3,17]), vector([0,1,0,1,0,0])]
+        L = [vector([1,1,2,3,0,0]), vector([-2,1,-4,3,3,-17]), vector([0,1,0,1,0,0])]
         self.assertTrue(is_parallel(L,0,2))
         self.assertFalse(is_parallel(L,0,1))
         self.assertFalse(is_parallel(L,1,3))
         self.assertTrue(is_parallel(L,4,5))
+
+    def test_is_parallel_ratio(self):
+        L = [vector([1,1,2,3,0,0]), vector([-2,1,-4,3,3,-17]), vector([0,1,0,1,0,0])]
+        self.assertEqual(is_parallel(L,0,2,return_ratio=True),[True,1/2])
+        self.assertEqual(is_parallel(L,0,1,return_ratio=True),[False,0])
+        self.assertEqual(is_parallel(L,1,3,return_ratio=True),[False,0])
+        self.assertEqual(is_parallel(L,4,5,return_ratio=True),[True,-3/17])
 
     def test_parallel_classes(self):
         self.assertTrue([0,4] in parallel_classes(self.ccT1))
@@ -41,6 +48,15 @@ class SignVectorsTests(unittest.TestCase):
         self.assertEqual(l, [0,1,2,3,4]) # each element appears
 
         self.assertEqual(parallel_classes(self.ccT1), parallel_classes(self.ccT2))
+
+    def test_positive_parallel_classes(self):
+        self.assertFalse([0,1] in parallel_classes(self.T3,positive_only=True))
+        self.assertTrue([1] in parallel_classes(self.T3,positive_only=True))
+        self.assertTrue([0] in parallel_classes(self.T3,positive_only=True))
+        
+        l = flatten(parallel_classes(self.ccT1,positive_only=True))
+        l.sort()
+        self.assertEqual(l, [0,1,2,3,4]) # each element appears
 
     def test_classes_same_support(self):
         self.assertEqual(classes_same_support(self.ccT1)[0][0].support(), classes_same_support(self.ccT1)[0][1].support())

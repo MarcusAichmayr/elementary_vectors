@@ -32,57 +32,133 @@ def loops(W):
     return L
 
 
-def is_parallel(W,e,f):
+def is_parallel(W, e, f, return_ratio=False):
     r"""
-    Determines whether ``e`` is parallel to ``f`` in ``W``.
+    Determines whether two elements ``e, f`` are parallel for each vector of ``W``.
+    This also works for a set of sign vectors.
     
+    INPUT:
+    
+    - ``W`` -- a list of vectors or sign vectors of length ``n``
+    
+    - ``e`` -- an integer with ``0 <= e <= n-1``
+
+    - ``f`` -- an integer with ``0 <= e <= n-1``
+
+    - ``return_ratio`` -- a boolean (default: False)
+
+    OUTPUT:
+    
+    Returns a boolean.
+    If ``return_ratio`` is true, a list consisting of the boolean and the ratio will be returned instead. 
+
     .. NOTE::
     
-        Works for sign vectors and for real vectors.
+        The elements ``e`` and ``f`` are parallel if there exists a ratio ``d`` such that
+        ``v[e] = d v[f]`` for each ``v`` in ``W``.
     """
     d = 0 # will later be set to the ratio of X[e] and X[f]
+    
+    if return_ratio:
+        ret = [False, 0]
+    else:
+        ret = False
+    
     for X in W:
         if d == 0:
             if X[f] == 0:
                 if X[e] != 0:
-                    return False
+                    return ret
             elif X[e] == 0:
-                return False
+                return ret
             else: # determine ratio
                 d = X[e]/X[f]
         else:
             if X[e] != d * X[f]:
-                return False
-    return True
+                return ret
+    if return_ratio:
+        return [True, d]
+    else:
+        return True
 
 
-def parallel_classes(W):
+def parallel_classes(W, positive_only=False):
     r"""
-    Computes the parallel classes of a given set of sign vectors ``W``.
+    Computes the parallel classes of a given set of vectors ``W``.
+    This also works for a set of sign vectors.
 
     INPUT:
 
-    - ``W`` -- a list of sign vectors or vectors of length ``n``.
+    - ``W`` -- a list of vectors or sign vectors of length ``n``
+    
+    - ``positive_only`` -- a boolean (default: False)
     
     OUTPUT:
     
-    - a partition of ``[0, ..., n-1]`` into parallel classes.
+    Returns a partition of ``[0, ..., n-1]`` into parallel classes.
+    
+    If ``positive_only`` is true, returns a partition of ``[0, ..., n-1]`` into positive parallel classes,
+    that is, the ratios of the corresponding classes are non-negative.
+    
+    .. NOTE::
+    
+        The elements ``e`` and ``f`` are parallel if there exists a ratio ``d`` such that
+        ``v[e] = d v[f]`` for each ``v`` in ``W``.
     """
     assert W, 'List is empty.'
     L = []
     k = W[0].length()
     toCheck = list(range(k))
     
+    if positive_only:
+        def is_par(W, e, f):
+            val = is_parallel(W, e, f, return_ratio=True)
+            if val[0] == False:
+                return False
+            elif val[1] < 0:
+                return False
+            else:
+                return True
+    else:
+        def is_par(W, e, f):
+            return is_parallel(W, e, f)
+    
     while len(toCheck) > 0:
         e = toCheck.pop(0)
         l = [e]
         # `toCheck` might change in the for loop. -> toCheck[:]
         for f in toCheck[:]: # find parallel class `l` of ``e``
-            if is_parallel(W, e, f):
+            if is_par(W, e, f):
                 l.append(f)
                 toCheck.remove(f)
         L.append(l)
     return L
+
+
+def positive_parallel_classes(W):
+    r"""
+    Computes the parallel classes of a given set of vectors ``W``.
+    This also works for a set of sign vectors.
+
+    INPUT:
+
+    - ``W`` -- a list of vectors or sign vectors of length ``n``
+    
+    - ``positive_only`` -- a boolean (default: False)
+    
+    OUTPUT:
+    
+    Returns a partition of ``[0, ..., n-1]`` into parallel classes.
+    
+    If ``positive_only`` is true, returns a partition of ``[0, ..., n-1]`` into positive parallel classes,
+    that is, the ratios of the corresponding classes are non-negative.
+    
+    .. NOTE::
+    
+        The elements ``e`` and ``f`` are parallel if there exists a ratio ``d`` such that
+        ``v[e] = d v[f]`` for each ``v`` in ``W``.
+    """
+    return parallel_classes(W, positive_only=True)
 
 
 def classes_same_support(W):
