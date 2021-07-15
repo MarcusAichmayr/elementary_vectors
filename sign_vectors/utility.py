@@ -104,7 +104,19 @@ def parallel_classes(W, positive_only=False):
     
         The elements ``e`` and ``f`` are parallel if there exists a ratio ``d`` such that
         ``v[e] = d v[f]`` for each ``v`` in ``W``.
-    """
+    
+    EXAMPLES::
+    
+        sage: from sign_vectors.utility import parallel_classes
+        sage: W = matrix([[0,0,1,-2,0],[1,0,0,0,1],[1,1,-3,6,1]]); W
+        [ 0  0  1 -2  0]
+        [ 1  0  0  0  1]
+        [ 1  1 -3  6  1]
+        sage: parallel_classes(W)
+        [[0, 4], [1], [2, 3]]
+        sage: parallel_classes(W,positive_only=True)
+        [[0, 4], [1], [2], [3]]
+        """
     assert W, 'List is empty.'
     L = []
     k = W[0].length()
@@ -137,26 +149,22 @@ def parallel_classes(W, positive_only=False):
 
 def positive_parallel_classes(W):
     r"""
-    Computes the parallel classes of a given set of vectors ``W``.
+    Computes the positive parallel classes of a given set of vectors ``W``.
     This also works for a set of sign vectors.
 
-    INPUT:
+    .. seealso::
+    
+        :func:`<sign_vectors.utility.parallel_classes>`
 
-    - ``W`` -- a list of vectors or sign vectors of length ``n``
+    EXAMPLES::
     
-    - ``positive_only`` -- a boolean (default: False)
-    
-    OUTPUT:
-    
-    Returns a partition of ``[0, ..., n-1]`` into parallel classes.
-    
-    If ``positive_only`` is true, returns a partition of ``[0, ..., n-1]`` into positive parallel classes,
-    that is, the ratios of the corresponding classes are non-negative.
-    
-    .. NOTE::
-    
-        The elements ``e`` and ``f`` are parallel if there exists a ratio ``d`` such that
-        ``v[e] = d v[f]`` for each ``v`` in ``W``.
+        sage: from sign_vectors.utility import positive_parallel_classes
+        sage: W = matrix([[0,0,1,-2,0],[1,0,0,0,1],[1,1,-3,6,1]]); W
+        [ 0  0  1 -2  0]
+        [ 1  0  0  0  1]
+        [ 1  1 -3  6  1]
+        sage: positive_parallel_classes(W)
+        [[0, 4], [1], [2], [3]]
     """
     return parallel_classes(W, positive_only=True)
 
