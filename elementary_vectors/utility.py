@@ -14,7 +14,6 @@ from sage.structure.element import get_coercion_model
 from sage.functions.other import binomial
 from sage.arith.misc import gcd
 from sage.symbolic.ring import SR
-from sage.symbolic.assumptions import assume, forget
 
 def reduce_by_support(L):
     r"""

@@ -16,6 +16,7 @@ from sage.arith.misc import gcd
 from sign_vectors import sign_vector
 from sage.symbolic.ring import SR
 from .utility import reduce_by_support, has_sign, reduce_zero_entries
+from sage.symbolic.assumptions import assume, forget
 
 def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
@@ -362,21 +363,21 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, ring=N
                     assume(expr)
                     rec(i+1, l + [expr])
                     forget(expr)
-                except:
+                except ValueError:
                     pass
                 try:
                     expr = a < 0
                     assume(expr)
                     rec(i+1, l + [expr])
                     forget(expr)
-                except:
+                except ValueError:
                     pass
                 try:
                     expr = a == 0
                     assume(expr)
                     rec(i+1, l + [expr])
                     forget(expr)
-                except:
+                except ValueError:
                     pass
             else:
                 rec(i+1,l)
@@ -386,8 +387,7 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, ring=N
             else:
                 L = evs
             out.append([l, non_negative_vectors(L)])
-    
     m, evs = elementary_vectors(**args)
     out = []
-    rec(0,[])
+    rec(0, [])
     return out
