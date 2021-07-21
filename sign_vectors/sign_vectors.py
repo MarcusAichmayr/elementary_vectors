@@ -25,11 +25,11 @@ class SignVector(SageObject):
         except:
             def sign_sym(a):
                 r"""Returns appropriate sign of symbolic expression. Prints warning and returns ``0`` if sign cannot be computed."""
-                if SR(a).is_positive():
+                if SR(a) > 0:
                     return 1
-                elif SR(a).is_negative():
+                elif SR(a) < 0:
                     return -1
-                elif SR(a).is_zero():
+                elif SR(a) == 0:
                     return 0
                 else:
                     print('Warning: Cannot determine sign of symbolic expression, returning 0 instead.') # todo
