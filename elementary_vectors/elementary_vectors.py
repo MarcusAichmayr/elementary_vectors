@@ -13,31 +13,51 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.structure.element import get_coercion_model
 from sage.functions.other import binomial
 from sage.arith.misc import gcd
-from .utility import reduce_by_support
+from sign_vectors import sign_vector
+from .utility import reduce_by_support, has_sign, reduce_zero_entries
 
-def elementary_vectors(M, kernel=True, reduce=True):
+def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
-    Computes elementary vectors of a subspace determined by the matrix ``M``.
+    Computes elementary vectors of a subspace determined by the matrix or from
+    a list of maximal minors.
     
     INPUT:
     
-    - ``M`` -- a matrix
+    - ``data`` -- a matrix or a list of maximal minors
+    
+    - ``dim`` -- Not needed if ``data`` is a matrix.
+                 Otherwise, this is a list of dimensions of the matrix
+                 corresponding to the list of maximal minors ``data``.
     
     - ``kernel`` -- a boolean (default: ``True``)
     
     - ``reduce`` -- a boolean (default: ``True``)
     
+    - ``return_minors`` -- a boolean (default: ``False``)
+    
+    - ``ring`` -- Parent of the entries of the elementary vectors.
+                  By default, determine this from the given list of maximal minors.
+    
     OUTPUT:
     
     - If ``kernel`` is true, returns a list of elementary vectors lying in
-      the kernel of ``M``. (default)
-
-    - If ``kernel`` is false, returns a list of elementary vectors lying in
-      the row space of ``M``.
-    
+      the kernel of ``data``. (default)
+      Otherwise, returns a list of elementary vectors lying in
+      the row space of ``data``.
+      This argument is ignored if ``data`` is not a matrix.
+      
     - If ``reduce`` is true, returned elementary vectors have distinct support
       and common factors are canceled.
-      
+    
+    - If ``return_minors`` is true, a list is returned where the first
+      element is the list of maximal minors used to compute the elementary
+      vectors and the second element is the list of elementary vectors.
+    
+    .. SEEALSO::
+        
+        :func: `elementary_vectors_from_matrix`
+        :func: `elementary_vectors_from_minors`
+    
     EXAMPLES::
     
         sage: from elementary_vectors import elementary_vectors
@@ -63,6 +83,101 @@ def elementary_vectors(M, kernel=True, reduce=True):
          (-2, 0, 0, 0, 2),
          (-4, 0, 0, 0, 4),
          (0, -4, 2, 2, 0)]
+
+    Here, ``data`` is a list of maximal minors:
+    
+        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
+        [ 0  0  1 -1  0]
+        [ 2  0  0  0  2]
+        [ 1  1  1  1  1]
+        sage: m = M.minors(3); m
+        [2, -2, 0, -4, 0, 0, 0, 2, -2, -4]
+        sage: elementary_vectors(m, [3,5])
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors(m, M.dimensions())
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors(m, M.dimensions(), reduce=False)
+        [(0, 4, -2, -2, 0),
+         (2, 0, 0, 0, -2),
+         (-2, 0, 0, 0, 2),
+         (-4, 0, 0, 0, 4),
+         (0, -4, 2, 2, 0)]
+        sage: elementary_vectors(m, M.dimensions(), ring=QQ)
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+    """
+    if isinstance(data, list):
+        if dim == None:
+            raise TypeError("When computing elementary vectors from a list of " +
+                            "maximal minors, the dimensions of the corresponding " +
+                            "matrix are needed.")
+        evs = elementary_vectors_from_minors(data, dim=dim, reduce=reduce, ring=ring)
+        if return_minors:
+            return [data, evs]
+        else:
+            return evs
+    else:
+        return elementary_vectors_from_matrix(data, kernel=kernel, reduce=reduce, return_minors=return_minors, ring=ring)
+
+
+def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=False, ring=None):
+    r"""
+    Computes elementary vectors of a subspace determined by the matrix ``M``.
+    
+    INPUT:
+    
+    - ``M`` -- a matrix
+    
+    - ``kernel`` -- a boolean (default: ``True``)
+    
+    - ``reduce`` -- a boolean (default: ``True``)
+    
+    - ``return_minors`` -- a boolean (default: ``False``)
+    
+    - ``ring`` -- Parent of the entries of the elementary vectors.
+                  By default, determine this from the given list of maximal minors.
+    
+    OUTPUT:
+    
+    - If ``kernel`` is true, returns a list of elementary vectors lying in
+      the kernel of ``M``. (default)
+
+    - If ``kernel`` is false, returns a list of elementary vectors lying in
+      the row space of ``M``.
+    
+    - If ``reduce`` is true, returned elementary vectors have distinct support
+      and common factors are canceled.
+    
+    - If ``return_minors`` is true, a list is returned where the first
+      element is the list of maximal minors used to compute the elementary
+      vectors and the second element is the list of elementary vectors.
+        
+    EXAMPLES::
+    
+        sage: from elementary_vectors import elementary_vectors_from_matrix
+        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
+        [ 0  0  1 -1  0]
+        [ 2  0  0  0  2]
+        [ 1  1  1  1  1]
+        sage: elementary_vectors_from_matrix(M)
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors_from_matrix(M, kernel=True)
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors_from_matrix(M, kernel=False)
+        [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (1, 0, 0, 0, 1), (0, 0, 1, -1, 0)]
+    
+    By default, the output is reduced, that is, each returned elementary vector
+    has distinct support and common factors are canceled.
+    
+        sage: elementary_vectors_from_matrix(M, reduce=True)
+        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors_from_matrix(M, reduce=False)
+        [(0, 4, -2, -2, 0),
+         (2, 0, 0, 0, -2),
+         (-2, 0, 0, 0, 2),
+         (-4, 0, 0, 0, 4),
+         (0, -4, 2, 2, 0)]
+    
+    Example with ``return_minors=True`` # TODO
     """
     if kernel:
         try:
@@ -72,16 +187,25 @@ def elementary_vectors(M, kernel=True, reduce=True):
         except:
             full_rank = False # The matrix might not have full rank. In this case, we will obtain ``[]``.
     else:
-        M = M.right_kernel_matrix() # not implemented for polynomial matrices
+        M = M.right_kernel_matrix() # not implemented for polynomial matrices over ZZ (QQ does work.)
 
     n = M.ncols()
     r = M.nrows()
     m = M.minors(r)
-
-    L = elementary_vectors_from_minors(m, [r, n], reduce=reduce, ring=M.base_ring())
-    if L == [] and not full_rank:
-        print('WARNING: Could not determine rank of matrix. Result might be wrong.')
-    return L
+    g = gcd(m)
+    if g == 0:
+        if not full_rank:
+            print('WARNING: Could not determine rank of matrix. Result might be wrong.')
+            return []
+    if reduce:
+        m = [mi/g for mi in m]
+    if ring == None:
+        ring = M.base_ring()
+    evs = elementary_vectors_from_minors(m, [r, n], reduce=reduce, ring=ring)
+    if return_minors:
+        return [m, evs]
+    else:
+        return evs
 
 
 def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
@@ -96,9 +220,8 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
     
     - ``reduce`` -- a boolean (default: ``True``)
     
-    - ``ring`` -- parent of the entries of the matrix (despite the name,
-                  this is not a priori required to be a ring).
-                  By default, determine this from the given entries.
+    - ``ring`` -- Parent of the entries of the elementary vectors.
+                  By default, determine this from the given list of maximal minors.
     
     OUTPUT:
     
@@ -130,13 +253,13 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
         sage: elementary_vectors_from_minors(m, M.dimensions(), ring=QQ)
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
     """
-    L = []
+    evs = []
     r, n = dim
     if n <= r:
-        return L
+        return evs
     assert binomial(n,r) == len(m), 'Dimensions do not fit.'
     if m == []:
-        return L
+        return evs
     C = Combinations(n,r+1)
     dets = Combinations(n,r)
     if ring == None:
@@ -152,12 +275,118 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
             Jk.pop(pos)
             v[k] = (-1)**pos * m[dets.rank(Jk)]
         if v != zero_vector(n):
-            L.append(v)
+            evs.append(v)
 
-    if reduce and L != []:
+    if reduce and evs != []:
         out = []
-        for v in reduce_by_support(L):
+        for v in reduce_by_support(evs):
             out.append(vector(ring, v/gcd(v)))
         return out
     else:
-        return L
+        return evs
+
+
+def non_negative_vectors(L):
+    r"""
+    Returns non-negative vectors.
+    
+    INPUT:
+    
+    - ``L`` -- a list of vectors
+    
+    OUTPUT:
+    
+    Returns all vectors of ``L`` that are
+    - non_negative in each component; or
+    - negative in each component. Those will be multiplied by ``-1``; or
+    - containing variables such that no opposing signs occur.
+    """
+    out = []
+    for v in L:
+        if sign_vector(v) >= 0: # Use ``>=`` instead of ``>``, (0,0,x) -> (000) should be returned
+            out.append(v)
+        elif sign_vector(v) < 0:
+            out.append(-v)
+    return out
+
+
+def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, ring=None):
+    r"""
+    Computes positive elementary vectors.
+    
+    INPUT:
+    
+    - ``data`` -- a matrix or a list of maximal minors
+    
+    - ``dim`` -- Not needed if ``data`` is a matrix.
+                 Otherwise, this is a list of dimensions of the matrix
+                 corresponding to the list of maximal minors ``data``.
+    
+    - ``kernel`` -- a boolean (default: ``True``)
+    
+    - ``reduce`` -- a boolean (default: ``True``)
+    
+    - ``return_minors`` -- a boolean (default: ``False``)
+    
+    - ``ring`` -- Parent of the entries of the elementary vectors.
+                  By default, determine this from the given list of maximal minors.
+    
+    OUTPUT:
+    
+    The output is a list of pairs.
+    Each pair consists of a list of assumptions and the corresponding positive elementary vectors of ``data``.
+    
+    - If ``kernel`` is true, returns a list of elementary vectors lying in
+      the kernel of ``data``. (default)
+      Otherwise, returns a list of elementary vectors lying in
+      the row space of ``data``.
+      This argument is ignored if ``data`` is not a matrix.
+      
+    - If ``reduce`` is true, returned elementary vectors have distinct support
+      and common factors are canceled.
+    
+    - If ``return_minors`` is true, a list is returned where the first
+      element is the list of maximal minors used to compute the elementary
+      vectors and the second element is the list of elementary vectors.
+    """
+    args = locals()
+    args["return_minors"] = True
+    
+    def rec(i, l):
+        if i < len(m):
+            if not has_sign(m[i]):
+                a = SR(m[i])
+                try:
+                    expr = a > 0
+                    assume(expr)
+                    rec(i+1, l + [expr])
+                    forget(expr)
+                except:
+                    pass
+                try:
+                    expr = a < 0
+                    assume(expr)
+                    rec(i+1, l + [expr])
+                    forget(expr)
+                except:
+                    pass
+                try:
+                    expr = a == 0
+                    assume(expr)
+                    rec(i+1, l + [expr])
+                    forget(expr)
+                except:
+                    pass
+            else:
+                rec(i+1,l)
+        else:
+            if reduce:
+                L = reduce_by_support(reduce_zero_entries(evs))
+            else:
+                L = evs
+            out.append([l, non_negative_vectors(L)])
+    
+    m, evs = elementary_vectors(**args)
+    out = []
+    rec(0,[])
+    return out

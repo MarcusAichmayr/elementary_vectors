@@ -13,9 +13,9 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.structure.element import get_coercion_model
 from sage.functions.other import binomial
 from sage.arith.misc import gcd
-from sign_vectors import sign_vector
+from sage.symbolic.ring import SR
+from sage.symbolic.assumptions import assume, forget
 
-# Todo: change name?
 def reduce_by_support(L):
     r"""
     Returns a sublist of vectors where each vector has distinct support.
@@ -27,8 +27,9 @@ def reduce_by_support(L):
     OUTPUT:
     
     Returns a sublist of ``L`` such that each vector has distinct support.
+    Also removes zero vectors.
     """
-    supp = []
+    supp = [[]]
     out = []
     for v in L:
         s = v.support()
@@ -38,28 +39,31 @@ def reduce_by_support(L):
     return out
 
 
-def non_negative_vectors(L):
+# TODO: improve name
+def has_sign(a):
+    r"""Checks whether the sign of ``a`` is determined."""
+    if SR(a) > 0 or SR(a) < 0 or SR(a) == 0:
+        return True
+    else:
+        return False
+
+def reduce_if_zero(a):
     r"""
-    Returns non-negative vectors.
-    
-    INPUT:
-    
-    - ``L`` -- a list of vectors
-    
-    OUTPUT:
-    
-    Returns all vectors of ``L`` that are
-    - non_negative in each component; or
-    - negative in each component. Those will be multiplied by ``-1``; or
-    - containing variables such that no opposing signs occur.
+    Returns ``0`` if ``a`` is considered zero symbolically (e.g. by assumptions on variabls occuring in ``a``).
+    Otherwise ``a`` is returned.
     """
-    out = []
-    for v in L:
-        if sign_vector(v) >= 0: # Use ``>=`` instead of ``>``, (0,0,x) -> (000) should be returned
-            out.append(v)
-        elif sign_vector(v) < 0:
-            out.append(-v)
-    return out
+    if SR(a).is_zero():
+        return 0
+    else:
+        return a
+    
+def reduce_zero_entries_of_vector(v):
+    r"""Replaces symbolic entries of a vector by ``0`` if the corresponding expression is zero."""
+    return vector(v.base_ring(), [reduce_if_zero(vi) for vi in v])
+
+def reduce_zero_entries(L):
+    r"""Replaces symbolic entries of each vector in the list ``L`` by ``0`` if the corresponding expression is zero."""
+    return [reduce_zero_entries_of_vector(v) for v in L]
 
 
 def conformal_elimination(x, y, S=[]):
