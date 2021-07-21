@@ -14,6 +14,7 @@ from sage.structure.element import get_coercion_model
 from sage.functions.other import binomial
 from sage.arith.misc import gcd
 from sign_vectors import sign_vector
+from sage.symbolic.ring import SR
 from .utility import reduce_by_support, has_sign, reduce_zero_entries
 
 def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
