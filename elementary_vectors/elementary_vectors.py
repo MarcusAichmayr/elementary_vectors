@@ -199,7 +199,7 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
     g = gcd(m)
     if g == 0:
         if not full_rank:
-            print('WARNING: Could not determine rank of matrix. Result might be wrong.')
+            warnings.warn('Could not determine rank of matrix. Result might be wrong.')
             return []
     if reduce:
         m = [mi/g for mi in m]

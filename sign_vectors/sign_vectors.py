@@ -15,6 +15,7 @@ from sage.modules.free_module_element import zero_vector
 from sage.misc.prandom import randint
 from sage.rings.integer_ring import ZZ
 from sage.symbolic.ring import SR
+import warnings
 
 class SignVector(SageObject):
     r"""A sign vector is an element of ``{-,+,0}^n``."""
@@ -32,7 +33,7 @@ class SignVector(SageObject):
                 elif SR(a) == 0:
                     return 0
                 else:
-                    print('Warning: Cannot determine sign of symbolic expression, returning 0 instead.') # todo
+                    warnings.warn('Cannot determine sign of symbolic expression, returning 0 instead.')
                     return 0
             self.__sv = vector(ZZ, [sign_sym(x) for x in l])
 
