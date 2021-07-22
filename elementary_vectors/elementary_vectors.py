@@ -15,8 +15,10 @@ from sage.functions.other import binomial
 from sage.arith.misc import gcd
 from sign_vectors import sign_vector
 from sage.symbolic.ring import SR
-from .utility import reduce_by_support, has_sign, reduce_zero_entries
-from sage.symbolic.assumptions import assume, forget
+from .reductions import reduce_vectors, reduce_vector_using_equalities
+from .utility import has_sign
+from sage.symbolic.assumptions import assume, forget, assumptions
+import warnings
 
 def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
@@ -38,7 +40,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
     - ``return_minors`` -- a boolean (default: ``False``)
     
     - ``ring`` -- Parent of the entries of the elementary vectors.
-                  By default, determine this from the given list of maximal minors.
+                  By default, determine this from ``data``.
     
     OUTPUT:
     
@@ -136,7 +138,7 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
     - ``return_minors`` -- a boolean (default: ``False``)
     
     - ``ring`` -- Parent of the entries of the elementary vectors.
-                  By default, determine this from the given list of maximal minors.
+                  By default, determine this from ``M``.
     
     OUTPUT:
     
@@ -223,7 +225,7 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
     - ``reduce`` -- a boolean (default: ``True``)
     
     - ``ring`` -- Parent of the entries of the elementary vectors.
-                  By default, determine this from the given list of maximal minors.
+                  By default, determine this from ``m``.
     
     OUTPUT:
     
@@ -280,10 +282,11 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
             evs.append(v)
 
     if reduce and evs != []:
-        out = []
-        for v in reduce_by_support(evs):
-            out.append(vector(ring, v/gcd(v)))
-        return out
+        return reduce_vectors(evs)
+#        out = []
+#        for v in reduce_by_support(evs):
+#            out.append(vector(ring, v/gcd(v)))
+#        return out
     else:
         return evs
 
@@ -312,7 +315,8 @@ def non_negative_vectors(L):
     return out
 
 
-def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, ring=None):
+# TODO: sollen assumptions optional übergeben werden?
+def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
     Computes positive elementary vectors.
     
@@ -331,7 +335,7 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, ring=N
     - ``return_minors`` -- a boolean (default: ``False``)
     
     - ``ring`` -- Parent of the entries of the elementary vectors.
-                  By default, determine this from the given list of maximal minors.
+                  By default, determine this from ``data``.
     
     OUTPUT:
     
@@ -353,41 +357,61 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, ring=N
     """
     args = locals()
     args["return_minors"] = True
+    args["reduce"] = False
     
-    def rec(i, l):
+    def rec(i, l, eq):
         if i < len(m):
             if not has_sign(m[i]):
                 a = SR(m[i])
                 try:
                     expr = a > 0
                     assume(expr)
-                    rec(i+1, l + [expr])
+                    rec(i+1, l + [expr], eq)
                     forget(expr)
                 except ValueError:
                     pass
                 try:
                     expr = a < 0
                     assume(expr)
-                    rec(i+1, l + [expr])
+                    rec(i+1, l + [expr], eq)
                     forget(expr)
                 except ValueError:
                     pass
                 try:
                     expr = a == 0
                     assume(expr)
-                    rec(i+1, l + [expr])
+                    rec(i+1, l + [expr], eq + [expr, -a == 0]) # a.substitute(-a == 0) results in a instead of 0.
                     forget(expr)
                 except ValueError:
                     pass
             else:
-                rec(i+1,l)
+                rec(i+1,l, eq)
         else:
+            m_eq = reduce_vector_using_equalities(vector(m), eq=eq)
+            if m_eq == 0: # minors are all zero
+                warnings.warn('For ' + str(l) + ' all maximal minors are zero. There might be missing positive elementary vectors.')
+#                 if isinstance(data, list):
+#                     out.append([l, 'maximal minors are zero, could not compute elementary vectors for this branch'])
+#                     return
+#                 else:
+#                     print('Todo')
+#                     # substitute in data
+#                     # compute positive_elementary_vectors from resulting matrix, eventuell auch l übergeben.
+#                     # append each pair of result to out, also append assumptions l to first arguments
+#                     pass
+            # Do not overwrite ``evs`` here! It might be used in another branch.
             if reduce:
-                L = reduce_by_support(reduce_zero_entries(evs))
+                L = reduce_vectors(evs, eq=eq) # TODO: this might result in an empty list. Instead, compute elementary vectors again if data is matrix
             else:
                 L = evs
-            out.append([l, non_negative_vectors(L)])
+            if return_minors:
+                out.append([l, list(m_eq), non_negative_vectors(L)])
+            else:
+                out.append([l, non_negative_vectors(L)])
+            return
     m, evs = elementary_vectors(**args)
+    if evs == []:
+        return []
     out = []
-    rec(0, [])
+    rec(0, [], [])
     return out

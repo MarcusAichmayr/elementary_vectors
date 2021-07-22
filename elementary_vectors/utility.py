@@ -8,35 +8,8 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from sage.combinat.combination import Combinations
-from sage.modules.free_module_element import vector, zero_vector
-from sage.structure.element import get_coercion_model
-from sage.functions.other import binomial
-from sage.arith.misc import gcd
+from sage.modules.free_module_element import vector
 from sage.symbolic.ring import SR
-
-def reduce_by_support(L):
-    r"""
-    Returns a sublist of vectors where each vector has distinct support.
-    
-    INPUT:
-    
-    - ``L`` -- a list of vectors
-    
-    OUTPUT:
-    
-    Returns a sublist of ``L`` such that each vector has distinct support.
-    Also removes zero vectors.
-    """
-    supp = [[]]
-    out = []
-    for v in L:
-        s = v.support()
-        if s not in supp:
-            supp.append(s)
-            out.append(v)
-    return out
-
 
 # TODO: improve name
 def has_sign(a):
@@ -45,24 +18,6 @@ def has_sign(a):
         return True
     else:
         return False
-
-def reduce_if_zero(a):
-    r"""
-    Returns ``0`` if ``a`` is considered zero symbolically (e.g. by assumptions on variabls occuring in ``a``).
-    Otherwise ``a`` is returned.
-    """
-    if SR(a).is_zero():
-        return 0
-    else:
-        return a
-    
-def reduce_zero_entries_of_vector(v):
-    r"""Replaces symbolic entries of a vector by ``0`` if the corresponding expression is zero."""
-    return vector(v.base_ring(), [reduce_if_zero(vi) for vi in v])
-
-def reduce_zero_entries(L):
-    r"""Replaces symbolic entries of each vector in the list ``L`` by ``0`` if the corresponding expression is zero."""
-    return [reduce_zero_entries_of_vector(v) for v in L]
 
 
 def conformal_elimination(x, y, S=[]):
