@@ -315,7 +315,7 @@ def non_negative_vectors(L):
     return out
 
 
-# TODO: sollen assumptions optional übergeben werden?
+# TODO: should assumptions be an optional argument?
 def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
     Computes positive elementary vectors.
@@ -409,6 +409,7 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
             else:
                 out.append([l, non_negative_vectors(L)])
             return
+    
     m, evs = elementary_vectors(**args)
     if evs == []:
         return []

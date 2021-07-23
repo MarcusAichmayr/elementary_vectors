@@ -20,6 +20,20 @@ class Tests(unittest.TestCase):
         assume(SR(x) == 0)
         
         self.assertEqual(simplify_using_equalities(x+1, assumptions()), 1)
+    
+    def test_reduce_factor(self):
+        var('a')
+        v = vector([5*a, 10*a])
+        self.assertEqual(reduce_factor(v), vector(v.base_ring(), [1,2]))
+        self.assertEqual(reduce_factor([5*a, 10*a]), [1, 2])
+        
+        # type should be the same
+        w = vector([4, 6])
+        w1 = reduce_factor(w)
+        self.assertTrue(isinstance(w1[0], Integer))
+
+        l = reduce_factor(list(w))
+        self.assertTrue(isinstance(l[0], Integer))
         
     def test_reduce_vector(self):
         var('a')

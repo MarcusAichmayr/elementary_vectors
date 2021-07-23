@@ -16,9 +16,8 @@ import operator
 
 def simplify_using_equalities(a, eq):
     r"""
-    Returns ``0`` if ``a`` is considered zero symbolically (e.g. by assumptions on variabls occuring in ``a``).
-    Otherwise ``a`` is returned.
-    TODO
+    Simplifies the expression ``a`` using a list of equalities ``eq``.
+    Only considers equalities in ``eq``. Other expressions (e.g. inequalities) are ignored.
     """
     # There might be inequalities in ``eq`` or other expressions like ``a is real``. We get rid of them:
     l = []
@@ -43,12 +42,20 @@ def simplify_using_equalities(a, eq):
         return a
 
 
+# TODO: Should reduce_factor reduce by e.g. ``a`` if we have ``assume(a == 0)``?
 def reduce_factor(v):
-    r"""Cancels a common factor of each entry of this vector."""
+    r"""Cancels a common factor of each entry of this vector. Also works for lists."""
     g = gcd(v)
+#    if g.is_zero():
+#        return v
     try:
-#        return vector(v.base_ring(), [vi/g for vi in v])
-        return (v/g).change_ring(v.base_ring())
+        if isinstance(v, list):
+            try:
+                return type(v)([type(vi)(vi/g) for vi in v])
+            except TypeError:
+                return type(v)([(vi/g) for vi in v])
+        else:
+            return (v/g).change_ring(v.base_ring())
     except ZeroDivisionError:
         return v
         
