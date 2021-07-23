@@ -42,7 +42,8 @@ def simplify_using_equalities(a, eq):
         return a
 
 
-# TODO: Should reduce_factor reduce by e.g. ``a`` if we have ``assume(a == 0)``?
+# TODO: Should ``reduce_factor`` reduce by e.g. ``a`` if we have ``assume(a == 0)``?
+# For ``a == 0``, ``[4*a, 6*a]`` could be reduced to either ``[2, 3]`` or ``[2 a, 3 a]``. What do we expect?
 def reduce_factor(v):
     r"""Cancels a common factor of each entry of this vector. Also works for lists."""
     g = gcd(v)
