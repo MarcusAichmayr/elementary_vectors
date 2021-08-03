@@ -10,9 +10,7 @@
 
 from __future__ import absolute_import
 
-from .elementary_vectors import elementary_vectors
-#from .elementary_vectors import elementary_vectors_from_matrix, elementary_vectors_from_minors
+from .elementary_vectors import elementary_vectors, non_negative_vectors, positive_elementary_vectors
+from .reductions import reduce_vectors_support, reduce_vectors
 from .exists_vector import exists_vector
-
-#from .utility import reduce_by_support, conformal_elimination
 
