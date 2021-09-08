@@ -83,7 +83,8 @@ class SignVector(SageObject):
             (--0)
 
         """
-        assert left.length() == right.length(), 'Sign vectors have different length.'
+        if left.length() != right.length():
+            raise ValueError('Sign vectors have different length.')
         return sign_vector([right[i] if left[i] == 0 else left[i] for i in range(left.length())])
     
     def __and__(left, right):
@@ -203,7 +204,8 @@ class SignVector(SageObject):
             sage: X.separating_elements(Y)
             [1, 4]
         """
-        assert self.length() == other.length(), 'Sign vectors have different length.'
+        if self.length() != other.length():
+            raise ValueError('Sign vectors have different length.')
         return [e for e in self.support() if self[e] == -other[e]]
     
     def reverse_signs_in(self, S):
@@ -243,7 +245,8 @@ class SignVector(SageObject):
             sage: X.conforms(Z)
             True
         """
-        assert left.length() == right.length(), 'Sign vectors have different length.'
+        if left.length() != right.length():
+            raise ValueError('Sign vectors have different length.')
         
         def lessthan(x,y):
             r"""Unary conformal relation."""
@@ -310,7 +313,9 @@ class SignVector(SageObject):
         
         - Returns ``True`` if the sign vectors are orthogonal and ``False`` otherwise.
         """
-        assert self.length() == other.length(), 'Sign vectors have different length.'
+        if self.length() != other.length():
+            raise ValueError('Sign vectors have different length.')
+
         if [e for e in self.support() if e in other.support()] == []:
             return True
         else:

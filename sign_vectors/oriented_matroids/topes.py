@@ -23,7 +23,8 @@ def topes_from_cocircuits(D):
     
     - a list of topes of the oriented matroid.
     """
-    assert D, 'List is empty.'
+    if not D:
+        raise ValueError('List is empty.')
     n = D[0].length()
     
     F = [zero_sign_vector(n)]

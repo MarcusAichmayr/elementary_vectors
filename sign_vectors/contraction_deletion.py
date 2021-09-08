@@ -15,7 +15,8 @@ from sage.modules.free_module_element import vector
 
 def subvector(F, R):
     r"""Returns a function that returns a sign vector or vector consisting of entries not in ``R``."""
-    assert F, 'List is empty.'
+    if F == []:
+        raise ValueError('List is empty.')
     n = len(list(F[0]))
     S = [e for e in range(n) if e not in R] # S = E\R
 

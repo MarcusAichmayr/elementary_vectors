@@ -16,7 +16,8 @@ def loops(W):
     
         A loop is a component where every sign vector of ``W`` is zero.
     """
-    assert W, 'List is empty.'
+    if not W:
+        raise ValueError('List is empty.')
     n = W[0].length()
     
     L = []
@@ -117,7 +118,8 @@ def parallel_classes(W, positive_only=False):
         sage: parallel_classes(W,positive_only=True)
         [[0, 4], [1], [2], [3]]
         """
-    assert W, 'List is empty.'
+    if not W:
+        raise ValueError('List is empty.')
     L = []
     k = W[0].length()
     toCheck = list(range(k))

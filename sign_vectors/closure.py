@@ -30,7 +30,8 @@ def closure(W, separate=False):
     If ``separate`` is true, separate the closure into lists, where each element
     has the same number of zero entries.
     """
-    assert W, 'W is empty.'
+    if not W:
+        raise ValueError('W is empty.')
     n = W[0].length()
     F = [[zero_sign_vector(n)]]
     F_new = []

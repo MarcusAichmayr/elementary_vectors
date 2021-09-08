@@ -79,22 +79,24 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     
     n = len(evs[0])
     
-    assert len(L) == n, 'list ``L`` has wrong length'
-    assert len(R) == n, 'list ``R`` has wrong length'
+    if len(L) != n:
+        raise ValueError('list ``L`` has wrong length')
+    if len(R) != n:
+        raise ValueError('list ``R`` has wrong length')
     
     if l == True:
         l = [True for i in range(n)]
     elif l == False:
         l = [False for i in range(n)]
-    else:
-        assert len(l) == n, 'list ``l`` has wrong length'
+    elif len(l) != n:
+        raise ValueError('list ``l`` has wrong length')
     
     if r == True:
         r = [True for i in range(n)]
     elif r == False:
         r = [False for i in range(n)]
-    else:
-        assert len(r) == n, 'list ``r`` has wrong length'
+    elif len(r) != n:
+        raise ValueError('list ``r`` has wrong length')
     
     # is this needed?
     for i in range(n):

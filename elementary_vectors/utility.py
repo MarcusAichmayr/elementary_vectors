@@ -44,14 +44,16 @@ def conformal_elimination(x, y, S=[]):
         If ``S`` is the empty list ``[]``, the whole list of separating elements
         will be considered instead. (default)
     """
-    assert x.length() == y.length(), 'Vectors have different length.'
+    if x.length() != y.length():
+        raise ValueError('Vectors have different length.')
     X = sign_vector(x)
     Y = sign_vector(y)
     D = X.separating_elements(Y)
-    assert D, 'List of separating elements is empty.'
+    if D == []:
+        raise ValueError('List of separating elements is empty.')
     if S == []:
         S = D
-    else:
-        assert all([s in D for s in S]), 'S is not a subset of D.'
+    elif not all([s in D for s in S]):
+        raise ValueError('S is not a subset of D.')
     lam = max([x[e]/y[e] for e in S]) # x[e]/y[e] < 0 since e in D
     return x - lam*y

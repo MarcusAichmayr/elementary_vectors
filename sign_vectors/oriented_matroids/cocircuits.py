@@ -48,7 +48,8 @@ def covectors_from_cocircuits(L):
     
     - a list of all covectors of the oriented matroid.
     """
-    assert L, 'List of cocircuits is empty.'
+    if not L:
+        raise ValueError('List of cocircuits is empty.')
     n = L[0].length()
     F = [zero_sign_vector(n)]
     F_new = [zero_sign_vector(n)]

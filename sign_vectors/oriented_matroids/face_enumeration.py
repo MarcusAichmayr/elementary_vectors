@@ -25,7 +25,8 @@ def lower_faces(W):
     
     Returns a list of covectors of rank ``r-1`` of the oriented matroid.
     """
-    assert W, 'List is empty.'
+    if not W:
+        raise ValueError('List is empty.')
     n = W[0].length()
     L = classes_same_support(W)
     W_ = []
@@ -56,7 +57,8 @@ def face_enumeration(W):
     Returns a list of lists. Every list consists of all covectors of the same rank
     smaller than or equal to ``r`` of the oriented matroid.
     """
-    assert W, 'List is empty.'
+    if not W:
+        raise ValueError('List is empty.')
     L = [W]
     n = W[0].length()
     i = 0

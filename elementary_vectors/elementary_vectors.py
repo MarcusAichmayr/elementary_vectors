@@ -261,7 +261,8 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
     r, n = dim
     if n <= r:
         return evs
-    assert binomial(n,r) == len(m), 'Dimensions do not fit.'
+    if binomial(n,r) != len(m):
+        raise ValueError('Dimensions do not fit.')
     if m == []:
         return evs
     C = Combinations(n,r+1)
