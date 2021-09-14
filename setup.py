@@ -30,7 +30,7 @@ setup(
     packages = [
         'elementary_vectors',
         'sign_vectors',
-        'sign_vectors.oriented_matroids',
+#        'sign_vectors.oriented_matroids',
     ],
 #    setup_requires   = ['sage-package'],
 #    install_requires = ['sage-package', 'sphinx'],
