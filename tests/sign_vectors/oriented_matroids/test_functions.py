@@ -1,6 +1,7 @@
 from sage.all import *
 from sign_vectors import *
 from elementary_vectors import *
+from sign_vectors.oriented_matroids import *
 import unittest
 
 # TODO: do unit tests
