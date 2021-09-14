@@ -10,7 +10,6 @@
 
 from elementary_vectors import elementary_vectors
 
-# Todo: If True and certificate is True, compute a corresponding vector of the vector space. (witness)
 def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     r"""
     Returns whether a vector exists in the vector space determined by a matrix
