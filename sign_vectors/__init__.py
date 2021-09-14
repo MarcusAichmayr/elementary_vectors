@@ -12,9 +12,6 @@ from __future__ import absolute_import
 
 from .sign_vectors import *
 
-from .closure import closure
-
-from .contraction_deletion import contraction, deletion
-
-# from .utility import loops, is_parallel, parallel_classes, classes_same_support
+from .utility import closure, contraction, deletion
+# from .utility import loops, parallel_classes, classes_same_support
 

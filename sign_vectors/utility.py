@@ -8,6 +8,155 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from sage.misc.flatten import flatten
+from sage.modules.free_module_element import vector
+
+from sign_vectors import SignVector, sign_vector, zero_sign_vector
+
+# TODO: define closure
+def closure(W, separate=False):
+    r"""
+    Computes the closure of a list of sign vectors.
+    
+    INPUT:
+    
+    - ``W`` -- a list of sign vectors
+    
+    - ``separate`` -- boolean (default: ``False``)
+    
+    OUTPUT:
+    
+    If ``separate`` is false, return the closure of ``W``. (default)
+    
+    If ``separate`` is true, separate the closure into lists, where each element
+    has the same number of zero entries.
+    """
+    if not W:
+        raise ValueError('W is empty.')
+    n = W[0].length()
+    F = [[zero_sign_vector(n)]]
+    F_new = []
+    for i in range(n):
+        X = zero_sign_vector(n)
+        X[i] = 1
+        for Z in W:
+            if X <= Z:
+                F_new.append(X)
+                break
+        Y = zero_sign_vector(n)
+        Y[i] = -1
+        for Z in W:
+            if Y <= Z:
+                F_new.append(Y)
+                break
+    F.append(F_new)
+    for i in range(1,n+1):
+        F_new = []
+        for X in F[1]: # X has always |supp(X)| = 1
+            for Y in F[i]:
+                if len(set(X.support() + Y.support())) == i+1: # Todo: utilize that the supports are sorted
+                    Z = X.compose(Y)
+                    if Z not in F_new: # notwendig?
+                        for V in W:
+                            if Z <= V:
+                                F_new.append(Z)
+                                break
+        if F_new == []:
+            break
+        else:
+            F.append(F_new)
+            if len(F_new) == 1:
+                break
+    if separate:
+        return F
+    else:
+        return flatten(F)
+
+
+def subvector(F, R):
+    r"""
+    Returns a function that returns a sign vector or vector consisting of entries not in ``R``.
+    Used by ``contraction`` and ``deletion``.
+    """
+    if F == []:
+        raise ValueError('List is empty.')
+    n = len(list(F[0]))
+    S = [e for e in range(n) if e not in R] # S = E\R
+
+    if isinstance(F[0], SignVector):
+        def vec(v):
+            return sign_vector(v.list_from_positions(S))
+    else:
+        def vec(v):
+            return vector(v.list_from_positions(S))
+    return vec
+
+
+def contraction(F, R, keep_components=False):
+    r"""
+    Returns all sign vectors that are zero on ``R``. Also works for real vectors.
+    
+    INPUT:
+    
+    - ``F`` -- a list of sign vectors, a list of vectors, or a matrix.
+    
+    - ``R`` -- a list of indices.
+    
+    - ``keep_components`` -- a boolean (default: ``False``).
+    
+    OUTPUT:
+    
+    - If ``keep_components`` is false, remove entries in ``R``. (default)
+    
+    - If ``keep_components`` is true, keep entries in ``R``.
+    """
+    if F == []:
+        return F
+
+
+    if keep_components:
+        def vec(v):
+            return v
+    else:
+        vec = subvector(F, R)
+    
+    L = []
+    
+    for X in F:
+        val = True
+        for e in X.support():
+            if e in R:
+                val = False
+                break
+        if val:
+            L.append(vec(X))
+    return L
+
+
+def deletion(F, R):
+    r"""
+    Removes the components corresponding to ``R`` from a list of sign vectors.
+    Also works for real vectors.
+    
+    INPUT:
+    
+    - ``F`` -- a list of sign vectors, a list of real vectors, or a matrix.
+    
+    - ``R`` -- a list of indices.
+    """
+    if F == []:
+        return F
+    
+    vec = subvector(F, R)
+
+    L = []
+    for X in F:
+        X_R = vec(X)
+        if X_R not in L: # naive, might be inefficient 
+            L.append(X_R)
+    return L
+
+
 def loops(W):
     r"""
     Computes the list of loops of a given list of sign vectors ``W``.

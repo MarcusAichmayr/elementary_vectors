@@ -1,5 +1,5 @@
 from sage.all import *
-from sign_vectors import * # Todo: do not import e.g. random_sign_vector
+from sign_vectors import *
 from sign_vectors.oriented_matroids import cocircuits_from_matrix
 from sign_vectors.utility import loops, is_parallel, parallel_classes, classes_same_support
 
@@ -65,6 +65,12 @@ class SignVectorsTests(unittest.TestCase):
     def test_loops(self):
         self.assertEqual(loops([sign_vector([0,1,0]), sign_vector([-1,0,0])]), [2])
         self.assertEqual(loops([sign_vector([1,0,0]), sign_vector([-1,0,0])]), [1,2])
+
+    # TODO: do unit tests
+    def test_others(self):
+        deletion(self.ccT1, [0])
+        contraction(self.ccT1, [1])
+        closure(self.ccT1)
 
 if __name__ == '__main__':
     unittest.main()
