@@ -115,11 +115,33 @@ class SignVector(SageObject):
         return left.compose(right)
 
     def __mul__(self, other):
-        r"""Multiplication with a scalar."""
+        r"""
+        Multiplication with a scalar.
+        
+        Examples::
+        
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X                                      
+            (-+00+)
+            sage: -1*X
+            (+-00-)
+            sage: 1*X
+            (-+00+)
+        """
         return sign_vector(self.__sv.__mul__(sign(other)))
     
     def __rmul__(self, other):
-        r"""Right multiplication with a scalar."""
+        r"""
+        Right multiplication with a scalar.
+        
+        Examples::
+        
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X                                      
+            (-+00+)
+            sage: X*(-1)
+            (+-00-)
+            sage: X*1
+            (-+00+)
+        """
         return self*other
     
     def __neg__(self):
@@ -203,7 +225,16 @@ class SignVector(SageObject):
         return self.__s_support(-1)
     
     def list_from_positions(self, S):
-        r"""Returns a list of the entries in the list ``S``."""
+        r"""
+        Returns a list of components that are in the list of indices ``S``.
+        
+        Examples::
+        
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X                                
+            (-+00+)
+            sage: X.list_from_positions([0,1,4])                                            
+            [-1, 1, 1]
+        """
         return self.__sv.list_from_positions(S)
     
     def is_vector(self):
@@ -296,7 +327,13 @@ class SignVector(SageObject):
             return self.__sv == other
     
     def __le__(left, right):
-        r"""Returns whether this sign vector is less or equal to ``right``."""
+        r"""
+        Returns whether this sign vector is less or equal to ``right``.
+        
+        .. SEEALSO::
+        
+            :meth: `compose`
+        """
         if isinstance(right, SignVector):
             return left.conforms(right)
         elif right == 0:
@@ -308,11 +345,23 @@ class SignVector(SageObject):
             return left.__sv <= right # should this be that way?
 
     def __lt__(left, right):
-        r"""Returns whether this sign vector is less than ``right``."""
+        r"""
+        Returns whether this sign vector is less than ``right``.
+                
+        .. SEEALSO::
+        
+            :meth: `compose`
+        """
         return left != right and left <= right
     
     def __ge__(left, right):
-        r"""Returns whether this sign vector is greater or equal to ``right``."""
+        r"""
+        Returns whether this sign vector is greater or equal to ``right``.
+                
+        .. SEEALSO::
+        
+            :meth: `compose`
+        """
         if isinstance(right, SignVector):
             return right.conforms(left)
         elif right == 0:
@@ -324,7 +373,13 @@ class SignVector(SageObject):
             return left.__sv >= right
         
     def __gt__(left, right):
-        r"""Returns whether this sign vector is greater than ``right``."""
+        r"""
+        Returns whether this sign vector is greater than ``right``.
+                
+        .. SEEALSO::
+        
+            :meth: `compose`
+        """
         return left != right and left >= right
     
     def is_orthogonal_to(self, other):
