@@ -37,7 +37,6 @@ class SignVector(SageObject):
                     return 0
             self.__sv = vector(ZZ, [sign_sym(x) for x in l])
 
-
     def _repr_(self):
         r"""Represents a sign vector by a string containing '-', '+' and '0'."""
         return '(' + ''.join([('+' if x > 0 else ('-' if x < 0 else '0')) for x in self.__sv]) + ')'
@@ -46,11 +45,29 @@ class SignVector(SageObject):
         return hash(repr(self))
 
     def length(self):
-        r"""Returns the length of the sign vector."""
+        r"""
+        Returns the length of the sign vector.
+        
+        Examples::
+        
+            sage: X = sign_vector('0+-'); X
+            (0+-)
+            sage: X.length()
+            3
+        """
         return self.__sv.length()
     
     def __len__(self):
-        r"""Returns the length of the sign vector."""
+        r"""
+        Returns the length of the sign vector.
+        
+        Examples::
+        
+            sage: X = sign_vector('0+-'); X
+            (0+-)
+            sage: len(X)
+            3
+        """
         return self.length()
     
     def compose(left, right):
@@ -106,7 +123,16 @@ class SignVector(SageObject):
         return self*other
     
     def __neg__(self):
-        r"""Returns the sign vectors multiplied by ``-1``."""
+        r"""
+        Returns the sign vectors multiplied by ``-1``.
+        
+        Examples::
+        
+            sage: X = sign_vector('0+-'); X
+            (0+-)
+            sage: -X
+            (0-+)
+        """
         return sign_vector(-self.__sv)
         
     def __getitem__(self, e):
@@ -312,6 +338,19 @@ class SignVector(SageObject):
         OUTPUT:
         
         - Returns ``True`` if the sign vectors are orthogonal and ``False`` otherwise.
+        
+        EXAMPLES::
+        
+            sage: X = sign_vector('-+00+'); X
+            (-+00+)
+            sage: X.is_orthogonal_to(X)
+            False
+            sage: X.is_orthogonal_to(sign_vector('++000'))
+            True
+            sage: X.is_orthogonal_to(sign_vector('++00+'))
+            True
+            sage: X.is_orthogonal_to(sign_vector('00++0'))
+            True
         """
         if self.length() != other.length():
             raise ValueError('Sign vectors have different length.')
@@ -353,12 +392,12 @@ def sign_vector(v):
         sage: sign_vector(v)
         (+0--)
       
-    We can also use a string to compute a sign vector.
+    We can also use a string to compute a sign vector::
     
         sage: sign_vector('++-+-00-')
         (++-+-00-)]
         
-    Variables are supported to some extent.
+    Variables are supported to some extent::
     
         sage: v = vector([1,x,-1])
         sage: V = sign_vector(v); V
@@ -376,9 +415,23 @@ def sign_vector(v):
         return SignVector(list(v))
 
 def zero_sign_vector(n):
-    r"""Return the zero sign vector of length ``n``."""
+    r"""
+    Return the zero sign vector of length ``n``.
+    
+    Examples::
+    
+        sage: zero_sign_vector(5)
+        (00000)
+    """
     return sign_vector(zero_vector(n))
 
 def random_sign_vector(n):
-    r"""Return a random sign vector of length ``n``."""
+    r"""
+    Return a random sign vector of length ``n``.#
+    
+    Examples::
+    
+        sage: random_sign_vector(5) # random
+        (++-0-)
+    """
     return sign_vector([randint(-1,1) for k in range(n)])
