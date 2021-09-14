@@ -77,7 +77,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
         [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (1, 0, 0, 0, 1), (0, 0, 1, -1, 0)]
     
     By default, the output is reduced, that is, each returned elementary vector
-    has distinct support and common factors are canceled.
+    has distinct support and common factors are canceled::
     
         sage: elementary_vectors(M, reduce=True)
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
@@ -88,7 +88,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
          (-4, 0, 0, 0, 4),
          (0, -4, 2, 2, 0)]
 
-    Here, ``data`` is a list of maximal minors:
+    Here, ``data`` is a list of maximal minors::
     
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
         [ 0  0  1 -1  0]
@@ -170,7 +170,7 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
         [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (1, 0, 0, 0, 1), (0, 0, 1, -1, 0)]
     
     By default, the output is reduced, that is, each returned elementary vector
-    has distinct support and common factors are canceled.
+    has distinct support and common factors are canceled::
     
         sage: elementary_vectors_from_matrix(M, reduce=True)
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
