@@ -72,10 +72,21 @@ class SignVectorsTests(unittest.TestCase):
         self.assertEqual(closure(W), [sign_vector("000"), sign_vector("+00"), sign_vector("0-0"), sign_vector("+-0")])
         self.assertEqual(closure(W, separate=True), [[sign_vector("000")], [sign_vector("+00"), sign_vector("0-0")], [sign_vector("+-0")]])
 
+    def test_contraction(self):
+        W = [sign_vector("++0"), sign_vector("-00"), sign_vector("00+")]
+        self.assertEqual(contraction(W, [0]), [sign_vector("0+")])
+        self.assertEqual(contraction(W, [1]), [sign_vector("-0"), sign_vector("0+")])
+        self.assertEqual(contraction(W, [2]), [sign_vector("++"), sign_vector("-0")])
+        self.assertEqual(contraction(W, [1, 2]), [sign_vector("-")])
+
+        self.assertEqual(contraction(W, [0], keep_components=True), [sign_vector("00+")])
+        self.assertEqual(contraction(W, [1], keep_components=True), [sign_vector("-00"), sign_vector("00+")])
+        self.assertEqual(contraction(W, [2], keep_components=True), [sign_vector("++0"), sign_vector("-00")])
+        self.assertEqual(contraction(W, [1, 2], keep_components=True), [sign_vector("-00")])
+        
     # TODO: do unit tests
     def test_others(self):
         deletion(self.ccT1, [0])
-        contraction(self.ccT1, [1])
     
 if __name__ == '__main__':
     unittest.main()
