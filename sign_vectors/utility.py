@@ -150,6 +150,40 @@ def contraction(F, R, keep_components=False):
     - If ``keep_components`` is false, remove entries in ``R``. (default)
     
     - If ``keep_components`` is true, keep entries in ``R``.
+    
+    EXAMPLES:
+    
+        sage: from sign_vectors import sign_vector, contraction
+        sage: W = [sign_vector("++0"), sign_vector("-00"), sign_vector("00+")]
+        ....: W
+        [(++0), (-00), (00+)]
+    
+    Only the third sign vector has a zero at the component with index ``0``.
+    Removing this component leads to the following result::
+    
+        sage: contraction(W, [0])
+        [(0+)]
+        sage: contraction(W, [1])
+        [(-0), (0+)]
+        sage: contraction(W, [2])
+        [(++), (-0)]
+    
+    The second sign vector has zeros at positions ``1`` and ``2``::
+    
+        sage: contraction(W, [1, 2])
+        [(-)]
+    
+    We take the examples from before. With ``keep_components=True``, we keep the
+    zero components of the appropriate sign vectors::
+    
+        sage: contraction(W, [0], keep_components=True)
+        [(00+)]
+        sage: contraction(W, [1], keep_components=True)
+        [(-00), (00+)]
+        sage: contraction(W, [2], keep_components=True)
+        [(++0), (-00)]
+        sage: contraction(W, [1, 2], keep_components=True)
+        [(-00)]
     """
     if F == []:
         return F
