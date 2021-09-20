@@ -66,9 +66,14 @@ def closure(W, separate=False):
          [(+00), (-00), (0+0), (0-0), (00-)],
          [(++0), (+0-), (0+-), (0--)],
          [(++-)]]
+    
+    TESTS::
+        
+        sage: closure([])
+        []
     """
     if not W:
-        raise ValueError('W is empty.')
+        return []
     n = W[0].length()
     F = [[zero_sign_vector(n)]]
     F_new = []
@@ -90,9 +95,9 @@ def closure(W, separate=False):
         F_new = []
         for X in F[1]: # X has always |supp(X)| = 1
             for Y in F[i]:
-                if len(set(X.support() + Y.support())) == i+1: # Todo: utilize that the supports are sorted
+                if len(set(X.support() + Y.support())) == i+1: # TODO: utilize that the supports are sorted
                     Z = X.compose(Y)
-                    if Z not in F_new: # notwendig?
+                    if Z not in F_new: # is this necessary?
                         for V in W:
                             if Z <= V:
                                 F_new.append(Z)
