@@ -47,6 +47,14 @@ def covectors_from_cocircuits(L):
     OUTPUT:
     
     - a list of all covectors of the oriented matroid.
+    
+    ALGORITHM:
+    
+    This function is based on an algorithm in [Fin01]_.
+    
+    .. [Fin01] Finschi, L.:
+       „A graph theoretical approach for reconstruction and generation of oriented matroids“.
+       PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
     """
     if not L:
         raise ValueError('List of cocircuits is empty.')
@@ -75,6 +83,14 @@ def topes_from_cocircuits(D):
     OUTPUT:
     
     - a list of topes of the oriented matroid.
+    
+    ALGORITHM:
+    
+    This function is based on an algorithm in [Fin01]_.
+    
+    .. [Fin01] Finschi, L.:
+       „A graph theoretical approach for reconstruction and generation of oriented matroids“.
+       PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
     """
     if not D:
         raise ValueError('List is empty.')
@@ -110,6 +126,20 @@ def lower_faces(W):
     OUTPUT:
     
     Returns a list of covectors of rank ``r-1`` of the oriented matroid.
+
+    ALGORITHM:
+    
+    This function is based on an algorithm in [FST91]_.
+    See also [Fin01]_.
+    
+    .. [Fin01] Finschi, L.:
+       „A graph theoretical approach for reconstruction and generation of oriented matroids“.
+       PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
+    
+    .. [FST91] Fukuda, K., Saito, S., and Tamura, A.:
+       „Combinatorial face enumeration in arrangements and oriented matroids“.
+       In: Discrete Applied Mathematics 31.2 (1991), pp. 141–149.
+       doi: 10.1016/0166-218X(91)90066-6.
     """
     if not W:
         raise ValueError('List is empty.')
@@ -142,6 +172,20 @@ def face_enumeration(W):
     
     Returns a list of lists. Every list consists of all covectors of the same rank
     smaller than or equal to ``r`` of the oriented matroid.
+
+    ALGORITHM:
+    
+    This function is based on an algorithm in [FST91]_.
+    See also [Fin01]_.
+    
+    .. [Fin01] Finschi, L.:
+       „A graph theoretical approach for reconstruction and generation of oriented matroids“.
+       PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
+    
+    .. [FST91] Fukuda, K., Saito, S., and Tamura, A.:
+       „Combinatorial face enumeration in arrangements and oriented matroids“.
+       In: Discrete Applied Mathematics 31.2 (1991), pp. 141–149.
+       doi: 10.1016/0166-218X(91)90066-6.
     """
     if not W:
         raise ValueError('List is empty.')
