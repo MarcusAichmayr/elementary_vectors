@@ -30,6 +30,42 @@ def closure(W, separate=False):
     
     If ``separate`` is true, separate the closure into lists, where each element
     has the same number of zero entries.
+    
+    .. NOTE::
+    
+       The sign vector $X$ is in the closure of a set of sign vectors $W$
+       if there exists $Y \in W$ with $X \leq Y$.
+    
+    EXAMPLES:
+    
+    We consider a list consisting of only one sign vector::
+    
+        sage: from sign_vectors import sign_vector, closure
+        sage: W = [sign_vector("+-0")]
+        sage: W
+        [(+-0)]
+        sage: closure(W)
+        [(000), (+00), (0-0), (+-0)]
+    
+    With the optional argument ``separate=True``, we can separate the resulting
+    list into three lists.
+    Each sign vector in such a list has the same number of zero entries::
+    
+        sage: closure(W, separate=True)
+        [[(000)], [(+00), (0-0)], [(+-0)]]
+
+    Now, we consider a list of three sign vectors::
+    
+        sage: W = [sign_vector("++-"), sign_vector("-00"), sign_vector("0--")]
+        sage: W
+        [(++-), (-00), (0--)]
+        sage: closure(W)
+        [(000), (+00), (-00), (0+0), (0-0), (00-), (++0), (+0-), (0+-), (0--), (++-)]
+        sage: closure(W, separate=True)
+        [[(000)],
+         [(+00), (-00), (0+0), (0-0), (00-)],
+         [(++0), (+0-), (0+-), (0--)],
+         [(++-)]]
     """
     if not W:
         raise ValueError('W is empty.')
