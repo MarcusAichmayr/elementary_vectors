@@ -188,7 +188,6 @@ def contraction(F, R, keep_components=False):
     if F == []:
         return F
 
-
     if keep_components:
         def vec(v):
             return v
@@ -196,7 +195,6 @@ def contraction(F, R, keep_components=False):
         vec = subvector(F, R)
     
     L = []
-    
     for X in F:
         val = True
         for e in X.support():
