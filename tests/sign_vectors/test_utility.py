@@ -83,10 +83,12 @@ class SignVectorsTests(unittest.TestCase):
         self.assertEqual(contraction(W, [1], keep_components=True), [sign_vector("-00"), sign_vector("00+")])
         self.assertEqual(contraction(W, [2], keep_components=True), [sign_vector("++0"), sign_vector("-00")])
         self.assertEqual(contraction(W, [1, 2], keep_components=True), [sign_vector("-00")])
-        
-    # TODO: do unit tests
-    def test_others(self):
-        deletion(self.ccT1, [0])
+    
+    def test_deletion(self):
+        W = [sign_vector("+00"), sign_vector("++0"), sign_vector("00-")]
+        self.assertEqual(deletion(W, [0]), [sign_vector("00"), sign_vector("+0"), sign_vector("0-")])
+        self.assertEqual(deletion(W, [1]), [sign_vector("+0"), sign_vector("0-")])
+        self.assertEqual(deletion(W, [1, 2]), [sign_vector("+"), sign_vector("0")])
     
 if __name__ == '__main__':
     unittest.main()
