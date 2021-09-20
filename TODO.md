@@ -30,16 +30,16 @@ CoCalc:
 
 #### Docstrings
 
-* [ ] Add example with ``return_minors=True`` in `elementary_vectors` and `elementary_vectors_from_matrix`.
+* [ ] Add example with `return_minors=True` in `elementary_vectors` and `elementary_vectors_from_matrix`.
 
-* [ ] Add examples to ``non_negative_elementary_vectors``.
-* [ ] Add examples to ``positive_elementary_vectors``.
+* [ ] Add examples to `non_negative_elementary_vectors`.
+* [ ] Add examples to `positive_elementary_vectors`.
 
 
 #### Tests
 
-* [ ] Add tests to ``non_negative_elementary_vectors``.
-* [ ] Add tests to ``positive_elementary_vectors``.
+* [ ] Add tests to `non_negative_elementary_vectors`.
+* [ ] Add tests to `positive_elementary_vectors`.
 
 ### elementary_vectors.utility
 
@@ -73,19 +73,19 @@ CoCalc:
 ### sign_vectors.utility
 
 * [ ] add examples
-* [ ] move closure, contraction, deletion into this file
-
-#### contraction, deletion
-
-* [ ] add examples
-* [ ] add tests
+* [x] move closure, contraction, deletion into this file
 
 #### closure
 
-* [ ] improve docstring
-    * [ ] add examples
-    * [ ] define closure
-* [ ] add tests
+* [x] improve docstring
+    * [x] add examples
+    * [x] define closure
+* [x] add tests
+
+#### contraction, deletion
+
+* [x] add examples
+* [x] add tests
 
 ### sign_vectors.oriented_matroids
 
@@ -105,4 +105,10 @@ CoCalc:
     * [ ] test files in CoCalc.
       `from_sign_vectors.oriented_matroids import *` should still work.
 
+## Sphinx documentation
+
+I adapted the files from here: https://github.com/sagemath/sage_sample
+Is Sage sample outdated? Building the docs for Sage sample failed.
+
+[ ] Make this work.
 
