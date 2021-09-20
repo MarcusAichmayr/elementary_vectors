@@ -66,11 +66,16 @@ class SignVectorsTests(unittest.TestCase):
         self.assertEqual(loops([sign_vector([0,1,0]), sign_vector([-1,0,0])]), [2])
         self.assertEqual(loops([sign_vector([1,0,0]), sign_vector([-1,0,0])]), [1,2])
 
+    def test_closure(self):
+        self.assertEqual(closure([]), [])
+        W = [sign_vector("+-0")]
+        self.assertEqual(closure(W), [sign_vector("000"), sign_vector("+00"), sign_vector("0-0"), sign_vector("+-0")])
+        self.assertEqual(closure(W, separate=True), [[sign_vector("000")], [sign_vector("+00"), sign_vector("0-0")], [sign_vector("+-0")]])
+
     # TODO: do unit tests
     def test_others(self):
         deletion(self.ccT1, [0])
         contraction(self.ccT1, [1])
-        closure(self.ccT1)
-
+    
 if __name__ == '__main__':
     unittest.main()
