@@ -155,7 +155,7 @@ def contraction(F, R, keep_components=False):
     
         sage: from sign_vectors import sign_vector, contraction
         sage: W = [sign_vector("++0"), sign_vector("-00"), sign_vector("00+")]
-        ....: W
+        sage: W
         [(++0), (-00), (00+)]
     
     Only the third sign vector has a zero at the component with index ``0``.
@@ -216,12 +216,27 @@ def deletion(F, R):
     - ``F`` -- a list of sign vectors, a list of real vectors, or a matrix.
     
     - ``R`` -- a list of indices.
+    
+    EXAMPLES:
+    
+        sage: from sign_vectors import sign_vector, deletion                            
+        sage: W = [sign_vector("+00"), sign_vector("++0"), sign_vector("00-")]          
+        sage: W                                                                         
+        [(+00), (++0), (00-)]
+        sage: deletion(W, [0])                                                          
+        [(00), (+0), (0-)]
+    
+    Duplicate sign vectors are removed if they would occur::
+    
+        sage: deletion(W, [1])                                                          
+        [(+0), (0-)]
+        sage: deletion(W, [1, 2])                                                       
+        [(+), (0)]
     """
     if F == []:
         return F
     
     vec = subvector(F, R)
-
     L = []
     for X in F:
         X_R = vec(X)
