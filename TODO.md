@@ -24,6 +24,12 @@
     * Durch `reduce=True` könnte der Elementary Vector `(1,1,0,0)` aus `(x,x,0,0)` entstehen.
       Ist aber durch Annahme `x=0`, so haben wir den Vektor `(1,1,0,0)` der kein Elementary Vector ist.
 
+* [ ] use doctests instead of separate test file
+    * [x] `elementary_vectors`
+    * [x] `elementary_vectors_from_matrix`
+    * [x] `elementary_vectors_from_minors`
+    * [ ] `positive_elementary_vectors`
+    * [ ] `non_negative_vectors`
   
 CoCalc:
 * Dateien zu Elementary Vectors zusammenfügen.
@@ -43,10 +49,10 @@ CoCalc:
 
 ### elementary_vectors.utility
 
-* `has_sign`
-    * [ ] improve name of `has_sign`
-    * [ ] add docstring
-    * [ ] add tests
+* `sign_determined`
+    * [x] improve name (was `has_sign`)
+    * [x] add docstring
+    * [x] add tests
 
 * `conformal_elimination`
     * Should this be here?
@@ -55,13 +61,13 @@ CoCalc:
 
 ### elementary_vectors.reductions
 
-* [ ] improve docstrings
-    * [ ] add examples
+* [x] improve docstrings
+    * [x] add examples
 
 ### elementary_vectors.exists_vector
 
 * [ ] If True and certificate is True, compute a corresponding vector of the vector space. (witness)
-* [ ] add examples
+* [x] add examples
 
 
 ## sign_vectors
@@ -69,11 +75,13 @@ CoCalc:
 ### sign_vectors.sign_vectors
 
 * [x] add docstrings
+* [x] use doctests instead of separate test file
 
 ### sign_vectors.utility
 
-* [ ] add examples
+* [x] add examples
 * [x] move closure, contraction, deletion into this file
+* [x] use doctests instead of separate test file
 
 #### closure
 
@@ -81,16 +89,23 @@ CoCalc:
     * [x] add examples
     * [x] define closure
 * [x] add tests
+* [x] use doctests instead of separate test file
 
 #### contraction, deletion
 
 * [x] add examples
 * [x] add tests
+* [x] use doctests instead of separate test file
+
+#### subvector
+
+[ ] add examples
 
 ### sign_vectors.oriented_matroids
 
-* [ ] add examples
-* [ ] add tests
+* [x] add examples
+    * [ ] add examples and explanations from master's thesis
+* (optional) add examples for all functions
 * [x] use only one file (called `oriented_matroids.py`) for all functions:
     * `cocircuits_from_matrix`
     * `covectors_from_cocircuits`
