@@ -12,7 +12,7 @@ from sage.modules.free_module_element import vector
 from sage.symbolic.ring import SR
 
 # TODO: improve name
-def has_sign(a):
+def sign_determined(a):
     r"""Checks whether the sign of ``a`` is determined."""
     if SR(a) > 0 or SR(a) < 0 or SR(a) == 0:
         return True

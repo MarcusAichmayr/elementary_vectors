@@ -16,7 +16,7 @@ from sage.arith.misc import gcd
 from sign_vectors import sign_vector
 from sage.symbolic.ring import SR
 from .reductions import reduce_vectors, reduce_vector_using_equalities
-from .utility import has_sign
+from .utility import sign_determined
 from sage.symbolic.assumptions import assume, forget, assumptions
 import warnings
 
@@ -362,7 +362,7 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
     
     def rec(i, l, eq):
         if i < len(m):
-            if not has_sign(m[i]):
+            if not sign_determined(m[i]):
                 a = SR(m[i])
                 try:
                     expr = a > 0

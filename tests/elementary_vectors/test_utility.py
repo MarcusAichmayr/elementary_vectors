@@ -1,9 +1,9 @@
 from sage.all import *
-from elementary_vectors.utility import has_sign, conformal_elimination
+from elementary_vectors.utility import sign_determined, conformal_elimination
 import unittest
 
 class Tests(unittest.TestCase):
-    def test_has_sign(self):
+    def test_sign_determined(self):
         pass # TODO
 
 # TODO test remaining utility functions
