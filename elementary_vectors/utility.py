@@ -13,7 +13,36 @@ from sage.symbolic.ring import SR
 
 # TODO: improve name
 def sign_determined(a):
-    r"""Checks whether the sign of ``a`` is determined."""
+    r"""
+    Checks whether the sign of a number or symbolic expression ``a`` is
+    uniquely determined.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors.utility import sign_determined
+        
+    Integers have always a unique sign::
+    
+        sage: sign_determined(2)
+        True
+        sage: sign_determined(-5)
+        True
+    
+    Now, we consider a variable::
+    
+        sage: var('a')
+        a
+        sage: sign_determined(a)
+        False
+        sage: assume(a >= 0)
+        sage: sign_determined(a)
+        False
+        sage: assume(a != 0)
+        sage: sign_determined(a)
+        True
+        sage: sign_determined(a - 1)
+        False
+    """
     if SR(a) > 0 or SR(a) < 0 or SR(a) == 0:
         return True
     else:
