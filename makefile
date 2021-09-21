@@ -7,7 +7,7 @@ test_elementary_vectors:
 	sage -t elementary_vectors/elementary_vectors.py
 	sage -t elementary_vectors/utility.py
 	sage -t elementary_vectors/reductions.py
-	sage tests/elementary_vectors/test_exists_vector.py -v
+	sage -t elementary_vectors/exists_vector.py
 
 test_sign_vectors:
 	sage -t sign_vectors/sign_vectors.py

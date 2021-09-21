@@ -66,6 +66,44 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     - If ``certificate`` is ``True`` and the result is false, then a list
       ``[False, v]`` will be returned. Here, ``v`` is an elementary vector of ``M``
       that certifies that there exists no vector.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors import exists_vector                              
+        sage: M = matrix([1,1,0])                                                       
+        sage: L = [2,5,-1] # lower halves of the intervals                              
+        sage: R = [5,6,1] # upper halves of the intervals    
+    
+    First, we consider closed intervals::
+                               
+        sage: exists_vector(M, L, R)                                                    
+        True
+        sage: exists_vector(M, L, R, r=True)                                            
+        True
+        sage: exists_vector(M, L, R, l=True, r=True)                                    
+        True
+    
+    Open intervals::
+    
+        sage: exists_vector(M, L, R, l=False, r=False)                                  
+        False
+    
+    Mixed intervals::
+    
+        sage: l = [True,True,False]                                                     
+        sage: r = [False,True,True]                                                     
+        sage: exists_vector(M, L, R, l=l, r=r)                                          
+        False
+    
+    Unbounded intervals::
+    
+        sage: M = matrix([[1,0,1,0],[0,1,1,1]])                                         
+        sage: L = [2,5,0,-oo]                                                           
+        sage: R = [5,oo,8,5]                                                            
+        sage: l = [True,True,False,False]                                               
+        sage: r = [False,False,False,True]                                              
+        sage: exists_vector(M, L, R, l=l, r=r)                                          
+        True
     """
     
     if isinstance(data, list):
