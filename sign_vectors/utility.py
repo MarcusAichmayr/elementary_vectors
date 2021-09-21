@@ -247,11 +247,26 @@ def deletion(F, R):
 
 def loops(W):
     r"""
-    Computes the list of loops of a given list of sign vectors ``W``.
+    Computes the list of loops of a given list of sign vectors (or real vectors)
+    ``W``.
     
     ..NOTE::
     
         A loop is a component where every sign vector of ``W`` is zero.
+    
+    EXAMPLES::
+    
+        sage: from sign_vectors.utility import loops
+        sage: from sign_vectors import sign_vector
+        sage: loops([sign_vector([0,1,0]), sign_vector([-1,0,0])])
+        [2]
+        sage: loops([sign_vector([1,0,0]), sign_vector([-1,0,0])])
+        [1, 2]
+    
+    Also works for real vectors::
+    
+        sage: loops([vector([5,0,0]), vector([2,0,-3])])
+        [1]
     """
     if not W:
         raise ValueError('List is empty.')
@@ -294,6 +309,51 @@ def is_parallel(W, e, f, return_ratio=False):
     
         The elements ``e`` and ``f`` are parallel if there exists a ratio ``d`` such that
         ``v[e] = d v[f]`` for each ``v`` in ``W``.
+    
+    EXAMPLES::
+    
+        sage: from sign_vectors.utility import is_parallel
+        sage: from sign_vectors import sign_vector
+        sage: L = [sign_vector("++0-"), sign_vector("+-0+"), sign_vector("-0+0")]
+        sage: L
+        [(++0-), (+-0+), (-0+0)]
+        sage: is_parallel(L, 0, 1)
+        False
+        sage: is_parallel(L, 1, 2)
+        False
+        sage: is_parallel(L, 1, 3)
+        True
+
+    Now, we consider some real vectors::
+    
+        sage: L = [vector([1,1,2,3,0,0]), vector([-2,1,-4,3,3,-17]), vector([0,1,0,1,0,0])]
+        sage: L
+        [(1, 1, 2, 3, 0, 0), (-2, 1, -4, 3, 3, -17), (0, 1, 0, 1, 0, 0)]
+        sage: is_parallel(L, 0, 2)
+        True
+        sage: is_parallel(L, 0, 1)
+        False
+        sage: is_parallel(L, 1, 3)
+        False
+        sage: is_parallel(L, 4, 5)
+        True
+    
+    We can also return the ratio of the two components::
+
+        sage: is_parallel(L, 0, 2, return_ratio=True)
+        [True, 1/2]
+        sage: is_parallel(L, 2, 0, return_ratio=True)
+        [True, 2]
+        sage: is_parallel(L, 0, 1, return_ratio=True)                                   
+        [False, 0]
+
+    Also works for matrices::
+    
+        sage: M = matrix([[0,0,1,-1,0],[1,0,0,0,1],[1,1,1,1,1]])
+        sage: is_parallel(M,0,4)
+        True
+        sage: is_parallel(M,0,1)
+        False
     """
     d = 0 # will later be set to the ratio of X[e] and X[f]
     
@@ -346,15 +406,35 @@ def parallel_classes(W, positive_only=False):
     EXAMPLES::
     
         sage: from sign_vectors.utility import parallel_classes
-        sage: W = matrix([[0,0,1,-2,0],[1,0,0,0,1],[1,1,-3,6,1]]); W
+        sage: from sign_vectors import sign_vector
+        sage: L = [sign_vector("++0-"), sign_vector("+-0+"), sign_vector("-0+0")]
+        sage: L
+        [(++0-), (+-0+), (-0+0)]
+        sage: parallel_classes(L)
+        [[0], [1, 3], [2]]
+        sage: parallel_classes(L, positive_only=True)
+        [[0], [1], [2], [3]]
+    
+    Now, we compute the parallel classes of a list of real vectors::
+    
+        sage: L = [vector([1,1,2,3,0,0]), vector([-2,1,-4,3,3,-17]), vector([0,1,0,1,0,0])]
+        sage: L
+        [(1, 1, 2, 3, 0, 0), (-2, 1, -4, 3, 3, -17), (0, 1, 0, 1, 0, 0)]
+        sage: parallel_classes(L)
+        [[0, 2], [1], [3], [4, 5]]
+    
+    Let us compute the parallel classes of the rows of a matrix::
+    
+        sage: M = matrix([[0,0,1,-2,0],[1,0,0,0,1],[1,1,-3,6,1]])
+        sage: M
         [ 0  0  1 -2  0]
         [ 1  0  0  0  1]
         [ 1  1 -3  6  1]
-        sage: parallel_classes(W)
+        sage: parallel_classes(M)
         [[0, 4], [1], [2, 3]]
-        sage: parallel_classes(W,positive_only=True)
+        sage: parallel_classes(M, positive_only=True)
         [[0, 4], [1], [2], [3]]
-        """
+    """
     if not W:
         raise ValueError('List is empty.')
     L = []
@@ -398,11 +478,29 @@ def positive_parallel_classes(W):
     EXAMPLES::
     
         sage: from sign_vectors.utility import positive_parallel_classes
-        sage: W = matrix([[0,0,1,-2,0],[1,0,0,0,1],[1,1,-3,6,1]]); W
+        sage: from sign_vectors import sign_vector
+        sage: L = [sign_vector("++0-"), sign_vector("--0+"), sign_vector("00+0")]
+        sage: L
+        [(++0-), (--0+), (00+0)]
+        sage: positive_parallel_classes(L)
+        [[0, 1], [2], [3]]
+    
+    Now, we compute the positive parallel classes of a list of real vectors::
+    
+        sage: L = [vector([1,1,2,3,0,0]), vector([-2,1,-4,3,3,-17]), vector([0,1,0,1,0,0])]
+        sage: L
+        [(1, 1, 2, 3, 0, 0), (-2, 1, -4, 3, 3, -17), (0, 1, 0, 1, 0, 0)]
+        sage: positive_parallel_classes(L)
+        [[0, 2], [1], [3], [4], [5]]
+    
+    Let us compute the positive parallel classes of the rows of a matrix::
+    
+        sage: M = matrix([[0,0,1,-2,0],[1,0,0,0,1],[1,1,-3,6,1]])
+        sage: M
         [ 0  0  1 -2  0]
         [ 1  0  0  0  1]
         [ 1  1 -3  6  1]
-        sage: positive_parallel_classes(W)
+        sage: positive_parallel_classes(M)
         [[0, 4], [1], [2], [3]]
     """
     return parallel_classes(W, positive_only=True)
@@ -411,10 +509,23 @@ def positive_parallel_classes(W):
 def classes_same_support(W):
     r"""
     Computes the classes with same support of a given list of sign vectors.
+    Also works for a list of real vectors.
 
     INPUT:
 
     - ``W`` -- a list of vectors of length ``n``.
+    
+    EXAMPLES::
+    
+        sage: from sign_vectors.utility import classes_same_support
+        sage: from sign_vectors import sign_vector
+        sage: L = [sign_vector("++0-"), sign_vector("+-0+"), sign_vector("-0+0")]
+        sage: L
+        [(++0-), (+-0+), (-0+0)]
+        sage: classes_same_support(L)
+        [[(++0-), (+-0+)], [(-0+0)]]
+        sage: classes_same_support([vector([1,1,0,0]), vector([2,-3,0,0]), vector([0,1,0,0])])
+        [[(1, 1, 0, 0), (2, -3, 0, 0)], [(0, 1, 0, 0)]]
     """
     L = []
     Lc = [] # checked supports
