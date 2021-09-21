@@ -157,7 +157,7 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
         
     EXAMPLES::
     
-        sage: from elementary_vectors import elementary_vectors_from_matrix
+        sage: from elementary_vectors.elementary_vectors import elementary_vectors_from_matrix
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
@@ -237,7 +237,7 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
     
     EXAMPLES::
     
-        sage: from elementary_vectors import elementary_vectors_from_minors
+        sage: from elementary_vectors.elementary_vectors import elementary_vectors_from_minors
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
@@ -355,6 +355,15 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
     - If ``return_minors`` is true, a list is returned where the first
       element is the list of maximal minors used to compute the elementary
       vectors and the second element is the list of elementary vectors.
+      
+    EXAMPLES::
+    
+        sage: from elementary_vectors import positive_elementary_vectors                
+        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]])
+        sage: positive_elementary_vectors(M)                                            
+        [[[], []]]
+        
+        TODO: Do more examples
     """
     args = locals()
     args["return_minors"] = True
