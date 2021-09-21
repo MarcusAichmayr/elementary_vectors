@@ -118,7 +118,6 @@ class SignVector(SageObject):
             (--0)
             sage: Y & X
             (--0)
-
         """
         if left.length() != right.length():
             raise ValueError('Sign vectors have different length.')
@@ -131,6 +130,18 @@ class SignVector(SageObject):
         .. SEEALSO::
         
             :meth: `compose`
+
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector('+00'); X
+            (+00)
+            sage: Y = sign_vector([-1,-1,0]); Y
+            (--0)
+            sage: X & Y
+            (+-0)
+            sage: Y & X
+            (--0)
         """
         return left.compose(right)
 
@@ -181,14 +192,42 @@ class SignVector(SageObject):
         return sign_vector(-self.__sv)
         
     def __getitem__(self, e):
-        r"""Returns the element at position ``e`` of the sign vector."""
+        r"""
+        Returns the element at position ``e`` of the sign vector.
+        
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector("0++-"); X
+            (0++-)
+            sage: X[0]
+            0
+            sage: X[1]
+            1
+            sage: X[3]
+            -1
+        """
         if isinstance(e, slice):
             return sign_vector(self.__sv[e])
         else:
             return self.__sv[e]
     
     def __setitem__(self, e, a):
-        r"""Sets the element at position ``e`` to ``sign(a)``."""
+        r"""
+        Sets the element at position ``e`` to ``sign(a)``.
+        
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector("0++-"); X
+            (0++-)
+            sage: X[0] = 2
+            sage: X
+            (+++-)
+            sage: X[2] = 0
+            sage: X
+            (++0-)
+        """
         self.__sv[e] = sign(a)
 
     def support(self):
@@ -205,8 +244,20 @@ class SignVector(SageObject):
         """
         return self.__sv.support()
     
-    def __s_support(self, s):
-        r"""Returns a list of entries where the sign vector equals ``s``."""
+    def _s_support(self, s):
+        r"""
+        Returns a list of entries where the sign vector equals ``s``.
+        
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector([-1,0,1,-1,0]); X
+            (-0+-0)
+            sage: X._s_support(0)
+            [1, 4]
+            sage: X._s_support(1)
+            [2]
+        """
         return [e for e in range(self.length()) if self[e] == s]
     
     def zero_support(self):
@@ -221,7 +272,7 @@ class SignVector(SageObject):
             sage: X.zero_support()
             [1, 4]
         """
-        return self.__s_support(0)
+        return self._s_support(0)
     
     def positive_support(self):
         r"""
@@ -235,7 +286,7 @@ class SignVector(SageObject):
             sage: X.positive_support()
             [2]
         """
-        return self.__s_support(1)
+        return self._s_support(1)
     
     def negative_support(self):
         r"""
@@ -249,7 +300,7 @@ class SignVector(SageObject):
             sage: X.negative_support()
             [0, 3]
         """
-        return self.__s_support(-1)
+        return self._s_support(-1)
     
     def list_from_positions(self, S):
         r"""
@@ -305,6 +356,14 @@ class SignVector(SageObject):
         OUTPUT:
         Returns a new sign vector of same length. Components with indices in
         ``S`` are multiplied by ``-1``.
+        
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector([-1, 1, 1, 0, 1]); X
+            (-++0+)
+            sage: X.reverse_signs_in([0, 2, 3])
+            (++-0+)
         """
         return sign_vector([-self[e] if e in S else self[e] for e in range(self.length())])
 
@@ -350,7 +409,26 @@ class SignVector(SageObject):
         return True
     
     def __eq__(self, other):
-        r"""Returns whether this sign vector is equal to ``other``."""
+        r"""
+        Returns whether this sign vector is equal to ``other``.
+        
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector("++0-")
+            sage: X == X
+            True
+            sage: X == sign_vector("00++")
+            False
+
+        TESTS::
+        
+            sage: from sign_vectors import zero_sign_vector
+            sage: zero_sign_vector(3) == 0
+            True
+            sage: 0 == zero_sign_vector(3)
+            True
+        """
         if isinstance(other, SignVector):
             return self.__sv == other.__sv
         else:
@@ -363,6 +441,35 @@ class SignVector(SageObject):
         .. SEEALSO::
         
             :meth: `compose`
+        
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector, zero_sign_vector
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X
+            (-+00+)
+            sage: Y = sign_vector([-1, 1, 1, 0, 1]); Y
+            (-++0+)
+            sage: X <= Y
+            True
+        
+        We can also use ``<=`` to compare a sign vector with ``0``::
+        
+            sage: sign_vector('00--') <= 0
+            True
+            sage: sign_vector([1,1,-1,0]) <= 0
+            False
+            sage: 0 <= sign_vector([1,1,0,0])
+            True
+            sage: zero_sign_vector(2) <= 0
+            True
+            
+        Similarly as for real vectors, comparison with other integers fails::
+        
+            sage: try: 
+            ....:     sign_vector("00+") < 1
+            ....: except TypeError:
+            ....:     print("failed")
+            failed
         """
         if isinstance(right, SignVector):
             return left.conforms(right)
@@ -381,6 +488,27 @@ class SignVector(SageObject):
         .. SEEALSO::
         
             :meth: `compose`
+
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector, zero_sign_vector
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X
+            (-+00+)
+            sage: Y = sign_vector([-1, 1, 1, 0, 1]); Y
+            (-++0+)
+            sage: X < Y
+            True
+        
+        We can also use ``<`` to compare a sign vector with ``0``::
+        
+            sage: sign_vector('00--') < 0
+            True
+            sage: sign_vector([1,1,-1,0]) < 0
+            False
+            sage: 0 < sign_vector([1,1,0,0])
+            True
+            sage: zero_sign_vector(2) < 0
+            False
         """
         return left != right and left <= right
     
@@ -391,6 +519,27 @@ class SignVector(SageObject):
         .. SEEALSO::
         
             :meth: `compose`
+
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector, zero_sign_vector
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X
+            (-+00+)
+            sage: Y = sign_vector([-1, 1, 1, 0, 1]); Y
+            (-++0+)
+            sage: Y >= X
+            True
+        
+        We can also use ``>=`` to compare a sign vector with ``0``::
+        
+            sage: sign_vector('00--') >= 0
+            False
+            sage: sign_vector([1,1,-1,0]) >= 0
+            False
+            sage: sign_vector([1,1,0,0]) >= 0
+            True
+            sage: zero_sign_vector(2) >= 0
+            True
         """
         if isinstance(right, SignVector):
             return right.conforms(left)
@@ -409,6 +558,27 @@ class SignVector(SageObject):
         .. SEEALSO::
         
             :meth: `compose`
+
+        EXAMPLES::
+        
+            sage: from sign_vectors import sign_vector, zero_sign_vector
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X
+            (-+00+)
+            sage: Y = sign_vector([-1, 1, 1, 0, 1]); Y
+            (-++0+)
+            sage: Y > X
+            True
+        
+        We can also use ``>`` to compare a sign vector with ``0``::
+        
+            sage: 0 > sign_vector('00--')
+            True
+            sage: sign_vector([1,1,-1,0]) > 0
+            False
+            sage: sign_vector([1,1,0,0]) > 0
+            True
+            sage: zero_sign_vector(2) > 0
+            False
         """
         return left != right and left >= right
     
