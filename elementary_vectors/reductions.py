@@ -18,6 +18,25 @@ def simplify_using_equalities(a, eq):
     r"""
     Simplifies the expression ``a`` using a list of equalities ``eq``.
     Only considers equalities in ``eq``. Other expressions (e.g. inequalities) are ignored.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors.reductions import simplify_using_equalities       
+        sage: var('a')                                                                  
+        a
+        sage: expr = a + 1                                                              
+        sage: simplify_using_equalities(expr, [a == 0])                                 
+        1
+        sage: simplify_using_equalities(expr, [])                                       
+        a + 1
+        
+    Now, we consider a polynomial expression::
+    
+        sage: R = PolynomialRing(ZZ, 'x') 
+        sage: x = R.gen() 
+        sage: assume(SR(x) == 0) 
+        sage: simplify_using_equalities(x+1, assumptions())                             
+        1
     """
     # There might be inequalities in ``eq`` or other expressions like ``a is real``. We get rid of them:
     l = []
@@ -45,7 +64,33 @@ def simplify_using_equalities(a, eq):
 # TODO: Should ``reduce_factor`` reduce by e.g. ``a`` if we have ``assume(a == 0)``?
 # For ``a == 0``, ``[4*a, 6*a]`` could be reduced to either ``[2, 3]`` or ``[2 a, 3 a]``. What do we expect?
 def reduce_factor(v):
-    r"""Cancels a common factor of each entry of this vector. Also works for lists."""
+    r"""
+    Cancels a common factor of each entry of this vector. Also works for lists.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors.reductions import reduce_factor
+        sage: var('a')
+        a
+        sage: v = vector([5*a, 10*a])
+        sage: reduce_factor(v)
+        (1, 2)
+        sage: w = vector([4, 6])
+        sage: reduce_factor(w)
+        (2, 3)
+    
+    When we cancel a common factor, we expect to have an integer vector again::
+    
+        sage: type(reduce_factor(w))
+        <class 'sage.modules.vector_integer_dense.Vector_integer_dense'>
+        
+    We can also cancel common factors from lists::
+    
+        sage: reduce_factor([4, 6])
+        [2, 3]
+        sage: reduce_factor([-4, -6]) # TODO: Do we expect this?
+        [-2, -3]
+    """
     g = gcd(v)
 #    if g.is_zero():
 #        return v
@@ -80,6 +125,22 @@ def reduce_vector(v, eq=None, factor=True):
     - ``eq`` -- a list of equalities (default: ``None``)
 
     - ``factor`` -- a boolean (default: ``True``). If true, cancels a common factor.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors.reductions import reduce_vector
+        sage: var('a')
+        a
+        sage: assume(a == 0)
+        sage: v = vector([5*a, 10*a])
+        sage: reduce_vector(v, eq=assumptions())
+        (0, 0)
+        sage: reduce_vector(v)
+        (1, 2)
+        sage: reduce_vector(v, eq=[a == 0], factor=False)
+        (0, 0)
+        sage: reduce_vector(v, factor=False)
+        (5*a, 10*a)
     """
     if eq:
         v = reduce_vector_using_equalities(v, eq=eq)
@@ -99,6 +160,15 @@ def reduce_vectors_support(L):
     OUTPUT:
     
     Keeps only one vector for each support.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors.reductions import reduce_vectors_support
+        sage: l = [vector([1,3,2]), vector([0,0,1]), vector([2,2,0]), vector([0,0,-5])]
+        sage: reduce_vectors_support(l)
+        [(1, 3, 2), (0, 0, 1), (2, 2, 0)]
+        sage: reduce_vectors_support([zero_vector(5)])
+        [(0, 0, 0, 0, 0)]
     """
     supp = []
     out = []
@@ -111,7 +181,17 @@ def reduce_vectors_support(L):
 
 
 def remove_zero_vectors(L):
-    r"""Removes all zero vectors from this list."""
+    r"""
+    Removes all zero vectors from this list.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors.reductions import remove_zero_vectors
+        sage: var('a')
+        a
+        sage: remove_zero_vectors([vector([5,2,3]), zero_vector(3), vector([a*0,0,0])])
+        [(5, 2, 3)]
+    """
     return [v for v in L if v != 0]
 
 
@@ -130,6 +210,24 @@ def reduce_vectors(L, eq=None, factors=True, support=True, remove_zeros=True):
     - ``support`` -- a boolean (default: ``True``). Keeps only the first vector for each different support.
     
     - ``remove_zeros`` -- a boolean (default: ``False``). If true, removes all zero vectors.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors.reductions import reduce_vectors                  
+        sage: var('a')                                                                  
+        a
+        sage: assume(a == 0)                                                            
+        sage: l = [vector([5*a, 10*a, 0]), vector([5*a, 2*a, a]), vector([4, 6, 0])]    
+        sage: reduce_vectors(l, eq=assumptions())                                       
+        [(2, 3, 0)]
+        sage: reduce_vectors(l)                                                         
+        [(1, 2, 0), (5, 2, 1)]
+        sage: reduce_vectors(l, eq=[a == 0], factors=False)                             
+        [(4, 6, 0)]
+        sage: reduce_vectors(l, eq=assumptions(), support=True)                         
+        [(2, 3, 0)]
+        sage: reduce_vectors(l, eq=assumptions(), support=False, remove_zeros=False)    
+        [(0, 0, 0), (0, 0, 0), (2, 3, 0)]
     """
     L = [reduce_vector(v, eq=eq, factor=factors) for v in L]
     if remove_zeros:
