@@ -7,11 +7,8 @@ test_elementary_vectors:
 	sage -t elementary_vectors/
 
 test_sign_vectors:
-	sage -t sign_vectors/sign_vectors.py
-	sage -t sign_vectors/utility.py
-	sage tests/sign_vectors/oriented_matroids/test_functions.py -v # run test if appropriate functions are available # Todo: Should be done for each module separately.
+	sage -t sign_vectors/
 
 test:
-	make test_elementary_vectors
-	make test_sign_vectors
+	sage -t elementary_vectors/ sign_vectors/
 
