@@ -1,3 +1,109 @@
+r"""
+Computing with oriented matroids
+
+This module is about computation with oriented matroids.
+
+EXAMPLES::
+
+    sage: from sign_vectors.oriented_matroids import *
+
+We define some matrix::
+
+    sage: A = matrix([[1,2,0],[0,1,-1]])
+    sage: A
+    [ 1  2  0]
+    [ 0  1 -1]
+
+Now, we compute the cocircuits of the oriented matroid corresponding to the rows
+of the matrix ``A``::
+
+    sage: ccA = cocircuits_from_matrix(A)
+    sage: ccA
+    [(--0), (-0-), (0-+), (++0), (+0+), (0+-)]
+
+We can also use the cocircuits to compute all covectors of the corresponding
+oriented matroid::
+
+    sage: covectors_from_cocircuits(ccA)
+    [(000),
+     (--0),
+     (-0-),
+     (0-+),
+     (++0),
+     (+0+),
+     (0+-),
+     (---),
+     (-+-),
+     (++-),
+     (+++),
+     (--+),
+     (+-+)]
+
+Now, we compute the topes using the cocircuits::
+
+    sage: tA = topes_from_cocircuits(ccA)
+    sage: tA
+    [(---), (-+-), (++-), (+++), (--+), (+-+)]
+
+There are some further commands to work with oriented matroids::
+
+    sage: covectors_from_matrix(A)
+    [(000),
+     (--0),
+     (-0-),
+     (0-+),
+     (++0),
+     (+0+),
+     (0+-),
+     (---),
+     (-+-),
+     (++-),
+     (+++),
+     (--+),
+     (+-+)]
+    sage: topes_from_matrix(A)
+    [(---), (-+-), (++-), (+++), (--+), (+-+)]
+    sage: covectors_from_topes(tA)
+    [(000),
+     (-0-),
+     (--0),
+     (0+-),
+     (++0),
+     (+0+),
+     (0-+),
+     (---),
+     (-+-),
+     (++-),
+     (+++),
+     (--+),
+     (+-+)]
+    sage: cocircuits_from_topes(tA)
+    [(-0-), (--0), (0+-), (++0), (+0+), (0-+)]
+
+By passing ``kernel=True``, we can compute the covectors of the
+dual oriented matroid::
+
+    sage: cocircuits_from_matrix(A, kernel=True)
+    [(-++), (+--)]
+    sage: covectors_from_matrix(A, kernel=True)
+    [(000), (-++), (+--)]
+    
+To compute all covectors separated by their rank, we can use ``face_enumeration``::
+
+    sage: face_enumeration(tA)
+    [[(000)],
+     [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
+     [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+    sage: covectors_from_matrix(A, algorithm="face_enumeration", separate=True)
+    [[(000)],
+     [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
+     [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+    sage: covectors_from_matrix(A, algorithm="fe", separate=True)
+    [[(000)],
+     [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
+     [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+"""
+
 #############################################################################
 #  Copyright (C) 2021                                                       #
 #                Marcus Aichmayr (aichmayr.marcus@gmail.com)                #
@@ -30,6 +136,23 @@ def cocircuits_from_matrix(A, kernel=False):
 
     - If ``kernel`` is true, returns a list of cocircuits determined by the
       kernel of the matrix ``A``.
+    
+    EXAMPLES::
+    
+        sage: from sign_vectors.oriented_matroids import cocircuits_from_matrix
+        sage: A = matrix([[1,2,0],[0,1,-1]])
+        sage: A
+        [ 1  2  0]
+        [ 0  1 -1]
+        sage: cocircuits_from_matrix(A)
+        [(--0), (-0-), (0-+), (++0), (+0+), (0+-)]
+        sage: B = matrix([[1,0,0,0],[0,1,0,2],[0,0,1,-1]])
+        sage: B
+        [ 1  0  0  0]
+        [ 0  1  0  2]
+        [ 0  0  1 -1]
+        sage: cocircuits_from_matrix(B)
+        [(+000), (0--0), (0-0-), (00-+), (-000), (0++0), (0+0+), (00+-)]
     """
     L = elementary_vectors(A, kernel=kernel)
     return [sign_vector(v) for v in L] + [sign_vector(-v) for v in L]
