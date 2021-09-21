@@ -5,7 +5,7 @@ install:
 
 test_elementary_vectors:
 	sage tests/elementary_vectors/test_elementary_vectors.py -v
-	sage tests/elementary_vectors/test_utility.py -v
+	sage -t elementary_vectors/utility.py
 	sage tests/elementary_vectors/test_reductions.py -v
 	sage tests/elementary_vectors/test_exists_vector.py -v
 
