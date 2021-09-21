@@ -4,10 +4,7 @@ install:
 	sage -pip install --upgrade --no-index .
 
 test_elementary_vectors:
-	sage -t elementary_vectors/elementary_vectors.py
-	sage -t elementary_vectors/utility.py
-	sage -t elementary_vectors/reductions.py
-	sage -t elementary_vectors/exists_vector.py
+    sage -t elementary_vectors/
 
 test_sign_vectors:
 	sage -t sign_vectors/sign_vectors.py
