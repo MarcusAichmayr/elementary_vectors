@@ -114,10 +114,31 @@ def closure(W, separate=False):
         return flatten(F)
 
 
-def subvector(F, R):
+def _subvector(F, R):
     r"""
     Returns a function that returns a sign vector or vector consisting of entries not in ``R``.
     Used by ``contraction`` and ``deletion``.
+    
+    INPUT:
+    
+    - ``F`` -- a list of vectors or sign vectors
+    
+    - ``R`` -- a list of indices
+    
+    EXAMPLES:
+    
+        sage: from sign_vectors.utility import _subvector
+        sage: from sign_vectors import sign_vector
+        sage: W = [sign_vector("++0"), sign_vector("-00"), sign_vector("00+")]
+        sage: W
+        [(++0), (-00), (00+)]
+        sage: f = _subvector(W, [1])
+        sage: f(sign_vector("-+0"))
+        (-0)
+        sage: l = [vector([0,0,1]), vector([0,2,1]), vector([-1,0,1])]
+        sage: f = _subvector(l, [1])
+        sage: f(vector([1,2,3]))
+        (1, 3)
     """
     if F == []:
         raise ValueError('List is empty.')
@@ -184,6 +205,15 @@ def contraction(F, R, keep_components=False):
         [(++0), (-00)]
         sage: contraction(W, [1, 2], keep_components=True)
         [(-00)]
+        
+    This function also works for matrices or lists of vectors::
+    
+        sage: l = [vector([0,0,1]), vector([0,2,1]), vector([-1,0,1])]
+        sage: contraction(l, [0])
+        [(0, 1), (2, 1)]
+        sage: A = matrix([[1,1,0],[0,1,0]])
+        sage: contraction(A, [2])
+        [(1, 1), (0, 1)]
     """
     if F == []:
         return F
@@ -192,7 +222,7 @@ def contraction(F, R, keep_components=False):
         def vec(v):
             return v
     else:
-        vec = subvector(F, R)
+        vec = _subvector(F, R)
     
     L = []
     for X in F:
@@ -232,11 +262,17 @@ def deletion(F, R):
         [(+0), (0-)]
         sage: deletion(W, [1, 2])                                                       
         [(+), (0)]
+        
+   This function also works for lists of vectors::
+
+        sage: l = [vector([0,0,1]), vector([0,2,1]), vector([-1,0,1])]
+        sage: deletion(l, [1])
+        [(0, 1), (-1, 1)]
     """
     if F == []:
         return F
     
-    vec = subvector(F, R)
+    vec = _subvector(F, R)
     L = []
     for X in F:
         X_R = vec(X)
