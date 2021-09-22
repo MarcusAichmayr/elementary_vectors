@@ -54,8 +54,8 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
       and common factors are canceled.
     
     - If ``return_minors`` is true, a list is returned where the first
-      element is the list of maximal minors used to compute the elementary
-      vectors and the second element is the list of elementary vectors.
+      element is the list of elementary vectors and the second element is
+      the list of maximal minors used to compute the elementary vectors.
     
     .. SEEALSO::
         
@@ -116,7 +116,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
                             "matrix are needed.")
         evs = elementary_vectors_from_minors(data, dim=dim, reduce=reduce, ring=ring)
         if return_minors:
-            return [data, evs]
+            return [evs, data]
         else:
             return evs
     else:
@@ -152,8 +152,8 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
       and common factors are canceled.
     
     - If ``return_minors`` is true, a list is returned where the first
-      element is the list of maximal minors used to compute the elementary
-      vectors and the second element is the list of elementary vectors.
+      element is the list of elementary vectors and the second element is
+      the list of maximal minors used to compute the elementary vectors.
         
     EXAMPLES::
     
@@ -207,7 +207,7 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
         ring = M.base_ring()
     evs = elementary_vectors_from_minors(m, [r, n], reduce=reduce, ring=ring)
     if return_minors:
-        return [m, evs]
+        return [evs, m]
     else:
         return evs
 
@@ -353,21 +353,26 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
       and common factors are canceled.
     
     - If ``return_minors`` is true, a list is returned where the first
-      element is the list of maximal minors used to compute the elementary
-      vectors and the second element is the list of elementary vectors.
+      element is the list of elementary vectors and the second element is
+      the list of maximal minors used to compute the elementary vectors.
       
     EXAMPLES::
     
-        sage: from elementary_vectors import positive_elementary_vectors                
+        sage: from elementary_vectors import positive_elementary_vectors
+        sage: A = matrix([[1,-1,0]])                                                    
+        sage: positive_elementary_vectors(A)                                            
+        [[[], [(1, 1, 0), (0, 0, 1)]]]
+        sage: positive_elementary_vectors(A, return_minors=True)                        
+        [[[], [(1, 1, 0), (0, 0, 1)], [1, -1, 0]]]
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]])
-        sage: positive_elementary_vectors(M)                                            
+        sage: positive_elementary_vectors(M)
         [[[], []]]
         
-        TODO: Do more examples
+        TODO: Do more examples also symbolic examples
     """
-    args = locals()
-    args["return_minors"] = True
-    args["reduce"] = False
+    kwargs = locals()
+    kwargs["return_minors"] = True
+    kwargs["reduce"] = False
     
     def rec(i, l, eq):
         if i < len(m):
@@ -415,12 +420,12 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
             else:
                 L = evs
             if return_minors:
-                out.append([l, list(m_eq), non_negative_vectors(L)])
+                out.append([l, non_negative_vectors(L), list(m_eq)])
             else:
                 out.append([l, non_negative_vectors(L)])
             return
     
-    m, evs = elementary_vectors(**args)
+    evs, m = elementary_vectors(**kwargs)
     if evs == []:
         return []
     out = []
