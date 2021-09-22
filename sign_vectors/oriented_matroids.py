@@ -15,7 +15,9 @@ We define some matrix::
     [ 0  1 -1]
 
 Now, we compute the cocircuits of the oriented matroid corresponding to the rows
-of the matrix ``A``::
+of the matrix ``A``.
+(Cocircuits are minimal non-zero elements of an oriented matroid
+with respect to the conformal relation.)::
 
     sage: ccA = cocircuits_from_matrix(A)
     sage: ccA
@@ -39,7 +41,8 @@ oriented matroid::
      (--+),
      (+-+)]
 
-Now, we compute the topes using the cocircuits::
+Next, we compute the topes using the cocircuits.
+(Topes are the covectors that are maximal with respect to the conformal relation)::
 
     sage: tA = topes_from_cocircuits(ccA)
     sage: tA
@@ -85,10 +88,12 @@ dual oriented matroid::
 
     sage: cocircuits_from_matrix(A, kernel=True)
     [(-++), (+--)]
+    sage: topes_from_matrix(A, kernel=True)
+    [(-++), (+--)]
     sage: covectors_from_matrix(A, kernel=True)
     [(000), (-++), (+--)]
     
-To compute all covectors separated by their rank, we can use ``face_enumeration``::
+Next, we compute all covectors separated by their rank::
 
     sage: face_enumeration(tA)
     [[(000)],
@@ -99,6 +104,10 @@ To compute all covectors separated by their rank, we can use ``face_enumeration`
      [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
      [(---), (-+-), (++-), (+++), (--+), (+-+)]]
     sage: covectors_from_matrix(A, algorithm="fe", separate=True)
+    [[(000)],
+     [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
+     [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+    sage: covectors_from_topes(tA, separate=True)
     [[(000)],
      [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
      [(---), (-+-), (++-), (+++), (--+), (+-+)]]
