@@ -46,3 +46,11 @@ or
 
 The optional --user flag causes the package to be installed in your .sage directory instead of the Sage installation tree.
 
+Testing
+-------
+
+To run the test suite, install the package and run the command
+
+    $ make test
+
+at the root of the git checkout.
