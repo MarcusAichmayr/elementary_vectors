@@ -75,7 +75,9 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
         sage: elementary_vectors(M, kernel=False)
         [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (1, 0, 0, 0, 1), (0, 0, 1, -1, 0)]
-    
+        sage: elementary_vectors(M, return_minors=True)
+        [[(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)], [1, -1, 0, -2, 0, 0, 0, 1, -1, -2]]
+
     By default, the output is reduced, that is, each returned elementary vector
     has distinct support and common factors are canceled::
     
@@ -168,6 +170,8 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
         sage: elementary_vectors_from_matrix(M, kernel=False)
         [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (1, 0, 0, 0, 1), (0, 0, 1, -1, 0)]
+        sage: elementary_vectors_from_matrix(M, return_minors=True)
+        [[(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)], [1, -1, 0, -2, 0, 0, 0, 1, -1, -2]]
     
     By default, the output is reduced, that is, each returned elementary vector
     has distinct support and common factors are canceled::
