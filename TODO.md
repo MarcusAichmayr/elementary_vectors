@@ -11,7 +11,7 @@
 
 * Do we want more optional arguments for `elementary_vectors` to have more control on reductions?
     * optional argument: `cancel_common_factor`?
-* [ ] add examples for other rings: RR, QQ, GF(7)
+* [x] add examples for other rings: QQ, GF(7)
 
 * [x] Change output if ``return_minors=True`` to ``[evs, m]`` instead of `[m, evs]``.
 
@@ -85,7 +85,7 @@ CoCalc:
 
 #### subvector
 
-[ ] add examples
+[x] add examples
 
 ### sign_vectors.oriented_matroids
 
