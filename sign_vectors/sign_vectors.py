@@ -40,6 +40,10 @@ class SignVector(SageObject):
             -1
             sage: var('a')
             a
+            sage: SignVector.sign_sym(a)
+            ...
+            UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
+            0
             sage: assume(a > 0)
             sage: SignVector.sign_sym(a)
             1
@@ -656,8 +660,6 @@ def sign_vector(v):
     Variables are supported to some extent::
     
         sage: v = vector([1, x, -1])
-        sage: sign_vector(v) # TODO: not tested (returns warning)
-        (+0-)
         sage: assume(x > 0)
         sage: sign_vector(v)
         (++-)
