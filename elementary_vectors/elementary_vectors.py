@@ -306,6 +306,32 @@ def non_negative_vectors(L):
     - non_negative in each component; or
     - negative in each component. Those will be multiplied by ``-1``; or
     - containing variables such that no opposing signs occur.
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors import non_negative_vectors
+        sage: l = [vector([1,1,0,-1]), vector([0,0,0,0]), vector([1,0,0,1])]
+        sage: l
+        [(1, 1, 0, -1), (0, 0, 0, 0), (1, 0, 0, 1)]
+        sage: non_negative_vectors(l)
+        [(0, 0, 0, 0), (1, 0, 0, 1)]
+
+    Now, we consider an example with a variable::
+    
+        sage: from elementary_vectors import elementary_vectors
+        sage: var('a')
+        a
+        sage: A = matrix([[a,0,0,0,1],[0,1,0,0,1]])
+        sage: evs = elementary_vectors(A)
+        sage: evs
+        [(0, 0, 1, 0, 0), (0, 0, 0, 1, 0), (-1, -a, 0, 0, a)]
+        sage: non_negative_vectors(evs)
+        ...
+        UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
+        [(0, 0, 1, 0, 0), (0, 0, 0, 1, 0), (1, a, 0, 0, -a)]
+        sage: assume(a > 0)
+        sage: non_negative_vectors(evs)
+        [(0, 0, 1, 0, 0), (0, 0, 0, 1, 0)]
     """
     out = []
     for v in L:
