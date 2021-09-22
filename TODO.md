@@ -13,7 +13,7 @@
     * optional argument: `cancel_common_factor`?
 * [x] add examples for other rings: QQ, GF(7)
 
-* [x] Change output if ``return_minors=True`` to ``[evs, m]`` instead of `[m, evs]``.
+* [x] Change output if `return_minors=True` to `[evs, m]` instead of `[m, evs]`.
 
 
 ### elementary_vectors.positive_elementary_vectors
@@ -85,7 +85,7 @@ CoCalc:
 
 #### subvector
 
-[x] add examples
+* [x] add examples
 
 ### sign_vectors.oriented_matroids
 
@@ -110,5 +110,5 @@ CoCalc:
 I adapted the files from here: https://github.com/sagemath/sage_sample
 Is Sage sample outdated? Building the docs for Sage sample failed.
 
-[ ] Make this work.
+* [ ] Make this work.
 
