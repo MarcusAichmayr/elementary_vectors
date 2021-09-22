@@ -90,6 +90,33 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
          (-4, 0, 0, 0, 4),
          (0, -4, 2, 2, 0)]
 
+    Rational matrices are supported as well::
+    
+        sage: A = matrix([[1/2,0,0,2/3],[0,0,5/2,-1]])
+        sage: A
+        [1/2   0   0 2/3]
+        [  0   0 5/2  -1]
+        sage: elementary_vectors(A)
+        [(0, -1, 0, 0), (-20, 0, 6, 15)]
+        sage: elementary_vectors(A, reduce=False)
+        [(0, -5/4, 0, 0), (0, 1/2, 0, 0), (-5/3, 0, 1/2, 5/4), (0, -5/3, 0, 0)]
+    
+    We can also compute elementary vectors over a finite field::
+    
+        sage: B = matrix(GF(7),[[1,2,3,4,0],[0,5,2,3,3]])                              
+        sage: B                                                                        
+        [1 2 3 4 0]
+        [0 5 2 3 3]
+        sage: elementary_vectors(B)                                                    
+        [(3, 5, 5, 0, 0),
+         (0, 4, 0, 5, 0),
+         (6, 4, 0, 0, 5),
+         (1, 0, 4, 2, 0),
+         (2, 0, 4, 0, 2),
+         (5, 0, 0, 4, 3),
+         (0, 2, 1, 0, 3),
+         (0, 0, 5, 5, 1)]
+
     Here, ``data`` is a list of maximal minors::
     
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
@@ -184,8 +211,6 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
          (-2, 0, 0, 0, 2),
          (-4, 0, 0, 0, 4),
          (0, -4, 2, 2, 0)]
-    
-    Example with ``return_minors=True`` # TODO
     """
     if kernel:
         try:
