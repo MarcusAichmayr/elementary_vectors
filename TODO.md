@@ -2,50 +2,36 @@
 
 ## elementary_vectors
 
+* [x] Add example with `return_minors=True` in `elementary_vectors` and `elementary_vectors_from_matrix`.
+* [x] Add examples to `non_negative_vectors`.
+* [x] Add examples to `positive_elementary_vectors`.
+    * [ ] add examples with variables
+
 ### elementary_vectors.elementary_vectors
 
-* Vielleicht für `elementary_vectors` mehr optionale Argumente, um reductions besser zu kontrollieren?
-    * optionales Argument: `cancel_common_factor` oder so
-* Tests für verschiedene Ringe RR, QQ
+* Do we want more optional arguments for `elementary_vectors` to have more control on reductions?
+    * optional argument: `cancel_common_factor`?
+* [ ] add examples for other rings: RR, QQ, GF(7)
 
-* Output if ``return_minors=True`` is ``[m, evs]``.
-  Should this be ``[evs, m]`` instead?
+* [x] Change output if ``return_minors=True`` to ``[evs, m]`` instead of `[m, evs]``.
 
-* Positive Elementary Vectors
-    * In `positive_elementary_vector`, all minors could be 0.
-      In this case, the result is wrong.
-      We should recompute the elementary vectors in this case.
-    * Would it make sense to pass the elementary vectors to `positive_elementary_vector`?
-      A problem would be that for a certain choice of parameters all elementary vectors can be 0.
-    * Wird vor `positive_elementary_vector` zum Beispiel `x > 0` angenommen,
-      so kommt diese Bedingung nicht beim Output vor.
-      Man könnte natürlich `assumptions()` dazugeben, anstatt eine Liste rekursiv zu befüllen.
-      Jedoch werden dann alle assumptions ausgegeben. (Also auch `a is integer`.)
-    * Durch `reduce=True` könnte der Elementary Vector `(1,1,0,0)` aus `(x,x,0,0)` entstehen.
-      Ist aber durch Annahme `x=0`, so haben wir den Vektor `(1,1,0,0)` der kein Elementary Vector ist.
 
-* [ ] use doctests instead of separate test file
-    * [x] `elementary_vectors`
-    * [x] `elementary_vectors_from_matrix`
-    * [x] `elementary_vectors_from_minors`
-    * [ ] `positive_elementary_vectors`
-    * [ ] `non_negative_vectors`
-  
+### elementary_vectors.positive_elementary_vectors
+* In `positive_elementary_vector`, all minors could be 0.
+  In this case, the result is wrong.
+  We should recompute the elementary vectors in this case.
+* Would it make sense to pass the elementary vectors to `positive_elementary_vector`?
+  A problem would be that for a certain choice of parameters all elementary vectors can be 0.
+* Wird vor `positive_elementary_vector` zum Beispiel `x > 0` angenommen,
+  so kommt diese Bedingung nicht beim Output vor.
+  Man könnte natürlich `assumptions()` dazugeben, anstatt eine Liste rekursiv zu befüllen.
+  Jedoch werden dann alle assumptions ausgegeben. (Also auch `a is integer`.)
+* Durch `reduce=True` könnte der Elementary Vector `(1,1,0,0)` aus `(x,x,0,0)` entstehen.
+  Ist aber durch Annahme `x=0`, so haben wir den Vektor `(1,1,0,0)` der kein Elementary Vector ist.
+
 CoCalc:
 * Dateien zu Elementary Vectors zusammenfügen.
 
-#### Docstrings
-
-* [ ] Add example with `return_minors=True` in `elementary_vectors` and `elementary_vectors_from_matrix`.
-
-* [ ] Add examples to `non_negative_elementary_vectors`.
-* [ ] Add examples to `positive_elementary_vectors`.
-
-
-#### Tests
-
-* [ ] Add tests to `non_negative_elementary_vectors`.
-* [ ] Add tests to `positive_elementary_vectors`.
 
 ### elementary_vectors.utility
 
@@ -104,8 +90,7 @@ CoCalc:
 ### sign_vectors.oriented_matroids
 
 * [x] add examples
-    * [ ] add examples and explanations from master's thesis
-* (optional) add examples for all functions
+    * (optional) add examples for all functions
 * [x] use only one file (called `oriented_matroids.py`) for all functions:
     * `cocircuits_from_matrix`
     * `covectors_from_cocircuits`
