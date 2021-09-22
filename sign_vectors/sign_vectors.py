@@ -24,28 +24,28 @@ class SignVector(SageObject):
         try:
             self.__sv = vector(ZZ, [sign(x) for x in l])
         except:
-            self.__sv = vector(ZZ, [SignVector.sign_sym(x) for x in l])
+            self.__sv = vector(ZZ, [SignVector._sign_sym(x) for x in l])
 
     @staticmethod
-    def sign_sym(a):
+    def _sign_sym(a):
         r"""
         Returns appropriate sign of symbolic expression. Prints warning and returns ``0`` if sign cannot be computed.
         
         EXAMPLES::
         
             sage: from sign_vectors import SignVector
-            sage: SignVector.sign_sym(1)
+            sage: SignVector._sign_sym(1)
             1
-            sage: SignVector.sign_sym(-2)
+            sage: SignVector._sign_sym(-2)
             -1
             sage: var('a')
             a
-            sage: SignVector.sign_sym(a)
+            sage: SignVector._sign_sym(a)
             ...
             UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
             0
             sage: assume(a > 0)
-            sage: SignVector.sign_sym(a)
+            sage: SignVector._sign_sym(a)
             1
         """
         if SR(a) > 0:
