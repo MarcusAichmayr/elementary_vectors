@@ -12,3 +12,8 @@ test_sign_vectors:
 test:
 	sage -t elementary_vectors/ sign_vectors/
 
+doc:
+	cd docs && make html
+	
+doc-pdf:
+	cd docs && make latexpdf
