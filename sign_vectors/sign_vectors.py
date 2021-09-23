@@ -1,3 +1,146 @@
+r"""
+Sign vectors
+
+EXAMPLES:
+
+First, we load the functions from the package::
+
+    sage: from sign_vectors import *
+
+There are several ways to define sign vectors::
+
+    sage: sign_vector([1,0,-1,1])
+    (+0-+)
+    sage: x = vector([5,2/5,-1,0])
+    sage: sign_vector(x)
+    (++-0)
+    sage: sign_vector('++-+-00-')
+    (++-+-00-)
+
+We can easily construct the zero sign vector of a given length::
+
+    sage: zero_sign_vector(6)
+    (000000)
+
+It is also possible to generate some random sign vector::
+
+    sage: random_sign_vector(7) # random
+    (+-+00+-)
+
+To reverse signs, we apply the operator ``-`` as usual::
+
+    sage: X = sign_vector('+++000--')
+    sage: X
+    (+++000--)
+    sage: -X
+    (---000++)
+
+There are different notions of support::
+
+    sage: X.support()
+    [0, 1, 2, 6, 7]
+    sage: X.zero_support()
+    [3, 4, 5]
+    sage: X.positive_support()
+    [0, 1, 2]
+    sage: X.negative_support()
+    [6, 7]
+
+Next, we define two sign vectors::
+
+    sage: X = sign_vector([-1,0,1,-1,0])
+    sage: X
+    (-0+-0)
+    sage: Y = sign_vector([0,1,0,1,0])
+    sage: Y
+    (0+0+0)
+
+We can compose them::
+
+    sage: X.compose(Y)
+    (-++-0)
+    sage: Y.compose(X)
+    (-+++0)
+
+One can also use the operator ``&`` to compose sign vectors::
+
+    sage: X & Y
+    (-++-0)
+    sage: Y & X
+    (-+++0)
+
+The conformal relation is a partial order on a set of sign vectors::
+
+    sage: X = sign_vector([-1,1,0,0,1])
+    sage: Y = sign_vector([-1,1,1,0,1])
+    sage: Z = sign_vector([-1,1,1,-1,1])
+    sage: X
+    (-+00+)
+    sage: Y
+    (-++0+)
+    sage: Z
+    (-++-+)
+
+We can apply it in the following way::
+
+    sage: X.conforms(Y)
+    True
+    sage: X.conforms(X)
+    True
+    sage: Y.conforms(Z)
+    True
+    sage: Z.conforms(Y)
+    False
+    sage: X.conforms(Z)
+    True
+    sage: X < X
+    False
+    sage: X <= Y
+    True
+    sage: Y > Z
+    False
+    sage: Z >= X
+    True
+
+Similar as for real vectors, we define orthogonality for sign vectors.
+First, we define some real vectors::
+
+    sage: x = vector([0,0,1])
+    sage: y = vector([1,-2,0])
+    sage: z = vector([2,1,2])
+
+We compute some scalar products to investigate orthogonality of those vectors::
+
+    sage: x.dot_product(y)
+    0
+    sage: y.dot_product(z)
+    0
+    sage: x.dot_product(z)
+    2
+
+Next, we define the corresponding sign vectors::
+
+    sage: X = sign_vector(x)
+    sage: X
+    (00+)
+    sage: Y = sign_vector(y)
+    sage: Y
+    (+-0)
+    sage: Z = sign_vector(z)
+    sage: Z
+    (+++)
+
+By definition, if two real vectors are orthogonal, then their corresponding
+sign vectors are also orthogonal::
+
+    sage: X.is_orthogonal_to(Y)
+    True
+    sage: Y.is_orthogonal_to(Z)
+    True
+    sage: X.is_orthogonal_to(Z)
+    False
+"""
+
 #############################################################################
 #  Copyright (C) 2021                                                       #
 #                Marcus Aichmayr (aichmayr.marcus@gmail.com)                #
