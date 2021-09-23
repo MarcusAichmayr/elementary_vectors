@@ -5,7 +5,7 @@
 * [x] Add example with `return_minors=True` in `elementary_vectors` and `elementary_vectors_from_matrix`.
 * [x] Add examples to `non_negative_vectors`.
 * [x] Add examples to `positive_elementary_vectors`.
-    * [ ] add examples with variables
+    * [x] add examples with variables
 
 ### elementary_vectors.elementary_vectors
 
@@ -22,15 +22,15 @@
   We should recompute the elementary vectors in this case.
 * Would it make sense to pass the elementary vectors to `positive_elementary_vector`?
   A problem would be that for a certain choice of parameters all elementary vectors can be 0.
-* Wird vor `positive_elementary_vector` zum Beispiel `x > 0` angenommen,
-  so kommt diese Bedingung nicht beim Output vor.
-  Man könnte natürlich `assumptions()` dazugeben, anstatt eine Liste rekursiv zu befüllen.
-  Jedoch werden dann alle assumptions ausgegeben. (Also auch `a is integer`.)
-* Durch `reduce=True` könnte der Elementary Vector `(1,1,0,0)` aus `(x,x,0,0)` entstehen.
-  Ist aber durch Annahme `x=0`, so haben wir den Vektor `(1,1,0,0)` der kein Elementary Vector ist.
+* If we assume for instance `x > 0` before we call `positive_elementary_vector`,
+  then this condition is not in the output.
+  To prevent this, we could add `assumptions()`, instead of filling a list recursively.
+  But then, we would return all assumptions. (e.g. `a is integer`)
+* With `reduce=True`, we could obtain the elementary vector `(1,1,0,0)` from `(x,x,0,0)`.
+  For `x=0`, we have the wrong elementary vector `(1,1,0,0)`.
 
 CoCalc:
-* Dateien zu Elementary Vectors zusammenfügen.
+* Put functions for elementary vectors in one file. For maintaining, it would be easier to work more with the documentation.
 
 
 ### elementary_vectors.utility
@@ -76,6 +76,7 @@ CoCalc:
     * [x] define closure
 * [x] add tests
 * [x] use doctests instead of separate test file
+* Can we improve this implementation?
 
 #### contraction, deletion
 
