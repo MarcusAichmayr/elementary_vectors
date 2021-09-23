@@ -56,12 +56,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
     - If ``return_minors`` is true, a list is returned where the first
       element is the list of elementary vectors and the second element is
       the list of maximal minors used to compute the elementary vectors.
-    
-    .. SEEALSO::
         
-        :func:`~elementary_vectors_from_matrix`
-        :func:`~elementary_vectors_from_minors`
-    
     EXAMPLES::
     
         sage: from elementary_vectors import elementary_vectors
@@ -116,6 +111,32 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
          (5, 0, 0, 4, 3),
          (0, 2, 1, 0, 3),
          (0, 0, 5, 5, 1)]
+     
+    Variables are also supported::
+    
+        sage: var('c')
+        c
+        sage: C = matrix([[c,0,0,2,1,1],[0,1,0,1,2,1],[0,0,1,1,1,2]])
+        sage: C
+        [c 0 0 2 1 1]
+        [0 1 0 1 2 1]
+        [0 0 1 1 1 2]
+        sage: elementary_vectors(C)
+        [(2, c, c, -c, 0, 0),
+         (1, 2*c, c, 0, -c, 0),
+         (1, c, 2*c, 0, 0, -c),
+         (-1, c, 0, c, -c, 0),
+         (-3, -c, 0, 2*c, 0, -c),
+         (-1, -3*c, 0, 0, 2*c, -c),
+         (3, 0, c, -2*c, c, 0),
+         (1, 0, -c, -c, 0, c),
+         (-1, 0, -3*c, 0, -c, 2*c),
+         (4, 0, 0, -3*c, c, c),
+         (0, 3, 1, 1, -2, 0),
+         (0, 1, 3, 1, 0, -2),
+         (0, -1, 1, 0, 1, -1),
+         (0, 4, 0, 1, -3, 1),
+         (0, 0, 4, 1, 1, -3)]
 
     Here, ``data`` is a list of maximal minors::
     
@@ -183,7 +204,11 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
     - If ``return_minors`` is true, a list is returned where the first
       element is the list of elementary vectors and the second element is
       the list of maximal minors used to compute the elementary vectors.
+    
+    .. SEEALSO::
         
+        :func:`~elementary_vectors`
+
     EXAMPLES::
     
         sage: from elementary_vectors.functions import elementary_vectors_from_matrix
@@ -264,6 +289,10 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
     - If ``reduce`` is true, returned elementary vectors have distinct support
       and common factors are canceled.
     
+    .. SEEALSO::
+        
+        :func:`~elementary_vectors`
+
     EXAMPLES::
     
         sage: from elementary_vectors.functions import elementary_vectors_from_minors
