@@ -36,7 +36,7 @@ def closure(W, separate=False):
        The sign vector $X$ is in the closure of a set of sign vectors $W$
        if there exists $Y \in W$ with $X \leq Y$.
     
-    EXAMPLES:
+    EXAMPLES::
     
     We consider a list consisting of only one sign vector::
     
@@ -125,7 +125,7 @@ def _subvector(F, R):
     
     - ``R`` -- a list of indices
     
-    EXAMPLES:
+    EXAMPLES::
     
         sage: from sign_vectors.utility import _subvector
         sage: from sign_vectors import sign_vector
@@ -172,7 +172,7 @@ def contraction(F, R, keep_components=False):
     
     - If ``keep_components`` is true, keep entries in ``R``.
     
-    EXAMPLES:
+    EXAMPLES::
     
         sage: from sign_vectors import sign_vector, contraction
         sage: W = [sign_vector("++0"), sign_vector("-00"), sign_vector("00+")]
@@ -247,7 +247,7 @@ def deletion(F, R):
     
     - ``R`` -- a list of indices.
     
-    EXAMPLES:
+    EXAMPLES::
     
         sage: from sign_vectors import sign_vector, deletion                            
         sage: W = [sign_vector("+00"), sign_vector("++0"), sign_vector("00-")]          
@@ -286,7 +286,7 @@ def loops(W):
     Computes the list of loops of a given list of sign vectors (or real vectors)
     ``W``.
     
-    ..NOTE::
+    .. NOTE::
     
         A loop is a component where every sign vector of ``W`` is zero.
     
@@ -301,8 +301,8 @@ def loops(W):
     
     Also works for real vectors::
     
-        sage: loops([vector([5,0,0]), vector([2,0,-3])])
-        [1]
+        sage: loops([vector([5,0,0,0]), vector([2,0,-3,0])])
+        [1, 3]
     """
     if not W:
         raise ValueError('List is empty.')
@@ -509,7 +509,7 @@ def positive_parallel_classes(W):
 
     .. seealso::
     
-        :func:`<sign_vectors.utility.parallel_classes>`
+        :func:`~parallel_classes`
 
     EXAMPLES::
     
