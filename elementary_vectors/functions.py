@@ -545,6 +545,14 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
       ``[False, v]`` will be returned. Here, ``v`` is an elementary vector of ``M``
       that certifies that there exists no vector.
     
+    ALGORITHM:
+    
+    The underlying algorithm is based on Minty's Lemma. (see [Min74]_)
+    
+    .. [Min74] Minty, G. J.:
+       „A ’from scratch’ proof of a theorem of Rockafellar and Fulkerson“.
+       In: Mathematical Programming 7 (1974), pp. 368–375.
+    
     EXAMPLES::
     
         sage: from elementary_vectors import exists_vector                              
