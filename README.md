@@ -46,8 +46,16 @@ or
 
 The optional --user flag causes the package to be installed in your .sage directory instead of the Sage installation tree.
 
-Testing
--------
+### Documentation
+
+To generate the documentation of this package, run
+
+    $ make doc
+
+or
+    $ make doc-pdf
+
+### Testing
 
 To run the test suite, install the package and run the command
 
