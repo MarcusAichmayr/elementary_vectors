@@ -15,8 +15,7 @@ Documentation of sign_vectors
 .. autosummary::
     :toctree: generated
 
-    elementary_vectors.elementary_vectors
-    elementary_vectors.exists_vector
+    elementary_vectors.functions
     elementary_vectors.reductions
     elementary_vectors.utility
     
