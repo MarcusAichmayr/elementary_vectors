@@ -13,7 +13,6 @@ from sage.modules.free_module_element import vector
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
 
-# TODO: define closure
 def closure(W, separate=False):
     r"""
     Computes the closure of a list of sign vectors.
@@ -36,7 +35,7 @@ def closure(W, separate=False):
        The sign vector $X$ is in the closure of a set of sign vectors $W$
        if there exists $Y \in W$ with $X \leq Y$.
     
-    EXAMPLES::
+    EXAMPLES:
     
     We consider a list consisting of only one sign vector::
     
