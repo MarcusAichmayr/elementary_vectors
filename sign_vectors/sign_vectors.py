@@ -683,7 +683,7 @@ def zero_sign_vector(n):
 
 def random_sign_vector(n):
     r"""
-    Return a random sign vector of length ``n``.#
+    Return a random sign vector of length ``n``.
     
     EXAMPLES::
     
