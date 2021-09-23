@@ -107,8 +107,7 @@ CoCalc:
 
 ## Sphinx documentation
 
-I adapted the files from here: https://github.com/sagemath/sage_sample
-Is Sage sample outdated? Building the docs for Sage sample failed.
+I adapted the files from here: https://github.com/mkauers/ore_algebra
 
-* [ ] Make this work.
+* [x] Make this work.
 
