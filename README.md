@@ -53,6 +53,7 @@ To generate the documentation of this package, run
     $ make doc
 
 or
+
     $ make doc-pdf
 
 ### Testing
