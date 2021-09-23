@@ -2,21 +2,22 @@
 
 ## elementary_vectors
 
+* [ ] Add explanations and examples to demonstrate functions in this module. (in `__init__`?)
+
+### elementary_vectors.functions
+
 * [x] Add example with `return_minors=True` in `elementary_vectors` and `elementary_vectors_from_matrix`.
 * [x] Add examples to `non_negative_vectors`.
 * [x] Add examples to `positive_elementary_vectors`.
-    * [x] add examples with variables
-
-### elementary_vectors.elementary_vectors
-
+    * [ ] add examples with variables
 * Do we want more optional arguments for `elementary_vectors` to have more control on reductions?
     * optional argument: `cancel_common_factor`?
-* [x] add examples for other rings: QQ, GF(7)
-
+* [x] add examples for other rings: `QQ`, `GF(7)`
 * [x] Change output if `return_minors=True` to `[evs, m]` instead of `[m, evs]`.
 
 
-### elementary_vectors.positive_elementary_vectors
+#### elementary_vectors.functions.positive_elementary_vectors
+
 * In `positive_elementary_vector`, all minors could be 0.
   In this case, the result is wrong.
   We should recompute the elementary vectors in this case.
@@ -31,6 +32,11 @@
 
 CoCalc:
 * Put functions for elementary vectors in one file. For maintaining, it would be easier to work more with the documentation.
+
+#### elementary_vectors.functions.exists_vector
+
+* [ ] If True and certificate is True, compute a corresponding vector of the vector space. (witness)
+* [x] add examples
 
 
 ### elementary_vectors.utility
@@ -50,55 +56,25 @@ CoCalc:
 * [x] improve docstrings
     * [x] add examples
 
-### elementary_vectors.exists_vector
-
-* [ ] If True and certificate is True, compute a corresponding vector of the vector space. (witness)
-* [x] add examples
-
 
 ## sign_vectors
 
 ### sign_vectors.sign_vectors
 
+* [x] Add explanations and examples to demonstrate functions in this module on top of this file.
 * [x] add docstrings
 * [x] use doctests instead of separate test file
-
-### sign_vectors.utility
-
-* [x] add examples
-* [x] move closure, contraction, deletion into this file
-* [x] use doctests instead of separate test file
-
-#### closure
-
-* [x] improve docstring
-    * [x] add examples
-    * [x] define closure
-* [x] add tests
-* [x] use doctests instead of separate test file
-* Can we improve this implementation?
-
-#### contraction, deletion
-
-* [x] add examples
-* [x] add tests
-* [x] use doctests instead of separate test file
-
-#### subvector
-
-* [x] add examples
 
 ### sign_vectors.oriented_matroids
 
 * [x] add examples
-    * (optional) add examples for all functions
+    * [ ] add examples for all functions
 * [x] use only one file (called `oriented_matroids.py`) for all functions:
     * `cocircuits_from_matrix`
     * `covectors_from_cocircuits`
     * `topes_from_cocircuits`
     * `lower_faces`
     * `face_enumeration`
-    
     * `topes_from_matrix`
     * `covectors_from_topes`
     * `cocircuits_from_topes`
@@ -106,9 +82,16 @@ CoCalc:
     * [ ] test files in CoCalc.
       `from_sign_vectors.oriented_matroids import *` should still work.
 
+### sign_vectors.utility
+
+* [x] add examples
+* [x] move closure, contraction, deletion into this file
+* [x] use doctests instead of separate test file
+* [ ] Can we improve the implementation of `closure`?
+
 ## Sphinx documentation
 
 I adapted the files from here: https://github.com/mkauers/ore_algebra
 
 * [x] Make this work.
-* Do we want to have tests in documentation?
+* Do we want to have tests in the documentation?
