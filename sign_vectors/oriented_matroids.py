@@ -357,6 +357,24 @@ def face_enumeration(W):
         :func:`~lower_faces`
         :func:`~covectors_from_topes`
         :func:`~covectors_from_matrix`
+
+    EXAMPLES:
+    
+    We define some matrix and compute the topes of the corresponding
+    oriented matroid::
+    
+        sage: from sign_vectors.oriented_matroids import topes_from_matrix, face_enumeration
+        sage: A = matrix([[1,2,0],[0,1,-1]])
+        sage: A
+        [ 1  2  0]
+        [ 0  1 -1]
+        sage: tA = topes_from_matrix(A)
+        sage: tA
+        [(---), (-+-), (++-), (+++), (--+), (+-+)]
+        sage: face_enumeration(tA)
+        [[(000)],
+         [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
+         [(---), (-+-), (++-), (+++), (--+), (+-+)]]
     """
     if not W:
         raise ValueError('List is empty.')
