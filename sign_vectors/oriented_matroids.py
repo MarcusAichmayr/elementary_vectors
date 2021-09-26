@@ -520,13 +520,14 @@ def covectors_from_matrix(A, kernel=False, algorithm=None, separate=False):
     - If ``kernel`` is true, the returned covectors will be determined by the
       kernel of the matrix ``A``.
 
-    - If ``algorithm`` is 'face_enumeration' or the shortcut 'fe',
-      
-      - if ``separate`` is false, returns a list of covectors. The covectors are
-        sorted by rank (default).
-      
-      - if ``separate`` is true, returns a list of lists of covectors, separated
-        by their rank.
+    - If ``algorithm`` is ``"face_enumeration"`` or the shortcut ``"fe"``,
+      applies the algorithm face enumeration.
+
+    - If ``separate`` is true, returns a list of lists of covectors, separated
+      by their rank by applying the algorithm face enumeration.
+
+    - If ``separate`` is false, returns a list of covectors.
+      This list is sorted by rank if the algorithm face enumeration is used.
 
     .. SEEALSO::
         
