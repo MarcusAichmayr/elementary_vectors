@@ -3,7 +3,10 @@
 ## elementary_vectors
 
 * [ ] Add explanations and examples to demonstrate functions in this module. (in `__init__`?)
-
+    * several reductions
+    * `elementary_vectors`
+    * `exists_vector`
+    
 ### elementary_vectors.functions
 
 * [x] Add example with `return_minors=True` in `elementary_vectors` and `elementary_vectors_from_matrix`.
@@ -68,7 +71,7 @@ CoCalc:
 ### sign_vectors.oriented_matroids
 
 * [x] add examples
-    * [ ] add examples for all functions
+    * [x] add examples to all important functions
 * [x] use only one file (called `oriented_matroids.py`) for all functions:
     * `cocircuits_from_matrix`
     * `covectors_from_cocircuits`
