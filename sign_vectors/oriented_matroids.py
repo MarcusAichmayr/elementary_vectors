@@ -214,7 +214,7 @@ def topes_from_cocircuits(D):
     
     OUTPUT:
     
-    - a list of topes of the oriented matroid.
+    A list of topes of the oriented matroid.
     
     ALGORITHM:
     
@@ -264,6 +264,11 @@ def lower_faces(W):
        „Combinatorial face enumeration in arrangements and oriented matroids“.
        In: Discrete Applied Mathematics 31.2 (1991), pp. 141–149.
        doi: 10.1016/0166-218X(91)90066-6.
+    
+    .. SEEALSO::
+        
+        :func:`~face_enumeration`
+        :func:`~covectors_from_topes`
     """
     if not W:
         raise ValueError('List is empty.')
@@ -301,6 +306,11 @@ def face_enumeration(W):
     
     This function is based on an algorithm in [FST91]_.
     See also [Fin01]_.
+
+    .. SEEALSO::
+        
+        :func:`~lower_faces`
+        :func:`~covectors_from_topes`
     """
     if not W:
         raise ValueError('List is empty.')
@@ -344,6 +354,7 @@ def covectors_from_topes(T, separate=False):
     - ``separate`` -- a boolean (default: ``False``)
     
     OUTPUT:
+    
     The list of covectors of the corresponding oriented matroid.
     
     - If ``separate`` is false, returns a list of covectors. The covectors are
@@ -351,6 +362,10 @@ def covectors_from_topes(T, separate=False):
 
     - If ``separate`` is true, returns a list of lists of covectors, separated
       by their rank.
+
+    .. SEEALSO::
+        
+        :func:`~face_enumeration`
     """
     if separate:
         return face_enumeration(T)
@@ -367,6 +382,7 @@ def cocircuits_from_topes(T):
     - ``T`` -- a list of topes.
     
     OUTPUT:
+    
     A list of cocircuits of the corresponding oriented matroid.
     """
     return face_enumeration(T)[1]
@@ -405,6 +421,10 @@ def covectors_from_matrix(A, kernel=False, algorithm=None, separate=False):
       
       - if ``separate`` is true, returns a list of lists of covectors, separated
         by their rank.
+
+    .. SEEALSO::
+        
+        :func:`~face_enumeration`
     """
     if algorithm is None:
         return covectors_from_cocircuits(cocircuits_from_matrix(A, kernel=kernel))
