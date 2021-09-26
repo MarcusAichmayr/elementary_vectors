@@ -356,6 +356,7 @@ def face_enumeration(W):
         
         :func:`~lower_faces`
         :func:`~covectors_from_topes`
+        :func:`~covectors_from_matrix`
     """
     if not W:
         raise ValueError('List is empty.')
@@ -535,7 +536,7 @@ def covectors_from_matrix(A, kernel=False, algorithm=None, separate=False):
 
     EXAMPLES::
     
-    sage: from sign_vectors.oriented_matroids import covectors_from_matrix
+        sage: from sign_vectors.oriented_matroids import covectors_from_matrix
     
     We define some matrix::
 
