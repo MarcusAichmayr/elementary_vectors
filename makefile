@@ -14,6 +14,6 @@ test:
 
 doc:
 	cd docs && make html
-	
+
 doc-pdf:
 	cd docs && make latexpdf
