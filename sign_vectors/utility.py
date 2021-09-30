@@ -32,8 +32,9 @@ def closure(W, separate=False):
     
     .. NOTE::
     
-       The sign vector $X$ is in the closure of a set of sign vectors $W$
-       if there exists $Y \in W$ with $X \leq Y$.
+       The sign vector :math:`X` is in the closure of a set of sign vectors
+       :math:`W`
+       if there exists :math:`Y \in W` with :math:`X \leq Y`.
     
     EXAMPLES:
     
@@ -329,9 +330,9 @@ def is_parallel(W, e, f, return_ratio=False):
     
     - ``W`` -- a list of vectors or sign vectors of length ``n``
     
-    - ``e`` -- an integer with ``0 <= e <= n-1``
+    - ``e`` -- an integer with :math:`0 \leq e \leq n-1`
 
-    - ``f`` -- an integer with ``0 <= e <= n-1``
+    - ``f`` -- an integer with :math:`0 \leq e \leq n-1`
 
     - ``return_ratio`` -- a boolean (default: False)
 
