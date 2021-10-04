@@ -31,7 +31,7 @@ setup(
         'elementary_vectors',
         'sign_vectors',
     ],
-#    setup_requires   = ['sage-package'],
-#    install_requires = ['sage-package', 'sphinx'],
+    setup_requires   = [],
+    install_requires = ['sphinx'],
 )
 
