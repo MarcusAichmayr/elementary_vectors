@@ -84,6 +84,7 @@ CoCalc:
     * `covectors_from_matrix`
     * [ ] test files in CoCalc.
       `from_sign_vectors.oriented_matroids import *` should still work.
+* [ ] Is it possible to move references at the end of the documentation?
 
 ### sign_vectors.utility
 
