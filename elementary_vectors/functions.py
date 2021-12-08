@@ -624,7 +624,7 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     if isinstance(data, list):
         evs = data
     else:
-        evs = elementary_vectors(data, kernel = not kernel)
+        evs = elementary_vectors(data, kernel=not kernel)
     
     if evs == []:
         return True
