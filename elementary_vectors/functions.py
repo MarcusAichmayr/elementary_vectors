@@ -98,11 +98,11 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
     
     We can also compute elementary vectors over a finite field::
     
-        sage: B = matrix(GF(7),[[1,2,3,4,0],[0,5,2,3,3]])                              
-        sage: B                                                                        
+        sage: B = matrix(GF(7),[[1,2,3,4,0],[0,5,2,3,3]])
+        sage: B
         [1 2 3 4 0]
         [0 5 2 3 3]
-        sage: elementary_vectors(B)                                                    
+        sage: elementary_vectors(B)
         [(3, 5, 5, 0, 0),
          (0, 4, 0, 5, 0),
          (6, 4, 0, 0, 5),
@@ -443,10 +443,10 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
     EXAMPLES::
     
         sage: from elementary_vectors import positive_elementary_vectors
-        sage: A = matrix([[1,-1,0]])                                                    
-        sage: positive_elementary_vectors(A)                                            
+        sage: A = matrix([[1,-1,0]])
+        sage: positive_elementary_vectors(A)
         [[[], [(1, 1, 0), (0, 0, 1)]]]
-        sage: positive_elementary_vectors(A, return_minors=True)                        
+        sage: positive_elementary_vectors(A, return_minors=True)
         [[[], [(1, 1, 0), (0, 0, 1)], [1, -1, 0]]]
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]])
         sage: positive_elementary_vectors(M)
@@ -584,40 +584,40 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     
     EXAMPLES::
     
-        sage: from elementary_vectors import exists_vector                              
-        sage: M = matrix([1,1,0])                                                       
-        sage: L = [2,5,-1] # lower halves of the intervals                              
-        sage: R = [5,6,1] # upper halves of the intervals    
+        sage: from elementary_vectors import exists_vector
+        sage: M = matrix([1,1,0])
+        sage: L = [2,5,-1] # lower halves of the intervals
+        sage: R = [5,6,1] # upper halves of the intervals
     
     First, we consider closed intervals::
-                               
-        sage: exists_vector(M, L, R)                                                    
+
+        sage: exists_vector(M, L, R)
         True
-        sage: exists_vector(M, L, R, r=True)                                            
+        sage: exists_vector(M, L, R, r=True)
         True
-        sage: exists_vector(M, L, R, l=True, r=True)                                    
+        sage: exists_vector(M, L, R, l=True, r=True)
         True
     
     Open intervals::
     
-        sage: exists_vector(M, L, R, l=False, r=False)                                  
+        sage: exists_vector(M, L, R, l=False, r=False)
         False
     
     Mixed intervals::
     
-        sage: l = [True,True,False]                                                     
-        sage: r = [False,True,True]                                                     
-        sage: exists_vector(M, L, R, l=l, r=r)                                          
+        sage: l = [True,True,False]
+        sage: r = [False,True,True]
+        sage: exists_vector(M, L, R, l=l, r=r)
         False
     
     Unbounded intervals::
     
-        sage: M = matrix([[1,0,1,0],[0,1,1,1]])                                         
-        sage: L = [2,5,0,-oo]                                                           
-        sage: R = [5,oo,8,5]                                                            
-        sage: l = [True,True,False,False]                                               
-        sage: r = [False,False,False,True]                                              
-        sage: exists_vector(M, L, R, l=l, r=r)                                          
+        sage: M = matrix([[1,0,1,0],[0,1,1,1]])
+        sage: L = [2,5,0,-oo]
+        sage: R = [5,oo,8,5]
+        sage: l = [True,True,False,False]
+        sage: r = [False,False,False,True]
+        sage: exists_vector(M, L, R, l=l, r=r)
         True
     """
     
