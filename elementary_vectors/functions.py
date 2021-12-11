@@ -24,41 +24,41 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
     r"""
     Computes elementary vectors of a subspace determined by the matrix or from
     a list of maximal minors.
-    
+
     INPUT:
-    
+
     - ``data`` -- a matrix or a list of maximal minors
-    
+
     - ``dim`` -- Not needed if ``data`` is a matrix.
                  Otherwise, this is a list of dimensions of the matrix
                  corresponding to the list of maximal minors ``data``.
-    
+
     - ``kernel`` -- a boolean (default: ``True``)
-    
+
     - ``reduce`` -- a boolean (default: ``True``)
-    
+
     - ``return_minors`` -- a boolean (default: ``False``)
-    
+
     - ``ring`` -- Parent of the entries of the elementary vectors.
                   By default, determine this from ``data``.
-    
+
     OUTPUT:
-    
+
     - If ``kernel`` is true, returns a list of elementary vectors lying in
       the kernel of ``data``. (default)
       Otherwise, returns a list of elementary vectors lying in
       the row space of ``data``.
       This argument is ignored if ``data`` is not a matrix.
-      
+
     - If ``reduce`` is true, returned elementary vectors have distinct support
       and common factors are canceled.
-    
+
     - If ``return_minors`` is true, a list is returned where the first
       element is the list of elementary vectors and the second element is
       the list of maximal minors used to compute the elementary vectors.
-        
+
     EXAMPLES::
-    
+
         sage: from elementary_vectors import elementary_vectors
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
         [ 0  0  1 -1  0]
@@ -75,7 +75,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
 
     By default, the output is reduced, that is, each returned elementary vector
     has distinct support and common factors are canceled::
-    
+
         sage: elementary_vectors(M, reduce=True)
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
         sage: elementary_vectors(M, reduce=False)
@@ -95,9 +95,9 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
         [(0, -1, 0, 0), (-20, 0, 6, 15)]
         sage: elementary_vectors(A, reduce=False)
         [(0, -5/4, 0, 0), (0, 1/2, 0, 0), (-5/3, 0, 1/2, 5/4), (0, -5/3, 0, 0)]
-    
+
     We can also compute elementary vectors over a finite field::
-    
+
         sage: B = matrix(GF(7),[[1,2,3,4,0],[0,5,2,3,3]])
         sage: B
         [1 2 3 4 0]
@@ -111,9 +111,9 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
          (5, 0, 0, 4, 3),
          (0, 2, 1, 0, 3),
          (0, 0, 5, 5, 1)]
-     
+
     Variables are also supported::
-    
+
         sage: var('c')
         c
         sage: C = matrix([[c,0,0,2,1,1],[0,1,0,1,2,1],[0,0,1,1,1,2]])
@@ -139,7 +139,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
          (0, 0, 4, 1, 1, -3)]
 
     Here, ``data`` is a list of maximal minors::
-    
+
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
@@ -176,41 +176,41 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
 def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
     Computes elementary vectors of a subspace determined by the matrix ``M``.
-    
+
     INPUT:
-    
+
     - ``M`` -- a matrix
-    
+
     - ``kernel`` -- a boolean (default: ``True``)
-    
+
     - ``reduce`` -- a boolean (default: ``True``)
-    
+
     - ``return_minors`` -- a boolean (default: ``False``)
-    
+
     - ``ring`` -- Parent of the entries of the elementary vectors.
                   By default, determine this from ``M``.
-    
+
     OUTPUT:
-    
+
     - If ``kernel`` is true, returns a list of elementary vectors lying in
       the kernel of ``M``. (default)
 
     - If ``kernel`` is false, returns a list of elementary vectors lying in
       the row space of ``M``.
-    
+
     - If ``reduce`` is true, returned elementary vectors have distinct support
       and common factors are canceled.
-    
+
     - If ``return_minors`` is true, a list is returned where the first
       element is the list of elementary vectors and the second element is
       the list of maximal minors used to compute the elementary vectors.
-    
+
     .. SEEALSO::
-        
+
         :func:`~elementary_vectors`
 
     EXAMPLES::
-    
+
         sage: from elementary_vectors.functions import elementary_vectors_from_matrix
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
         [ 0  0  1 -1  0]
@@ -224,10 +224,10 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
         [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (1, 0, 0, 0, 1), (0, 0, 1, -1, 0)]
         sage: elementary_vectors_from_matrix(M, return_minors=True)
         [[(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)], [1, -1, 0, -2, 0, 0, 0, 1, -1, -2]]
-    
+
     By default, the output is reduced, that is, each returned elementary vector
     has distinct support and common factors are canceled::
-    
+
         sage: elementary_vectors_from_matrix(M, reduce=True)
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
         sage: elementary_vectors_from_matrix(M, reduce=False)
@@ -257,7 +257,7 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
             return []
     if reduce:
         m = [mi/g for mi in m]
-    if ring == None:
+    if ring is None:
         ring = M.base_ring()
     evs = elementary_vectors_from_minors(m, [r, n], reduce=reduce, ring=ring)
     if return_minors:
@@ -269,32 +269,32 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
 def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
     r"""
     Computes elementary vectors determined by given maximal minors of a matrix.
-    
+
     INPUT:
-    
+
     - ``m`` -- a list of maximal minors of a matrix
-    
+
     - ``dim`` -- the dimensions of the matrix corresponding to ``m``
-    
+
     - ``reduce`` -- a boolean (default: ``True``)
-    
+
     - ``ring`` -- Parent of the entries of the elementary vectors.
                   By default, determine this from ``m``.
-    
+
     OUTPUT:
-    
+
     Uses the maximal minors ``m`` to compute the elementary vectors of the
     corresponding matrix.
 
     - If ``reduce`` is true, returned elementary vectors have distinct support
       and common factors are canceled.
-    
+
     .. SEEALSO::
-        
+
         :func:`~elementary_vectors`
 
     EXAMPLES::
-    
+
         sage: from elementary_vectors.functions import elementary_vectors_from_minors
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
         [ 0  0  1 -1  0]
@@ -325,11 +325,11 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
         return evs
     C = Combinations(n,r+1)
     dets = Combinations(n,r)
-    if ring == None:
+    if ring is None:
         # see SageMath/local/lib/python3.8/site-packages/sage/matrix/args.pyx
         # find common parent of minors
         ring = get_coercion_model().common_parent(*m)
-    S = []
+
     for I in C: # construct vectors
         v = zero_vector(ring, n)
         for k in I:
@@ -353,20 +353,20 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
 def non_negative_vectors(L):
     r"""
     Returns non-negative vectors.
-    
+
     INPUT:
-    
+
     - ``L`` -- a list of vectors
-    
+
     OUTPUT:
-    
+
     Returns all vectors of ``L`` that are
     - non_negative in each component; or
     - negative in each component. Those will be multiplied by ``-1``; or
     - containing variables such that no opposing signs occur.
-    
+
     EXAMPLES::
-    
+
         sage: from elementary_vectors import non_negative_vectors
         sage: l = [vector([1,1,0,-1]), vector([0,0,0,0]), vector([1,0,0,1])]
         sage: l
@@ -375,7 +375,7 @@ def non_negative_vectors(L):
         [(0, 0, 0, 0), (1, 0, 0, 1)]
 
     Now, we consider an example with a variable::
-    
+
         sage: from elementary_vectors import elementary_vectors
         sage: var('a')
         a
@@ -404,44 +404,44 @@ def non_negative_vectors(L):
 def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
     Computes positive elementary vectors.
-    
+
     INPUT:
-    
+
     - ``data`` -- a matrix or a list of maximal minors
-    
+
     - ``dim`` -- Not needed if ``data`` is a matrix.
                  Otherwise, this is a list of dimensions of the matrix
                  corresponding to the list of maximal minors ``data``.
-    
+
     - ``kernel`` -- a boolean (default: ``True``)
-    
+
     - ``reduce`` -- a boolean (default: ``True``)
-    
+
     - ``return_minors`` -- a boolean (default: ``False``)
-    
+
     - ``ring`` -- Parent of the entries of the elementary vectors.
                   By default, determine this from ``data``.
-    
+
     OUTPUT:
-    
+
     The output is a list of pairs.
     Each pair consists of a list of assumptions and the corresponding positive elementary vectors of ``data``.
-    
+
     - If ``kernel`` is true, returns a list of elementary vectors lying in
       the kernel of ``data``. (default)
       Otherwise, returns a list of elementary vectors lying in
       the row space of ``data``.
       This argument is ignored if ``data`` is not a matrix.
-      
+
     - If ``reduce`` is true, returned elementary vectors have distinct support
       and common factors are canceled.
-    
+
     - If ``return_minors`` is true, a list is returned where the first
       element is the list of elementary vectors and the second element is
       the list of maximal minors used to compute the elementary vectors.
-      
+
     EXAMPLES::
-    
+
         sage: from elementary_vectors import positive_elementary_vectors
         sage: A = matrix([[1,-1,0]])
         sage: positive_elementary_vectors(A)
@@ -451,13 +451,13 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
         sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]])
         sage: positive_elementary_vectors(M)
         [[[], []]]
-        
+
         TODO: Do more examples also symbolic examples
     """
     kwargs = locals()
     kwargs["return_minors"] = True
     kwargs["reduce"] = False
-    
+
     def rec(i, l, eq):
         if i < len(m):
             if not sign_determined(m[i]):
@@ -508,7 +508,7 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
             else:
                 out.append([l, non_negative_vectors(L)])
             return
-    
+
     evs, m = elementary_vectors(**kwargs)
     if evs == []:
         return []
@@ -521,74 +521,74 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     r"""
     Returns whether a vector exists in the vector space determined by a matrix
     such that the components lie in given intervals.
-    
+
     INPUT:
-    
+
     - ``data`` -- either a real matrix with ``n`` columns or a list of
                   elementary vectors of length ``n``
-    
+
     - ``L`` -- a list of real values (``-oo`` and ``oo`` are accepted) of length ``n``
-    
+
     - ``R`` -- a list of real values (``-oo`` and ``oo`` are accepted) of length ``n``
-    
+
     - ``l`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
-    
+
     - ``r`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
-    
+
     - ``kernel`` -- a boolean (default: ``False``)
-    
+
     - ``certificate`` -- a boolean (default: ``False``)
-    
+
     OUTPUT:
-    
+
     - If ``data`` is a matrix, then the elementary vectors of ``M`` are computed.
-    
+
         - If ``kernel`` is false, considers the vector space generated by the
           rows of the matrix ``M``. (default)
           In this case, the elementary vectors will lie in the kernel of ``M``.
-          
+
         - If ``kernel`` is true, considers the vector space generated by the
           kernel of the matrix ``M``.
           In this case, the elementary vectors will lie in the row space of ``M``.
 
     - If ``data`` is a list of elementary vectors, then those will be used.
-    
+
         - In this case, the argument ``kernel`` will be ignored.
 
     - ``L`` and ``R`` are the left and right interval values, respectively.
-    
+
     - ``l`` and ``r`` determine the intervals.
-    
+
     - The left (or right) interval half of the ``i``-th interval is
-    
+
         - closed if ``l[i]`` (or ``r[i]``) is ``True`` (default).
 
         - open if ``l[i]`` (or ``r[i]``) is ``False``.
-            
+
     - If ``l`` (or ``r``) is a boolean, then all left (or right) interval halves
       are considered closed if ``True`` (default) and open if ``False``.
-    
+
     - If ``certificate`` is ``False`` (default), returns a boolean.
-    
+
     - If ``certificate`` is ``True`` and the result is false, then a list
       ``[False, v]`` will be returned. Here, ``v`` is an elementary vector of ``M``
       that certifies that there exists no vector.
-    
+
     ALGORITHM:
-    
+
     The underlying algorithm is based on Minty's Lemma. (see [Min74]_)
-    
+
     .. [Min74] Minty, G. J.:
        „A ’from scratch’ proof of a theorem of Rockafellar and Fulkerson“.
        In: Mathematical Programming 7 (1974), pp. 368–375.
-    
+
     EXAMPLES::
-    
+
         sage: from elementary_vectors import exists_vector
         sage: M = matrix([1,1,0])
         sage: L = [2,5,-1] # lower halves of the intervals
         sage: R = [5,6,1] # upper halves of the intervals
-    
+
     First, we consider closed intervals::
 
         sage: exists_vector(M, L, R)
@@ -597,21 +597,21 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
         True
         sage: exists_vector(M, L, R, l=True, r=True)
         True
-    
+
     Open intervals::
-    
+
         sage: exists_vector(M, L, R, l=False, r=False)
         False
-    
+
     Mixed intervals::
-    
+
         sage: l = [True,True,False]
         sage: r = [False,True,True]
         sage: exists_vector(M, L, R, l=l, r=r)
         False
-    
+
     Unbounded intervals::
-    
+
         sage: M = matrix([[1,0,1,0],[0,1,1,1]])
         sage: L = [2,5,0,-oo]
         sage: R = [5,oo,8,5]
@@ -620,36 +620,35 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
         sage: exists_vector(M, L, R, l=l, r=r)
         True
     """
-    
     if isinstance(data, list):
         evs = data
     else:
         evs = elementary_vectors(data, kernel=not kernel)
-    
+
     if evs == []:
         return True
-    
+
     n = len(evs[0])
-    
+
     if len(L) != n:
         raise ValueError('list ``L`` has wrong length')
     if len(R) != n:
         raise ValueError('list ``R`` has wrong length')
-    
-    if l == True:
+
+    if l is True:
         l = [True for i in range(n)]
-    elif l == False:
+    elif l is False:
         l = [False for i in range(n)]
     elif len(l) != n:
         raise ValueError('list ``l`` has wrong length')
-    
-    if r == True:
+
+    if r is True:
         r = [True for i in range(n)]
-    elif r == False:
+    elif r is False:
         r = [False for i in range(n)]
     elif len(r) != n:
         raise ValueError('list ``r`` has wrong length')
-    
+
     # is this needed?
     for i in range(n):
         if L[i] == R[i]: # interval is a point
@@ -657,7 +656,7 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
                 return False
             elif r[i] == False:
                 return False
-    
+
     if certificate:
         def out_false(v):
             return [False, v]
@@ -690,17 +689,17 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
                 UB += a
                 LBeq = LBeq and r[i]
                 UBeq = UBeq and l[i]
-        
-        if LBeq == True:
+
+        if LBeq is True:
             if LB > 0:
                 return out_false(v)
         elif LB >= 0: # == oder >=?
             return out_false(v)
 
-        if UBeq == True:
+        if UBeq is True:
             if UB < 0:
                 return out_false(v)
         elif UB <= 0: # == oder <=?
             return out_false(v)
-        
+
     return True

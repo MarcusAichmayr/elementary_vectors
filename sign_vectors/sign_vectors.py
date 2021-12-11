@@ -151,6 +151,7 @@ sign vectors are also orthogonal::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+import warnings
 from sage.structure.sage_object import SageObject
 from sage.modules.free_module_element import vector
 from sage.functions.generalized import sign
@@ -158,7 +159,6 @@ from sage.modules.free_module_element import zero_vector
 from sage.misc.prandom import randint
 from sage.rings.integer_ring import ZZ
 from sage.symbolic.ring import SR
-import warnings
 
 class SignVector(SageObject):
     r"""A sign vector is an element of :math:`{-,+,0}^n`."""
@@ -166,16 +166,16 @@ class SignVector(SageObject):
         r"""Creates a sign vector from a list ``l``."""
         try:
             self.__sv = vector(ZZ, [sign(x) for x in l])
-        except:
+        except TypeError:
             self.__sv = vector(ZZ, [SignVector._sign_sym(x) for x in l])
 
     @staticmethod
     def _sign_sym(a):
         r"""
         Returns appropriate sign of symbolic expression. Prints warning and returns ``0`` if sign cannot be computed.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import SignVector
             sage: SignVector._sign_sym(1)
             1
@@ -204,16 +204,16 @@ class SignVector(SageObject):
     def _repr_(self):
         r"""Represents a sign vector by a string containing '-', '+' and '0'."""
         return '(' + ''.join([('+' if x > 0 else ('-' if x < 0 else '0')) for x in self.__sv]) + ')'
-    
+
     def __hash__(self):
         return hash(repr(self))
 
     def length(self):
         r"""
         Returns the length of the sign vector.
-        
+
         EXAMPLES::
-            
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector('0+-'); X
             (0+-)
@@ -221,13 +221,13 @@ class SignVector(SageObject):
             3
         """
         return self.__sv.length()
-    
+
     def __len__(self):
         r"""
         Returns the length of the sign vector.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector('0+-'); X
             (0+-)
@@ -235,25 +235,25 @@ class SignVector(SageObject):
             3
         """
         return self.length()
-    
+
     def compose(left, right):
         r"""
         Returns the composition of two sign vectors.
-        
+
         INPUT:
 
         - ``other`` -- a sign vector
 
         OUTPUT:
-        
+
         Composition of this sign vector with ``other``.
-        
+
         .. NOTE::
-        
+
             Alternatively, the operator ``&`` can be used.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector('+00'); X
             (+00)
@@ -269,17 +269,17 @@ class SignVector(SageObject):
         if left.length() != right.length():
             raise ValueError('Sign vectors have different length.')
         return sign_vector([right[i] if left[i] == 0 else left[i] for i in range(left.length())])
-    
+
     def __and__(left, right):
         r"""
         Returns the composition of two sign vectors.
-        
+
         .. SEEALSO::
-        
+
             :meth: `compose`
 
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector('+00'); X
             (+00)
@@ -295,11 +295,11 @@ class SignVector(SageObject):
     def __mul__(self, other):
         r"""
         Multiplication with a scalar.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
-            sage: X = sign_vector([-1, 1, 0, 0, 1]); X                                      
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X
             (-+00+)
             sage: -1*X
             (+-00-)
@@ -307,15 +307,15 @@ class SignVector(SageObject):
             (-+00+)
         """
         return sign_vector(self.__sv.__mul__(sign(other)))
-    
+
     def __rmul__(self, other):
         r"""
         Right multiplication with a scalar.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
-            sage: X = sign_vector([-1, 1, 0, 0, 1]); X                                      
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X
             (-+00+)
             sage: X*(-1)
             (+-00-)
@@ -323,13 +323,13 @@ class SignVector(SageObject):
             (-+00+)
         """
         return self*other
-    
+
     def __neg__(self):
         r"""
         Returns the sign vectors multiplied by ``-1``.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector('0+-'); X
             (0+-)
@@ -337,13 +337,13 @@ class SignVector(SageObject):
             (0-+)
         """
         return sign_vector(-self.__sv)
-        
+
     def __getitem__(self, e):
         r"""
         Returns the element at position ``e`` of the sign vector.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector("0++-"); X
             (0++-)
@@ -358,13 +358,13 @@ class SignVector(SageObject):
             return sign_vector(self.__sv[e])
         else:
             return self.__sv[e]
-    
+
     def __setitem__(self, e, a):
         r"""
         Sets the element at position ``e`` to ``sign(a)``.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector("0++-"); X
             (0++-)
@@ -380,9 +380,9 @@ class SignVector(SageObject):
     def support(self):
         r"""
         Returns a list of indices where the sign vector is non-zero.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector([-1,0,1,-1,0]); X
             (-0+-0)
@@ -390,13 +390,13 @@ class SignVector(SageObject):
             [0, 2, 3]
         """
         return self.__sv.support()
-    
+
     def _s_support(self, s):
         r"""
         Returns a list of entries where the sign vector equals ``s``.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector([-1,0,1,-1,0]); X
             (-0+-0)
@@ -406,13 +406,13 @@ class SignVector(SageObject):
             [2]
         """
         return [e for e in range(self.length()) if self[e] == s]
-    
+
     def zero_support(self):
         r"""
         Returns a list of indices where the sign vector is zero.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector([-1,0,1,-1,0]); X
             (-0+-0)
@@ -420,13 +420,13 @@ class SignVector(SageObject):
             [1, 4]
         """
         return self._s_support(0)
-    
+
     def positive_support(self):
         r"""
         Returns a list of indices where the sign vector is positive.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector([-1,0,1,-1,0]); X
             (-0+-0)
@@ -434,13 +434,13 @@ class SignVector(SageObject):
             [2]
         """
         return self._s_support(1)
-    
+
     def negative_support(self):
         r"""
         Returns a list of indices where the sign vector is negative.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector([-1,0,1,-1,0]); X
             (-0+-0)
@@ -448,21 +448,21 @@ class SignVector(SageObject):
             [0, 3]
         """
         return self._s_support(-1)
-    
+
     def list_from_positions(self, S):
         r"""
         Returns a list of components that are in the list of indices ``S``.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
-            sage: X = sign_vector([-1, 1, 0, 0, 1]); X                                
+            sage: X = sign_vector([-1, 1, 0, 0, 1]); X
             (-+00+)
-            sage: X.list_from_positions([0,1,4])                                            
+            sage: X.list_from_positions([0,1,4])
             [-1, 1, 1]
         """
         return self.__sv.list_from_positions(S)
-    
+
     def is_vector(self):
         r"""Returns ``False`` since sign vectors are not vectors."""
         return False
@@ -470,16 +470,16 @@ class SignVector(SageObject):
     def separating_elements(self, other):
         r"""
         Computes the list of separating elements of two sign vectors.
-        
+
         INPUT:
-        
+
         - ``other`` -- sign vector
-        
+
         OUTPUT:
         List of elements ``e`` such that ``self[e] == -other[e] != 0``.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector('++00-'); X
             (++00-)
@@ -491,21 +491,21 @@ class SignVector(SageObject):
         if self.length() != other.length():
             raise ValueError('Sign vectors have different length.')
         return [e for e in self.support() if self[e] == -other[e]]
-    
+
     def reverse_signs_in(self, S):
         r"""
         Reverses sign of given entries.
-        
+
         INPUT:
-        
+
         - ``S`` -- list of indices
-        
+
         OUTPUT:
         Returns a new sign vector of same length. Components with indices in
         ``S`` are multiplied by ``-1``.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector([-1, 1, 1, 0, 1]); X
             (-++0+)
@@ -517,9 +517,9 @@ class SignVector(SageObject):
     def conforms(left, right):
         r"""
         Conformal relation of two sign vectors.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector([-1, 1, 0, 0, 1]); X
             (-+00+)
@@ -540,7 +540,7 @@ class SignVector(SageObject):
         """
         if left.length() != right.length():
             raise ValueError('Sign vectors have different length.')
-        
+
         def lessthan(x,y):
             r"""Unary conformal relation."""
             if x == 0:
@@ -549,18 +549,18 @@ class SignVector(SageObject):
                 return True
             else:
                 return False
-    
+
         for e in range(left.length()):
             if not lessthan(left[e], right[e]):
                 return False
         return True
-    
+
     def __eq__(self, other):
         r"""
         Returns whether this sign vector is equal to ``other``.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector("++0-")
             sage: X == X
@@ -569,7 +569,7 @@ class SignVector(SageObject):
             False
 
         TESTS::
-        
+
             sage: from sign_vectors import zero_sign_vector
             sage: zero_sign_vector(3) == 0
             True
@@ -580,17 +580,17 @@ class SignVector(SageObject):
             return self.__sv == other.__sv
         else:
             return self.__sv == other
-    
+
     def __le__(left, right):
         r"""
         Returns whether this sign vector is less or equal to ``right``.
-        
+
         .. SEEALSO::
-        
+
             :meth: `compose`
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector, zero_sign_vector
             sage: X = sign_vector([-1, 1, 0, 0, 1]); X
             (-+00+)
@@ -598,9 +598,9 @@ class SignVector(SageObject):
             (-++0+)
             sage: X <= Y
             True
-        
+
         We can also use ``<=`` to compare a sign vector with ``0``::
-        
+
             sage: sign_vector('00--') <= 0
             True
             sage: sign_vector([1,1,-1,0]) <= 0
@@ -609,10 +609,10 @@ class SignVector(SageObject):
             True
             sage: zero_sign_vector(2) <= 0
             True
-            
+
         Similarly as for real vectors, comparison with other integers fails::
-        
-            sage: try: 
+
+            sage: try:
             ....:     sign_vector("00+") < 1
             ....: except TypeError:
             ....:     print("failed")
@@ -631,13 +631,13 @@ class SignVector(SageObject):
     def __lt__(left, right):
         r"""
         Returns whether this sign vector is less than ``right``.
-                
+
         .. SEEALSO::
-        
+
             :meth: `compose`
 
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector, zero_sign_vector
             sage: X = sign_vector([-1, 1, 0, 0, 1]); X
             (-+00+)
@@ -645,9 +645,9 @@ class SignVector(SageObject):
             (-++0+)
             sage: X < Y
             True
-        
+
         We can also use ``<`` to compare a sign vector with ``0``::
-        
+
             sage: sign_vector('00--') < 0
             True
             sage: sign_vector([1,1,-1,0]) < 0
@@ -658,17 +658,17 @@ class SignVector(SageObject):
             False
         """
         return left != right and left <= right
-    
+
     def __ge__(left, right):
         r"""
         Returns whether this sign vector is greater or equal to ``right``.
-                
+
         .. SEEALSO::
-        
+
             :meth: `compose`
 
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector, zero_sign_vector
             sage: X = sign_vector([-1, 1, 0, 0, 1]); X
             (-+00+)
@@ -676,9 +676,9 @@ class SignVector(SageObject):
             (-++0+)
             sage: Y >= X
             True
-        
+
         We can also use ``>=`` to compare a sign vector with ``0``::
-        
+
             sage: sign_vector('00--') >= 0
             False
             sage: sign_vector([1,1,-1,0]) >= 0
@@ -697,17 +697,17 @@ class SignVector(SageObject):
             return True
         else:
             return left.__sv >= right
-        
+
     def __gt__(left, right):
         r"""
         Returns whether this sign vector is greater than ``right``.
-                
+
         .. SEEALSO::
-        
+
             :meth: `compose`
 
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector, zero_sign_vector
             sage: X = sign_vector([-1, 1, 0, 0, 1]); X
             (-+00+)
@@ -715,9 +715,9 @@ class SignVector(SageObject):
             (-++0+)
             sage: Y > X
             True
-        
+
         We can also use ``>`` to compare a sign vector with ``0``::
-        
+
             sage: 0 > sign_vector('00--')
             True
             sage: sign_vector([1,1,-1,0]) > 0
@@ -728,21 +728,21 @@ class SignVector(SageObject):
             False
         """
         return left != right and left >= right
-    
+
     def is_orthogonal_to(self, other):
         r"""
         Returns whether two sign vectors are orthogonal.
-        
+
         INPUT:
-        
+
         - ``other`` -- a sign vector.
-        
+
         OUTPUT:
-        
+
         - Returns ``True`` if the sign vectors are orthogonal and ``False`` otherwise.
-        
+
         EXAMPLES::
-        
+
             sage: from sign_vectors import sign_vector
             sage: X = sign_vector('-+00+'); X
             (-+00+)
@@ -771,37 +771,37 @@ class SignVector(SageObject):
 def sign_vector(v):
     r"""
     Create a sign vector from a list, vector or string.
-    
+
     INPUT:
-    
+
     - ``v`` -- different inputs are accepted:
-    
+
         - an iterable (e.g. a list or vector) of real values.
           Variables can also occur.
-    
+
         - a string consisting of "-", "+", "0". Other characters are treated as "0".
-    
+
     OUTPUT:
-    
+
     Returns a sign vector. If variables occur and the sign of the corresponding
     entries is not determined, prints a warning and inserts ``0`` instead.
-    
+
     EXAMPLES::
-    
+
         sage: from sign_vectors import sign_vector
         sage: sign_vector([5,0,-1,-2])
         (+0--)
         sage: v = vector([5,0,-1,-2])
         sage: sign_vector(v)
         (+0--)
-      
+
     We can also use a string to compute a sign vector::
-    
+
         sage: sign_vector('++-+-00-')
         (++-+-00-)
-        
+
     Variables are supported to some extent::
-    
+
         sage: v = vector([1, x, -1])
         sage: assume(x > 0)
         sage: sign_vector(v)
@@ -815,9 +815,9 @@ def sign_vector(v):
 def zero_sign_vector(n):
     r"""
     Return the zero sign vector of length ``n``.
-    
+
     EXAMPLES::
-    
+
         sage: from sign_vectors import zero_sign_vector
         sage: zero_sign_vector(5)
         (00000)
@@ -827,9 +827,9 @@ def zero_sign_vector(n):
 def random_sign_vector(n):
     r"""
     Return a random sign vector of length ``n``.
-    
+
     EXAMPLES::
-    
+
         sage: from sign_vectors import random_sign_vector
         sage: random_sign_vector(5) # random
         (++-0-)

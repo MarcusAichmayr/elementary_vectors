@@ -12,4 +12,3 @@ from __future__ import absolute_import
 
 from .functions import elementary_vectors, non_negative_vectors, positive_elementary_vectors, exists_vector
 from .reductions import reduce_vectors_support, reduce_vectors
-

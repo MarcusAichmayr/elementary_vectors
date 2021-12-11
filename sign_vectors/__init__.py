@@ -14,4 +14,3 @@ from .sign_vectors import *
 
 from .utility import closure, contraction, deletion
 # from .utility import loops, parallel_classes, classes_same_support
-
