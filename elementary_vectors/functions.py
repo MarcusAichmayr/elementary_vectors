@@ -242,7 +242,7 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
             ind = M.pivot_rows() # would not work for polynomial matrices
             M = M.matrix_from_rows(ind)
             full_rank = True
-        except:
+        except (ArithmeticError, NotImplementedError):
             full_rank = False # The matrix might not have full rank. In this case, we will obtain ``[]``.
     else:
         M = M.right_kernel_matrix() # not implemented for polynomial matrices over ZZ (QQ does work.)
@@ -400,7 +400,7 @@ def non_negative_vectors(L):
     return out
 
 
-# TODO: should assumptions be an optional argument?
+#TODO: should assumptions be an optional argument?
 def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
     Computes positive elementary vectors.
@@ -500,7 +500,7 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
 #                     pass
             # Do not overwrite ``evs`` here! It might be used in another branch.
             if reduce:
-                L = reduce_vectors(evs, eq=eq) # TODO: this might result in an empty list. Instead, compute elementary vectors again if data is matrix
+                L = reduce_vectors(evs, eq=eq) #TODO: this might result in an empty list. Instead, compute elementary vectors again if data is matrix
             else:
                 L = evs
             if return_minors:
@@ -579,8 +579,8 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     The underlying algorithm is based on Minty's Lemma. (see [Min74]_)
 
     .. [Min74] Minty, G. J.:
-       „A ’from scratch’ proof of a theorem of Rockafellar and Fulkerson“.
-       In: Mathematical Programming 7 (1974), pp. 368–375.
+       „A `from scratch` proof of a theorem of Rockafellar and Fulkerson“.
+       In: Mathematical Programming 7 (1974), pp. 368-375.
 
     EXAMPLES::
 
@@ -652,9 +652,9 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     # is this needed?
     for i in range(n):
         if L[i] == R[i]: # interval is a point
-            if l[i] == False:
+            if l[i] is False:
                 return False
-            elif r[i] == False:
+            elif r[i] is False:
                 return False
 
     if certificate:
