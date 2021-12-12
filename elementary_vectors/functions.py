@@ -86,7 +86,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
          (0, -4, 2, 2, 0)]
 
     Rational matrices are supported as well::
-    
+
         sage: A = matrix([[1/2,0,0,2/3],[0,0,5/2,-1]])
         sage: A
         [1/2   0   0 2/3]
@@ -652,17 +652,10 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     # is this needed?
     for i in range(n):
         if L[i] == R[i]: # interval is a point
-            if l[i] is False:
+            if not l[i]:
                 return False
-            elif r[i] is False:
+            elif not r[i]:
                 return False
-
-    if certificate:
-        def out_false(v):
-            return [False, v]
-    else:
-        def out_false(v):
-            return False
 
     for v in evs:
         UB = 0
@@ -671,35 +664,25 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
         LBeq = True
         for i in range(n):
             # multiplication following 0 * oo = 0
-            a = 0 if v[i] == 0 or L[i] == 0 else v[i]*L[i]
-            b = 0 if v[i] == 0 or R[i] == 0 else v[i]*R[i]
+            a, b = (0, 0) if v[i] == 0 else (v[i]*L[i], v[i]*R[i])
 
             if a == b and v[i] != 0:
                 LB += a
                 UB += b
-                LBeq = LBeq and l[i] and r[i]
-                UBeq = UBeq and l[i] and r[i]
+                LBeq &= l[i] and r[i]
+                UBeq &= l[i] and r[i]
             elif a < b:
                 LB += a
                 UB += b
-                LBeq = LBeq and l[i]
-                UBeq = UBeq and r[i]
+                LBeq &= l[i]
+                UBeq &= r[i]
             elif a > b:
                 LB += b
                 UB += a
-                LBeq = LBeq and r[i]
-                UBeq = UBeq and l[i]
+                LBeq &= r[i]
+                UBeq &= l[i]
 
-        if LBeq is True:
-            if LB > 0:
-                return out_false(v)
-        elif LB >= 0: # == oder >=?
-            return out_false(v)
-
-        if UBeq is True:
-            if UB < 0:
-                return out_false(v)
-        elif UB <= 0: # == oder <=?
-            return out_false(v)
+        if (LBeq and LB > 0) or (not LBeq and LB >= 0) or (UBeq and UB < 0) or (not UBeq and UB <= 0):
+            return [False, v] if certificate else False
 
     return True
