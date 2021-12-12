@@ -625,37 +625,32 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     else:
         evs = elementary_vectors(data, kernel=not kernel)
 
-    if evs == []:
-        return True
-
-    n = len(evs[0])
+    n = len(evs[0]) if evs != [] else len(L)
 
     if len(L) != n:
-        raise ValueError('list ``L`` has wrong length')
+        raise ValueError('``L`` should be a list of length ' + n + '.')
     if len(R) != n:
-        raise ValueError('list ``R`` has wrong length')
+        raise ValueError('``R`` should be a list of length ' + n + '.')
 
     if l is True:
         l = [True for i in range(n)]
     elif l is False:
         l = [False for i in range(n)]
     elif len(l) != n:
-        raise ValueError('list ``l`` has wrong length')
+        raise ValueError('``l`` should be a list of length ' + n + '.')
 
     if r is True:
         r = [True for i in range(n)]
     elif r is False:
         r = [False for i in range(n)]
     elif len(r) != n:
-        raise ValueError('list ``r`` has wrong length')
+        raise ValueError('``r`` should be a list of length ' + n + '.')
 
-    # is this needed?
+    # If there are no elementary vectors, the result is false iff an interval is empty.
     for i in range(n):
-        if L[i] == R[i]: # interval is a point
-            if not l[i]:
-                return False
-            elif not r[i]:
-                return False
+        if L[i] == R[i]:
+            if not l[i] or not r[i]:
+                return False # interval is empty
 
     for v in evs:
         UB = 0
