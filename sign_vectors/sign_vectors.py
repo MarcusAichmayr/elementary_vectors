@@ -161,7 +161,7 @@ from sage.rings.integer_ring import ZZ
 from sage.symbolic.ring import SR
 
 class SignVector(SageObject):
-    r"""A sign vector is an element of :math:`{-,+,0}^n`."""
+    r"""A sign vector is an element of :math:`\{-,+,0\}^n`."""
     def __init__(self, l):
         r"""Creates a sign vector from a list ``l``."""
         try:
@@ -779,12 +779,12 @@ def sign_vector(v):
         - an iterable (e.g. a list or vector) of real values.
           Variables can also occur.
 
-        - a string consisting of "-", "+", "0". Other characters are treated as "0".
+        - a string consisting of ``"-"``, ``"+"``, ``"0"``. Other characters are treated as ``"0"``.
 
     OUTPUT:
 
-    Returns a sign vector. If variables occur and the sign of the corresponding
-    entries is not determined, prints a warning and inserts ``0`` instead.
+    Returns a sign vector. If variables occur and the signs of the corresponding
+    entries cannot be determined, prints a warning and inserts ``"0"`` instead.
 
     EXAMPLES::
 
