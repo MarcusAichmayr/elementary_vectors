@@ -13,6 +13,7 @@ from sage.modules.free_module_element import vector
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
 
+
 def closure(W, separate=False):
     r"""
     Compute the closure of a list of sign vectors.
@@ -91,13 +92,13 @@ def closure(W, separate=False):
                 F_new.append(Y)
                 break
     F.append(F_new)
-    for i in range(1,n+1):
+    for i in range(1, n+1):
         F_new = []
-        for X in F[1]: # X has always |supp(X)| = 1
+        for X in F[1]:  # X has always |supp(X)| = 1
             for Y in F[i]:
-                if len(set(X.support() + Y.support())) == i+1: # TODO: utilize that the supports are sorted
+                if len(set(X.support() + Y.support())) == i+1:  # TODO: utilize that the supports are sorted
                     Z = X.compose(Y)
-                    if Z not in F_new: # is this necessary?
+                    if Z not in F_new:  # TODO: is this necessary?
                         for V in W:
                             if Z <= V:
                                 F_new.append(Z)
@@ -142,7 +143,7 @@ def _subvector(F, R):
     if F == []:
         raise ValueError('List is empty.')
     n = len(list(F[0]))
-    S = [e for e in range(n) if e not in R] # S = E\R
+    S = [e for e in range(n) if e not in R]  # S = E\R
 
     if isinstance(F[0], SignVector):
         def vec(v):
@@ -274,7 +275,7 @@ def deletion(F, R):
     L = []
     for X in F:
         X_R = vec(X)
-        if X_R not in L: # naive, might be inefficient
+        if X_R not in L:  # naive, might be inefficient
             L.append(X_R)
     return L
 
@@ -387,7 +388,7 @@ def is_parallel(W, e, f, return_ratio=False):
         sage: is_parallel(M,0,1)
         False
     """
-    d = 0 # will later be set to the ratio of X[e] and X[f]
+    d = 0  # will later be set to the ratio of X[e] and X[f]
 
     if return_ratio:
         ret = [False, 0]
@@ -401,7 +402,7 @@ def is_parallel(W, e, f, return_ratio=False):
                     return ret
             elif X[e] == 0:
                 return ret
-            else: # determine ratio
+            else:  # determine ratio
                 d = X[e]/X[f]
         else:
             if X[e] != d * X[f]:
@@ -489,7 +490,7 @@ def parallel_classes(W, positive_only=False):
         e = toCheck.pop(0)
         l = [e]
         # `toCheck` might change in the for loop. -> toCheck[:]
-        for f in toCheck[:]: # find parallel class `l` of ``e``
+        for f in toCheck[:]:  # find parallel class `l` of ``e``
             if is_par(W, e, f):
                 l.append(f)
                 toCheck.remove(f)
@@ -557,13 +558,13 @@ def classes_same_support(W):
         [[(1, 1, 0, 0), (2, -3, 0, 0)], [(0, 1, 0, 0)]]
     """
     L = []
-    Lc = [] # checked supports
+    Lc = []  # checked supports
     for X in W:
         s = X.support()
-        if s not in Lc: # support of s has not been checked yet
-            L.append([X]) # append new list with X
+        if s not in Lc:  # support of s has not been checked yet
+            L.append([X])  # append new list with X
             Lc.append(s)
-        else: # class of X already exists
+        else:  # class of X already exists
             # find respective class of X
             for Li in L:
                 if s == Li[0].support():

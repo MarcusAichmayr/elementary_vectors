@@ -11,6 +11,7 @@
 from sage.symbolic.ring import SR
 from sign_vectors import sign_vector
 
+
 # TODO: improve name
 def sign_determined(a):
     r"""
@@ -82,5 +83,5 @@ def conformal_elimination(x, y, S=None):
         S = D
     elif not all(s in D for s in S):
         raise ValueError('S is not a subset of D.')
-    lam = max([x[e]/y[e] for e in S]) # x[e]/y[e] < 0 since e in D
+    lam = max([x[e]/y[e] for e in S])  # x[e]/y[e] < 0 since e in D
     return x - lam*y

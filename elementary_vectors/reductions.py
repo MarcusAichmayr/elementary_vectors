@@ -13,6 +13,7 @@ from sage.modules.free_module_element import vector
 from sage.arith.misc import gcd
 from sage.symbolic.ring import SR
 
+
 def simplify_using_equalities(a, eq):
     r"""
     Simplifies the expression ``a`` using a list of equalities ``eq``. Only considers equalities in ``eq``. Other expressions (e.g. inequalities) are ignored.

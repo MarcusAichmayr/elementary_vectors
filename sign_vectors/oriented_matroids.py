@@ -128,6 +128,7 @@ from elementary_vectors import elementary_vectors
 from sign_vectors import sign_vector, zero_sign_vector
 from sign_vectors.utility import loops, classes_same_support, parallel_classes
 
+
 def cocircuits_from_matrix(A, kernel=False):
     r"""
     Compute a list of cocircuits determined by the matrix ``A``.
@@ -223,7 +224,7 @@ def covectors_from_cocircuits(L):
     while F_new != []:
         Y = F_new.pop()
         for X in L:
-            if not X <= Y: # otherwise Z = X.compose(Y) = Y in F
+            if not X <= Y:  # otherwise Z = X.compose(Y) = Y in F
                 Z = X.compose(Y)
                 if Z not in F:
                     F.append(Z)
@@ -270,12 +271,12 @@ def topes_from_cocircuits(D):
     F = [zero_sign_vector(n)]
     F_new = [zero_sign_vector(n)]
     T = []
-    E0 = loops(D) # intersection of zero-supports of all X in D
+    E0 = loops(D)  # intersection of zero-supports of all X in D
 
     while F_new != []:
         Y = F_new.pop()
         for X in D:
-            if not X <= Y: # otherwise Z = X.compose(Y) = Y in F
+            if not X <= Y:  # otherwise Z = X.compose(Y) = Y in F
                 Z = X.compose(Y)
                 if Z not in F:
                     F.append(Z)
@@ -323,10 +324,10 @@ def lower_faces(W):
         for X in Wj:
             for D in PC:
                 for i in D:
-                    if X[i] != 0: # hence X_D != 0
+                    if X[i] != 0:  # hence X_D != 0
                         if X.reverse_signs_in(D) in Wj:
                             Z = sign_vector([0 if i in D else X[i] for i in range(n)])
-                            if Z not in W_: # Is this useless? Is Z in W_ for Z != 0 possible? - Yes, B = matrix(3,5,[1,2,3,5,7,1,4,2,5,3,6,2,1,2,3])
+                            if Z not in W_:  # Is this useless? Is Z in W_ for Z != 0 possible? - Yes, B = matrix(3,5,[1,2,3,5,7,1,4,2,5,3,6,2,1,2,3])
                                 W_.append(Z)
                         break
     return W_
@@ -594,4 +595,4 @@ def covectors_from_matrix(A, kernel=False, algorithm=None, separate=False):
     if algorithm in ['face_enumeration', 'fe']:
         return covectors_from_topes(topes_from_matrix(A, kernel=kernel), separate=separate)
     else:
-        raise ValueError("no algorithm '%s'"%algorithm)
+        raise ValueError("no algorithm '" + algorithm + "'")

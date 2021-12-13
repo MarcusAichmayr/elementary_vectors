@@ -20,6 +20,7 @@ from .utility import sign_determined
 from sage.symbolic.assumptions import assume, forget, assumptions
 import warnings
 
+
 def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
     Compute elementary vectors of a subspace determined by the matrix or from a list of maximal minors.
@@ -159,7 +160,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
     """
     if isinstance(data, list):
-        if dim == None:
+        if dim is None:
             raise TypeError("When computing elementary vectors from a list of " +
                             "maximal minors, the dimensions of the corresponding " +
                             "matrix are needed.")
@@ -238,13 +239,13 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
     """
     if kernel:
         try:
-            ind = M.pivot_rows() # would not work for polynomial matrices
+            ind = M.pivot_rows()  # would not work for polynomial matrices
             M = M.matrix_from_rows(ind)
             full_rank = True
         except (ArithmeticError, NotImplementedError):
-            full_rank = False # The matrix might not have full rank. In this case, we will obtain ``[]``.
+            full_rank = False  # The matrix might not have full rank. In this case, we will obtain ``[]``.
     else:
-        M = M.right_kernel_matrix() # not implemented for polynomial matrices over ZZ (QQ does work.)
+        M = M.right_kernel_matrix()  # not implemented for polynomial matrices over ZZ (QQ does work.)
 
     n = M.ncols()
     r = M.nrows()
@@ -318,18 +319,18 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
     r, n = dim
     if n <= r:
         return evs
-    if binomial(n,r) != len(m):
+    if binomial(n, r) != len(m):
         raise ValueError('Dimensions do not fit.')
     if m == []:
         return evs
-    C = Combinations(n,r+1)
-    dets = Combinations(n,r)
+    C = Combinations(n, r+1)
+    dets = Combinations(n, r)
     if ring is None:
         # see SageMath/local/lib/python3.8/site-packages/sage/matrix/args.pyx
         # find common parent of minors
         ring = get_coercion_model().common_parent(*m)
 
-    for I in C: # construct vectors
+    for I in C:  # construct vectors
         v = zero_vector(ring, n)
         for k in I:
             pos = I.index(k)
@@ -392,14 +393,14 @@ def non_negative_vectors(L):
     """
     out = []
     for v in L:
-        if sign_vector(v) >= 0: # Use ``>=`` instead of ``>``, (0,0,x) -> (000) should be returned
+        if sign_vector(v) >= 0:  # Use ``>=`` instead of ``>``, (0,0,x) -> (000) should be returned
             out.append(v)
         elif sign_vector(v) < 0:
             out.append(-v)
     return out
 
 
-#TODO: should assumptions be an optional argument?
+# TODO: should assumptions be an optional argument?
 def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
     Compute positive elementary vectors.
@@ -478,15 +479,15 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
                 try:
                     expr = a == 0
                     assume(expr)
-                    rec(i+1, l + [expr], eq + [expr, -a == 0]) # a.substitute(-a == 0) results in a instead of 0.
+                    rec(i+1, l + [expr], eq + [expr, -a == 0])  # a.substitute(-a == 0) results in a instead of 0.
                     forget(expr)
                 except ValueError:
                     pass
             else:
-                rec(i+1,l, eq)
+                rec(i+1, l, eq)
         else:
             m_eq = reduce_vector_using_equalities(vector(m), eq=eq)
-            if m_eq == 0: # minors are all zero
+            if m_eq == 0:  # minors are all zero
                 warnings.warn('For ' + str(l) + ' all maximal minors are zero. There might be missing positive elementary vectors.')
 #                 if isinstance(data, list):
 #                     out.append([l, 'maximal minors are zero, could not compute elementary vectors for this branch'])
@@ -499,7 +500,7 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
 #                     pass
             # Do not overwrite ``evs`` here! It might be used in another branch.
             if reduce:
-                L = reduce_vectors(evs, eq=eq) #TODO: this might result in an empty list. Instead, compute elementary vectors again if data is matrix
+                L = reduce_vectors(evs, eq=eq)  # TODO: this might result in an empty list. Instead, compute elementary vectors again if data is matrix
             else:
                 L = evs
             if return_minors:
@@ -648,7 +649,7 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     for i in range(n):
         if L[i] == R[i]:
             if not l[i] or not r[i]:
-                return False # interval is empty
+                return False  # interval is empty
 
     for v in evs:
         UB = 0

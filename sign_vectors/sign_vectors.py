@@ -160,6 +160,7 @@ from sage.misc.prandom import randint
 from sage.rings.integer_ring import ZZ
 from sage.symbolic.ring import SR
 
+
 class SignVector(SageObject):
     r"""A sign vector is an element of :math:`\{-,+,0\}^n`."""
 
@@ -543,7 +544,7 @@ class SignVector(SageObject):
         if left.length() != right.length():
             raise ValueError('Sign vectors have different length.')
 
-        def lessthan(x,y):
+        def lessthan(x, y):
             r"""Unary conformal relation."""
             if x == 0:
                 return True
@@ -628,7 +629,7 @@ class SignVector(SageObject):
                     return False
             return True
         else:
-            return left.__sv <= right # should this be that way?
+            return left.__sv <= right  # should this be that way?
 
     def __lt__(left, right):
         r"""
@@ -770,6 +771,7 @@ class SignVector(SageObject):
                             return True
             return False
 
+
 def sign_vector(v):
     r"""
     Create a sign vector from a list, vector or string.
@@ -814,6 +816,7 @@ def sign_vector(v):
     else:
         return SignVector(list(v))
 
+
 def zero_sign_vector(n):
     r"""
     Return the zero sign vector of length ``n``.
@@ -826,6 +829,7 @@ def zero_sign_vector(n):
     """
     return sign_vector(zero_vector(n))
 
+
 def random_sign_vector(n):
     r"""
     Return a random sign vector of length ``n``.
@@ -836,4 +840,4 @@ def random_sign_vector(n):
         sage: random_sign_vector(5) # random
         (++-0-)
     """
-    return sign_vector([randint(-1,1) for k in range(n)])
+    return sign_vector([randint(-1, 1) for k in range(n)])
