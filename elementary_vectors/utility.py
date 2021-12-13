@@ -14,8 +14,7 @@ from sign_vectors import sign_vector
 # TODO: improve name
 def sign_determined(a):
     r"""
-    Checks whether the sign of a number or symbolic expression ``a`` is
-    uniquely determined.
+    Check whether the sign of a number or symbolic expression ``a`` is uniquely determined.
 
     EXAMPLES::
 
@@ -48,7 +47,7 @@ def sign_determined(a):
 
 def conformal_elimination(x, y, S=None):
     r"""
-    Applies conformal elimination to two real vectors to find a new vector.
+    Apply conformal elimination to two real vectors to find a new vector.
 
     INPUT:
 

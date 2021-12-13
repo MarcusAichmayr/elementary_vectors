@@ -22,8 +22,7 @@ import warnings
 
 def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
-    Computes elementary vectors of a subspace determined by the matrix or from
-    a list of maximal minors.
+    Compute elementary vectors of a subspace determined by the matrix or from a list of maximal minors.
 
     INPUT:
 
@@ -175,7 +174,7 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
 
 def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
-    Computes elementary vectors of a subspace determined by the matrix ``M``.
+    Compute elementary vectors of a subspace determined by the matrix ``M``.
 
     INPUT:
 
@@ -268,7 +267,7 @@ def elementary_vectors_from_matrix(M, kernel=True, reduce=True, return_minors=Fa
 
 def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
     r"""
-    Computes elementary vectors determined by given maximal minors of a matrix.
+    Compute elementary vectors determined by given maximal minors of a matrix.
 
     INPUT:
 
@@ -352,7 +351,7 @@ def elementary_vectors_from_minors(m, dim, reduce=True, ring=None):
 
 def non_negative_vectors(L):
     r"""
-    Returns non-negative vectors.
+    Return non-negative vectors.
 
     INPUT:
 
@@ -360,7 +359,7 @@ def non_negative_vectors(L):
 
     OUTPUT:
 
-    Returns all vectors of ``L`` that are
+    Return all vectors of ``L`` that are
     - non_negative in each component; or
     - negative in each component. Those will be multiplied by ``-1``; or
     - containing variables such that no opposing signs occur.
@@ -403,7 +402,7 @@ def non_negative_vectors(L):
 #TODO: should assumptions be an optional argument?
 def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):
     r"""
-    Computes positive elementary vectors.
+    Compute positive elementary vectors.
 
     INPUT:
 
@@ -519,8 +518,7 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
 
 def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     r"""
-    Returns whether a vector exists in the vector space determined by a matrix
-    such that the components lie in given intervals.
+    Return whether a vector exists in the vector space determined by a matrix such that the components lie in given intervals.
 
     INPUT:
 

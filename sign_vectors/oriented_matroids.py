@@ -1,5 +1,5 @@
 r"""
-Computing with oriented matroids
+Computing with oriented matroids.
 
 This module is about computation with oriented matroids.
 
@@ -130,7 +130,7 @@ from sign_vectors.utility import loops, classes_same_support, parallel_classes
 
 def cocircuits_from_matrix(A, kernel=False):
     r"""
-    Computes a list of cocircuits determined by the matrix ``A``.
+    Compute a list of cocircuits determined by the matrix ``A``.
 
     INPUT:
 
@@ -169,8 +169,7 @@ def cocircuits_from_matrix(A, kernel=False):
 
 def covectors_from_cocircuits(L):
     r"""
-    Uses a list of cocircuits to compute all covectors of the corresponding
-    oriented matroid.
+    Use a list of cocircuits to compute all covectors of the corresponding oriented matroid.
 
     INPUT:
 
@@ -187,7 +186,6 @@ def covectors_from_cocircuits(L):
     .. [Fin01] Finschi, L.:
        „A graph theoretical approach for reconstruction and generation of oriented matroids“.
        PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
-
 
     EXAMPLES:
 
@@ -235,7 +233,7 @@ def covectors_from_cocircuits(L):
 
 def topes_from_cocircuits(D):
     r"""
-    Uses the cocircuits of an oriented matroid to compute the topes.
+    Use the cocircuits of an oriented matroid to compute the topes.
 
     INPUT:
 
@@ -290,7 +288,7 @@ def topes_from_cocircuits(D):
 
 def lower_faces(W):
     r"""
-    Computes a list of lower faces.
+    Compute a list of lower faces.
 
     INPUT:
 
@@ -336,7 +334,7 @@ def lower_faces(W):
 
 def face_enumeration(W):
     r"""
-    Computes all covectors with less rank than the given list of covectors.
+    Compute all covectors with less rank than the given list of covectors.
 
     INPUT:
 
@@ -388,7 +386,7 @@ def face_enumeration(W):
 
 def topes_from_matrix(A, kernel=False):
     r"""
-    Returns a list of topes of the oriented matroid corresponding to the matrix ``A``.
+    Return a list of topes of the oriented matroid corresponding to the matrix ``A``.
 
     INPUT:
 
@@ -422,7 +420,7 @@ def topes_from_matrix(A, kernel=False):
 
 def covectors_from_topes(T, separate=False):
     r"""
-    Computes all covectors from a list of topes.
+    Compute all covectors from a list of topes.
 
     INPUT:
 
@@ -484,7 +482,7 @@ def covectors_from_topes(T, separate=False):
 
 def cocircuits_from_topes(T):
     r"""
-    Computes all cocircuits from a list of topes.
+    Compute all cocircuits from a list of topes.
 
     INPUT:
 
@@ -515,8 +513,7 @@ def cocircuits_from_topes(T):
 
 def covectors_from_matrix(A, kernel=False, algorithm=None, separate=False):
     r"""
-    Returns a list of covectors of the oriented matroid corresponding to the
-    matrix ``A``.
+    Return a list of covectors of the oriented matroid corresponding to the matrix ``A``.
 
     INPUT:
 

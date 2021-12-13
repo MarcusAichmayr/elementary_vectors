@@ -1,5 +1,5 @@
 r"""
-Sign vectors
+Sign vectors.
 
 EXAMPLES:
 
@@ -162,8 +162,9 @@ from sage.symbolic.ring import SR
 
 class SignVector(SageObject):
     r"""A sign vector is an element of :math:`\{-,+,0\}^n`."""
+
     def __init__(self, l):
-        r"""Creates a sign vector from a list ``l``."""
+        r"""Create a sign vector from a list ``l``."""
         try:
             self.__sv = vector(ZZ, [sign(x) for x in l])
         except TypeError:
@@ -172,7 +173,7 @@ class SignVector(SageObject):
     @staticmethod
     def _sign_sym(a):
         r"""
-        Returns appropriate sign of symbolic expression. Prints warning and returns ``0`` if sign cannot be computed.
+        Return appropriate sign of symbolic expression. Prints warning and returns ``0`` if sign cannot be computed.
 
         EXAMPLES::
 
@@ -202,15 +203,16 @@ class SignVector(SageObject):
             return 0
 
     def _repr_(self):
-        r"""Represents a sign vector by a string containing '-', '+' and '0'."""
+        r"""Represent a sign vector by a string containing '-', '+' and '0'."""
         return '(' + ''.join([('+' if x > 0 else ('-' if x < 0 else '0')) for x in self.__sv]) + ')'
 
     def __hash__(self):
+        r"""Return the hash value of this sign vector."""
         return hash(repr(self))
 
     def length(self):
         r"""
-        Returns the length of the sign vector.
+        Return the length of the sign vector.
 
         EXAMPLES::
 
@@ -224,7 +226,7 @@ class SignVector(SageObject):
 
     def __len__(self):
         r"""
-        Returns the length of the sign vector.
+        Return the length of this sign vector.
 
         EXAMPLES::
 
@@ -238,7 +240,7 @@ class SignVector(SageObject):
 
     def compose(left, right):
         r"""
-        Returns the composition of two sign vectors.
+        Return the composition of two sign vectors.
 
         INPUT:
 
@@ -272,7 +274,7 @@ class SignVector(SageObject):
 
     def __and__(left, right):
         r"""
-        Returns the composition of two sign vectors.
+        Return the composition of two sign vectors.
 
         .. SEEALSO::
 
@@ -326,7 +328,7 @@ class SignVector(SageObject):
 
     def __neg__(self):
         r"""
-        Returns the sign vectors multiplied by ``-1``.
+        Return the sign vectors multiplied by ``-1``.
 
         EXAMPLES::
 
@@ -340,7 +342,7 @@ class SignVector(SageObject):
 
     def __getitem__(self, e):
         r"""
-        Returns the element at position ``e`` of the sign vector.
+        Return the element at position ``e`` of the sign vector.
 
         EXAMPLES::
 
@@ -361,7 +363,7 @@ class SignVector(SageObject):
 
     def __setitem__(self, e, a):
         r"""
-        Sets the element at position ``e`` to ``sign(a)``.
+        Set the element at position ``e`` to ``sign(a)``.
 
         EXAMPLES::
 
@@ -379,7 +381,7 @@ class SignVector(SageObject):
 
     def support(self):
         r"""
-        Returns a list of indices where the sign vector is non-zero.
+        Return a list of indices where the sign vector is non-zero.
 
         EXAMPLES::
 
@@ -393,7 +395,7 @@ class SignVector(SageObject):
 
     def _s_support(self, s):
         r"""
-        Returns a list of entries where the sign vector equals ``s``.
+        Return a list of entries where the sign vector equals ``s``.
 
         EXAMPLES::
 
@@ -409,7 +411,7 @@ class SignVector(SageObject):
 
     def zero_support(self):
         r"""
-        Returns a list of indices where the sign vector is zero.
+        Return a list of indices where the sign vector is zero.
 
         EXAMPLES::
 
@@ -423,7 +425,7 @@ class SignVector(SageObject):
 
     def positive_support(self):
         r"""
-        Returns a list of indices where the sign vector is positive.
+        Return a list of indices where the sign vector is positive.
 
         EXAMPLES::
 
@@ -437,7 +439,7 @@ class SignVector(SageObject):
 
     def negative_support(self):
         r"""
-        Returns a list of indices where the sign vector is negative.
+        Return a list of indices where the sign vector is negative.
 
         EXAMPLES::
 
@@ -451,7 +453,7 @@ class SignVector(SageObject):
 
     def list_from_positions(self, S):
         r"""
-        Returns a list of components that are in the list of indices ``S``.
+        Return a list of components that are in the list of indices ``S``.
 
         EXAMPLES::
 
@@ -464,12 +466,12 @@ class SignVector(SageObject):
         return self.__sv.list_from_positions(S)
 
     def is_vector(self):
-        r"""Returns ``False`` since sign vectors are not vectors."""
+        r"""Return ``False`` since sign vectors are not vectors."""
         return False
 
     def separating_elements(self, other):
         r"""
-        Computes the list of separating elements of two sign vectors.
+        Compute the list of separating elements of two sign vectors.
 
         INPUT:
 
@@ -557,7 +559,7 @@ class SignVector(SageObject):
 
     def __eq__(self, other):
         r"""
-        Returns whether this sign vector is equal to ``other``.
+        Return whether this sign vector is equal to ``other``.
 
         EXAMPLES::
 
@@ -583,7 +585,7 @@ class SignVector(SageObject):
 
     def __le__(left, right):
         r"""
-        Returns whether this sign vector is less or equal to ``right``.
+        Return whether this sign vector is less or equal to ``right``.
 
         .. SEEALSO::
 
@@ -630,7 +632,7 @@ class SignVector(SageObject):
 
     def __lt__(left, right):
         r"""
-        Returns whether this sign vector is less than ``right``.
+        Return whether this sign vector is less than ``right``.
 
         .. SEEALSO::
 
@@ -661,7 +663,7 @@ class SignVector(SageObject):
 
     def __ge__(left, right):
         r"""
-        Returns whether this sign vector is greater or equal to ``right``.
+        Return whether this sign vector is greater or equal to ``right``.
 
         .. SEEALSO::
 
@@ -700,7 +702,7 @@ class SignVector(SageObject):
 
     def __gt__(left, right):
         r"""
-        Returns whether this sign vector is greater than ``right``.
+        Return whether this sign vector is greater than ``right``.
 
         .. SEEALSO::
 
@@ -731,7 +733,7 @@ class SignVector(SageObject):
 
     def is_orthogonal_to(self, other):
         r"""
-        Returns whether two sign vectors are orthogonal.
+        Return whether two sign vectors are orthogonal.
 
         INPUT:
 

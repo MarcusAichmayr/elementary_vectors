@@ -15,7 +15,7 @@ from sign_vectors import SignVector, sign_vector, zero_sign_vector
 
 def closure(W, separate=False):
     r"""
-    Computes the closure of a list of sign vectors.
+    Compute the closure of a list of sign vectors.
 
     INPUT:
 
@@ -116,8 +116,7 @@ def closure(W, separate=False):
 
 def _subvector(F, R):
     r"""
-    Returns a function that returns a sign vector or vector consisting of entries not in ``R``.
-    Used by ``contraction`` and ``deletion``.
+    Return a function that returns a sign vector or vector consisting of entries not in ``R``. Used by ``contraction`` and ``deletion``.
 
     INPUT:
 
@@ -156,7 +155,7 @@ def _subvector(F, R):
 
 def contraction(F, R, keep_components=False):
     r"""
-    Returns all sign vectors that are zero on ``R``. Also works for real vectors.
+    Return all sign vectors that are zero on ``R``. Also works for real vectors.
 
     INPUT:
 
@@ -238,8 +237,7 @@ def contraction(F, R, keep_components=False):
 
 def deletion(F, R):
     r"""
-    Removes the components corresponding to ``R`` from a list of sign vectors.
-    Also works for real vectors.
+    Remove the components corresponding to ``R`` from a list of sign vectors. Also works for real vectors.
 
     INPUT:
 
@@ -263,7 +261,7 @@ def deletion(F, R):
         sage: deletion(W, [1, 2])
         [(+), (0)]
 
-   This function also works for lists of vectors::
+    This function also works for lists of vectors::
 
         sage: l = [vector([0,0,1]), vector([0,2,1]), vector([-1,0,1])]
         sage: deletion(l, [1])
@@ -283,8 +281,7 @@ def deletion(F, R):
 
 def loops(W):
     r"""
-    Computes the list of loops of a given list of sign vectors (or real vectors)
-    ``W``.
+    Compute the list of loops of a given list of sign vectors (or real vectors) ``W``.
 
     .. NOTE::
 
@@ -323,8 +320,7 @@ def loops(W):
 
 def is_parallel(W, e, f, return_ratio=False):
     r"""
-    Determines whether two elements ``e, f`` are parallel for each vector of ``W``.
-    This also works for a set of sign vectors.
+    Determine whether two elements ``e, f`` are parallel for each vector of ``W``. This also works for a set of sign vectors.
 
     INPUT:
 
@@ -418,8 +414,7 @@ def is_parallel(W, e, f, return_ratio=False):
 
 def parallel_classes(W, positive_only=False):
     r"""
-    Computes the parallel classes of a given set of vectors ``W``.
-    This also works for a set of sign vectors.
+    Compute the parallel classes of a given set of vectors ``W``. This also works for a set of sign vectors.
 
     INPUT:
 
@@ -504,8 +499,7 @@ def parallel_classes(W, positive_only=False):
 
 def positive_parallel_classes(W):
     r"""
-    Computes the positive parallel classes of a given set of vectors ``W``.
-    This also works for a set of sign vectors.
+    Compute the positive parallel classes of a given set of vectors ``W``. This also works for a set of sign vectors.
 
     .. seealso::
 
@@ -544,8 +538,7 @@ def positive_parallel_classes(W):
 
 def classes_same_support(W):
     r"""
-    Computes the classes with same support of a given list of sign vectors.
-    Also works for a list of real vectors.
+    Compute the classes with same support of a given list of sign vectors. Also works for a list of real vectors.
 
     INPUT:
 

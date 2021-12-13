@@ -15,8 +15,7 @@ from sage.symbolic.ring import SR
 
 def simplify_using_equalities(a, eq):
     r"""
-    Simplifies the expression ``a`` using a list of equalities ``eq``.
-    Only considers equalities in ``eq``. Other expressions (e.g. inequalities) are ignored.
+    Simplifies the expression ``a`` using a list of equalities ``eq``. Only considers equalities in ``eq``. Other expressions (e.g. inequalities) are ignored.
 
     EXAMPLES::
 
@@ -67,7 +66,7 @@ def simplify_using_equalities(a, eq):
 # What do we expect?
 def reduce_factor(v):
     r"""
-    Cancels a common factor of each entry of this vector. Also works for lists.
+    Cancel a common factor of each entry of this vector. Also works for lists.
 
     EXAMPLES::
 
@@ -153,7 +152,7 @@ def reduce_vector(v, eq=None, factor=True):
 
 def reduce_vectors_support(L):
     r"""
-    Returns a sublist of vectors where each vector has distinct support.
+    Return a sublist of vectors where each vector has distinct support.
 
     INPUT:
 
@@ -184,7 +183,7 @@ def reduce_vectors_support(L):
 
 def remove_zero_vectors(L):
     r"""
-    Removes all zero vectors from this list.
+    Remove all zero vectors from this list.
 
     EXAMPLES::
 
