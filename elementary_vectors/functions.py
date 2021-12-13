@@ -17,7 +17,7 @@ from sign_vectors import sign_vector
 from sage.symbolic.ring import SR
 from .reductions import reduce_vectors, reduce_vector_using_equalities
 from .utility import sign_determined
-from sage.symbolic.assumptions import assume, forget, assumptions
+from sage.symbolic.assumptions import assume, forget
 import warnings
 
 
