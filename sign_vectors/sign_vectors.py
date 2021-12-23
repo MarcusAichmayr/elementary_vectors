@@ -167,9 +167,9 @@ class SignVector(SageObject):
     def __init__(self, l):
         r"""Create a sign vector from a list ``l``."""
         try:
-            self.__sv = vector(ZZ, [sign(x) for x in l])
+            self.__sv = vector(ZZ, (sign(x) for x in l))
         except TypeError:
-            self.__sv = vector(ZZ, [SignVector._sign_sym(x) for x in l])
+            self.__sv = vector(ZZ, (SignVector._sign_sym(x) for x in l))
 
     @staticmethod
     def _sign_sym(a):
@@ -205,7 +205,7 @@ class SignVector(SageObject):
 
     def _repr_(self):
         r"""Represent a sign vector by a string containing '-', '+' and '0'."""
-        return '(' + ''.join([('+' if x > 0 else ('-' if x < 0 else '0')) for x in self.__sv]) + ')'
+        return '(' + ''.join(('+' if x > 0 else ('-' if x < 0 else '0')) for x in self.__sv) + ')'
 
     def __hash__(self):
         r"""Return the hash value of this sign vector."""

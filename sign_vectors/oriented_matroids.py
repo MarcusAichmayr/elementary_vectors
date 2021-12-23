@@ -164,8 +164,8 @@ def cocircuits_from_matrix(A, kernel=False):
         sage: cocircuits_from_matrix(B)
         [(+000), (0--0), (0-0-), (00-+), (-000), (0++0), (0+0+), (00+-)]
     """
-    L = elementary_vectors(A, kernel=kernel)
-    return [sign_vector(v) for v in L] + [sign_vector(-v) for v in L]
+    evs = elementary_vectors(A, kernel=kernel)
+    return [sign_vector(v) for v in evs] + [sign_vector(-v) for v in evs]
 
 
 def covectors_from_cocircuits(L):
@@ -270,7 +270,7 @@ def topes_from_cocircuits(D):
 
     F = [zero_sign_vector(n)]
     F_new = [zero_sign_vector(n)]
-    T = []
+    topes = []
     E0 = loops(D)  # intersection of zero-supports of all X in D
 
     while F_new != []:
@@ -281,10 +281,10 @@ def topes_from_cocircuits(D):
                 if Z not in F:
                     F.append(Z)
                     if Z.zero_support() == E0:
-                        T.append(Z)
+                        topes.append(Z)
                     else:
                         F_new.append(Z)
-    return T
+    return topes
 
 
 def lower_faces(W):
@@ -317,9 +317,8 @@ def lower_faces(W):
     if not W:
         raise ValueError('List is empty.')
     n = W[0].length()
-    L = classes_same_support(W)
     W_ = []
-    for Wj in L:
+    for Wj in classes_same_support(W):
         PC = parallel_classes(Wj)
         for X in Wj:
             for D in PC:
@@ -377,12 +376,12 @@ def face_enumeration(W):
     """
     if not W:
         raise ValueError('List is empty.')
-    L = [W]
+    faces = [W]
     n = W[0].length()
 
-    while L[0] != [zero_sign_vector(n)] and L[0] != []:
-        L.insert(0, lower_faces(L[0]))
-    return L
+    while faces[0] != [0] and faces[0] != []:
+        faces.insert(0, lower_faces(faces[0]))
+    return faces
 
 
 def topes_from_matrix(A, kernel=False):
