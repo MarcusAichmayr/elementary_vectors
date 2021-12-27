@@ -16,6 +16,7 @@ Documentation of sign_vectors
     :toctree: generated
 
     elementary_vectors.functions
+    elementary_vectors.vectors_in_intervals
     elementary_vectors.reductions
     elementary_vectors.utility
     
