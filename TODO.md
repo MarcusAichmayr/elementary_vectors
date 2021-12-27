@@ -6,7 +6,10 @@
     * several reductions
     * `elementary_vectors`
     * `exists_vector`
-    
+* Every .py file should have a docstring.
+    * [ ] `vectors_in_intervals`
+      * [ ] check for existence of vectors, compute vectors
+
 ### elementary_vectors.functions
 
 * [x] Add example with `return_minors=True` in `elementary_vectors` and `elementary_vectors_from_matrix`.
