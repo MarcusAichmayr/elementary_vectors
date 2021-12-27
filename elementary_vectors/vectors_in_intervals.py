@@ -130,7 +130,7 @@ def setup_intervals(L, R, l=True, r=True):
     return intervals
 
 
-def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
+def exists_vector(data, intervals, kernel=False, certificate=False):
     r"""
     Return whether a vector exists in the vector space determined by a matrix such that the components lie in given intervals.
 
@@ -139,13 +139,7 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     - ``data`` -- either a real matrix with ``n`` columns or a list of
                   elementary vectors of length ``n``
 
-    - ``L`` -- a list of real values (``-oo`` and ``oo`` are accepted) of length ``n``
-
-    - ``R`` -- a list of real values (``-oo`` and ``oo`` are accepted) of length ``n``
-
-    - ``l`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
-
-    - ``r`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
+    - ``intervals`` -- a list of intervals (``RealSet``)
 
     - ``kernel`` -- a boolean (default: ``False``)
 
@@ -194,42 +188,54 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
        „A `from scratch` proof of a theorem of Rockafellar and Fulkerson“.
        In: Mathematical Programming 7 (1974), pp. 368-375.
 
+    .. SEEALSO::
+
+        :func:`~setup_intervals`
+
     EXAMPLES::
 
-        sage: from elementary_vectors import exists_vector
-        sage: M = matrix([1,1,0])
-        sage: L = [2,5,-1] # lower halves of the intervals
-        sage: R = [5,6,1] # upper halves of the intervals
+        sage: from elementary_vectors import exists_vector, setup_intervals
+        sage: M = matrix([1, 1, 0])
+        sage: L = [2, 5, -1] # lower halves of the intervals
+        sage: R = [5, 6, 1] # upper halves of the intervals
 
     First, we consider closed intervals::
 
-        sage: exists_vector(M, L, R)
-        True
-        sage: exists_vector(M, L, R, r=True)
-        True
-        sage: exists_vector(M, L, R, l=True, r=True)
+        sage: I = setup_intervals(L, R)
+        sage: I
+        [[2, 5], [5, 6], [-1, 1]]
+        sage: exists_vector(M, I)
         True
 
-    Open intervals::
+    Next, we take open intervals::
 
-        sage: exists_vector(M, L, R, l=False, r=False)
+        sage: I = setup_intervals(L, R, l=False, r=False)
+        sage: I
+        [(2, 5), (5, 6), (-1, 1)]
+        sage: exists_vector(M, I)
         False
 
-    Mixed intervals::
+    Mixed intervals are also possible::
 
-        sage: l = [True,True,False]
-        sage: r = [False,True,True]
-        sage: exists_vector(M, L, R, l=l, r=r)
+        sage: l = [True, True, False]
+        sage: r = [False, True, True]
+        sage: I = setup_intervals(L, R, l, r)
+        sage: I
+        [[2, 5), [5, 6], (-1, 1]]
+        sage: exists_vector(M, I)
         False
 
-    Unbounded intervals::
+    Finally, we consider unbounded intervals::
 
-        sage: M = matrix([[1,0,1,0],[0,1,1,1]])
-        sage: L = [2,5,0,-oo]
-        sage: R = [5,oo,8,5]
-        sage: l = [True,True,False,False]
-        sage: r = [False,False,False,True]
-        sage: exists_vector(M, L, R, l=l, r=r)
+        sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
+        sage: L = [2, 5, 0, -oo]
+        sage: R = [5, oo, 8, 5]
+        sage: l = [True, True, False, False]
+        sage: r = [False, False, False, True]
+        sage: I = setup_intervals(L, R, l, r)
+        sage: I
+        [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
+        sage: exists_vector(M, I)
         True
     """
     if isinstance(data, list):
@@ -237,57 +243,34 @@ def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
     else:
         evs = elementary_vectors(data, kernel=not kernel)
 
-    n = len(evs[0]) if evs != [] else len(L)
-
-    if len(L) != n:
-        raise ValueError('``L`` should be a list of length ' + str(n) + '.')
-    if len(R) != n:
-        raise ValueError('``R`` should be a list of length ' + str(n) + '.')
-
-    if l is True:
-        l = [True for i in range(n)]
-    elif l is False:
-        l = [False for i in range(n)]
-    elif len(l) != n:
-        raise ValueError('``l`` should be a list of length ' + str(n) + '.')
-
-    if r is True:
-        r = [True for i in range(n)]
-    elif r is False:
-        r = [False for i in range(n)]
-    elif len(r) != n:
-        raise ValueError('``r`` should be a list of length ' + str(n) + '.')
-
-    # If there are no elementary vectors, the result is false iff an interval is empty.
-    for i in range(n):
-        if L[i] == R[i]:
-            if not l[i] or not r[i]:
-                return False  # interval is empty
+    for I in intervals:
+        if I.is_empty():
+            return False
 
     for v in evs:
         UB = 0
         LB = 0
         UBeq = True
         LBeq = True
-        for i in range(n):
+        for vi, I in zip(v, intervals):
             # multiplication following 0 * oo = 0
-            a, b = (0, 0) if v[i] == 0 else (v[i]*L[i], v[i]*R[i])
+            a, b = (0, 0) if vi == 0 else (vi*I.inf(), vi*I.sup())
 
-            if a == b and v[i] != 0:
+            if a == b and vi != 0:
                 LB += a
                 UB += b
-                LBeq &= l[i] and r[i]
-                UBeq &= l[i] and r[i]
+                LBeq &= (I.inf() in I) and (I.sup() in I)
+                UBeq &= (I.inf() in I) and (I.sup() in I)
             elif a < b:
                 LB += a
                 UB += b
-                LBeq &= l[i]
-                UBeq &= r[i]
+                LBeq &= I.inf() in I
+                UBeq &= I.sup() in I
             elif a > b:
                 LB += b
                 UB += a
-                LBeq &= r[i]
-                UBeq &= l[i]
+                LBeq &= I.sup() in I
+                UBeq &= I.inf() in I
 
         if (LBeq and LB > 0) or (not LBeq and LB >= 0) or (UBeq and UB < 0) or (not UBeq and UB <= 0):
             return [False, v] if certificate else False
