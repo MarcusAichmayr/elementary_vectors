@@ -1,5 +1,5 @@
 r"""
-Vectors in intervals.
+Finding vectors in intervals.
 
 With this module, we can check whether there is a vector in a subspace such that
 the components lie in given intervals.

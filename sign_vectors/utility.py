@@ -1,3 +1,5 @@
+r"""Utility functions and other useful functions for working with oriented matroids."""
+
 #############################################################################
 #  Copyright (C) 2021                                                       #
 #                Marcus Aichmayr (aichmayr.marcus@gmail.com)                #
