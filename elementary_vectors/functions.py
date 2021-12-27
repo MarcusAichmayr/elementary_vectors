@@ -8,6 +8,7 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+import warnings
 from sage.combinat.combination import Combinations
 from sage.modules.free_module_element import vector, zero_vector
 from sage.structure.element import get_coercion_model
@@ -18,7 +19,6 @@ from sage.symbolic.ring import SR
 from .reductions import reduce_vectors, reduce_vector_using_equalities
 from .utility import sign_determined
 from sage.symbolic.assumptions import assume, forget
-import warnings
 
 
 def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=False, ring=None):

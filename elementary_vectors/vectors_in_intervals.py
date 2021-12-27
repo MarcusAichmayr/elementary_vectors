@@ -1,3 +1,12 @@
+r"""
+Vectors in intervals.
+
+With this module, we can check whether there is a vector in a subspace such that
+the components lie in given intervals.
+
+There is also an algorithmic approach to construct such a vector.
+"""
+
 #############################################################################
 #  Copyright (C) 2021                                                       #
 #                Marcus Aichmayr (aichmayr.marcus@gmail.com)                #
