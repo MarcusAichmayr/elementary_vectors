@@ -9,6 +9,125 @@
 #############################################################################
 
 from .functions import elementary_vectors
+from sage.sets.real_set import RealSet
+from sage.rings.infinity import Infinity
+
+
+def setup_intervals(L, R, l=True, r=True):
+    r"""
+    Construct a list of intervals from lists of bounds.
+
+    INPUT:
+
+    - ``L`` -- a list of real values (``-oo`` and ``oo`` are accepted) of length ``n``
+
+    - ``R`` -- a list of real values (``-oo`` and ``oo`` are accepted) of length ``n``
+
+    - ``l`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
+
+    - ``r`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
+
+    OUTPUT:
+
+    A list of ``RealSet`` objects of length ``n``.
+
+    - ``L`` and ``R`` are the left and right interval values.
+      If ``L[i]`` > ``R[i]``, those elements will be exchanged.
+
+    - ``l`` and ``r`` determine the intervals.
+
+    - The left (or right) interval half of the ``i``-th interval is
+
+        - closed if ``l[i]`` (or ``r[i]``) is ``True`` (default).
+
+        - open if ``l[i]`` (or ``r[i]``) is ``False``.
+
+    - If ``l`` (or ``r``) is a boolean, then all left (or right) interval halves
+      are considered closed if ``True`` (default) and open if ``False``.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.vectors_in_intervals import setup_intervals
+        sage: L = [2,5,-1]
+        sage: R = [5,6,1]
+
+    By default, the intervals are closed::
+
+        sage: setup_intervals(L, R)
+        [[2, 5], [5, 6], [-1, 1]]
+
+    We obtain open intervals if both ``l`` and ``r`` are false::
+
+        sage: setup_intervals(L, R, l=False, r=False)
+        [(2, 5), (5, 6), (-1, 1)]
+
+    Mixed intervals are also possible::
+
+        sage: setup_intervals(L, R, l=False)
+        [(2, 5], (5, 6], (-1, 1]]
+        sage: setup_intervals(L, R, l=[False, True, True], r=[True, True, False])
+        [(2, 5], [5, 6], [-1, 1)]
+
+    We can also specify unbounded intervals.
+    Note that bounds at infinity are always open::
+
+        sage: L = [-oo, 2, -oo]
+        sage: R = [-5, oo, oo]
+        sage: setup_intervals(L, R)
+        [(-oo, -5], [2, +oo), (-oo, +oo)]
+
+    Finite and empty intervals received the usual representation::
+
+        sage: L = [0, 2]
+        sage: R = [0, 2]
+        sage: setup_intervals(L, R, l=[True, False], r=True)
+        [{0}, {}]
+
+    If the lower bound is greater than the upper bound, those bounds will be exchanged::
+
+        sage: L = [1, 4]
+        sage: R = [2, 3]
+        sage: setup_intervals(L, R, l=False)
+        [(1, 2], (3, 4]]
+    """
+    n = len(L)
+    if len(R) != n:
+        raise ValueError('``R`` should be a list of length ' + str(n) + '.')
+
+    if l is True:
+        l = [True]*n
+    elif l is False:
+        l = [False]*n
+    elif len(l) != n:
+        raise ValueError('``l`` should be a list of length ' + str(n) + '.')
+
+    if r is True:
+        r = [True]*n
+    elif r is False:
+        r = [False]*n
+    elif len(r) != n:
+        raise ValueError('``r`` should be a list of length ' + str(n) + '.')
+
+    intervals = []
+    for Li, Ri, li, ri in zip(L, R, l, r):
+        # if Li is the upper bound oo, we want to exchange the bounds first.
+        if Ri < Li:
+            Li, Ri = (Ri, Li)
+        if Li == -Infinity:
+            li = False
+        if Ri == Infinity:
+            ri = False
+
+        if li and ri:
+            I = RealSet.closed(Li, Ri)
+        elif (not li) and (not ri):
+            I = RealSet.open(Li, Ri)
+        elif li and (not ri):
+            I = RealSet.closed_open(Li, Ri)
+        else:
+            I = RealSet.open_closed(Li, Ri)
+        intervals.append(I)
+    return intervals
 
 
 def exists_vector(data, L, R, l=True, r=True, kernel=False, certificate=False):
