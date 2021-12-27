@@ -28,9 +28,9 @@ def setup_intervals(L, R, l=True, r=True):
 
     INPUT:
 
-    - ``L`` -- a list of real values (``-oo`` and ``oo`` are accepted) of length ``n``
+    - ``L`` -- a list of real values and infinity of length ``n``
 
-    - ``R`` -- a list of real values (``-oo`` and ``oo`` are accepted) of length ``n``
+    - ``R`` -- a list of real values and infinity of length ``n``
 
     - ``l`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
 
@@ -85,7 +85,7 @@ def setup_intervals(L, R, l=True, r=True):
         sage: setup_intervals(L, R)
         [(-oo, -5], [2, +oo), (-oo, +oo)]
 
-    Finite and empty intervals received the usual representation::
+    Finite and empty intervals have the usual representation::
 
         sage: L = [0, 2]
         sage: R = [0, 2]
