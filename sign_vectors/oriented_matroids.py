@@ -142,10 +142,10 @@ def cocircuits_from_matrix(M, kernel=False):
     OUTPUT:
 
     - If ``kernel`` is false, returns a list of cocircuits determined by the row
-      space of the matrix ``A`` (default).
+      space of the matrix ``M`` (default).
 
     - If ``kernel`` is true, returns a list of cocircuits determined by the
-      kernel of the matrix ``A``.
+      kernel of the matrix ``M``.
 
     EXAMPLES::
 
