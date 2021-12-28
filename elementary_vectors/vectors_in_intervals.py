@@ -167,21 +167,7 @@ def exists_vector(data, intervals, kernel=False, certificate=False):
           In this case, the elementary vectors will lie in the row space of ``M``.
 
     - If ``data`` is a list of elementary vectors, then those will be used.
-
-        - In this case, the argument ``kernel`` will be ignored.
-
-    - ``L`` and ``R`` are the left and right interval values, respectively.
-
-    - ``l`` and ``r`` determine the intervals.
-
-    - The left (or right) interval half of the ``i``-th interval is
-
-        - closed if ``l[i]`` (or ``r[i]``) is ``True`` (default).
-
-        - open if ``l[i]`` (or ``r[i]``) is ``False``.
-
-    - If ``l`` (or ``r``) is a boolean, then all left (or right) interval halves
-      are considered closed if ``True`` (default) and open if ``False``.
+      In this case, the argument ``kernel`` will be ignored.
 
     - If ``certificate`` is ``False`` (default), returns a boolean.
 
