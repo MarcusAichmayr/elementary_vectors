@@ -1,4 +1,8 @@
-r"""Reducing lists of vectors."""
+r"""
+Reducing lists of vectors.
+
+This module offers several functions to reduce a list of vector.
+"""
 
 #############################################################################
 #  Copyright (C) 2021                                                       #

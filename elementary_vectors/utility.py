@@ -1,3 +1,5 @@
+"""Utility functions."""
+
 #############################################################################
 #  Copyright (C) 2021                                                       #
 #                Marcus Aichmayr (aichmayr.marcus@gmail.com)                #
