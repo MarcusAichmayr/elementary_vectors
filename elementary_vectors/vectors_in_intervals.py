@@ -20,6 +20,10 @@ There is also an algorithmic approach to construct such a vector.
 from .functions import elementary_vectors
 from sage.sets.real_set import RealSet
 from sage.rings.infinity import Infinity
+from sage.calculus.var import var
+from sage.symbolic.relation import solve
+from sage.modules.free_module_element import vector
+from sage.matrix.constructor import matrix
 
 
 def setup_intervals(L, R, l=True, r=True):
@@ -148,7 +152,7 @@ def exists_vector(data, intervals, kernel=False, certificate=False):
     - ``data`` -- either a real matrix with ``n`` columns or a list of
                   elementary vectors of length ``n``
 
-    - ``intervals`` -- a list of intervals (``RealSet``)
+    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
 
     - ``kernel`` -- a boolean (default: ``False``)
 
@@ -271,3 +275,167 @@ def exists_vector(data, intervals, kernel=False, certificate=False):
             return [False, v] if certificate else False
 
     return True
+
+
+def construct_normal_vector(v, intervals):
+    r"""
+    Construct a vector that is normal on a given vector and lies in the specified intervals.
+
+    INPUT:
+
+    - ``v`` -- a vector of length ``n``
+
+    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
+
+    .. SEEALSO::
+
+        :func:`~setup_intervals`
+    """
+    z_min = []
+    z_max = []
+    var('eps')
+    var('lam')
+    open_intervals = False
+    unbounded = False
+    eps_values = []
+    lam_values = []
+    for vk, I in zip(v, intervals):
+        if vk == 0:
+            z_min.append(I.an_element())
+            z_max.append(I.an_element())
+        else:
+            if not I.is_closed():
+                if I.sup() != Infinity and I.inf() != -Infinity:
+                    eps_values.append((I.sup() - I.inf())/2)
+                open_intervals = True
+            if I.inf() == -Infinity or I.sup() == Infinity:
+                if I.inf() != -Infinity:
+                    lam_values.append(abs(I.inf()))
+                if I.sup() != Infinity:
+                    lam_values.append(abs(I.sup()))
+                unbounded = True
+            l = (I.inf() + (0 if I.inf() in I else eps)) if I.inf() != -Infinity else -lam
+            r = (I.sup() + (0 if I.sup() in I else -eps)) if I.sup() != Infinity else lam
+
+            if vk > 0:
+                z_min.append(l)
+                z_max.append(r)
+            else:
+                z_min.append(r)
+                z_max.append(l)
+    z_min = vector(z_min)
+    z_max = vector(z_max)
+
+    if open_intervals:
+        for z_m in [z_min, z_max]:
+            try:
+                if eps in (z_m*v).variables():
+                    sol = solve(z_m*v, eps, solution_dict=True)[0][eps]
+                    if sol <= 0:
+                        raise ValueError("There is no solution.")
+                    else:
+                        eps_values.append(sol)
+            except AttributeError:
+                pass
+        eps_min = min(eps_values)
+        # eps might not occur in both z_min and z_max
+        try:
+            if lam in eps_min.variables():
+                lam_values.append(solve(eps_min, lam, solution_dict=True)[0][lam])
+        except AttributeError:
+            pass
+        try:
+            z_min = z_min(eps=eps_min)
+        except TypeError:
+            pass
+        try:
+            z_max = z_max(eps=eps_min)
+        except TypeError:
+            pass
+    if unbounded:
+        if z_min*v != 0:
+            try:
+                lam_values.append(solve(z_min*v, lam, solution_dict=True)[0][lam])
+            except (IndexError, TypeError):
+                pass
+        if z_max*v != 0:
+            try:
+                lam_values.append(solve(z_max*v, lam, solution_dict=True)[0][lam])
+            except (IndexError, TypeError):
+                pass
+
+        lam_max = max(lam_values) + 1
+        try:
+            z_min = z_min(lam=lam_max)
+        except TypeError:
+            pass
+        try:
+            z_max = z_max(lam=lam_max)
+        except TypeError:
+            pass
+
+    a = v*z_min
+    b = v*z_max
+    if a == 0:
+        return z_min
+    if b == 0:
+        return z_max
+
+    z = (b*z_min - a*z_max)/(b - a) # convex combination lies in the intervals
+
+    return z
+
+
+def construct_vector(M, intervals):
+    r"""
+    Return a vector of a given vectorspace such that the components lie in given intervals.
+
+    INPUT:
+
+    - ``M`` -- a matrix with ``n`` columns
+
+    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
+
+    OUTPUT:
+
+    A vector in the rowspace of ``M`` such that the components lie in the given intervals.
+
+    .. SEEALSO::
+
+        :func:`~setup_intervals`
+    """
+    if not exists_vector(M, intervals):
+        raise ValueError("There is no solution.")
+
+    def rec(M, intervals):
+        r"""Recursive call."""
+        n = M.ncols()
+        r = M.rank()
+        if r == n:
+            return vector(I.an_element() for I in intervals)
+        elif r == n - 1:
+            # The kernel of ``M`` has one dimension. Hence, there is only one elementary vector.
+            y = elementary_vectors(M, kernel=True)[0]
+            return construct_normal_vector(y, intervals)
+        else:
+            # construct n vectors x1, ..., xn
+            x = []
+            for k in range(n):
+                # projection to k-th component
+                M_bar = M.delete_columns([k])
+                intervals_bar = intervals[:k] + intervals[k+1:]
+                xk_bar = rec(M_bar, intervals_bar)
+                # solve linear system to project back
+                a = M_bar.solve_left(xk_bar)
+                xk = a*M
+                x.append(xk)
+
+            # use vectors in x to construct vector
+            A = matrix([xk - x[0] for xk in x[1:]])
+            a = list(A.T.right_kernel_matrix().row(0)) # dim == 1?
+            a = [-sum(a)] + a
+            sol = sum([ak*xk for ak, xk in zip(a, x) if ak > 0]) / sum(ak for ak in a if ak > 0)
+
+            return sol
+
+    return rec(M, intervals)
