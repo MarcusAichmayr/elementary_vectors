@@ -89,7 +89,7 @@ def setup_intervals(L, R, l=True, r=True):
         sage: setup_intervals(L, R)
         [(-oo, -5], [2, +oo), (-oo, +oo)]
 
-    Finite and empty intervals have the usual representation::
+    Finite and empty intervals are represented as usual::
 
         sage: L = [0, 2]
         sage: R = [0, 2]
