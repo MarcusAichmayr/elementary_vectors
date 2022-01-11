@@ -291,6 +291,8 @@ def construct_normal_vector(v, intervals):
 
         :func:`~setup_intervals`
     """
+    if not exists_vector([v], intervals):
+        raise ValueError("There is no solution.")
     z_min = []
     z_max = []
     var('eps')
@@ -331,10 +333,7 @@ def construct_normal_vector(v, intervals):
             try:
                 if eps in (z_m*v).variables():
                     sol = solve(z_m*v, eps, solution_dict=True)[0][eps]
-                    if sol <= 0:
-                        raise ValueError("There is no solution.")
-                    else:
-                        eps_values.append(sol)
+                    eps_values.append(sol)
             except AttributeError:
                 pass
         eps_min = min(eps_values)
