@@ -338,8 +338,7 @@ def construct_normal_vector(v, intervals):
         for z_m in [z_min, z_max]:
             try:
                 if eps in (z_m*v).variables():
-                    sol = solve(z_m*v, eps, solution_dict=True)[0][eps]
-                    eps_values.append(sol)
+                    eps_values.append(solve(z_m*v, eps, solution_dict=True)[0][eps])
             except AttributeError:
                 pass
         eps_min = min(eps_values)
@@ -357,6 +356,7 @@ def construct_normal_vector(v, intervals):
             z_max = z_max(eps=eps_min)
         except TypeError:
             pass
+
     if unbounded:
         if z_min*v != 0:
             try:
