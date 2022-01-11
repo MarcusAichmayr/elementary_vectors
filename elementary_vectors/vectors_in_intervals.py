@@ -410,6 +410,20 @@ def construct_vector(M, intervals):
     .. SEEALSO::
 
         :func:`~setup_intervals`
+
+    EXAMPLES::
+
+        sage: from elementary_vectors import construct_vector, setup_intervals
+        sage: M = matrix([1, 1, 0])
+        sage: L = [2, 5, -1] # lower halves of the intervals
+        sage: R = [5, 6, 1] # upper halves of the intervals
+        sage: I = setup_intervals(L, R, l=False, r=False)
+        sage: I
+        [(2, 5), (5, 6), (-1, 1)]
+        sage: construct_vector(M, I)
+        Traceback (most recent call last):
+        ...
+        ValueError: There is no solution.
     """
     if not exists_vector(M, intervals):
         raise ValueError("There is no solution.")
