@@ -43,9 +43,17 @@ CoCalc:
 
 * [x] implement `construct_vector`
   * [ ] add examples
+    * [ ] several examples, where it works
+    * [ ] easy examples
+    * [x] examples where it does not work
 
 * [x] implement `construct_normal_vector`
+  * [x] Fix bug:
+    If there exists no solution, `construct_normal_vector` might still find something.
   * [ ] add examples
+    * [ ] several examples, where it works
+    * [ ] easy examples
+    * [ ] examples where it does not work
 
 
 #### elementary_vectors.vectors_in_intervals.exists_vector
