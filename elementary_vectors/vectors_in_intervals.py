@@ -287,6 +287,12 @@ def construct_normal_vector(v, intervals):
 
     - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
 
+    OUTPUT:
+
+    Returns a vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
+    and each component of ``z`` lies in the respective interval of the list ``intervals``.
+    If no such vector exists, raises a ``ValueError`` instead.
+
     .. SEEALSO::
 
         :func:`~setup_intervals`
@@ -397,7 +403,9 @@ def construct_vector(M, intervals):
 
     OUTPUT:
 
-    A vector in the rowspace of ``M`` such that the components lie in the given intervals.
+    Returns a vector in the rowspace of ``M`` such that each component lies
+    in the respective interval of the list ``intervals``.
+    If no such vector exists, raises a ``ValueError`` instead.
 
     .. SEEALSO::
 
