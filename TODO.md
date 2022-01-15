@@ -55,15 +55,15 @@ CoCalc:
     * [ ] easy examples
     * [ ] examples where it does not work
 
+* [ ] add examples to `exists_normal_vector`
 
 #### elementary_vectors.vectors_in_intervals.exists_vector
 
 * [ ] If True and certificate is True, compute a corresponding vector of the vector space. (witness)
 * [x] add examples
-* [ ] Should we remove certificate part?
-  * If `construct_vector` is implemented, do we need this?
-* [ ] Do we need the argument `kernel`?
-
+* [x] Removed optional argument `kernel`
+* [x] Removed optional argument `certificate`
+  * In case, someone wants to find the certificate, they can iterate over all elementary vectors and return the vector that does not satisfy `exists_normal_vector`.
 
 ### elementary_vectors.utility
 
