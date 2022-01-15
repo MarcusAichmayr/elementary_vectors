@@ -242,9 +242,8 @@ def exists_vector(data, intervals, kernel=False, certificate=False):
     else:
         evs = elementary_vectors(data, kernel=not kernel)
 
-    for I in intervals:
-        if I.is_empty():
-            return False
+    if any(I.is_empty() for I in intervals):
+        return False
 
     for v in evs:
         UB = 0
