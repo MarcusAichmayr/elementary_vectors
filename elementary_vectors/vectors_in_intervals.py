@@ -246,31 +246,27 @@ def exists_vector(data, intervals, kernel=False, certificate=False):
         return False
 
     for v in evs:
-        UB = 0
-        LB = 0
-        UBeq = True
-        LBeq = True
+        lower_bound = 0
+        upper_bound = 0
+        lower_bound_zero = True
+        upper_bound_zero = True
         for vi, I in zip(v, intervals):
-            # multiplication following 0 * oo = 0
-            a, b = (0, 0) if vi == 0 else (vi*I.inf(), vi*I.sup())
+            if vi != 0:
+                if I.is_finite():  # I consists of one point
+                    lower_bound += vi*I.an_element()
+                    upper_bound += vi*I.an_element()
+                elif vi > 0:
+                    lower_bound += vi*I.inf()
+                    upper_bound += vi*I.sup()
+                    lower_bound_zero &= I.inf() in I
+                    upper_bound_zero &= I.sup() in I
+                else:  # vi < 0
+                    lower_bound += vi*I.sup()
+                    upper_bound += vi*I.inf()
+                    lower_bound_zero &= I.sup() in I
+                    upper_bound_zero &= I.inf() in I
 
-            if a == b and vi != 0:
-                LB += a
-                UB += b
-                LBeq &= (I.inf() in I) and (I.sup() in I)
-                UBeq &= (I.inf() in I) and (I.sup() in I)
-            elif a < b:
-                LB += a
-                UB += b
-                LBeq &= I.inf() in I
-                UBeq &= I.sup() in I
-            elif a > b:
-                LB += b
-                UB += a
-                LBeq &= I.sup() in I
-                UBeq &= I.inf() in I
-
-        if (LBeq and LB > 0) or (not LBeq and LB >= 0) or (UBeq and UB < 0) or (not UBeq and UB <= 0):
+        if lower_bound > 0 or upper_bound < 0 or (lower_bound == 0 and not lower_bound_zero) or (upper_bound == 0 and not upper_bound_zero):
             return [False, v] if certificate else False
 
     return True
