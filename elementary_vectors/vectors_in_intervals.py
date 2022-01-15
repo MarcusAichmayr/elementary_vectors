@@ -206,9 +206,9 @@ def exists_normal_vector(v, intervals):
     return True
 
 
-def exists_vector(data, intervals, certificate=False):
+def exists_vector(data, intervals):
     r"""
-    Return whether a vector exists in the vector space determined by a matrix such that the components lie in given intervals.
+    Return whether a vector exists in the vector space determined by a matrix such that the components lie in the specified intervals.
 
     INPUT:
 
@@ -217,20 +217,14 @@ def exists_vector(data, intervals, certificate=False):
 
     - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
 
-    - ``certificate`` -- a boolean (default: ``False``)
-
     OUTPUT:
+
+    Return whether there exists a vector in the vector space determined by data
+    such that the components lie in the specified intervals.
 
     - If ``data`` is a matrix, then the elementary vectors in the kernel of ``M`` are computed.
 
     - If ``data`` is a list of elementary vectors, then those will be used.
-      In this case, the argument ``kernel`` will be ignored.
-
-    - If ``certificate`` is ``False`` (default), returns a boolean.
-
-    - If ``certificate`` is ``True`` and the result is false, then a list
-      ``[False, v]`` will be returned. Here, ``v`` is an elementary vector of ``M``
-      that certifies that there exists no vector.
 
     ALGORITHM:
 
@@ -295,11 +289,6 @@ def exists_vector(data, intervals, certificate=False):
     else:
         evs = elementary_vectors(data, kernel=True)
 
-    if certificate:
-        for v in evs:
-            if not exists_normal_vector(v, intervals):
-                return [False, v]
-        return True
     return all(exists_normal_vector(v, intervals) for v in evs)
 
 
