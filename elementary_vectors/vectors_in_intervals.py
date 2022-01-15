@@ -143,6 +143,69 @@ def setup_intervals(L, R, l=True, r=True):
     return intervals
 
 
+def exists_normal_vector(v, intervals):
+    r"""
+    Check whether a normal vector exists that lies in the specified intervals.
+
+    INPUT:
+
+    - ``v`` -- a vector of length ``n``
+
+    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
+
+    OUTPUT:
+
+    Return whether there exists a vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
+    and each component of ``z`` lies in the respective interval of the list ``intervals``.
+
+    .. SEEALSO::
+
+        :func:`~setup_intervals`
+
+    TESTS::
+
+    sage: from elementary_vectors import exists_normal_vector, setup_intervals
+    sage: I = setup_intervals([-oo, 0], [oo, 0], l=False, r=False)
+    sage: I
+    [(-oo, +oo), {}]
+    sage: v = vector([1,0])
+    sage: exists_normal_vector(v, I)
+    False
+    """
+    lower_bound = 0
+    upper_bound = 0
+    lower_bound_zero = True
+    upper_bound_zero = True
+
+    for vi, I in zip(v, intervals):
+        if I.is_empty():
+            return False
+        if vi != 0:
+            if I.is_finite():  # I consists of one point
+                lower_bound += vi*I.an_element()
+                upper_bound += vi*I.an_element()
+            elif vi > 0:
+                lower_bound += vi*I.inf()
+                upper_bound += vi*I.sup()
+                lower_bound_zero &= I.inf() in I
+                upper_bound_zero &= I.sup() in I
+            else:  # vi < 0
+                lower_bound += vi*I.sup()
+                upper_bound += vi*I.inf()
+                lower_bound_zero &= I.sup() in I
+                upper_bound_zero &= I.inf() in I
+
+    if lower_bound > 0:
+        return False
+    if upper_bound < 0:
+        return False
+    if lower_bound == 0 and not lower_bound_zero:
+        return False
+    if upper_bound == 0 and not upper_bound_zero:
+        return False
+    return True
+
+
 def exists_vector(data, intervals, kernel=False, certificate=False):
     r"""
     Return whether a vector exists in the vector space determined by a matrix such that the components lie in given intervals.
@@ -242,34 +305,12 @@ def exists_vector(data, intervals, kernel=False, certificate=False):
     else:
         evs = elementary_vectors(data, kernel=not kernel)
 
-    if any(I.is_empty() for I in intervals):
-        return False
-
-    for v in evs:
-        lower_bound = 0
-        upper_bound = 0
-        lower_bound_zero = True
-        upper_bound_zero = True
-        for vi, I in zip(v, intervals):
-            if vi != 0:
-                if I.is_finite():  # I consists of one point
-                    lower_bound += vi*I.an_element()
-                    upper_bound += vi*I.an_element()
-                elif vi > 0:
-                    lower_bound += vi*I.inf()
-                    upper_bound += vi*I.sup()
-                    lower_bound_zero &= I.inf() in I
-                    upper_bound_zero &= I.sup() in I
-                else:  # vi < 0
-                    lower_bound += vi*I.sup()
-                    upper_bound += vi*I.inf()
-                    lower_bound_zero &= I.sup() in I
-                    upper_bound_zero &= I.inf() in I
-
-        if lower_bound > 0 or upper_bound < 0 or (lower_bound == 0 and not lower_bound_zero) or (upper_bound == 0 and not upper_bound_zero):
-            return [False, v] if certificate else False
-
-    return True
+    if certificate:
+        for v in evs:
+            if not exists_normal_vector(v, intervals):
+                return [False, v]
+        return True
+    return all(exists_normal_vector(v, intervals) for v in evs)
 
 
 def construct_normal_vector(v, intervals):
