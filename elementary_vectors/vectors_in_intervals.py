@@ -314,6 +314,8 @@ def construct_normal_vector(v, intervals):
     """
     if not exists_normal_vector(v, intervals):
         raise ValueError("There is no solution.")
+
+    # construct z_min and z_max
     z_min = []
     z_max = []
     var('eps')
@@ -337,6 +339,7 @@ def construct_normal_vector(v, intervals):
     z_min = vector(z_min)
     z_max = vector(z_max)
 
+    # find candidates for eps and lam
     eps_values = []
     lam_values = []
     for vk, I in zip(v, intervals):
@@ -361,20 +364,15 @@ def construct_normal_vector(v, intervals):
                 else:  # (a, b)
                     eps_values.append((I.sup() - I.inf())/2)
 
+    # determine eps
     if eps_values:
-        for z_m in [z_min, z_max]:
+        for eq in [z_min*v, z_max*v]:
             try:
-                if eps in (z_m*v).variables():
-                    eps_values.append(solve(z_m*v, eps, solution_dict=True)[0][eps])
+                if eps in eq.variables() and lam not in eq.variables():
+                    eps_values.append(solve(eq, eps, solution_dict=True)[0][eps])
             except AttributeError:
                 pass
         eps_min = min(eps_values)
-        # eps might not occur in both z_min and z_max
-        try:
-            if lam in eps_min.variables():
-                lam_values.append(solve(eps_min - 1, lam, solution_dict=True)[0][lam])
-        except AttributeError:
-            pass
         try:
             z_min = z_min(eps=eps_min)
         except TypeError:
@@ -384,18 +382,14 @@ def construct_normal_vector(v, intervals):
         except TypeError:
             pass
 
+    # determine lam
     if lam_values:
-        if z_min*v != 0:
-            try:
-                lam_values.append(solve(z_min*v, lam, solution_dict=True)[0][lam])
-            except (IndexError, TypeError):
-                pass
-        if z_max*v != 0:
-            try:
-                lam_values.append(solve(z_max*v, lam, solution_dict=True)[0][lam])
-            except (IndexError, TypeError):
-                pass
-
+        for eq in [z_min*v, z_max*v]:
+            if eq != 0:
+                try:
+                    lam_values.append(solve(eq, lam, solution_dict=True)[0][lam])
+                except (IndexError, TypeError):
+                    pass
         lam_max = max(lam_values)
         try:
             z_min = z_min(lam=lam_max)
