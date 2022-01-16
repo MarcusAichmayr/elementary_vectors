@@ -324,8 +324,8 @@ def construct_normal_vector(v, intervals):
             z_min.append(I.an_element())
             z_max.append(I.an_element())
         else:
-            l = (I.inf() + (0 if I.inf() in I else eps)) if I.inf() != -oo else -lam
-            r = (I.sup() + (0 if I.sup() in I else -eps)) if I.sup() != oo else lam
+            l = (I.inf() + (0 if I.inf() in I else eps)) if I.inf() != -Infinity else -lam
+            r = (I.sup() + (0 if I.sup() in I else -eps)) if I.sup() != Infinity else lam
 
             if vk > 0:
                 z_min.append(l)
@@ -343,9 +343,9 @@ def construct_normal_vector(v, intervals):
     lam_values = [0]
     for vk, I in zip(v, intervals):
         if vk != 0:
-            if I.inf() == -oo and I.sup() == oo:  # (-oo, oo)
+            if I.inf() == -Infinity and I.sup() == Infinity:  # (-oo, oo)
                 unbounded = True
-            elif I.inf() == -oo:
+            elif I.inf() == -Infinity:
                 unbounded = True
                 if I.sup() not in I:  # (-oo, b)
                     open_intervals = True
@@ -354,7 +354,7 @@ def construct_normal_vector(v, intervals):
                         lam_values.append(-I.sup())
                     else:  # (-oo, b)
                         lam_values.append(-I.sup() + 1)
-            elif I.sup() == oo:
+            elif I.sup() == Infinity:
                 unbounded = True
                 if I.inf() not in I:  # (a, oo)
                     open_intervals = True
