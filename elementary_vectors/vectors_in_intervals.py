@@ -337,39 +337,31 @@ def construct_normal_vector(v, intervals):
     z_min = vector(z_min)
     z_max = vector(z_max)
 
-    open_intervals = False
-    unbounded = False
     eps_values = []
     lam_values = []
     for vk, I in zip(v, intervals):
         if vk != 0:
             if I.inf() == -Infinity and I.sup() == Infinity:  # (-oo, oo)
-                unbounded = True
                 lam_values.append(0)
             elif I.inf() == -Infinity:
-                unbounded = True
                 if I.sup() in I:  # (-oo, b]
                     lam_values.append(-I.sup())
                 else:  # (-oo, b)
-                    open_intervals = True
                     lam_values.append(1 - I.sup())
                     eps_values.append(1)
             elif I.sup() == Infinity:
-                unbounded = True
                 if I.inf() in I:  # [a, oo)
                     lam_values.append(I.inf())
                 else:  # (a, oo)
-                    open_intervals = True
                     lam_values.append(1 + I.inf())
                     eps_values.append(1)
             elif not I.is_closed():
-                open_intervals = True
                 if I.sup() in I or I.inf() in I:  # [a, b) or (a, b]
                     eps_values.append(I.sup() - I.inf())
                 else:  # (a, b)
                     eps_values.append((I.sup() - I.inf())/2)
 
-    if open_intervals:
+    if eps_values:
         for z_m in [z_min, z_max]:
             try:
                 if eps in (z_m*v).variables():
@@ -392,7 +384,7 @@ def construct_normal_vector(v, intervals):
         except TypeError:
             pass
 
-    if unbounded:
+    if lam_values:
         if z_min*v != 0:
             try:
                 lam_values.append(solve(z_min*v, lam, solution_dict=True)[0][lam])
