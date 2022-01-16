@@ -340,29 +340,28 @@ def construct_normal_vector(v, intervals):
     open_intervals = False
     unbounded = False
     eps_values = []
-    lam_values = [0]
+    lam_values = []
     for vk, I in zip(v, intervals):
         if vk != 0:
             if I.inf() == -Infinity and I.sup() == Infinity:  # (-oo, oo)
                 unbounded = True
+                lam_values.append(0)
             elif I.inf() == -Infinity:
                 unbounded = True
-                if I.sup() not in I:  # (-oo, b)
+                if I.sup() in I:  # (-oo, b]
+                    lam_values.append(-I.sup())
+                else:  # (-oo, b)
                     open_intervals = True
-                if I.sup() <= 0:
-                    if I.sup() in I:  # (-oo, b]
-                        lam_values.append(-I.sup())
-                    else:  # (-oo, b)
-                        lam_values.append(-I.sup() + 1)
+                    lam_values.append(1 - I.sup())
+                    eps_values.append(1)
             elif I.sup() == Infinity:
                 unbounded = True
-                if I.inf() not in I:  # (a, oo)
+                if I.inf() in I:  # [a, oo)
+                    lam_values.append(I.inf())
+                else:  # (a, oo)
                     open_intervals = True
-                if I.inf() >= 0:
-                    if I.inf() in I:  # [a, oo)
-                        lam_values.append(I.inf())
-                    else:  # (a, oo)
-                        lam_values.append(I.inf() + 1)
+                    lam_values.append(1 + I.inf())
+                    eps_values.append(1)
             elif not I.is_closed():
                 open_intervals = True
                 if I.sup() in I or I.inf() in I:  # [a, b) or (a, b]
