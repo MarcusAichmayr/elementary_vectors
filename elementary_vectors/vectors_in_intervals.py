@@ -340,39 +340,39 @@ def construct_normal_vector(v, intervals):
     z_max = vector(z_max)
 
     # find candidates for eps and lam
-    eps_values = []
-    lam_values = []
+    eps_candidates = []
+    lam_candidates = []
     for vk, I in zip(v, intervals):
         if vk != 0:
             if I.inf() == -Infinity and I.sup() == Infinity:  # (-oo, oo)
-                lam_values.append(0)
+                lam_candidates.append(0)
             elif I.inf() == -Infinity:
                 if I.sup() in I:  # (-oo, b]
-                    lam_values.append(-I.sup())
+                    lam_candidates.append(-I.sup())
                 else:  # (-oo, b)
-                    lam_values.append(1 - I.sup())
-                    eps_values.append(1)
+                    lam_candidates.append(1 - I.sup())
+                    eps_candidates.append(1)
             elif I.sup() == Infinity:
                 if I.inf() in I:  # [a, oo)
-                    lam_values.append(I.inf())
+                    lam_candidates.append(I.inf())
                 else:  # (a, oo)
-                    lam_values.append(1 + I.inf())
-                    eps_values.append(1)
+                    lam_candidates.append(1 + I.inf())
+                    eps_candidates.append(1)
             elif not I.is_closed():
                 if I.sup() in I or I.inf() in I:  # [a, b) or (a, b]
-                    eps_values.append(I.sup() - I.inf())
+                    eps_candidates.append(I.sup() - I.inf())
                 else:  # (a, b)
-                    eps_values.append((I.sup() - I.inf())/2)
+                    eps_candidates.append((I.sup() - I.inf())/2)
 
     # determine eps
-    if eps_values:
+    if eps_candidates:
         for eq in [z_min*v, z_max*v]:
             try:
                 if eps in eq.variables() and lam not in eq.variables():
-                    eps_values.append(solve(eq, eps, solution_dict=True)[0][eps])
+                    eps_candidates.append(solve(eq, eps, solution_dict=True)[0][eps])
             except AttributeError:
                 pass
-        eps_min = min(eps_values)
+        eps_min = min(eps_candidates)
         try:
             z_min = z_min(eps=eps_min)
         except TypeError:
@@ -383,14 +383,14 @@ def construct_normal_vector(v, intervals):
             pass
 
     # determine lam
-    if lam_values:
+    if lam_candidates:
         for eq in [z_min*v, z_max*v]:
             if eq != 0:
                 try:
-                    lam_values.append(solve(eq, lam, solution_dict=True)[0][lam])
+                    lam_candidates.append(solve(eq, lam, solution_dict=True)[0][lam])
                 except (IndexError, TypeError):
                     pass
-        lam_max = max(lam_values)
+        lam_max = max(lam_candidates)
         try:
             z_min = z_min(lam=lam_max)
         except TypeError:
