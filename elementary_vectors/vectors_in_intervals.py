@@ -5,6 +5,111 @@ With this module, we can check whether there is a vector in a subspace such that
 the components lie in given intervals.
 
 There is also an algorithmic approach to construct such a vector.
+
+EXAMPLES:
+
+First, we load the functions from the package::
+
+    sage: from elementary_vectors import *
+
+The package offers the function :func:`~setup_intervals` that helps us creating lists of intervals.
+This functions takes as input two lists, the corresponding elements in those lists determine the intervals::
+
+    sage: I = setup_intervals([0, 1, -1], [1, 2, -1])
+    sage: I
+    [[0, 1], [1, 2], {-1}]
+
+Next, we define a vector::
+
+    sage: v = vector([1,1,1])
+
+Is there a normal vector, such that the components lie in the intervals defined above?
+We call :func:`~exists_normal_vector` to answer this question::
+
+    sage: exists_normal_vector(v, I)
+    True
+
+This vector can be constructed by :func:`~construct_normal_vector`::
+
+    sage: construct_normal_vector(v, I)
+    (0, 1, -1)
+
+We define another vector. This time, there is no solution::
+
+    sage: v = vector([1,1,-1])
+    sage: exists_normal_vector(v, I)
+    False
+    sage: construct_normal_vector(v, I)
+    Traceback (most recent call last):
+    ...
+    ValueError: There is no solution.
+
+Next, we consider open intervals::
+
+    sage: I = setup_intervals([0, 1, -1], [1, 2, 1], l=False, r=[True, True, False])
+    sage: I
+    [(0, 1], (1, 2], (-1, 1)]
+    sage: v = vector([1,0,1])
+    sage: exists_normal_vector(v, I)
+    True
+    sage: construct_normal_vector(v, I)
+    (1/2, 2, -1/2)
+
+We can even consider unbounded intervals::
+
+    sage: I = setup_intervals([0, 1, -oo], [oo, 2, -2], l=False, r=[True, True, False])
+    sage: I
+    [(0, +oo), (1, 2], (-oo, -2)]
+    sage: v = vector([-1,1,-1])
+    sage: exists_normal_vector(v, I)
+    True
+    sage: construct_normal_vector(v, I)
+    (5, 2, -3)
+
+The most important functions of this module are :func:`~exists_vector` and :func:`~construct_vector`.
+Given a matrix ``M`` and a list of intervals, we want to examine whether there exists a vector in the rowspace of ``M``,
+such that the components lie in the given intervals::
+
+    sage: M = matrix([1, 1, 0])
+    sage: L = [2, 5, -1]
+    sage: R = [5, 6, 1]
+
+First, we consider closed intervals::
+
+    sage: I = setup_intervals(L, R)
+    sage: I
+    [[2, 5], [5, 6], [-1, 1]]
+    sage: exists_vector(M, I)
+    True
+    sage: construct_vector(M, I)
+    (5, 5, 0)
+
+Next, we take open intervals. This time, there is no solution::
+
+    sage: I = setup_intervals(L, R, l=False, r=False)
+    sage: I
+    [(2, 5), (5, 6), (-1, 1)]
+    sage: exists_vector(M, I)
+    False
+    sage: construct_vector(M, I)
+    Traceback (most recent call last):
+    ...
+    ValueError: There is no solution.
+
+Finally, we consider unbounded intervals::
+
+    sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
+    sage: L = [2, 5, 0, -oo]
+    sage: R = [5, oo, 8, 5]
+    sage: l = [True, True, False, False]
+    sage: r = [False, False, False, True]
+    sage: I = setup_intervals(L, R, l, r)
+    sage: I
+    [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
+    sage: exists_vector(M, I)
+    True
+    sage: construct_vector(M, I)
+    (2, 5, 7, 5)
 """
 
 #############################################################################
@@ -162,15 +267,49 @@ def exists_normal_vector(v, intervals):
 
         :func:`~setup_intervals`
 
+    EXAMPLES:
+
+    We define several lists of intervals and vectors
+    and apply the function::
+
+        sage: from elementary_vectors import exists_normal_vector, setup_intervals
+        sage: I = setup_intervals([0, 1, -1], [1, 2, -1])
+        sage: I
+        [[0, 1], [1, 2], {-1}]
+        sage: v = vector([1,1,1])
+        sage: exists_normal_vector(v, I)
+        True
+        sage: v = vector([1,1,-1])
+        sage: exists_normal_vector(v, I)
+        False
+
+    Next, we consider open intervals::
+
+        sage: I = setup_intervals([0, 1, -1], [1, 2, 1], l=False, r=[True, True, False])
+        sage: I
+        [(0, 1], (1, 2], (-1, 1)]
+        sage: v = vector([1,0,1])
+        sage: exists_normal_vector(v, I)
+        True
+
+    We can even consider unbounded intervals::
+
+        sage: I = setup_intervals([0, 1, -oo], [oo, 2, -2], l=False, r=[True, True, False])
+        sage: I
+        [(0, +oo), (1, 2], (-oo, -2)]
+        sage: v = vector([-1,1,-1])
+        sage: exists_normal_vector(v, I)
+        True
+
     TESTS::
 
-    sage: from elementary_vectors import exists_normal_vector, setup_intervals
-    sage: I = setup_intervals([-oo, 0], [oo, 0], l=False, r=False)
-    sage: I
-    [(-oo, +oo), {}]
-    sage: v = vector([1,0])
-    sage: exists_normal_vector(v, I)
-    False
+        sage: from elementary_vectors import exists_normal_vector, setup_intervals
+        sage: I = setup_intervals([-oo, 0], [oo, 0], l=False, r=False)
+        sage: I
+        [(-oo, +oo), {}]
+        sage: v = vector([1,0])
+        sage: exists_normal_vector(v, I)
+        False
     """
     lower_bound = 0
     upper_bound = 0
@@ -237,13 +376,14 @@ def exists_vector(data, intervals):
     .. SEEALSO::
 
         :func:`~setup_intervals`
+        :func:`~exists_normal_vector`
 
     EXAMPLES::
 
         sage: from elementary_vectors import exists_vector, setup_intervals
         sage: M = matrix([1, 1, 0])
-        sage: L = [2, 5, -1] # lower halves of the intervals
-        sage: R = [5, 6, 1] # upper halves of the intervals
+        sage: L = [2, 5, -1]
+        sage: R = [5, 6, 1]
 
     First, we consider closed intervals::
 
@@ -304,13 +444,50 @@ def construct_normal_vector(v, intervals):
 
     OUTPUT:
 
-    Returns a vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
+    Returns a (rational) vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
     and each component of ``z`` lies in the respective interval of the list ``intervals``.
     If no such vector exists, raises a ``ValueError`` instead.
 
     .. SEEALSO::
 
         :func:`~setup_intervals`
+        :func:`~exists_normal_vector`
+
+    EXAMPLES::
+
+        sage: from elementary_vectors import construct_normal_vector, setup_intervals
+        sage: I = setup_intervals([0, 1, -1], [1, 2, -1])
+        sage: I
+        [[0, 1], [1, 2], {-1}]
+        sage: v = vector([1,1,1])
+        sage: construct_normal_vector(v, I)
+        (0, 1, -1)
+
+    We define another vector. This time, there is no solution::
+
+        sage: v = vector([1,1,-1])
+        sage: construct_normal_vector(v, I)
+        Traceback (most recent call last):
+        ...
+        ValueError: There is no solution.
+
+    Next, we consider open intervals::
+
+        sage: I = setup_intervals([0, 1, -1], [1, 2, 1], l=False, r=[True, True, False])
+        sage: I
+        [(0, 1], (1, 2], (-1, 1)]
+        sage: v = vector([1,0,1])
+        sage: construct_normal_vector(v, I)
+        (1/2, 2, -1/2)
+
+    We can even consider unbounded intervals::
+
+        sage: I = setup_intervals([0, 1, -oo], [oo, 2, -2], l=False, r=[True, True, False])
+        sage: I
+        [(0, +oo), (1, 2], (-oo, -2)]
+        sage: v = vector([-1,1,-1])
+        sage: construct_normal_vector(v, I)
+        (5, 2, -3)
     """
     if not exists_normal_vector(v, intervals):
         raise ValueError("There is no solution.")
@@ -431,13 +608,25 @@ def construct_vector(M, intervals):
     .. SEEALSO::
 
         :func:`~setup_intervals`
+        :func:`~exists_vector`
 
     EXAMPLES::
 
         sage: from elementary_vectors import construct_vector, setup_intervals
         sage: M = matrix([1, 1, 0])
-        sage: L = [2, 5, -1] # lower halves of the intervals
-        sage: R = [5, 6, 1] # upper halves of the intervals
+        sage: L = [2, 5, -1]
+        sage: R = [5, 6, 1]
+
+    First, we consider closed intervals::
+
+        sage: I = setup_intervals(L, R)
+        sage: I
+        [[2, 5], [5, 6], [-1, 1]]
+        sage: construct_vector(M, I)
+        (5, 5, 0)
+
+    Next, we take open intervals. This time, there is no solution::
+
         sage: I = setup_intervals(L, R, l=False, r=False)
         sage: I
         [(2, 5), (5, 6), (-1, 1)]
@@ -445,6 +634,19 @@ def construct_vector(M, intervals):
         Traceback (most recent call last):
         ...
         ValueError: There is no solution.
+
+    Finally, we consider unbounded intervals::
+
+        sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
+        sage: L = [2, 5, 0, -oo]
+        sage: R = [5, oo, 8, 5]
+        sage: l = [True, True, False, False]
+        sage: r = [False, False, False, True]
+        sage: I = setup_intervals(L, R, l, r)
+        sage: I
+        [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
+        sage: construct_vector(M, I)
+        (2, 5, 7, 5)
     """
     if not exists_vector(M, intervals):
         raise ValueError("There is no solution.")
