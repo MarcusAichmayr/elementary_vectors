@@ -42,24 +42,23 @@ CoCalc:
 ### elementary_vectors.vectors_in_intervals
 
 * [x] implement `construct_vector`
-  * [ ] add examples
-    * [ ] several examples, where it works
-    * [ ] easy examples
+  * [x] add examples
+    * [x] several examples, where it works
+    * [x] easy examples
     * [x] examples where it does not work
 
 * [x] implement `construct_normal_vector`
   * [x] Fix bug:
     If there exists no solution, `construct_normal_vector` might still find something.
-  * [ ] add examples
-    * [ ] several examples, where it works
-    * [ ] easy examples
-    * [ ] examples where it does not work
+  * [x] add examples
+    * [x] several examples, where it works
+    * [x] easy examples
+    * [x] examples where it does not work
 
 * [ ] add examples to `exists_normal_vector`
 
 #### elementary_vectors.vectors_in_intervals.exists_vector
 
-* [ ] If True and certificate is True, compute a corresponding vector of the vector space. (witness)
 * [x] add examples
 * [x] Removed optional argument `kernel`
 * [x] Removed optional argument `certificate`
