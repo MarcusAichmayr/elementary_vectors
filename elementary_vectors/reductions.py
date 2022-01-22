@@ -98,16 +98,29 @@ def reduce_factor(v):
         [2, 3]
         sage: reduce_factor([-4, -6]) # TODO: Do we expect this?
         [-2, -3]
+
+    TEST::
+
+        sage: from elementary_vectors.reductions import reduce_factor
+        sage: v = vector([2, 4])
+        sage: w = reduce_factor(v)
+        sage: w
+        (1, 2)
+        sage: w.base_ring()
+        Integer Ring
+        sage: v = [2, 4]
+        sage: w = reduce_factor(v)
+        sage: w
+        [1, 2]
+        sage: w[0].base_ring()
+        Integer Ring
     """
     g = gcd(v)
 #    if g.is_zero():
 #        return v
     try:
         if isinstance(v, list):
-            try:
-                return type(v)([type(vi)(vi/g) for vi in v])
-            except TypeError:
-                return type(v)([(vi/g) for vi in v])
+            return type(v)(vi // g for vi in v)
         else:
             return (v/g).change_ring(v.base_ring())
     except ZeroDivisionError:
