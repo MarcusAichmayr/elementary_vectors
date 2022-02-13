@@ -46,6 +46,8 @@ CoCalc:
     * [x] several examples, where it works
     * [x] easy examples
     * [x] examples where it does not work
+* [ ] Right now, this works only for matrices.
+  What if elementary vectors are given? Can we use those to construct a vector in the corresponding vector space?
 
 * [x] implement `construct_normal_vector`
   * [x] Fix bug:
