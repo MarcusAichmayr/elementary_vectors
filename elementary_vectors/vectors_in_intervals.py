@@ -304,13 +304,17 @@ def exists_normal_vector(v, intervals):
 
     TESTS::
 
-        sage: from elementary_vectors import exists_normal_vector, setup_intervals
         sage: I = setup_intervals([-oo, 0], [oo, 0], l=False, r=False)
         sage: I
         [(-oo, +oo), {}]
         sage: v = vector([1,0])
         sage: exists_normal_vector(v, I)
         False
+        sage: v = vector([1])
+        sage: exists_normal_vector(v, I)
+        Traceback (most recent call last):
+        ...
+        ValueError: Lengths of ``v`` and ``intervals`` are different!
     """
     if len(v) != len(intervals):
         raise ValueError("Lengths of ``v`` and ``intervals`` are different!")
@@ -427,10 +431,34 @@ def exists_vector(data, intervals):
         [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
         sage: exists_vector(M, I)
         True
+
+    TESTS::
+
+        sage: I = setup_intervals([0, 0], [1, 0], l=False)
+        sage: I
+        [(0, 1], {}]
+        sage: exists_vector([], I)
+        False
+        sage: M = random_matrix(QQ, 0, 2)
+        sage: exists_vector(M, I)
+        False
+        sage: M = random_matrix(QQ, 0, 1)
+        sage: exists_vector(M, I)
+        Traceback (most recent call last):
+        ...
+        ValueError: Number of columns of matrix ``data`` and length of ``intervals`` are different!
     """
     if isinstance(data, list):
+        for I in intervals:
+            if I.is_empty():
+                return False
         evs = data
     else:
+        if data.ncols() != len(intervals):
+            raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` are different!")
+        for I in intervals:
+            if I.is_empty():
+                return False
         evs = elementary_vectors(data, kernel=True)
 
     return all(exists_normal_vector(v, intervals) for v in evs)
