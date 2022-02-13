@@ -160,6 +160,14 @@ def elementary_vectors(data, dim=None, kernel=True, reduce=True, return_minors=F
          (0, -4, 2, 2, 0)]
         sage: elementary_vectors(m, M.dimensions(), ring=QQ)
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+
+    TESTS::
+
+        sage: M = random_matrix(QQ, 0, 4)
+        sage: M
+        []
+        sage: elementary_vectors(M)
+        [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)]
     """
     if isinstance(data, list):
         if dim is None:
