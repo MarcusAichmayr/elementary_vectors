@@ -262,6 +262,7 @@ def exists_normal_vector(v, intervals):
 
     Return whether there exists a vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
     and each component of ``z`` lies in the respective interval of the list ``intervals``.
+    Raises a ``ValueError`` if the lengths of ``v`` and ``intervals`` are different.
 
     .. SEEALSO::
 
@@ -311,6 +312,9 @@ def exists_normal_vector(v, intervals):
         sage: exists_normal_vector(v, I)
         False
     """
+    if len(v) != len(intervals):
+        raise ValueError("Lengths of ``v`` and ``intervals`` are different!")
+
     lower_bound = 0
     upper_bound = 0
     lower_bound_zero = True
