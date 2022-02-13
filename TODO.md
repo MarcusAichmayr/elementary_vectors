@@ -81,6 +81,8 @@ CoCalc:
 * [x] improve docstrings
   * [x] add examples
 * [ ] add examples to docstring on top
+* [ ] (optional) write functions `reduce_factor_of_vector` and `reduce_factor_of_list`
+  * [ ] `reduce_factor` should use these functions
 
 
 ## sign_vectors
