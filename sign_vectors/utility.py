@@ -573,3 +573,74 @@ def classes_same_support(W):
                     Li.append(X)
                     break
     return L
+
+
+def adjacent(X, Y, S):
+    r"""
+    Return whether the sign vectors ``X`` and ``Y`` are adjacent over the set of sign vectors ``S``.
+
+    INPUT:
+
+    - ``X`` -- a sign vector
+
+    - ``Y`` -- a sign vector
+
+    - ``S`` -- a list of sign vectors
+
+    OUTPUT:
+    a boolean
+
+    .. NOTE::
+
+        define adjacent here TODO
+
+    EXAMPLES:
+
+    We consider the following matrix::
+
+        sage: M = matrix([[1,2,0],[0,1,-1]])
+        sage: M
+        [ 1  2  0]
+        [ 0  1 -1]
+
+    By using the function :func:`sign_vectors.oriented_matroids.cocircuits_from_matrix`, we can compute the corresponding cocircuits::
+
+        sage: from sign_vectors.oriented_matroids import *
+        sage: cc = cocircuits_from_matrix(M)
+        sage: cc
+        [(--0), (-0-), (0-+), (++0), (+0+), (0+-)]
+
+    The two sign vectors ``X = (++0)`` and ``Y = (+0+)`` are harmonious::
+
+        sage: X = sign_vector('++0')
+        sage: X
+        (++0)
+        sage: Y = sign_vector('+0+')
+        sage: Y
+        (+0+)
+        sage: X.is_harmonious(Y)
+        True
+
+    Furthermore, the only cocircuits lying under the composition of :math:`X` and :math:`Y`,
+    that is, cocircuits :math:`Z` satisfying :math:`Z < (+++) = X \circ Y`,
+    are :math:`X` and :math:`Y`.
+    Hence, those two sign vectors are adjacent::
+
+        sage: from sign_vectors.utility import adjacent
+        sage: adjacent(X, Y, cc)
+        True
+
+    Conversely, :math:`Y = (+0+)` and :math:`Z = (0+-)` are not adjacent since
+    :math:`(++0) < (++-) = Y \circ Z`::
+
+        sage: Z = sign_vector('0+-')
+        sage: Z
+        (0+-)
+        sage: adjacent(Y, Z, cc)
+        False
+    """
+    for Z in S:
+        if Z < X & Y:
+            if Z != X and Z != Y:
+                return False
+    return True
