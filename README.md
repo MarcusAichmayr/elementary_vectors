@@ -27,9 +27,7 @@ Change to the root directory and run::
 
     $ sage -pip install --upgrade --no-index -v .
 
-For convenience this package contains a `makefile <makefile>`_ with this
-and other often used commands. Should you wish too, you can use the
-shorthand::
+You can also run instead the shorthand::
 
     $ make install
 
@@ -44,7 +42,7 @@ or
 
     $ sage -pip install --user git+https://github.com/MarcusAichmayr/sign_vectors.git
 
-The optional --user flag causes the package to be installed in your .sage directory instead of the Sage installation tree.
+The optional `--user` flag causes the package to be installed in your `.sage` directory instead of the Sage installation tree.
 
 ### Documentation
 
@@ -55,6 +53,8 @@ To generate the documentation of this package, run
 or
 
     $ make doc-pdf
+
+at the root of the git checkout.
 
 ### Testing
 
