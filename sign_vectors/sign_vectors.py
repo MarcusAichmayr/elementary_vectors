@@ -495,6 +495,38 @@ class SignVector(SageObject):
             raise ValueError('Sign vectors have different length.')
         return [e for e in self.support() if self[e] == -other[e]]
 
+
+    def is_harmonious(self, other):
+        r"""
+        Check whether these two sign vectors are harmonious.
+
+        INPUT:
+
+        - ``other`` -- sign vector
+
+        OUTPUT:
+        Returns true if there are no separating elements.
+        Otherwise, false is returned.
+
+        .. NOTE::
+
+            Two sign vectors are harmonious if there is no component where one sign vector has ``+`` and the other has ``-``.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector('++00-'); X
+            (++00-)
+            sage: Y = sign_vector([1,-2,1,2,5]); Y
+            (+-+++)
+            sage: X.is_harmonious(Y)
+            False
+            sage: sign_vector('0+00').is_harmonious(sign_vector('-+0+'))
+            True
+        """
+        return not any(self[e] == -other[e] for e in self.support())
+
+
     def reverse_signs_in(self, S):
         r"""
         Reverses sign of given entries.
