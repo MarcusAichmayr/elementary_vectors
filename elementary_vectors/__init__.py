@@ -10,7 +10,7 @@
 
 from __future__ import absolute_import
 
-from .functions import elementary_vectors, non_negative_vectors, positive_elementary_vectors
+from .functions import elementary_vectors, non_negative_vectors, positive_elementary_vectors, double_description
 from .vectors_in_intervals import setup_intervals, exists_vector, construct_vector
 from .vectors_in_intervals import exists_normal_vector, construct_normal_vector
 from .reductions import reduce_vectors_support, reduce_vectors

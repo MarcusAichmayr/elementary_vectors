@@ -17,6 +17,7 @@ from sage.structure.element import get_coercion_model
 from sage.functions.other import binomial
 from sage.arith.misc import gcd
 from sign_vectors import sign_vector
+from sign_vectors.utility import adjacent
 from sage.symbolic.ring import SR
 from .reductions import reduce_vectors, reduce_vector_using_equalities
 from .utility import sign_determined
@@ -525,3 +526,91 @@ def positive_elementary_vectors(data, dim=None, kernel=True, reduce=True, return
     out = []
     rec(0, [], [])
     return out
+
+
+def double_description(evs, a, **kwargs):
+    r"""
+    Compute the elementary vectors ``v`` of a subspace determined by the given elementary vectors
+    ``evs`` and a vector ``a``.
+
+    INPUT:
+
+    - ``evs`` -- a list of elementary vectors ``v`` of length ``n``
+
+    - ``a`` -- a vector of length ``n``
+
+    .. NOTE::
+
+        Keyword arguments may be specified to apply certain reductions to the output.
+        By default, all those reductions (like canceling factors) are applied.
+        Possible keyword arguments are the same as in the function
+        :func:`elementary_vectors.reductions.reduce_vectors`.
+
+    OUTPUT:
+    The output is a list of elementary vectors of the subspace :math:`\{v \in V: v \cdot a = 0\}`,
+    where :math:`V` is the subspace corresponding to the initial set of elementary vectors ``evs``.
+
+    EXAMPLES:
+
+    We consider the following matrix::
+
+        sage: M = matrix([[1,2,0,0,3],[0,1,-1,2,1]])
+        sage: M
+        [ 1  2  0  0  3]
+        [ 0  1 -1  2  1]
+
+    Next, we compute the elementary vectors of this matrix::
+
+        sage: from elementary_vectors import *
+        sage: evs = elementary_vectors(M)
+        sage: evs
+        [(-2, 1, 1, 0, 0),
+         (4, -2, 0, 1, 0),
+         (-1, -1, 0, 0, 1),
+         (0, 0, -2, -1, 0),
+         (3, 0, -1, 0, -1),
+         (-6, 0, 0, -1, 2),
+         (0, 3, 1, 0, -2),
+         (0, -6, 0, 1, 4)]
+
+    Now, we define a vector ``a``.
+    We will use this vector as a third row in our matrix::
+
+        sage: a = vector([1, 1, 1, 0, 0])
+        sage: Ma = M.insert_row(2, a)
+        sage: Ma
+        [ 1  2  0  0  3]
+        [ 0  1 -1  2  1]
+        [ 1  1  1  0  0]
+
+    That way, we describe a different vector space.
+    The corresponding elementary vectors can be computed as before::
+
+        sage: elementary_vectors(Ma)
+        [(-2, 1, 1, 0, 0), (-3, 3, 0, -1, -1), (-3, 0, 3, 1, 1), (0, -3, 3, 2, 2)]
+
+    A different approach is to use the double description method::
+
+        sage: double_description(evs, a)
+        [(-2, 1, 1, 0, 0), (-3, 3, 0, -1, -1), (3, 0, -3, -1, -1), (0, 3, -3, -2, -2)]
+
+    The output is identical up to multiplies.
+    """
+    cocircuits = [sign_vector(v) for v in evs] + [sign_vector(-v) for v in evs]
+    E0 = [v for v in evs if v*a == 0]
+    E1 = [v for v in evs if v*a != 0]
+    out = []
+    for x, y in Combinations(E1, 2):
+        xa = x*a
+        # Check whether there is a vector v in E0, such that the support is a subset of the support of x and z
+        # The linear combination would lead to v.
+        if not any(all((e in x.support() or e in y.support()) for e in v.support()) for v in E0):
+#        if not any(set(v.support()).issubset(set(x.support() + z.support())) for v in E0):
+            if xa*y*a > 0:
+                y *= -1
+#            y = y if xa*y*a < 0 else -y
+            if sign_vector(x).is_harmonious(sign_vector(y)):
+                if adjacent(sign_vector(x), sign_vector(y), cocircuits):
+                    out.append((y*a)*x - (xa)*y)
+
+    return E0 + reduce_vectors(out, **kwargs)
