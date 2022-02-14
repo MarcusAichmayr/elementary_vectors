@@ -135,7 +135,7 @@ def reduce_vector_using_equalities(v, eq):
         return v
 
 
-def reduce_vector(v, eq=None, factor=True):
+def reduce_vector(v, eq=None, cancel_factor=True):
     r"""
     Reduces this vector.
 
@@ -145,7 +145,7 @@ def reduce_vector(v, eq=None, factor=True):
 
     - ``eq`` -- a list of equalities (default: ``None``)
 
-    - ``factor`` -- a boolean (default: ``True``). If true, cancels a common factor.
+    - ``cancel_factor`` -- a boolean (default: ``True``). If true, cancels a common factor.
 
     EXAMPLES::
 
@@ -158,14 +158,14 @@ def reduce_vector(v, eq=None, factor=True):
         (0, 0)
         sage: reduce_vector(v)
         (1, 2)
-        sage: reduce_vector(v, eq=[a == 0], factor=False)
+        sage: reduce_vector(v, eq=[a == 0], cancel_factor=False)
         (0, 0)
-        sage: reduce_vector(v, factor=False)
+        sage: reduce_vector(v, cancel_factor=False)
         (5*a, 10*a)
     """
     if eq:
         v = reduce_vector_using_equalities(v, eq=eq)
-    if factor:
+    if cancel_factor:
         v = reduce_factor(v)
     return v
 
@@ -216,7 +216,7 @@ def remove_zero_vectors(L):
     return [v for v in L if v != 0]
 
 
-def reduce_vectors(L, eq=None, factors=True, support=True, remove_zeros=True):
+def reduce_vectors(L, eq=None, cancel_factors=True, reduce_support=True, remove_zeros=True):
     r"""
     Reduces this list of vectors.
 
@@ -226,9 +226,9 @@ def reduce_vectors(L, eq=None, factors=True, support=True, remove_zeros=True):
 
     - ``eq`` -- a list of equalities (default: ``None``)
 
-    - ``factors`` -- a boolean (default: ``True``). If true, cancels common factors of each vector.
+    - ``cancel_factors`` -- a boolean (default: ``True``). If true, cancels common factors of each vector.
 
-    - ``support`` -- a boolean (default: ``True``). Keeps only the first vector for each different support.
+    - ``reduce_support`` -- a boolean (default: ``True``). Keeps only the first vector for each different support.
 
     - ``remove_zeros`` -- a boolean (default: ``False``). If true, removes all zero vectors.
 
@@ -243,16 +243,16 @@ def reduce_vectors(L, eq=None, factors=True, support=True, remove_zeros=True):
         [(2, 3, 0)]
         sage: reduce_vectors(l)
         [(1, 2, 0), (5, 2, 1)]
-        sage: reduce_vectors(l, eq=[a == 0], factors=False)
+        sage: reduce_vectors(l, eq=[a == 0], cancel_factors=False)
         [(4, 6, 0)]
-        sage: reduce_vectors(l, eq=assumptions(), support=True)
+        sage: reduce_vectors(l, eq=assumptions(), reduce_support=True)
         [(2, 3, 0)]
-        sage: reduce_vectors(l, eq=assumptions(), support=False, remove_zeros=False)
+        sage: reduce_vectors(l, eq=assumptions(), reduce_support=False, remove_zeros=False)
         [(0, 0, 0), (0, 0, 0), (2, 3, 0)]
     """
-    L = [reduce_vector(v, eq=eq, factor=factors) for v in L]
+    L = [reduce_vector(v, eq=eq, cancel_factor=cancel_factors) for v in L]
     if remove_zeros:
         L = remove_zero_vectors(L)
-    if support:
+    if reduce_support:
         L = reduce_vectors_support(L)
     return L
