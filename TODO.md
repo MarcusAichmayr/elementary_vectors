@@ -85,6 +85,7 @@ CoCalc:
 * [ ] add examples to docstring on top
 * [ ] (optional) write functions `reduce_factor_of_vector` and `reduce_factor_of_list`
   * [ ] `reduce_factor` should use these functions
+* [ ] improve `reduce_factor` by canceling denominators if applicable
 
 
 ## sign_vectors
@@ -111,6 +112,8 @@ CoCalc:
   * `covectors_from_matrix`
   * [ ] test files in CoCalc.
     `from_sign_vectors.oriented_matroids import *` should still work.
+* [ ] Is it useful to add a function `cocircuits_from_elementary_vectors`?
+  It would be used in `cocircuits_from_matrix` and `adjacent` of `double_description`.
 * [ ] Is it possible to move references at the end of the documentation?
 
 ### sign_vectors.utility
@@ -119,6 +122,8 @@ CoCalc:
 * [x] move closure, contraction, deletion into this file
 * [x] use doctests instead of separate test file
 * [ ] Can we improve the implementation of `closure`?
+* [ ] improve docstring of `adjacent`
+  * define adjacency.
 
 ## Sphinx documentation
 
