@@ -424,10 +424,8 @@ def double_description(evs, a, **kwargs):
         # Check whether there is a vector v in E0, such that the support is a subset of the support of x and z
         # The linear combination would lead to v.
         if not any(all((e in x.support() or e in y.support()) for e in v.support()) for v in E0):
-#        if not any(set(v.support()).issubset(set(x.support() + z.support())) for v in E0):
             if xa*y*a > 0:
                 y *= -1
-#            y = y if xa*y*a < 0 else -y
             if sign_vector(x).is_harmonious(sign_vector(y)):
                 if adjacent(sign_vector(x), sign_vector(y), cocircuits):
                     out.append((y*a)*x - (xa)*y)
@@ -504,6 +502,13 @@ def positive_elementary_vectors(data, dim=None, kernel=True, return_minors=False
 
     - ``ring`` -- Parent of the entries of the elementary vectors.
                   By default, determine this from ``data``.
+
+    .. NOTE::
+
+        Keyword arguments may be specified to apply certain reductions to the output.
+        By default, all those reductions (like canceling factors) are applied.
+        Possible keyword arguments are the same as in the function
+        :func:`elementary_vectors.reductions.reduce_vectors`.
 
     OUTPUT:
 
