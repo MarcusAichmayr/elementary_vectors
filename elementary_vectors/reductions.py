@@ -99,6 +99,14 @@ def reduce_factor(v):
         sage: reduce_factor([-4, -6]) # TODO: Do we expect this?
         [-2, -3]
 
+    The function also cancels denominators::
+
+        sage: v = vector([1/10, 0, 1/3, 1/4])
+        sage: v
+        (1/10, 0, 1/3, 1/4)
+        sage: reduce_factor(v)
+        (6, 0, 20, 15)
+
     TEST::
 
         sage: from elementary_vectors.reductions import reduce_factor
@@ -116,8 +124,6 @@ def reduce_factor(v):
         Integer Ring
     """
     g = gcd(v)
-#    if g.is_zero():
-#        return v
     try:
         if isinstance(v, list):
             return type(v)(vi // g for vi in v)
