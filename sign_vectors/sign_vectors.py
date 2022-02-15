@@ -495,7 +495,6 @@ class SignVector(SageObject):
             raise ValueError('Sign vectors have different length.')
         return [e for e in self.support() if self[e] == -other[e]]
 
-
     def is_harmonious(self, other):
         r"""
         Check whether these two sign vectors are harmonious.
@@ -525,7 +524,6 @@ class SignVector(SageObject):
             True
         """
         return not any(self[e] == -other[e] for e in self.support())
-
 
     def reverse_signs_in(self, S):
         r"""

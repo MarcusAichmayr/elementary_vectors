@@ -35,8 +35,8 @@ def closure(W, separate=False):
 
     .. NOTE::
 
-       The sign vector :math:`X` is in the closure of a set of sign vectors
-       :math:`W`
+       The sign vector :math:`X` is in the closure
+       of a set of sign vectors :math:`W`
        if there exists :math:`Y \in W` with :math:`X \leq Y`.
 
     EXAMPLES:
@@ -240,7 +240,8 @@ def contraction(F, R, keep_components=False):
 
 def deletion(F, R):
     r"""
-    Remove the components corresponding to ``R`` from a list of sign vectors. Also works for real vectors.
+    Remove the components corresponding to ``R`` from a list of sign vectors.
+    Also works for real vectors.
 
     INPUT:
 

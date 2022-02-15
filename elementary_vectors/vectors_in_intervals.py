@@ -237,14 +237,14 @@ def setup_intervals(L, R, l=True, r=True):
             ri = False
 
         if li and ri:
-            I = RealSet.closed(Li, Ri)
+            interval = RealSet.closed(Li, Ri)
         elif (not li) and (not ri):
-            I = RealSet.open(Li, Ri)
+            interval = RealSet.open(Li, Ri)
         elif li and (not ri):
-            I = RealSet.closed_open(Li, Ri)
+            interval = RealSet.closed_open(Li, Ri)
         else:
-            I = RealSet.open_closed(Li, Ri)
-        intervals.append(I)
+            interval = RealSet.open_closed(Li, Ri)
+        intervals.append(interval)
     return intervals
 
 
@@ -355,7 +355,7 @@ def exists_normal_vector(v, intervals):
 
 def exists_vector(data, intervals):
     r"""
-    Return whether a vector exists in the vector space determined by a matrix such that the components lie in the specified intervals.
+    Return whether a vector exists in a given vector space such that the components lie in the specified intervals.
 
     INPUT:
 
@@ -449,15 +449,15 @@ def exists_vector(data, intervals):
         ValueError: Number of columns of matrix ``data`` and length of ``intervals`` are different!
     """
     if isinstance(data, list):
-        for I in intervals:
-            if I.is_empty():
+        for interval in intervals:
+            if interval.is_empty():
                 return False
         evs = data
     else:
         if data.ncols() != len(intervals):
             raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` are different!")
-        for I in intervals:
-            if I.is_empty():
+        for interval in intervals:
+            if interval.is_empty():
                 return False
         evs = elementary_vectors(data, kernel=True)
 
@@ -616,7 +616,7 @@ def construct_normal_vector(v, intervals):
     if b == 0:
         return z_max
 
-    z = (b*z_min - a*z_max)/(b - a) # convex combination lies in the intervals
+    z = (b*z_min - a*z_max)/(b - a)  # convex combination lies in the intervals
 
     return z
 
@@ -708,7 +708,7 @@ def construct_vector(M, intervals):
 
             # use vectors in x to construct vector
             A = matrix([xk - x[0] for xk in x[1:]])
-            a = list(A.T.right_kernel_matrix().row(0)) # dim == 1?
+            a = list(A.T.right_kernel_matrix().row(0))
             a = [-sum(a)] + a
             sol = sum([ak*xk for ak, xk in zip(a, x) if ak > 0]) / sum(ak for ak in a if ak > 0)
 

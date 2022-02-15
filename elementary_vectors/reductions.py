@@ -58,8 +58,7 @@ def simplify_using_equalities(a, eq):
         # We cast ``a`` to SR. Then, we can substitute and cast the result back.
         # Substituting directly into ``a``, does not work for polynomials
         # since substitute works differently.
-        # For instance, if there are no assumptions, then a segmentation fault would be triggered.
-        expr = (SR(a).substitute(l))
+        expr = SR(a).substitute(l)
         try:
             return a.base_ring()(expr)
         except TypeError:
@@ -107,7 +106,7 @@ def reduce_factor(v):
         sage: reduce_factor(v)
         (6, 0, 20, 15)
 
-    TEST::
+    TESTS::
 
         sage: from elementary_vectors.reductions import reduce_factor
         sage: v = vector([2, 4])
