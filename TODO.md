@@ -7,8 +7,8 @@
   * `elementary_vectors`
   * `exists_vector`
 * Every .py file should have a docstring.
-  * [ ] `vectors_in_intervals`
-    * [ ] check for existence of vectors, compute vectors
+  * [x] `vectors_in_intervals`
+    * [x] check for existence of vectors, compute vectors
 
 ### elementary_vectors.functions
 
@@ -33,8 +33,8 @@
   then this condition is not in the output.
   To prevent this, we could add `assumptions()`, instead of filling a list recursively.
   But then, we would return all assumptions. (e.g. `a is integer`)
-* With `reduce=True`, we could obtain the elementary vector `(1,1,0,0)` from `(x,x,0,0)`.
-  For `x=0`, we have the wrong elementary vector `(1,1,0,0)`.
+* With `cancel_factor=True`, we could obtain the elementary vector `(1,1,0,0)` from `(x,x,0,0)`.
+  For `x=0`, we have a wrong elementary vector `(1,1,0,0)`.
 
 CoCalc:
 * Put functions for elementary vectors in one file. For maintaining, it would be easier to work more with the documentation.
@@ -56,8 +56,7 @@ CoCalc:
     * [x] several examples, where it works
     * [x] easy examples
     * [x] examples where it does not work
-
-* [ ] add examples to `exists_normal_vector`
+* [x] add examples to `exists_normal_vector`
 
 #### elementary_vectors.vectors_in_intervals.exists_vector
 
@@ -115,6 +114,8 @@ CoCalc:
 * [ ] Is it useful to add a function `cocircuits_from_elementary_vectors`?
   It would be used in `cocircuits_from_matrix` and `adjacent` of `double_description`.
 * [ ] Is it possible to move references at the end of the documentation?
+* [ ] It might be useful to use a class for oriented matroids.
+  * sign vectors could be stored in a better way
 
 ### sign_vectors.utility
 
