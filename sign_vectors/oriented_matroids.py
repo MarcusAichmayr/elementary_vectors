@@ -114,7 +114,7 @@ Next, we compute all covectors separated by their rank::
 """
 
 #############################################################################
-#  Copyright (C) 2021                                                       #
+#  Copyright (C) 2022                                                       #
 #                Marcus Aichmayr (aichmayr.marcus@gmail.com)                #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
