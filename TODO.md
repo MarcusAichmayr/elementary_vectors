@@ -94,6 +94,7 @@ CoCalc:
 * [x] Add explanations and examples to demonstrate functions in this module on top of this file.
 * [x] add docstrings
 * [x] use doctests instead of separate test file
+* [ ] `is_harmonious` should work for a vector as input.
 
 ### sign_vectors.oriented_matroids
 
