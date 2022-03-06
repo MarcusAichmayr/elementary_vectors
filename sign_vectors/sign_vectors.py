@@ -523,7 +523,38 @@ class SignVector(SageObject):
             sage: sign_vector('0+00').is_harmonious(sign_vector('-+0+'))
             True
         """
+        if self.length() != other.length():
+            raise ValueError('Sign vectors have different length.')
         return not any(self[e] == -other[e] for e in self.support())
+
+    def disjoint_support(self, other):
+        r"""
+        Returns whether these two sign vectors have disjoint support.
+
+        INPUT:
+
+        - ``other`` -- a sign vector or real vector
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector('++00')
+            sage: Y = sign_vector('0+0-')
+            sage: Z = sign_vector('00--')
+            sage: X.disjoint_support(Y)
+            False
+            sage: Y.disjoint_support(X)
+            False
+            sage: X.disjoint_support(Z)
+            True
+            sage: Z.disjoint_support(X)
+            True
+            sage: Y.disjoint_support(Z)
+            False
+        """
+        if self.length() != other.length():
+            raise ValueError('Sign vectors have different length.')
+        return all(other[e] == 0 for e in self.support())
 
     def reverse_signs_in(self, S):
         r"""
