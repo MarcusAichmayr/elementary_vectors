@@ -529,7 +529,7 @@ class SignVector(SageObject):
 
     def disjoint_support(self, other):
         r"""
-        Returns whether these two sign vectors have disjoint support.
+        Return whether these two sign vectors have disjoint support.
 
         INPUT:
 
