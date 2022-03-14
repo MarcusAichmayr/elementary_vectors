@@ -316,10 +316,9 @@ def elementary_vectors_from_minors(m, dim, ring=None, **kwargs):
         sage: elementary_vectors_from_minors(m, M.dimensions(), ring=QQ)
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
     """
-    evs = []
     r, n = dim
     if n <= r:
-        return evs
+        return []
     if binomial(n, r) != len(m):
         raise ValueError('Dimensions do not fit.')
     if m == []:
@@ -331,15 +330,23 @@ def elementary_vectors_from_minors(m, dim, ring=None, **kwargs):
         # find common parent of minors
         ring = get_coercion_model().common_parent(*m)
 
-    for I in C:  # construct vectors
+    def ev_from_minors(I):
+        r"""
+        Compute the elementary vector corresponding to ``I``.
+
+        INPUT:
+
+        - ``I`` -- a list of indices
+        """
         v = zero_vector(ring, n)
         for k in I:
             pos = I.index(k)
             Jk = list(I)
             Jk.pop(pos)
             v[k] = (-1)**pos * m[dets.rank(Jk)]
-        if v != zero_vector(n):
-            evs.append(v)
+        return v
+
+    evs = [ev_from_minors(I) for I in C]
 
     if evs != []:
         return reduce_vectors(evs, **kwargs)
