@@ -72,6 +72,9 @@ CoCalc:
   * [x] add docstring
   * [x] add tests
 
+* `vector_from_matrix`
+  * [ ] rename this function
+
 * `conformal_elimination`
   * [ ] Should this be here?
   * [ ] add examples
