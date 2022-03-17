@@ -640,8 +640,6 @@ def adjacent(X, Y, S):
         sage: adjacent(Y, Z, cc)
         False
     """
-    for Z in S:
-        if Z < X & Y:
-            if Z != X and Z != Y:
-                return False
-    return True
+
+    XY = X & Y
+    return all(False if Z < XY and Z != X and Z != Y else True for Z in S)
