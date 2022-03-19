@@ -505,7 +505,7 @@ def positive_parallel_classes(W):
     r"""
     Compute the positive parallel classes of a given set of vectors ``W``. This also works for a set of sign vectors.
 
-    .. seealso::
+    .. SEEALSO::
 
         :func:`~parallel_classes`
 
