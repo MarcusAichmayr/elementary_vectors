@@ -150,7 +150,7 @@ def dd(E0, Ep, **kwargs):
 
     .. SEEALSO::
 
-        :func:`dd_input`
+        :func:`~dd_input`
         :func:`~double_description`
         :func:`~elementary_vectors`
     """
@@ -177,6 +177,12 @@ def double_description(M, a):
 
     OUTPUT:
     a list of elementary vectors ``v`` of ``data`` satisfying ``a v = 0``.
+
+    .. SEEALSO::
+
+        :func:`~dd_input`
+        :func:`~dd`
+        :func:`~elementary_vectors`
 
     EXAMPLES:
 
