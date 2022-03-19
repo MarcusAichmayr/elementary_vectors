@@ -20,6 +20,7 @@
   * optional argument: `cancel_common_factor`?
 * [x] add examples for other rings: `QQ`, `GF(7)`
 * [x] Change output if `return_minors=True` to `[evs, m]` instead of `[m, evs]`.
+* [x] remove `double_description` from here
 
 
 #### elementary_vectors.functions.positive_elementary_vectors
@@ -38,6 +39,10 @@
 
 CoCalc:
 * Put functions for elementary vectors in one file. For maintaining, it would be easier to work more with the documentation.
+
+### elementary_vectors.functions_dd
+
+* [x] add examples to `dd_input`, `dd` and `double_description`. (on top of file)
 
 ### elementary_vectors.vectors_in_intervals
 
