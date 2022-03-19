@@ -91,6 +91,8 @@ from sage.combinat.combination import Combinations
 from .reductions import reduce_vectors
 from .utility import vector_from_matrix
 from .functions import elementary_vectors
+from sage.matrix.constructor import matrix
+from sage.matrix.special import identity_matrix
 
 
 def dd_input(M, svs, a):
@@ -247,3 +249,40 @@ def double_description(M, a):
     svs = [sign_vector(v) for v in evs]
     E0, Ep = dd_input(M, svs, a)
     return dd(E0, Ep)
+
+
+def cocircuits_iterative(ai):
+    r"""
+    Compute the sign vectors corresponding to given vectors.
+
+    INPUT:
+
+    - ``ai`` -- a list of vectors
+
+    OUTPUT:
+    Compute iteratively the sign vectors corresponding to the elementary vectors
+    determined by the given vectors ``ai``.
+
+    .. SEEALSO::
+
+        :func:`~dd_input`
+        :func:`~dd`
+        :func:`~double_description`
+        :func:`elementary_vectors.functions.elementary_vectors`
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.functions_dd import cocircuits_iterative
+        sage: ai = [vector([1,-2,0,2,2]), vector([0,1,4,4,1]), vector([1,0,-1,0,0])]
+        sage: cocircuits_iterative(ai)
+        [(0+0-+), (+-+-0), (+0+-+), (+-+0-)]
+    """
+    n = ai[0].length()
+    ring = ai[0].base_ring()
+    M = matrix(ring, 0, n)
+    svs = [sign_vector(v) for v in identity_matrix(n)]
+    for a in ai:
+        E0, Ep = dd_input(M, svs, a)
+        svs = dd(E0, Ep)
+        M = matrix(list(M) + [a])
+    return svs
