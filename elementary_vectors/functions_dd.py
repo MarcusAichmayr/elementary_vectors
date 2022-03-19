@@ -106,7 +106,7 @@ def dd_input(M, svs, a):
     OUTPUT:
     a tuple ``(E0, Ep)``
     where ``E0`` are sign vectors such that the corresponding elementary vectors ``v`` satisfy ``a v = 0``
-    and ``Ep`` are sign vectors such that the corresponding elementary vectors ``v`` satisfy ``a v > 0``..
+    and ``Ep`` are sign vectors such that the corresponding elementary vectors ``v`` satisfy ``a v > 0``.
 
     .. SEEALSO::
 
@@ -182,7 +182,7 @@ def double_description(M, a):
 
         :func:`~dd_input`
         :func:`~dd`
-        :func:`~elementary_vectors`
+        :func:`elementary_vectors.functions.elementary_vectors`
 
     EXAMPLES:
 
