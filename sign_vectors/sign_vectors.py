@@ -268,6 +268,10 @@ class SignVector(SageObject):
             (--0)
             sage: Y & X
             (--0)
+            sage: X = sign_vector('000+++---')
+            sage: Y = sign_vector('0+-0+-0+-')
+            sage: X.compose(Y)
+            (0+-+++---)
         """
         if left.length() != right.length():
             raise ValueError('Sign vectors have different length.')
@@ -356,6 +360,8 @@ class SignVector(SageObject):
             1
             sage: X[3]
             -1
+            sage: X[1:3]
+            (++)
         """
         if isinstance(e, slice):
             return sign_vector(self.__sv[e])
