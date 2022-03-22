@@ -160,7 +160,7 @@ def dd(E0, Ep, **kwargs):
     def check_pair(X, Y):
         if X.is_harmonious(Y):
             if not any(all((e in X.support() or e in Y.support()) for e in v.support()) for v in E0):
-                if adjacent(X, Y, Ep) and adjacent(-X, -Y, Ep): # 8. März 2022
+                if adjacent(X, Y, Ep) and adjacent(-X, -Y, Ep):
                     return True
         return False
 
