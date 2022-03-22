@@ -245,11 +245,11 @@ class SignVector(SageObject):
 
         INPUT:
 
-        - ``other`` -- a sign vector
+        - ``right`` -- a sign vector
 
         OUTPUT:
 
-        Composition of this sign vector with ``other``.
+        Composition of this sign vector with ``right``.
 
         .. NOTE::
 
@@ -615,10 +615,8 @@ class SignVector(SageObject):
             r"""Unary conformal relation."""
             if x == 0:
                 return True
-            elif x == y:
-                return True
             else:
-                return False
+                return x == y
 
         for e in range(left.length()):
             if not lessthan(left[e], right[e]):
@@ -657,7 +655,7 @@ class SignVector(SageObject):
 
         .. SEEALSO::
 
-            :meth: `compose`
+            :meth: `conforms`
 
         EXAMPLES::
 
@@ -691,10 +689,7 @@ class SignVector(SageObject):
         if isinstance(right, SignVector):
             return left.conforms(right)
         elif right == 0:
-            for a in left:
-                if a > 0:
-                    return False
-            return True
+            return all(a <= 0 for a in left)
         else:
             return left.__sv <= right  # should this be that way?
 
@@ -704,7 +699,7 @@ class SignVector(SageObject):
 
         .. SEEALSO::
 
-            :meth: `compose`
+            :meth: `conforms`
 
         EXAMPLES::
 
@@ -761,10 +756,7 @@ class SignVector(SageObject):
         if isinstance(right, SignVector):
             return right.conforms(left)
         elif right == 0:
-            for a in left:
-                if a < 0:
-                    return False
-            return True
+            return all(a >= 0 for a in left)
         else:
             return left.__sv >= right
 
