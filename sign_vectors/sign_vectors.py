@@ -155,7 +155,6 @@ import warnings
 from sage.structure.sage_object import SageObject
 from sage.modules.free_module_element import vector
 from sage.functions.generalized import sign
-from sage.modules.free_module_element import zero_vector
 from sage.misc.prandom import randint
 from sage.rings.integer_ring import ZZ
 from sage.symbolic.ring import SR
@@ -886,7 +885,7 @@ def zero_sign_vector(n):
         sage: zero_sign_vector(5)
         (00000)
     """
-    return sign_vector(zero_vector(n))
+    return sign_vector([0]*n)
 
 
 def random_sign_vector(n):
