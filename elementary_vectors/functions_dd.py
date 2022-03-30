@@ -157,6 +157,7 @@ def dd(E0, Ep, **kwargs):
         :func:`~elementary_vectors`
     """
     out = []
+
     def check_pair(X, Y):
         if X.is_harmonious(Y):
             if not any(all((e in X.support() or e in Y.support()) for e in v.support()) for v in E0):
