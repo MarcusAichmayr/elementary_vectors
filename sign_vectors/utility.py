@@ -642,4 +642,4 @@ def adjacent(X, Y, S):
     """
 
     XY = X & Y
-    return all(False if Z < XY and Z != X and Z != Y else True for Z in S)
+    return not any(Z < XY for Z in S if Z != X and Z != Y)
