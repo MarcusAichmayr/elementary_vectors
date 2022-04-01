@@ -11,4 +11,4 @@
 from __future__ import absolute_import
 
 from .sign_vectors import *
-from .utility import closure, contraction, deletion
+from .utility import closure, contraction, deletion, plot_sign_vectors

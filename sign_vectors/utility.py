@@ -640,6 +640,12 @@ def adjacent(X, Y, S):
         sage: adjacent(Y, Z, cc)
         False
     """
-
     XY = X & Y
     return not any(Z < XY for Z in S if Z != X and Z != Y)
+
+
+def plot_sign_vectors(L, vertex_size=600, figsize=10, aspect_ratio=4/8):
+    r"""Plot the Hasse Diagram of a list of given sign vectors using the conformal relation."""
+    fcn = lambda X, Y: X.conforms(Y)
+    P = Poset((L, fcn))
+    P.plot(vertex_size=vertex_size, element_color='white', cover_style='-', vertex_shape='+').show(figsize=figsize, aspect_ratio=aspect_ratio)
