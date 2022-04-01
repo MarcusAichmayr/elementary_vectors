@@ -12,6 +12,7 @@ r"""Utility functions and other useful functions for working with oriented matro
 
 from sage.misc.flatten import flatten
 from sage.modules.free_module_element import vector
+from sage.combinat.posets.posets import Poset
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
 
