@@ -103,6 +103,7 @@ CoCalc:
 * [x] add docstrings
 * [x] use doctests instead of separate test file
 * [ ] `is_harmonious` should work for a vector as input.
+* [ ] improve new implementation of `SignVector`
 
 ### sign_vectors.oriented_matroids
 
@@ -122,7 +123,7 @@ CoCalc:
     `from_sign_vectors.oriented_matroids import *` should still work.
 * [ ] Is it useful to add a function `cocircuits_from_elementary_vectors`?
   It would be used in `cocircuits_from_matrix` and `adjacent` of `double_description`.
-* [ ] Is it possible to move references at the end of the documentation?
+* [ ] Is it possible to move references to the end of the documentation?
 * [ ] It might be useful to use a class for oriented matroids.
   * sign vectors could be stored in a better way
 
