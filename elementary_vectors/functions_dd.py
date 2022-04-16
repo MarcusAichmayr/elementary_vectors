@@ -120,21 +120,46 @@ def dd_input(M, svs, a):
     Ep = []
     A = sign_vector(a)
     for X in svs:
-        if X.disjoint_support(A):
+        s = determine_sign(M, X, a)
+        if s == 0:
             E0.append(X)
-        elif X.is_harmonious(A):
-            Ep.append(X)
-        elif X.is_harmonious(-A):
-            Ep.append(-X)
         else:
-            x = vector_from_matrix(M, X.support())
-            s = a*x
-            if s == 0:
-                E0.append(X)
-            else:
-                Ep.append(sign_vector(x if s > 0 else -x))
-
+            Ep.append(X if s == 1 else -X)
     return E0, Ep
+
+
+def determine_sign(M, X, a):
+    r"""
+    Determine the sign of the corresponding scalar product.
+
+    INPUT:
+
+    - ``M`` -- a matrix
+
+    - ``X`` -- a sign vector
+
+    - ``a`` -- a vector
+
+    OUTPUT:
+    First, the vector ``v`` corresponding to the sign vector ``sv`` is computed.
+    Then, the sign of the scalar product ``a v`` is returned.
+    """
+    A = sign_vector(a)
+    if X.disjoint_support(A):
+        return 0
+    elif X.is_harmonious(A):
+        return 1
+    elif X.is_harmonious(-A):
+        return -1
+    else:
+        x = vector_from_matrix(M, X.support())
+        if sign_vector(x) != X:
+            x = -x
+        s = a*x
+        if s == 0:
+            return 0
+        else:
+            return 1 if s > 0 else -1
 
 
 def dd(E0, Ep, **kwargs):
