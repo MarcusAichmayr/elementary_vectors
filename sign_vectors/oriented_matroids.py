@@ -413,8 +413,17 @@ def topes_from_matrix(M, kernel=False):
         [ 0  1 -1]
         sage: topes_from_matrix(A)
         [(---), (-+-), (++-), (+++), (--+), (+-+)]
+
+    TESTS::
+
+        sage: M = zero_matrix(1, 3)
+        sage: topes_from_matrix(M)
+        [(000)]
     """
-    return topes_from_cocircuits(cocircuits_from_matrix(M, kernel=kernel))
+    cc = cocircuits_from_matrix(M, kernel=kernel)
+    if cc == []:
+        return [zero_sign_vector(M.ncols())]
+    return topes_from_cocircuits(cc)
 
 
 def covectors_from_topes(topes, separate=False):
@@ -584,12 +593,22 @@ def covectors_from_matrix(M, kernel=False, algorithm=None, separate=False):
         [[(000)],
          [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
          [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+
+    TESTS::
+
+        sage: covectors_from_matrix(zero_matrix(1, 4), separate=False)
+        [(0000)]
+        sage: covectors_from_matrix(zero_matrix(1, 4), separate=True)
+        [[(0000)]]
     """
     if algorithm is None:
         if separate:
             algorithm = 'face_enumeration'
         else:
-            return covectors_from_cocircuits(cocircuits_from_matrix(M, kernel=kernel))
+            cc = cocircuits_from_matrix(M, kernel=kernel)
+            if cc == []:
+                return [zero_sign_vector(M.ncols())]
+            return covectors_from_cocircuits(cc)
     if algorithm in ['face_enumeration', 'fe']:
         return covectors_from_topes(topes_from_matrix(M, kernel=kernel), separate=separate)
     else:
