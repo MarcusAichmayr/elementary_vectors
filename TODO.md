@@ -45,6 +45,7 @@ CoCalc:
 * [x] add examples to `dd_input`, `dd` and `double_description`. (on top of file)
 * [x] turn the steps in the for loop of `dd_input` to a separate function
   (`determine_sign(M, X, a)`)
+  * [ ] add examples
 
 ### elementary_vectors.vectors_in_intervals
 
