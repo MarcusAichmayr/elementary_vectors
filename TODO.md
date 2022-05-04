@@ -44,8 +44,13 @@ CoCalc:
 
 * [x] add examples to `dd_input`, `dd` and `double_description`. (on top of file)
 * [x] turn the steps in the for loop of `dd_input` to a separate function
-  (`determine_sign(M, X, a)`)
-  * [ ] add examples
+* `determine_sign(X, a, M)`
+  * [x] change order of arguments
+    * We could use `construct_vector` to make it always work.
+  * [x] `M` should be optional.
+    * When `M` is not passed, this function should raise an exception if not enough information is available to determine the sign.
+  * Should this function work for real vectors (as `X` and `a`)? Does not make much sense.
+  * [ ] This function works for cocircuits. For other sign vectors, it might fail.
 
 ### elementary_vectors.vectors_in_intervals
 

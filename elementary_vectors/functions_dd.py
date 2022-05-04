@@ -119,7 +119,7 @@ def dd_input(M, svs, a):
     E0 = []
     Ep = []
     for X in svs:
-        s = determine_sign(M, X, a)
+        s = determine_sign(X, a, M)
         if s == 0:
             E0.append(X)
         else:
@@ -127,21 +127,23 @@ def dd_input(M, svs, a):
     return E0, Ep
 
 
-def determine_sign(M, X, a):
+def determine_sign(X, a, M=None):
     r"""
     Determine the sign of the corresponding scalar product.
 
     INPUT:
 
-    - ``M`` -- a matrix
-
     - ``X`` -- a sign vector
 
     - ``a`` -- a vector
 
+    - ``M`` -- a matrix (default: None)
+
     OUTPUT:
     First, the vector ``v`` corresponding to the sign vector ``sv`` is computed.
     Then, the sign of the scalar product ``a v`` is returned.
+    If the sign can not be determined, the matrix ``M`` is used to find an appropriate sign vector for ``X``.
+    In this case, if ``M`` is not specified, an exception is raised.
 
     .. NOTE::
 
@@ -155,18 +157,18 @@ def determine_sign(M, X, a):
         sage: M = matrix([[1, 1, 2, 3], [2, -1, 0, 0]])
         sage: X = sign_vector("++-0")
         sage: a = vector([1, 0, 0, 0])
-        sage: determine_sign(M, X, a)
+        sage: determine_sign(X, a, M)
         1
         sage: a = vector([0, 0, 0, 1])
-        sage: determine_sign(M, X, a)
+        sage: determine_sign(X, a, M)
         0
         sage: a = vector([1, 1, 0, 0])
-        sage: determine_sign(M, X, a)
+        sage: determine_sign(X, a, M)
         1
         sage: a = vector([1, -1, 0, 0])
-        sage: determine_sign(M, X, a)
+        sage: determine_sign(X, a, M)
         -1
-        sage: determine_sign(M, -X, a)
+        sage: determine_sign(-X, a, M)
         1
     """
     if X.disjoint_support(a):
@@ -176,6 +178,8 @@ def determine_sign(M, X, a):
     elif X.is_harmonious(-a):
         return -1
     else:
+        if M is None:
+            raise ValueError("Sign could not be determined. Pass a suitable matrix to determine the sign.")
         x = vector_from_matrix(M, X.support())
         if sign_vector(x) != X:
             x = -x
