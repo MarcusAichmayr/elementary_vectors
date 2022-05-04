@@ -160,10 +160,10 @@ def determine_sign(X, a, M=None):
         sage: determine_sign(X, a, M)
         1
         sage: a = vector([0, 0, 0, 1])
-        sage: determine_sign(X, a, M)
+        sage: determine_sign(X, a)
         0
         sage: a = vector([1, 1, 0, 0])
-        sage: determine_sign(X, a, M)
+        sage: determine_sign(X, a)
         1
         sage: a = vector([1, -1, 0, 0])
         sage: determine_sign(X, a, M)
