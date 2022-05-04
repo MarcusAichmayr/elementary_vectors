@@ -118,7 +118,6 @@ def dd_input(M, svs, a):
     """
     E0 = []
     Ep = []
-    A = sign_vector(a)
     for X in svs:
         s = determine_sign(M, X, a)
         if s == 0:
@@ -143,13 +142,38 @@ def determine_sign(M, X, a):
     OUTPUT:
     First, the vector ``v`` corresponding to the sign vector ``sv`` is computed.
     Then, the sign of the scalar product ``a v`` is returned.
+
+    .. NOTE::
+
+        This might not work if ``X`` is not a cocircuit of
+        the oriented matroid corresponding to the kernel of ``M``.
+
+    EXAMPLES::
+
+        sage: from sign_vectors import *
+        sage: from elementary_vectors.functions_dd import *
+        sage: M = matrix([[1, 1, 2, 3], [2, -1, 0, 0]])
+        sage: X = sign_vector("++-0")
+        sage: a = vector([1, 0, 0, 0])
+        sage: determine_sign(M, X, a)
+        1
+        sage: a = vector([0, 0, 0, 1])
+        sage: determine_sign(M, X, a)
+        0
+        sage: a = vector([1, 1, 0, 0])
+        sage: determine_sign(M, X, a)
+        1
+        sage: a = vector([1, -1, 0, 0])
+        sage: determine_sign(M, X, a)
+        -1
+        sage: determine_sign(M, -X, a)
+        1
     """
-    A = sign_vector(a)
-    if X.disjoint_support(A):
+    if X.disjoint_support(a):
         return 0
-    elif X.is_harmonious(A):
+    elif X.is_harmonious(a):
         return 1
-    elif X.is_harmonious(-A):
+    elif X.is_harmonious(-a):
         return -1
     else:
         x = vector_from_matrix(M, X.support())
