@@ -740,7 +740,7 @@ class SignVector(SageObject):
 
         INPUT:
 
-        - ``other`` -- sign vector
+        - ``other`` -- a sign vector or real vector
 
         OUTPUT:
         Returns true if there are no separating elements.
@@ -761,9 +761,16 @@ class SignVector(SageObject):
             False
             sage: sign_vector('0+00').is_harmonious(sign_vector('-+0+'))
             True
+            sage: v = vector([1, 2/3, 0, -1, -1])
+            sage: X.is_harmonious(v)
+            True
+            sage: Y.is_harmonious(v)
+            False
         """
         if self.length() != other.length():
-            raise ValueError('Sign vectors have different length.')
+            raise ValueError('Elements have different length.')
+        if not isinstance(other, SignVector):
+            other = sign_vector(other)
         return not any(self[e] == -other[e] for e in self.support())
 
     def disjoint_support(self, other):
@@ -792,7 +799,7 @@ class SignVector(SageObject):
             False
         """
         if self.length() != other.length():
-            raise ValueError('Sign vectors have different length.')
+            raise ValueError('Elements have different length.')
         return all(other[e].is_zero() for e in self.support())
 
     def reverse_signs_in(self, S):
