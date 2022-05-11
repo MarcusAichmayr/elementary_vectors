@@ -339,8 +339,7 @@ def elementary_vectors_from_minors(m, dim, ring=None, **kwargs):
         - ``I`` -- a list of indices
         """
         v = zero_vector(ring, n)
-        for k in I:
-            pos = I.index(k)
+        for pos, k in enumerate(I):
             Jk = list(I)
             Jk.pop(pos)
             v[k] = (-1)**pos * m[dets.rank(Jk)]
