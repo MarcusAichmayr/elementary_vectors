@@ -1295,6 +1295,43 @@ def sign_vector_from_ints(support_int, psupport_int, length=None):
     )
 
 
+def sign_vector_from_support(support, psupport, length=None):
+    r"""
+    Return a sign vector that is given by lists representing support and positive support.
+
+    INPUT:
+
+    - ``support`` -- a list
+
+    - ``psupport`` -- a list
+
+    - ``length`` -- (optional) a non-negative integer
+
+    OUTPUT:
+    a sign vector
+
+    .. NOTE::
+
+        The list ``psupport`` should be a sublist of ``support``.
+        For efficiency, this is not checked.
+
+    EXAMPLES::
+
+        sage: from sign_vectors import *
+        sage: sign_vector_from_support([1, 2, 4], [1, 4], 6)
+        (0+-0+0)
+    """
+    if support == []:
+        support_bitset = Bitset("0")
+    else:
+        support_bitset = Bitset(support)
+    if psupport == []:
+        psupport_bitset = Bitset("0")
+    else:
+        psupport_bitset = Bitset(psupport)
+    return SignVector(support_bitset, psupport_bitset, length)
+
+
 def zero_sign_vector(length=None):
     r"""
     Return the zero sign vector of length of a given length.
