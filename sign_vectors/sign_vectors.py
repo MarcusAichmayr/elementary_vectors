@@ -454,16 +454,7 @@ class Sign(SageObject):
 
 
 class SignVector(SageObject):
-    global DEFAULT_LENGTH
-    DEFAULT_LENGTH = 5
-
-    @staticmethod
-    def change_default_length(length):
-        r"""Change the default length of sign vectors."""
-        global DEFAULT_LENGTH
-        DEFAULT_LENGTH = length
-
-    def __init__(self, support_bitset, psupport_bitset, length=None):
+    def __init__(self, support_bitset, psupport_bitset, length):
         r"""
         Create a sign vector object.
 
@@ -473,12 +464,16 @@ class SignVector(SageObject):
 
         - ``psupport_bitset`` -- a bitset that represents the positive support of this sign vector.
 
-        - ``length`` -- the length of this sign vector. (optional) By default, the constant DEFAULT_LENGTH is used.
+        - ``length`` -- the length of this sign vector.
 
         .. NOTE::
 
             The ``psupport_bitset`` should be a subset of ``support_bitset``.
             For efficiency, this is not checked when creating a sign vector object.
+
+        .. SEEALSO::
+
+            :func: `~sign_vector`
 
         EXAMPLES::
 
@@ -487,20 +482,10 @@ class SignVector(SageObject):
             sage: p = Bitset("0101")
             sage: SignVector(s, p, 4)
             (-+0+)
-
-        This uses the default length which is ``5``::
-
-            sage: X = SignVector(s, p)
-            sage: X
-            (-+0+0)
-            sage: SignVector.change_default_length(6)
-            sage: X
-            (-+0+00)
         """
         self._support_bitset = support_bitset
         self._psupport_bitset = psupport_bitset
-        if length is not None:
-            self._length = length
+        self._length = length
 
     def _repr_(self):
         return "(" + "".join("+" if e in self._psupport_bitset else ("-" if e in self._support_bitset else "0") for e in range(self.length())) + ")"
@@ -508,10 +493,6 @@ class SignVector(SageObject):
     def __hash__(self):
         r"""Return the hash value of this sign vector."""
         return hash(repr(self))
-
-    def _stored_length(self):
-        r"""Return the length of this sign vector if it has one. Otherwise, return ``None``"""
-        return self.length() if hasattr(self, "_length") else None
 
     def _nsupport_bitset(self):
         r"""Return the bitset corresponding to the negative support."""
@@ -529,10 +510,7 @@ class SignVector(SageObject):
             sage: X.length()
             3
         """
-        if hasattr(self, "_length"):
-            return self._length
-        else:
-            return DEFAULT_LENGTH
+        return self._length
 
     def __len__(self):
         r"""
@@ -600,7 +578,7 @@ class SignVector(SageObject):
         return SignVector(
             support_bitset,
             psupport_bitset,
-            length=left._stored_length()
+            left.length()
         )
 
     def __and__(left, right):
@@ -644,7 +622,7 @@ class SignVector(SageObject):
         elif value < 0:
             return -self
         else:
-            return zero_sign_vector(self._stored_length())
+            return zero_sign_vector(self.length())
 
     def __rmul__(self, value):
         r"""
@@ -677,7 +655,7 @@ class SignVector(SageObject):
         return SignVector(
             self._support_bitset,
             self._nsupport_bitset(),
-            self._stored_length()
+            self.length()
         )
 
     def __pos__(self):
@@ -695,7 +673,7 @@ class SignVector(SageObject):
         return SignVector(
             self._support_bitset,
             self._psupport_bitset,
-            self._stored_length()
+            self.length()
         )
 
     def __getitem__(self, e):
@@ -974,7 +952,7 @@ class SignVector(SageObject):
                     psupport_bitset.remove(e)
                 else:
                     psupport_bitset.add(e)
-        return SignVector(support_bitset, psupport_bitset, length=self._stored_length())
+        return SignVector(support_bitset, psupport_bitset, self.length())
 
     def conforms(left, right):
         r"""
@@ -1267,7 +1245,7 @@ def sign_vector(v):
             len(v)
         )
 
-def sign_vector_from_ints(support_int, psupport_int, length=None):
+def sign_vector_from_ints(support_int, psupport_int, length):
     r"""
     Return a sign vector that is given by integers representing support and positive support.
 
@@ -1277,7 +1255,7 @@ def sign_vector_from_ints(support_int, psupport_int, length=None):
 
     - ``psupport_int`` -- an integer
 
-    - ``length`` -- (optional) a non-negative integer
+    - ``length`` -- a non-negative integer
 
     OUTPUT:
     a sign vector
@@ -1285,7 +1263,7 @@ def sign_vector_from_ints(support_int, psupport_int, length=None):
     EXAMPLES::
 
         sage: from sign_vectors import *
-        sage: sign_vector_from_ints(13, 4, length=5)
+        sage: sign_vector_from_ints(13, 4, 5)
         (-0+-0)
     """
     return SignVector(
@@ -1295,7 +1273,7 @@ def sign_vector_from_ints(support_int, psupport_int, length=None):
     )
 
 
-def sign_vector_from_support(support, psupport, length=None):
+def sign_vector_from_support(support, psupport, length):
     r"""
     Return a sign vector that is given by lists representing support and positive support.
 
@@ -1305,7 +1283,7 @@ def sign_vector_from_support(support, psupport, length=None):
 
     - ``psupport`` -- a list
 
-    - ``length`` -- (optional) a non-negative integer
+    - ``length`` -- a non-negative integer
 
     OUTPUT:
     a sign vector
@@ -1332,33 +1310,30 @@ def sign_vector_from_support(support, psupport, length=None):
     return SignVector(support_bitset, psupport_bitset, length)
 
 
-def zero_sign_vector(length=None):
+def zero_sign_vector(length):
     r"""
-    Return the zero sign vector of length of a given length.
+    Return the zero sign vector of a given length.
 
     INPUT:
 
-    - ``length`` -- length (optional). Takes by default the constant DEFAULT_LENGTH.
+    - ``length`` -- length
 
     EXAMPLES::
 
         sage: from sign_vectors import zero_sign_vector
         sage: zero_sign_vector(4)
         (0000)
-
-    TESTS:
-
-    This uses the DEFAULT_LENGTH from a call in a different doctest::
-
-        sage: zero_sign_vector() # todo: not tested
-        (00000)
     """
-    return SignVector(Bitset("0"), Bitset("0"), length=length)
+    return SignVector(Bitset("0"), Bitset("0"), length)
 
 
 def random_sign_vector(length):
     r"""
     Return a random sign vector of a given length.
+
+    INPUT:
+
+    - ``length`` -- length
 
     EXAMPLES::
 
