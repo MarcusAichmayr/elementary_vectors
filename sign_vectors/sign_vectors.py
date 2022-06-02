@@ -581,6 +581,44 @@ class SignVector(SageObject):
             left.length()
         )
 
+    def compose_harmonious(left, right):
+        r"""
+        Return the composition of two harmonious sign vectors.
+
+        INPUT:
+
+        - ``right`` -- a sign vector
+
+        OUTPUT:
+
+        Composition of this sign vector with ``right``.
+
+        .. NOTE::
+
+            This method is more efficient than :meth:`compose`.
+            However, it does not check whether the sign vectors are harmonious.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector('+00'); X
+            (+00)
+            sage: Y = sign_vector([0,-1,0]); Y
+            (0-0)
+            sage: X.compose_harmonious(Y)
+            (+-0)
+            sage: Y.compose_harmonious(X)
+            (+-0)
+        """
+        if left.length() != right.length():
+            raise length_error
+
+        return SignVector(
+            left._support_bitset.union(right._support_bitset),
+            left._psupport_bitset.union(right._psupport_bitset),
+            left.length()
+        )
+
     def __and__(left, right):
         r"""
         Return the composition of two sign vectors.
@@ -887,10 +925,11 @@ class SignVector(SageObject):
             raise length_error
         if not isinstance(other, SignVector):
             other = sign_vector(other)
-        for e in self._support_bitset.intersection(other._support_bitset):
-            if (e in self._psupport_bitset).__xor__(e in other._psupport_bitset):
-                return False
-        return True
+        
+        return not any(
+            (e in self._psupport_bitset).__xor__(e in other._psupport_bitset)
+            for e in self._support_bitset.intersection(other._support_bitset)
+        )
 
     def disjoint_support(self, other):
         r"""
