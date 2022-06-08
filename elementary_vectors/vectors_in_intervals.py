@@ -694,24 +694,21 @@ def construct_vector(M, intervals):
             y = elementary_vectors(M, kernel=True)[0]
             return construct_normal_vector(y, intervals)
         else:
-            # construct n vectors x1, ..., xn
-            x = []
-            for k in range(n):
+            def comp_xk(k):
                 # projection to k-th component
                 M_bar = M.delete_columns([k])
                 intervals_bar = intervals[:k] + intervals[k+1:]
                 xk_bar = rec(M_bar, intervals_bar)
                 # solve linear system to project back
                 a = M_bar.solve_left(xk_bar)
-                xk = a*M
-                x.append(xk)
+                return a*M
+
+            x = [comp_xk(k) for k in range(n)]
 
             # use vectors in x to construct vector
             A = matrix([xk - x[0] for xk in x[1:]])
             a = list(A.T.right_kernel_matrix().row(0))
             a = [-sum(a)] + a
-            sol = sum([ak*xk for ak, xk in zip(a, x) if ak > 0]) / sum(ak for ak in a if ak > 0)
-
-            return sol
+            return sum(ak*xk for ak, xk in zip(a, x) if ak > 0) / sum(ak for ak in a if ak > 0)
 
     return rec(M, intervals)
