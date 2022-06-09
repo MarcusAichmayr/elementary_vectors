@@ -131,6 +131,68 @@ from sage.modules.free_module_element import vector
 from sage.matrix.constructor import matrix
 
 
+def setup_interval(L, R, l=True, r=True):
+    r"""
+    Construct an intervals.
+
+    INPUT:
+
+    - ``L`` -- a lower bound
+
+    - ``R`` -- an upper bound
+
+    - ``l`` -- a boolean (default: ``True``)
+
+    - ``r`` -- a boolean (default: ``True``)
+
+    OUTPUT:
+
+    A ``RealSet`` objects.
+
+    - ``L`` and ``R`` are the left and right interval values.
+      If ``L > R``, those elements will be exchanged.
+
+    - ``l`` and ``r`` determine the intervals.
+
+    - The left (or right) interval half of the interval is
+
+        - closed if ``l`` (or ``r``) is ``True`` (default).
+
+        - open if ``l`` (or ``r``) is ``False``.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.vectors_in_intervals import setup_interval
+        sage: setup_interval(5, 6)
+        [5, 6]
+        sage: setup_interval(6, 5, False, True)
+        (5, 6]
+        sage: setup_interval(5, 5, False, True)
+        {}
+        sage: setup_interval(-oo, 5)
+        (-oo, 5]
+        sage: setup_interval(0, oo, False, False)
+        (0, +oo)
+    """
+    if R < L:
+        L, R = (R, L)
+    if L == -Infinity:
+        l = False
+    if R == Infinity:
+        r = False
+
+    if l and r:
+        interval = RealSet.closed(L, R)
+    elif (not l) and (not r):
+        interval = RealSet.open(L, R)
+    elif l and (not r):
+        interval = RealSet.closed_open(L, R)
+    else:
+        interval = RealSet.open_closed(L, R)
+
+    return interval
+
+
 def setup_intervals(L, R, l=True, r=True):
     r"""
     Construct a list of intervals from lists of bounds.
@@ -150,7 +212,7 @@ def setup_intervals(L, R, l=True, r=True):
     A list of ``RealSet`` objects of length ``n``.
 
     - ``L`` and ``R`` are the left and right interval values.
-      If ``L[i]`` > ``R[i]``, those elements will be exchanged.
+      If ``L[i] > R[i]``, those elements will be exchanged.
 
     - ``l`` and ``r`` determine the intervals.
 
@@ -226,26 +288,7 @@ def setup_intervals(L, R, l=True, r=True):
     elif len(r) != n:
         raise ValueError('``r`` should be a list of length ' + str(n) + '.')
 
-    intervals = []
-    for Li, Ri, li, ri in zip(L, R, l, r):
-        # if Li is the upper bound oo, we want to exchange the bounds first.
-        if Ri < Li:
-            Li, Ri = (Ri, Li)
-        if Li == -Infinity:
-            li = False
-        if Ri == Infinity:
-            ri = False
-
-        if li and ri:
-            interval = RealSet.closed(Li, Ri)
-        elif (not li) and (not ri):
-            interval = RealSet.open(Li, Ri)
-        elif li and (not ri):
-            interval = RealSet.closed_open(Li, Ri)
-        else:
-            interval = RealSet.open_closed(Li, Ri)
-        intervals.append(interval)
-    return intervals
+    return [setup_interval(Li, Ri, li, ri) for Li, Ri, li, ri in zip(L, R, l, r)]
 
 
 def exists_normal_vector(v, intervals):
