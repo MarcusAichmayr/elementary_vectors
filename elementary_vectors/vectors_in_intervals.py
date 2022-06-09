@@ -733,11 +733,14 @@ def construct_vector(M, intervals):
         if r == n:
             return vector(I.an_element() for I in intervals)
         elif r == n - 1:
-            # The kernel of ``M`` has one dimension. Hence, there is only one elementary vector.
-            y = elementary_vectors(M, kernel=True)[0]
+            # The kernel of ``M`` has one dimension.
+            y = M.right_kernel_matrix().row(0)
             return construct_normal_vector(y, intervals)
         else:
             def comp_xk(k):
+                r"""
+                Recursively construct ``x_k``.
+                """
                 # projection to k-th component
                 M_bar = M.delete_columns([k])
                 intervals_bar = intervals[:k] + intervals[k+1:]
