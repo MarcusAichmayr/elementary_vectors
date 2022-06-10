@@ -749,7 +749,7 @@ def construct_vector(M, intervals):
                 a = M_bar.solve_left(xk_bar)
                 return a*M
 
-            x = [comp_xk(k) for k in range(n)]
+            x = [comp_xk(k) for k in range(r + 2)]
 
             # use vectors in x to construct vector
             A = matrix([xk - x[0] for xk in x[1:]])
