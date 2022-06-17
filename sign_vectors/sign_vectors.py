@@ -925,7 +925,7 @@ class SignVector(SageObject):
             raise length_error
         if not isinstance(other, SignVector):
             other = sign_vector(other)
-        
+
         return not any(
             (e in self._psupport_bitset).__xor__(e in other._psupport_bitset)
             for e in self._support_bitset.intersection(other._support_bitset)
@@ -996,6 +996,11 @@ class SignVector(SageObject):
     def conforms(left, right):
         r"""
         Conformal relation of two sign vectors.
+
+        .. NOTE::
+
+            Alternatively, the operator ``<=`` can be used.
+            Use ``>=``, ``<`` and ``>`` for the other relations.
 
         EXAMPLES::
 
