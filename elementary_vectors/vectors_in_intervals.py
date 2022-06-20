@@ -123,74 +123,13 @@ Finally, we consider unbounded intervals::
 #############################################################################
 
 from .functions import elementary_vectors
+from .utility import simplest_element_in_interval, setup_interval
 from sage.sets.real_set import RealSet
 from sage.rings.infinity import Infinity
 from sage.calculus.var import var
 from sage.symbolic.relation import solve
 from sage.modules.free_module_element import vector
 from sage.matrix.constructor import matrix
-
-
-def setup_interval(L, R, l=True, r=True):
-    r"""
-    Construct an intervals.
-
-    INPUT:
-
-    - ``L`` -- a lower bound
-
-    - ``R`` -- an upper bound
-
-    - ``l`` -- a boolean (default: ``True``)
-
-    - ``r`` -- a boolean (default: ``True``)
-
-    OUTPUT:
-
-    A ``RealSet`` objects.
-
-    - ``L`` and ``R`` are the left and right interval values.
-      If ``L > R``, those elements will be exchanged.
-
-    - ``l`` and ``r`` determine the intervals.
-
-    - The left (or right) interval half of the interval is
-
-        - closed if ``l`` (or ``r``) is ``True`` (default).
-
-        - open if ``l`` (or ``r``) is ``False``.
-
-    EXAMPLES::
-
-        sage: from elementary_vectors.vectors_in_intervals import setup_interval
-        sage: setup_interval(5, 6)
-        [5, 6]
-        sage: setup_interval(6, 5, False, True)
-        (5, 6]
-        sage: setup_interval(5, 5, False, True)
-        {}
-        sage: setup_interval(-oo, 5)
-        (-oo, 5]
-        sage: setup_interval(0, oo, False, False)
-        (0, +oo)
-    """
-    if R < L:
-        L, R = (R, L)
-    if L == -Infinity:
-        l = False
-    if R == Infinity:
-        r = False
-
-    if l and r:
-        interval = RealSet.closed(L, R)
-    elif (not l) and (not r):
-        interval = RealSet.open(L, R)
-    elif l and (not r):
-        interval = RealSet.closed_open(L, R)
-    else:
-        interval = RealSet.open_closed(L, R)
-
-    return interval
 
 
 def setup_intervals(L, R, l=True, r=True):
@@ -289,6 +228,39 @@ def setup_intervals(L, R, l=True, r=True):
         raise ValueError('``r`` should be a list of length ' + str(n) + '.')
 
     return [setup_interval(Li, Ri, li, ri) for Li, Ri, li, ri in zip(L, R, l, r)]
+
+
+def simplest_vector_in_intervals(intervals):
+    r"""
+    Return the simplest vector such that each component is in a given interval.
+
+    INPUT:
+
+    - ``intervals`` -- a list of intervals (``RealSet``)
+
+    OUTPUT:
+    A vector with components in the intervals.
+    If possible, each component is the integer
+    with smallest possible absolute value in the corresponding interval.
+    Otherwise, components are rational with smallest possible denominator.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.vectors_in_intervals import *
+        sage: L = [2,5,-1]
+        sage: R = [5,6,1]
+        sage: I = setup_intervals(L, R)
+        sage: I
+        [[2, 5], [5, 6], [-1, 1]]
+        sage: simplest_vector_in_intervals(I)
+        (2, 5, 0)
+        sage: I = setup_intervals(L, R, l=False, r=False)
+        sage: I
+        [(2, 5), (5, 6), (-1, 1)]
+        sage: simplest_vector_in_intervals(I)
+        (3, 11/2, 0)
+    """
+    return vector(simplest_element_in_interval(I) for I in intervals)
 
 
 def exists_normal_vector(v, intervals):
@@ -731,7 +703,7 @@ def construct_vector(M, intervals):
         n = M.ncols()
         r = M.rank()
         if r == n:
-            return vector(I.an_element() for I in intervals)
+            return simplest_vector_in_intervals(intervals)
         elif r == n - 1:
             # The kernel of ``M`` has one dimension.
             y = M.right_kernel_matrix().row(0)

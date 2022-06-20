@@ -13,6 +13,10 @@
 from sage.symbolic.ring import SR
 from sign_vectors import sign_vector
 from sage.modules.free_module_element import vector
+from sage.sets.real_set import RealSet
+from sage.rings.infinity import Infinity
+from sage.functions.other import floor, ceil
+from sage.rings.continued_fraction import continued_fraction
 
 
 def sign_determined(a):
@@ -84,6 +88,218 @@ def vector_from_matrix(M, I):
         if not k in I:
             l.insert(k, 0)
     return vector(l)
+
+
+def setup_interval(L, R, l=True, r=True):
+    r"""
+    Construct an intervals.
+
+    INPUT:
+
+    - ``L`` -- a lower bound
+
+    - ``R`` -- an upper bound
+
+    - ``l`` -- a boolean (default: ``True``)
+
+    - ``r`` -- a boolean (default: ``True``)
+
+    OUTPUT:
+
+    A ``RealSet`` objects.
+
+    - ``L`` and ``R`` are the left and right interval values.
+      If ``L > R``, those elements will be exchanged.
+
+    - ``l`` and ``r`` determine the intervals.
+
+    - The left (or right) interval half of the interval is
+
+        - closed if ``l`` (or ``r``) is ``True`` (default).
+
+        - open if ``l`` (or ``r``) is ``False``.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.vectors_in_intervals import setup_interval
+        sage: setup_interval(5, 6)
+        [5, 6]
+        sage: setup_interval(6, 5, False, True)
+        (5, 6]
+        sage: setup_interval(5, 5, False, True)
+        {}
+        sage: setup_interval(-oo, 5)
+        (-oo, 5]
+        sage: setup_interval(0, oo, False, False)
+        (0, +oo)
+    """
+    if R < L:
+        L, R = (R, L)
+    if L == -Infinity:
+        l = False
+    if R == Infinity:
+        r = False
+
+    if l and r:
+        interval = RealSet.closed(L, R)
+    elif (not l) and (not r):
+        interval = RealSet.open(L, R)
+    elif l and (not r):
+        interval = RealSet.closed_open(L, R)
+    else:
+        interval = RealSet.open_closed(L, R)
+
+    return interval
+
+
+def simplest_element_in_interval(I):
+    r"""
+    Return the simplest rational element in an interval.
+
+    INPUT:
+
+    - ``I`` -- an interval (``RealSet``)
+
+    OUTPUT:
+    If possible, an integer with smallest possible absolute value will be returned.
+    Otherwise, a rational number with smallest possible denominator is constructed.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.utility import simplest_element_in_interval
+        sage: I = RealSet((1/2, oo))
+        sage: simplest_element_in_interval(I)
+        1
+        sage: I = RealSet((-oo, 1/2))
+        sage: simplest_element_in_interval(I)
+        0
+        sage: I = RealSet((-19, 0))
+        sage: simplest_element_in_interval(I)
+        -1
+        sage: I = RealSet((0, 1))
+        sage: simplest_element_in_interval(I)
+        1/2
+        sage: I = RealSet((-2/3, 0))
+        sage: simplest_element_in_interval(I)
+        -1/2
+        sage: I = RealSet((4/3, 3/2))
+        sage: simplest_element_in_interval(I)
+        7/5
+    """
+    if I.is_empty():
+        raise EmptySetError
+
+    a = I.inf()
+    b = I.sup()
+    if (
+        b - a > 1
+        or (b - a == 1 and I.is_closed())
+        or floor(a) + 1 in I
+        or ceil(b) - 1 in I
+    ):
+        if 0 in I:
+            return 0
+        elif b == Infinity:
+            if ceil(a) in I:
+                return ceil(a)
+            else:
+                return ceil(a) + 1
+        elif a == -Infinity:
+            if floor(b) in I:
+                return floor(b)
+            else:
+                return floor(b) - 1
+        else:
+            if a == 0:
+                return 1
+            elif b == 0:
+                return -1
+            elif b < 0:
+                return floor(b) if floor(b) in I else floor(b) - 1
+            else: # a > 0
+                return ceil(a) if ceil(a) in I else ceil(a) + 1
+    else:
+        # move bounds of interval by integers such that is a subset of the interval (0, 1)
+        I = setup_interval(a - floor(a), b - floor(a), a in I, b in I)
+        return simplest_rational_in_interval(I) + floor(a)
+
+
+def simplest_rational_in_interval(I):
+    r"""
+    Find the rational with smallest denominator in a given interval.
+
+    INPUT:
+
+    - ``I`` -- an interval (``RealSet``) that is a subset of ``(0, 1)``
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.utility import simplest_rational_in_interval
+        sage: I = RealSet((0, 1))
+        sage: simplest_rational_in_interval(I)
+        1/2
+        sage: I = RealSet((1/3, 1))
+        sage: simplest_rational_in_interval(I)
+        1/2
+        sage: I = RealSet((1/3, 1/2))
+        sage: simplest_rational_in_interval(I)
+        2/5
+        sage: I = RealSet((1/2, 241/287))
+        sage: simplest_rational_in_interval(I)
+        2/3
+    """
+    cfl = [0, 2] # continued fraction representation of 1/2
+    while True:
+        val = continued_fraction(cfl).value()
+        if val in I:
+            return val
+        else:
+            if val <= I.inf():
+                cfl = sb_child(cfl, left=False)
+            else: # >= I.sup()
+                cfl = sb_child(cfl, left=True)
+
+
+def sb_child(cfl, left):
+    r"""
+    Return a child of an element in the Stern-Brocot tree.
+
+    INPUT:
+
+    - ``cfl`` -- a list corresponding to a continued fraction
+
+    - ``left`` -- a boolean
+
+    OUTPUT:
+    a list representing the continued fraction of a child of ``cfl``.
+    If ``left`` is true, returns the left child of ``cfl``.
+    Otherwise, the right child is returned.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.utility import sb_child
+        sage: sb_child([0, 2], True)
+        [0, 3]
+        sage: sb_child([0, 2], False)
+        [0, 1, 2]
+        sage: parent = continued_fraction_list(5/7)
+        sage: parent
+        [0, 1, 2, 2]
+        sage: l_child = sb_child(parent, True)
+        sage: l_child
+        [0, 1, 2, 3]
+        sage: continued_fraction(l_child).value()
+        7/10
+        sage: r_child = sb_child(parent, False)
+        sage: r_child
+        [0, 1, 2, 1, 2]
+        sage: continued_fraction(r_child).value()
+        8/11
+    """
+    if left == (len(cfl) % 2 == 0):
+        return cfl[:-1] + [cfl[-1] + 1]
+    else:
+        return cfl[:-1] + [cfl[-1] - 1, 2]
 
 
 def conformal_elimination(x, y, S=None):
