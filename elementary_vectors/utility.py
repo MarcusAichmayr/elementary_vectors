@@ -185,6 +185,12 @@ def simplest_element_in_interval(I):
         sage: I = RealSet((4/3, 3/2))
         sage: simplest_element_in_interval(I)
         7/5
+        sage: I = RealSet([0, 0])
+        sage: simplest_element_in_interval(I)
+        0
+        sage: I = RealSet([5, 5])
+        sage: simplest_element_in_interval(I)
+        5
     """
     if I.is_empty():
         raise EmptySetError
@@ -196,6 +202,7 @@ def simplest_element_in_interval(I):
         or (b - a == 1 and I.is_closed())
         or floor(a) + 1 in I
         or ceil(b) - 1 in I
+        or a == b
     ):
         if 0 in I:
             return 0
