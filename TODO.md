@@ -1,29 +1,46 @@
 # TODO
 
-## elementary_vectors
+<!-- TOC -->
+- [1. elementary_vectors](#1-elementary_vectors)
+  - [1.1. elementary_vectors.functions](#11-elementary_vectorsfunctions)
+    - [1.1.1. elementary_vectors.functions.positive_elementary_vectors](#111-elementary_vectorsfunctionspositive_elementary_vectors)
+  - [1.2. elementary_vectors.functions_dd](#12-elementary_vectorsfunctions_dd)
+  - [1.3. elementary_vectors.vectors_in_intervals](#13-elementary_vectorsvectors_in_intervals)
+    - [1.3.1. elementary_vectors.vectors_in_intervals.exists_vector](#131-elementary_vectorsvectors_in_intervalsexists_vector)
+  - [1.4. elementary_vectors.utility](#14-elementary_vectorsutility)
+  - [1.5. elementary_vectors.reductions](#15-elementary_vectorsreductions)
+- [2. sign_vectors](#2-sign_vectors)
+  - [2.1. sign_vectors.sign_vectors](#21-sign_vectorssign_vectors)
+  - [2.2. sign_vectors.oriented_matroids](#22-sign_vectorsoriented_matroids)
+  - [2.3. sign_vectors.utility](#23-sign_vectorsutility)
+- [3. Sphinx documentation](#3-sphinx-documentation)
+<!-- /TOC -->
+
+## 1. elementary_vectors
 
 * [ ] Add explanations and examples to demonstrate functions in this module. (in `__init__`?)
   * several reductions
   * `elementary_vectors`
   * `exists_vector`
-* Every .py file should have a docstring.
-  * [x] `vectors_in_intervals`
-    * [x] check for existence of vectors, compute vectors
+* [ ] Should we rename this file?
+  * It is a bit difficult to get the documentation of this file.
+  Compare:
+  ```
+  import elementary_vectors
+  elementary_vectors?
 
-### elementary_vectors.functions
+  from elementary_vectors import *
+  elementary_vectors?
+  ```
 
-* [x] Add example with `return_minors=True` in `elementary_vectors` and `elementary_vectors_from_matrix`.
-* [x] Add examples to `non_negative_vectors`.
+### 1.1. elementary_vectors.functions
+
 * [x] Add examples to `positive_elementary_vectors`.
   * [ ] add examples with variables
 * Do we want more optional arguments for `elementary_vectors` to have more control on reductions?
   * optional argument: `cancel_common_factor`?
-* [x] add examples for other rings: `QQ`, `GF(7)`
-* [x] Change output if `return_minors=True` to `[evs, m]` instead of `[m, evs]`.
-* [x] remove `double_description` from here
 
-
-#### elementary_vectors.functions.positive_elementary_vectors
+#### 1.1.1. elementary_vectors.functions.positive_elementary_vectors
 
 * In `positive_elementary_vector`, all minors could be 0.
   In this case, the result is wrong.
@@ -40,50 +57,24 @@
 CoCalc:
 * Put functions for elementary vectors in one file. For maintaining, it would be easier to work more with the documentation.
 
-### elementary_vectors.functions_dd
+### 1.2. elementary_vectors.functions_dd
 
-* [x] add examples to `dd_input`, `dd` and `double_description`. (on top of file)
-* [x] turn the steps in the for loop of `dd_input` to a separate function
 * `determine_sign(X, a, M)`
-  * [x] change order of arguments
-    * We could use `construct_vector` to make it always work.
-  * [x] `M` should be optional.
-    * When `M` is not passed, this function should raise an exception if not enough information is available to determine the sign.
   * Should this function work for real vectors (as `X` and `a`)? Does not make much sense.
   * [ ] This function works for cocircuits. For other sign vectors, it might fail.
 
-### elementary_vectors.vectors_in_intervals
+### 1.3. elementary_vectors.vectors_in_intervals
 
-* [x] implement `construct_vector`
-  * [x] add examples
-    * [x] several examples, where it works
-    * [x] easy examples
-    * [x] examples where it does not work
 * [ ] Right now, this works only for matrices.
   What if elementary vectors are given? Can we use those to construct a vector in the corresponding vector space?
 
-* [x] implement `construct_normal_vector`
-  * [x] Fix bug:
-    If there exists no solution, `construct_normal_vector` might still find something.
-  * [x] add examples
-    * [x] several examples, where it works
-    * [x] easy examples
-    * [x] examples where it does not work
-* [x] add examples to `exists_normal_vector`
+#### 1.3.1. elementary_vectors.vectors_in_intervals.exists_vector
 
-#### elementary_vectors.vectors_in_intervals.exists_vector
-
-* [x] add examples
 * [x] Removed optional argument `kernel`
 * [x] Removed optional argument `certificate`
   * In case, someone wants to find the certificate, they can iterate over all elementary vectors and return the vector that does not satisfy `exists_normal_vector`.
 
-### elementary_vectors.utility
-
-* `sign_determined`
-  * [x] improve name (was `has_sign`)
-  * [x] add docstring
-  * [x] add tests
+### 1.4. elementary_vectors.utility
 
 * `vector_from_matrix`
   * [ ] rename this function
@@ -93,60 +84,38 @@ CoCalc:
   * [ ] add examples
   * [ ] add tests
 
-### elementary_vectors.reductions
+### 1.5. elementary_vectors.reductions
 
-* [x] improve docstrings
-  * [x] add examples
 * [ ] add examples to docstring on top
 * [ ] (optional) write functions `reduce_factor_of_vector` and `reduce_factor_of_list`
   * [ ] `reduce_factor` should use these functions
 * [ ] improve `reduce_factor` by canceling denominators if applicable
 
 
-## sign_vectors
+## 2. sign_vectors
 
-### sign_vectors.sign_vectors
+### 2.1. sign_vectors.sign_vectors
 
-* [x] Add explanations and examples to demonstrate functions in this module on top of this file.
-* [x] add docstrings
-* [x] use doctests instead of separate test file
 * [ ] `is_harmonious` should work for a vector as input.
 * [ ] improve new implementation of `SignVector`
 
-### sign_vectors.oriented_matroids
+### 2.2. sign_vectors.oriented_matroids
 
-* [x] add examples
-  * [x] add examples to all important functions
-* [x] use only one file (called `oriented_matroids.py`) for all functions:
-  * `cocircuits_from_matrix`
-  * `covectors_from_cocircuits`
-  * `topes_from_cocircuits`
-  * `lower_faces`
-  * `face_enumeration`
-  * `topes_from_matrix`
-  * `covectors_from_topes`
-  * `cocircuits_from_topes`
-  * `covectors_from_matrix`
-  * [ ] test files in CoCalc.
-    `from_sign_vectors.oriented_matroids import *` should still work.
+* [ ] The default value of `kernel` should be true for all functions in this module.
 * [ ] Is it useful to add a function `cocircuits_from_elementary_vectors`?
   It would be used in `cocircuits_from_matrix` and `adjacent` of `double_description`.
 * [ ] Is it possible to move references to the end of the documentation?
 * [ ] It might be useful to use a class for oriented matroids.
   * sign vectors could be stored in a better way
 
-### sign_vectors.utility
+### 2.3. sign_vectors.utility
 
-* [x] add examples
-* [x] move closure, contraction, deletion into this file
-* [x] use doctests instead of separate test file
 * [ ] Can we improve the implementation of `closure`?
 * [ ] improve docstring of `adjacent`
   * define adjacency.
 
-## Sphinx documentation
+## 3. Sphinx documentation
 
-I adapted the files from here: https://github.com/mkauers/ore_algebra
+Note: I adapted the files from here: https://github.com/mkauers/ore_algebra
 
-* [x] Make this work.
 * Do we want to have tests in the documentation?
