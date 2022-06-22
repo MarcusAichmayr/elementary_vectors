@@ -13,7 +13,7 @@ First, we load the functions from the package::
     sage: from elementary_vectors import *
 
 The package offers the function :func:`~setup_intervals` that helps us creating lists of intervals.
-This functions takes as input two lists, the corresponding elements in those lists determine the intervals::
+This function takes two lists as input, the corresponding elements in those lists determine the intervals::
 
     sage: I = setup_intervals([0, 1, -1], [1, 2, -1])
     sage: I
