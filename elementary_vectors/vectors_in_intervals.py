@@ -263,6 +263,93 @@ def simplest_vector_in_intervals(intervals):
     return vector(simplest_element_in_interval(I) for I in intervals)
 
 
+def multiple_in_intervals_candidates(v, intervals):
+    r"""
+    Return the biggest interval ``J`` such that ``a v`` lies in given intervals for all ``a`` in ``J``.
+
+    INPUT:
+
+    - ``v`` -- a vector
+
+    - ``intervals`` -- a list of intervals (``RealSet``)
+
+    .. SEEALSO::
+
+        :func:`~multiple_in_intervals`
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.vectors_in_intervals import *
+        sage: I = setup_intervals([0, 0, -1/4, -oo], [2, oo, 1/5, 1/9], False, [True, False, False, True])
+        sage: v = vector([1, 5, -2, 0])
+        sage: multiple_in_intervals_candidates(v, I)
+        (0, 1/8)
+        sage: v = vector([0, 5, -2, 0])
+        sage: multiple_in_intervals_candidates(v, I)
+        {}
+    """
+    a_inf = -Infinity
+    a_sup = Infinity
+    lower_closed = False
+    upper_closed = False
+
+    for vk, Ik in zip(v, intervals):
+        if vk == 0:
+            if not 0 in Ik:
+                return RealSet()
+        else:
+            val_inf = Ik.inf() / vk
+            val_sup = Ik.sup() / vk
+            if vk > 0:
+                if val_inf > a_inf:
+                    a_inf = val_inf
+                if val_sup < a_sup:
+                    a_sup = val_sup
+                lower_closed = Ik.inf() in Ik
+                upper_closed = Ik.sup() in Ik
+            else: # vk < 0
+                if val_sup > a_inf:
+                    a_inf = val_sup
+                if val_inf < a_sup:
+                    a_sup = val_inf
+                lower_closed = Ik.sup() in Ik
+                upper_closed = Ik.inf() in Ik
+            if a_inf > a_sup:
+                return RealSet()
+
+    return setup_interval(a_inf, a_sup, lower_closed, upper_closed)
+
+
+def multiple_in_intervals(v, intervals):
+    r"""
+    Return a multiple of a vector that lies in given intervals if possible.
+
+    INPUT:
+
+    - ``v`` -- a vector
+
+    - ``intervals`` -- a list of intervals (``RealSet``)
+
+    OUTPUT:
+    Computes a multiple ``a v`` that lies in the intervals.
+    The number ``a`` is chosen as simple as possible.
+    However, there might exist a simpler multiple lying in the intervals.
+
+    .. SEEALSO::
+
+        :func:`.utility.simplest_element_in_interval`
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.vectors_in_intervals import *
+        sage: I = setup_intervals([0, 0, -1/4, -oo], [2, oo, 1/5, 1/9], False, [True, False, False, True])
+        sage: v = vector([1, 5, -2, 0])
+        sage: multiple_in_intervals(v, I)
+        (1/9, 5/9, -2/9, 0)
+    """
+    return simplest_element_in_interval(multiple_in_intervals_candidates(v, intervals)) * v
+
+
 def exists_normal_vector(v, intervals):
     r"""
     Check whether a normal vector exists that lies in the specified intervals.
@@ -704,6 +791,8 @@ def construct_vector(M, intervals):
         r = M.rank()
         if r == n:
             return simplest_vector_in_intervals(intervals)
+        elif r == 1:
+            return multiple_in_intervals(vector(M), intervals)
         elif r == n - 1:
             # The kernel of ``M`` has one dimension.
             y = M.right_kernel_matrix().row(0)
