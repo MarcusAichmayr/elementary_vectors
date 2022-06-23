@@ -191,6 +191,11 @@ def simplest_element_in_interval(I):
         sage: I = RealSet([5, 5])
         sage: simplest_element_in_interval(I)
         5
+        sage: I = RealSet([sqrt(2), pi/2])
+        sage: I
+        [sqrt(2), 1/2*pi]
+        sage: simplest_element_in_interval(I)
+        3/2
     """
     if I.is_empty():
         raise EmptySetError
@@ -226,9 +231,7 @@ def simplest_element_in_interval(I):
             else: # a > 0
                 return ceil(a) if ceil(a) in I else ceil(a) + 1
     else:
-        # move bounds of interval by integers such that is a subset of the interval (0, 1)
-        I = setup_interval(a - floor(a), b - floor(a), a in I, b in I)
-        return simplest_rational_in_interval(I) + floor(a)
+        return simplest_rational_in_interval(I)
 
 
 def simplest_rational_in_interval(I):
@@ -237,7 +240,7 @@ def simplest_rational_in_interval(I):
 
     INPUT:
 
-    - ``I`` -- an interval (``RealSet``) that is a subset of ``(0, 1)``
+    - ``I`` -- an interval (``RealSet``) that has no integer in it.
 
     EXAMPLES::
 
@@ -248,6 +251,9 @@ def simplest_rational_in_interval(I):
         sage: I = RealSet((1/3, 1))
         sage: simplest_rational_in_interval(I)
         1/2
+        sage: I = RealSet((4/3, 2))
+        sage: simplest_rational_in_interval(I)
+        3/2
         sage: I = RealSet((1/3, 1/2))
         sage: simplest_rational_in_interval(I)
         2/5
@@ -255,7 +261,7 @@ def simplest_rational_in_interval(I):
         sage: simplest_rational_in_interval(I)
         2/3
     """
-    cfl = [0, 2] # continued fraction representation of 1/2
+    cfl = [floor(I.inf()), 2] # continued fraction representation of inf(I) + 1/2
     while True:
         val = continued_fraction(cfl).value()
         if val in I:
