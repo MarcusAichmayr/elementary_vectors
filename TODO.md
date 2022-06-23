@@ -111,7 +111,10 @@ CoCalc:
 
 ### 2.3. sign_vectors.utility
 
-* [ ] Can we improve the implementation of `closure`?
+* [ ] Improve the implementation of `closure`
+  * We could improve the implementation by using Combinations of support.
+* [ ] implement lower, upper, total closure
+  * We might be able to reuse code.
 * [ ] improve docstring of `adjacent`
   * define adjacency.
 
