@@ -196,6 +196,9 @@ def simplest_element_in_interval(I):
         [sqrt(2), 1/2*pi]
         sage: simplest_element_in_interval(I)
         3/2
+        sage: I = RealSet([1/2, 1/2])
+        sage: simplest_element_in_interval(I)
+        1/2
     """
     if I.is_empty():
         raise EmptySetError
@@ -204,10 +207,9 @@ def simplest_element_in_interval(I):
     b = I.sup()
     if (
         b - a > 1
-        or (b - a == 1 and I.is_closed())
         or floor(a) + 1 in I
         or ceil(b) - 1 in I
-        or a == b
+        or (a.is_integer() and a == b)
     ):
         if 0 in I:
             return 0
