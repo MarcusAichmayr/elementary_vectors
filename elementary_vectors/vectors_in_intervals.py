@@ -634,8 +634,8 @@ def construct_normal_vector(v, intervals):
 
     for vk, I in zip(v, intervals):
         if vk == 0:
-            z_min.append(I.an_element())
-            z_max.append(I.an_element())
+            z_min.append(simplest_element_in_interval(I))
+            z_max.append(simplest_element_in_interval(I))
         else:
             l = (I.inf() + (0 if I.inf() in I else eps)) if I.inf() != -Infinity else -lam
             r = (I.sup() + (0 if I.sup() in I else -eps)) if I.sup() != Infinity else lam
