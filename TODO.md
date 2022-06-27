@@ -108,6 +108,8 @@ CoCalc:
 * [ ] Is it possible to move references to the end of the documentation?
 * [ ] It might be useful to use a class for oriented matroids.
   * sign vectors could be stored in a better way
+* [ ] use balanced binary trees in `covectors_from_cocircuits` and `topes_from_cocircuits`.
+  * see Finschi, p.71:
 
 ### 2.3. sign_vectors.utility
 
