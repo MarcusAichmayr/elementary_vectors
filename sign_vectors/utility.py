@@ -379,7 +379,7 @@ def adjacent(X, Y, S):
         sage: from sign_vectors.oriented_matroids import *
         sage: cc = cocircuits_from_matrix(M)
         sage: cc
-        [(--0), (-0-), (0-+), (++0), (+0+), (0+-)]
+        [(--0), (++0), (-0-), (+0+), (0-+), (0+-)]
 
     The two sign vectors ``X = (++0)`` and ``Y = (+0+)`` are harmonious::
 

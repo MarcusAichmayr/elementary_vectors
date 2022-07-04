@@ -21,7 +21,7 @@ with respect to the conformal relation.)::
 
     sage: ccA = cocircuits_from_matrix(A)
     sage: ccA
-    [(--0), (-0-), (0-+), (++0), (+0+), (0+-)]
+    [(--0), (++0), (-0-), (+0+), (0-+), (0+-)]
 
 We can also use the cocircuits to compute all covectors of the corresponding
 oriented matroid::
@@ -29,14 +29,14 @@ oriented matroid::
     sage: covectors_from_cocircuits(ccA)
     [(000),
      (--0),
-     (-0-),
-     (0-+),
      (++0),
+     (-0-),
      (+0+),
+     (0-+),
      (0+-),
      (---),
-     (-+-),
      (++-),
+     (-+-),
      (+++),
      (--+),
      (+-+)]
@@ -46,26 +46,26 @@ Next, we compute the topes using the cocircuits.
 
     sage: tA = topes_from_cocircuits(ccA)
     sage: tA
-    [(---), (-+-), (++-), (+++), (--+), (+-+)]
+    [(---), (++-), (-+-), (+++), (--+), (+-+)]
 
 There are some further commands to work with oriented matroids::
 
     sage: covectors_from_matrix(A)
     [(000),
      (--0),
-     (-0-),
-     (0-+),
      (++0),
+     (-0-),
      (+0+),
+     (0-+),
      (0+-),
      (---),
-     (-+-),
      (++-),
+     (-+-),
      (+++),
      (--+),
      (+-+)]
     sage: topes_from_matrix(A)
-    [(---), (-+-), (++-), (+++), (--+), (+-+)]
+    [(---), (++-), (-+-), (+++), (--+), (+-+)]
     sage: covectors_from_topes(tA)
     [(000),
      (-0-),
@@ -75,8 +75,8 @@ There are some further commands to work with oriented matroids::
      (+0+),
      (0-+),
      (---),
-     (-+-),
      (++-),
+     (-+-),
      (+++),
      (--+),
      (+-+)]
@@ -98,19 +98,19 @@ Next, we compute all covectors separated by their rank::
     sage: face_enumeration(tA)
     [[(000)],
      [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
-     [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+     [(---), (++-), (-+-), (+++), (--+), (+-+)]]
     sage: covectors_from_matrix(A, algorithm="face_enumeration", separate=True)
     [[(000)],
      [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
-     [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+     [(---), (++-), (-+-), (+++), (--+), (+-+)]]
     sage: covectors_from_matrix(A, algorithm="fe", separate=True)
     [[(000)],
      [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
-     [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+     [(---), (++-), (-+-), (+++), (--+), (+-+)]]
     sage: covectors_from_topes(tA, separate=True)
     [[(000)],
      [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
-     [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+     [(---), (++-), (-+-), (+++), (--+), (+-+)]]
 """
 
 #############################################################################
@@ -155,17 +155,19 @@ def cocircuits_from_matrix(M, kernel=False):
         [ 1  2  0]
         [ 0  1 -1]
         sage: cocircuits_from_matrix(A)
-        [(--0), (-0-), (0-+), (++0), (+0+), (0+-)]
+        [(--0), (++0), (-0-), (+0+), (0-+), (0+-)]
         sage: B = matrix([[1,0,0,0],[0,1,0,2],[0,0,1,-1]])
         sage: B
         [ 1  0  0  0]
         [ 0  1  0  2]
         [ 0  0  1 -1]
         sage: cocircuits_from_matrix(B)
-        [(+000), (0--0), (0-0-), (00-+), (-000), (0++0), (0+0+), (00+-)]
+        [(+000), (-000), (0--0), (0++0), (0-0-), (0+0+), (00-+), (00+-)]
     """
-    evs = elementary_vectors(M, kernel=kernel)
-    return [sign_vector(v) for v in evs] + [sign_vector(-v) for v in evs]
+    return sum([
+        [sign_vector(v), sign_vector(-v)]
+        for v in elementary_vectors(M, kernel=kernel)
+        ], [])
 
 
 def covectors_from_cocircuits(cocircuits):
@@ -200,18 +202,18 @@ def covectors_from_cocircuits(cocircuits):
         [ 0  1 -1]
         sage: ccA = cocircuits_from_matrix(A)
         sage: ccA
-        [(--0), (-0-), (0-+), (++0), (+0+), (0+-)]
+        [(--0), (++0), (-0-), (+0+), (0-+), (0+-)]
         sage: covectors_from_cocircuits(ccA)
         [(000),
          (--0),
-         (-0-),
-         (0-+),
          (++0),
+         (-0-),
          (+0+),
+         (0-+),
          (0+-),
          (---),
-         (-+-),
          (++-),
+         (-+-),
          (+++),
          (--+),
          (+-+)]
@@ -260,9 +262,9 @@ def topes_from_cocircuits(cocircuits):
         [ 0  1 -1]
         sage: ccA = cocircuits_from_matrix(A)
         sage: ccA
-        [(--0), (-0-), (0-+), (++0), (+0+), (0+-)]
+        [(--0), (++0), (-0-), (+0+), (0-+), (0+-)]
         sage: topes_from_cocircuits(ccA)
-        [(---), (-+-), (++-), (+++), (--+), (+-+)]
+        [(---), (++-), (-+-), (+++), (--+), (+-+)]
     """
     if not cocircuits:
         raise ValueError('List is empty.')
@@ -368,11 +370,11 @@ def face_enumeration(covectors):
         [ 0  1 -1]
         sage: tA = topes_from_matrix(A)
         sage: tA
-        [(---), (-+-), (++-), (+++), (--+), (+-+)]
+        [(---), (++-), (-+-), (+++), (--+), (+-+)]
         sage: face_enumeration(tA)
         [[(000)],
          [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
-         [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+         [(---), (++-), (-+-), (+++), (--+), (+-+)]]
     """
     if not covectors:
         raise ValueError('List is empty.')
@@ -412,7 +414,7 @@ def topes_from_matrix(M, kernel=False):
         [ 1  2  0]
         [ 0  1 -1]
         sage: topes_from_matrix(A)
-        [(---), (-+-), (++-), (+++), (--+), (+-+)]
+        [(---), (++-), (-+-), (+++), (--+), (+-+)]
 
     TESTS::
 
@@ -462,7 +464,7 @@ def covectors_from_topes(topes, separate=False):
         [ 0  1 -1]
         sage: tA = topes_from_matrix(A)
         sage: tA
-        [(---), (-+-), (++-), (+++), (--+), (+-+)]
+        [(---), (++-), (-+-), (+++), (--+), (+-+)]
         sage: covectors_from_topes(tA)
         [(000),
          (-0-),
@@ -472,15 +474,15 @@ def covectors_from_topes(topes, separate=False):
          (+0+),
          (0-+),
          (---),
-         (-+-),
          (++-),
+         (-+-),
          (+++),
          (--+),
          (+-+)]
         sage: covectors_from_topes(tA, separate=True)
         [[(000)],
          [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
-         [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+         [(---), (++-), (-+-), (+++), (--+), (+-+)]]
     """
     if separate:
         return face_enumeration(topes)
@@ -512,7 +514,7 @@ def cocircuits_from_topes(topes):
         [ 0  1 -1]
         sage: tA = topes_from_matrix(A)
         sage: tA
-        [(---), (-+-), (++-), (+++), (--+), (+-+)]
+        [(---), (++-), (-+-), (+++), (--+), (+-+)]
         sage: cocircuits_from_topes(tA)
         [(-0-), (--0), (0+-), (++0), (+0+), (0-+)]
     """
@@ -570,29 +572,29 @@ def covectors_from_matrix(M, kernel=False, algorithm=None, separate=False):
         sage: covectors_from_matrix(A)
         [(000),
          (--0),
-         (-0-),
-         (0-+),
          (++0),
+         (-0-),
          (+0+),
+         (0-+),
          (0+-),
          (---),
-         (-+-),
          (++-),
+         (-+-),
          (+++),
          (--+),
          (+-+)]
         sage: covectors_from_matrix(A, separate=True)
         [[(000)],
          [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
-         [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+         [(---), (++-), (-+-), (+++), (--+), (+-+)]]
         sage: covectors_from_matrix(A, algorithm="face_enumeration", separate=True)
         [[(000)],
          [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
-         [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+         [(---), (++-), (-+-), (+++), (--+), (+-+)]]
         sage: covectors_from_matrix(A, algorithm="fe", separate=True)
         [[(000)],
          [(-0-), (--0), (0+-), (++0), (+0+), (0-+)],
-         [(---), (-+-), (++-), (+++), (--+), (+-+)]]
+         [(---), (++-), (-+-), (+++), (--+), (+-+)]]
 
     TESTS::
 
