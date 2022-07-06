@@ -158,7 +158,6 @@ from sage.functions.generalized import sign
 from sage.misc.prandom import randint
 from sage.rings.integer_ring import ZZ
 from sage.rings.integer import Integer
-from sage.data_structures.bitset import Bitset
 from sage.symbolic.ring import SR
 from copy import copy
 
@@ -454,21 +453,21 @@ class Sign(SageObject):
 
 
 class SignVector(SageObject):
-    def __init__(self, support_bitset, psupport_bitset, length):
+    def __init__(self, support, psupport, length):
         r"""
         Create a sign vector object.
 
         INPUT:
 
-        - ``support_bitset`` -- a bitset that represents the support of this sign vector.
+        - ``support`` -- a set that represents the support of this sign vector.
 
-        - ``psupport_bitset`` -- a bitset that represents the positive support of this sign vector.
+        - ``psupport`` -- a set that represents the positive support of this sign vector.
 
         - ``length`` -- the length of this sign vector.
 
         .. NOTE::
 
-            The ``psupport_bitset`` should be a subset of ``support_bitset``.
+            The ``psupport`` should be a subset of ``support``.
             For efficiency, this is not checked when creating a sign vector object.
 
         .. SEEALSO::
@@ -478,25 +477,25 @@ class SignVector(SageObject):
         EXAMPLES::
 
             sage: from sign_vectors import *
-            sage: s = Bitset("1101")
-            sage: p = Bitset("0101")
+            sage: s = {0, 1, 3}
+            sage: p = {1, 3}
             sage: SignVector(s, p, 4)
             (-+0+)
         """
-        self._support_bitset = support_bitset
-        self._psupport_bitset = psupport_bitset
+        self._support = support
+        self._psupport = psupport
         self._length = length
 
     def _repr_(self):
-        return "(" + "".join("+" if e in self._psupport_bitset else ("-" if e in self._support_bitset else "0") for e in range(self.length())) + ")"
+        return "(" + "".join("+" if e in self._psupport else ("-" if e in self._support else "0") for e in range(self.length())) + ")"
 
     def __hash__(self):
         r"""Return the hash value of this sign vector."""
         return hash(repr(self))
 
-    def _nsupport_bitset(self):
-        r"""Return the bitset corresponding to the negative support."""
-        return self._support_bitset.symmetric_difference(self._psupport_bitset)
+    def _nsupport(self):
+        r"""Return the set corresponding to the negative support."""
+        return self._support.symmetric_difference(self._psupport)
 
     def length(self):
         r"""
@@ -563,21 +562,16 @@ class SignVector(SageObject):
         if left.length() != right.length():
             raise length_error
 
-        support_bitset = left._support_bitset.union(right._support_bitset)
-        psupport = [
-            e for e in support_bitset
-            if (e in left._psupport_bitset)
-            or (e in right._psupport_bitset and not e in left._support_bitset)
-        ]
-
-        if psupport == []:
-            psupport_bitset = Bitset("0")
-        else:
-            psupport_bitset = Bitset(psupport)
+        support = left._support.union(right._support)
+        psupport = {
+            e for e in support
+            if (e in left._psupport)
+            or (e in right._psupport and not e in left._support)
+        }
 
         return SignVector(
-            support_bitset,
-            psupport_bitset,
+            support,
+            psupport,
             left.length()
         )
 
@@ -614,8 +608,8 @@ class SignVector(SageObject):
             raise length_error
 
         return SignVector(
-            left._support_bitset.union(right._support_bitset),
-            left._psupport_bitset.union(right._psupport_bitset),
+            left._support.union(right._support),
+            left._psupport.union(right._psupport),
             left.length()
         )
 
@@ -691,8 +685,8 @@ class SignVector(SageObject):
             (0-+)
         """
         return SignVector(
-            self._support_bitset,
-            self._nsupport_bitset(),
+            self._support,
+            self._nsupport(),
             self.length()
         )
 
@@ -709,8 +703,8 @@ class SignVector(SageObject):
             (0+-)
         """
         return SignVector(
-            self._support_bitset,
-            self._psupport_bitset,
+            self._support,
+            self._psupport,
             self.length()
         )
 
@@ -749,8 +743,8 @@ class SignVector(SageObject):
             raise IndexError("index out of range")
         elif e < 0:
             e %= self.length()
-        if e in self._support_bitset:
-            return 1 if e in self._psupport_bitset else -1
+        if e in self._support:
+            return 1 if e in self._psupport else -1
         else:
             return 0
 
@@ -772,17 +766,17 @@ class SignVector(SageObject):
         """
         if a == 0:
             try:
-                self._support_bitset.remove(e)
-                self._psupport_bitset.remove(e)
+                self._support.remove(e)
+                self._psupport.remove(e)
             except KeyError:
                 pass
         elif a > 0:
-            self._support_bitset.add(e)
-            self._psupport_bitset.add(e)
+            self._support.add(e)
+            self._psupport.add(e)
         else:
-            self._support_bitset.add(e)
+            self._support.add(e)
             try:
-                self._psupport_bitset.remove(e)
+                self._psupport.remove(e)
             except KeyError:
                 pass
 
@@ -798,7 +792,7 @@ class SignVector(SageObject):
             sage: X.support()
             [0, 2, 3]
         """
-        return list(self._support_bitset)
+        return list(self._support)
 
     def zero_support(self):
         r"""
@@ -812,7 +806,7 @@ class SignVector(SageObject):
             sage: X.zero_support()
             [1, 4]
         """
-        return [e for e in range(self.length()) if not e in self._support_bitset]
+        return [e for e in range(self.length()) if not e in self._support]
 
     def positive_support(self):
         r"""
@@ -826,7 +820,7 @@ class SignVector(SageObject):
             sage: X.positive_support()
             [2]
         """
-        return list(self._psupport_bitset)
+        return list(self._psupport)
 
     def negative_support(self):
         r"""
@@ -840,7 +834,7 @@ class SignVector(SageObject):
             sage: X.negative_support()
             [0, 3]
         """
-        return list(self._nsupport_bitset())
+        return list(self._nsupport())
 
     def list_from_positions(self, S):
         r"""
@@ -884,8 +878,8 @@ class SignVector(SageObject):
         if self.length() != other.length():
             raise length_error
         return [
-            e for e in self._support_bitset.intersection(other._support_bitset)
-            if (e in self._psupport_bitset).__xor__(e in other._psupport_bitset)
+            e for e in self._support.intersection(other._support)
+            if (e in self._psupport).__xor__(e in other._psupport)
         ]
 
     def is_harmonious(self, other):
@@ -927,8 +921,8 @@ class SignVector(SageObject):
             other = sign_vector(other)
 
         return not any(
-            (e in self._psupport_bitset).__xor__(e in other._psupport_bitset)
-            for e in self._support_bitset.intersection(other._support_bitset)
+            (e in self._psupport).__xor__(e in other._psupport)
+            for e in self._support.intersection(other._support)
         )
 
     def disjoint_support(self, other):
@@ -959,9 +953,9 @@ class SignVector(SageObject):
         if self.length() != other.length():
             raise length_error
         if isinstance(other, SignVector):
-            return self._support_bitset.isdisjoint(other._support_bitset)
+            return self._support.isdisjoint(other._support)
         else:
-            return self._support_bitset.isdisjoint(Bitset(other.support()))
+            return self._support.isdisjoint(other.support())
 
     def reverse_signs_in(self, S):
         r"""
@@ -983,15 +977,15 @@ class SignVector(SageObject):
             sage: X.reverse_signs_in([0, 2, 3])
             (++-0+)
         """
-        support_bitset = copy(self._support_bitset)
-        psupport_bitset = copy(self._psupport_bitset)
+        support = copy(self._support)
+        psupport = copy(self._psupport)
         for e in S:
-            if e in support_bitset:
-                if e in psupport_bitset:
-                    psupport_bitset.remove(e)
+            if e in support:
+                if e in psupport:
+                    psupport.remove(e)
                 else:
-                    psupport_bitset.add(e)
-        return SignVector(support_bitset, psupport_bitset, self.length())
+                    psupport.add(e)
+        return SignVector(support, psupport, self.length())
 
     def conforms(left, right):
         r"""
@@ -1025,7 +1019,7 @@ class SignVector(SageObject):
         if left.length() != right.length():
             raise length_error
 
-        return left._support_bitset.issubset(right._support_bitset) and left.is_harmonious(right)
+        return left._support.issubset(right._support) and left.is_harmonious(right)
 
     def __eq__(self, other):
         r"""
@@ -1051,9 +1045,9 @@ class SignVector(SageObject):
         if isinstance(other, SignVector):
             if self.length() != other.length():
                 raise length_error
-            return self._support_bitset == other._support_bitset and self._psupport_bitset == other._psupport_bitset
+            return self._support == other._support and self._psupport == other._psupport
         elif other == 0:
-            return self._support_bitset.isempty()
+            return not self._support
         else:
             return False
 
@@ -1220,12 +1214,12 @@ class SignVector(SageObject):
         if self.length() != other.length():
             raise length_error
 
-        if self._support_bitset.isdisjoint(other._support_bitset):
+        if self._support.isdisjoint(other._support):
             return True
         else:
-            for e in self._support_bitset:
+            for e in self._support:
                 if (self[e]*other[e]) > 0:
-                    for f in self._support_bitset:
+                    for f in self._support:
                         if (self[f]*other[f]) < 0:
                             return True
             return False
@@ -1277,44 +1271,17 @@ def sign_vector(v):
         (00--)
     """
     if isinstance(v, str):
-        return sign_vector_from_ints(
-            Integer(sum(2**pos for pos, t in enumerate(v) if t in ["+", "-"])),
-            Integer(sum(2**pos for pos, t in enumerate(v) if t == "+")),
+        return sign_vector_from_support(
+            {pos for pos, t in enumerate(v) if t in ["+", "-"]},
+            {pos for pos, t in enumerate(v) if t == "+"},
             len(v)
         )
     else:
-        return sign_vector_from_ints(
-            Integer(sum(2**pos for pos, t in enumerate(v) if Sign._sign_sym(t) != 0)),
-            Integer(sum(2**pos for pos, t in enumerate(v) if Sign._sign_sym(t) > 0)),
+        return sign_vector_from_support(
+            {pos for pos, t in enumerate(v) if Sign._sign_sym(t) != 0},
+            {pos for pos, t in enumerate(v) if Sign._sign_sym(t) > 0},
             len(v)
         )
-
-def sign_vector_from_ints(support_int, psupport_int, length):
-    r"""
-    Return a sign vector that is given by integers representing support and positive support.
-
-    INPUT:
-
-    - ``support_int`` -- an integer
-
-    - ``psupport_int`` -- an integer
-
-    - ``length`` -- a non-negative integer
-
-    OUTPUT:
-    a sign vector
-
-    EXAMPLES::
-
-        sage: from sign_vectors import *
-        sage: sign_vector_from_ints(13, 4, 5)
-        (-0+-0)
-    """
-    return SignVector(
-        Bitset(support_int.binary()[::-1]),
-        Bitset(psupport_int.binary()[::-1]),
-        length
-    )
 
 
 def sign_vector_from_support(support, psupport, length):
@@ -1343,15 +1310,7 @@ def sign_vector_from_support(support, psupport, length):
         sage: sign_vector_from_support([1, 2, 4], [1, 4], 6)
         (0+-0+0)
     """
-    if support == []:
-        support_bitset = Bitset("0")
-    else:
-        support_bitset = Bitset(support)
-    if psupport == []:
-        psupport_bitset = Bitset("0")
-    else:
-        psupport_bitset = Bitset(psupport)
-    return SignVector(support_bitset, psupport_bitset, length)
+    return SignVector(set(support), set(psupport), length)
 
 
 def zero_sign_vector(length):
@@ -1368,7 +1327,7 @@ def zero_sign_vector(length):
         sage: zero_sign_vector(4)
         (0000)
     """
-    return SignVector(Bitset("0"), Bitset("0"), length)
+    return SignVector(set(), set(), length)
 
 
 def random_sign_vector(length):
