@@ -229,11 +229,11 @@ def reduce_vectors(L, eq=None, cancel_factors=False, reduce_support=True, remove
 
     - ``eq`` -- a list of equalities (default: ``None``)
 
-    - ``cancel_factors`` -- a boolean (default: ``True``). If true, cancels common factors of each vector.
+    - ``cancel_factors`` -- a boolean (default: ``False``). If true, cancels common factors of each vector.
 
     - ``reduce_support`` -- a boolean (default: ``True``). Keeps only the first vector for each different support.
 
-    - ``remove_zeros`` -- a boolean (default: ``False``). If true, removes all zero vectors.
+    - ``remove_zeros`` -- a boolean (default: ``True``). If true, removes all zero vectors.
 
     EXAMPLES::
 
