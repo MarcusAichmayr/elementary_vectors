@@ -219,7 +219,7 @@ def remove_zero_vectors(L):
     return [v for v in L if v != 0]
 
 
-def reduce_vectors(L, eq=None, cancel_factors=True, reduce_support=True, remove_zeros=True):
+def reduce_vectors(L, eq=None, cancel_factors=False, reduce_support=True, remove_zeros=True):
     r"""
     Reduces this list of vectors.
 
@@ -242,15 +242,15 @@ def reduce_vectors(L, eq=None, cancel_factors=True, reduce_support=True, remove_
         a
         sage: assume(a == 0)
         sage: l = [vector([5*a, 10*a, 0]), vector([5*a, 2*a, a]), vector([4, 6, 0])]
-        sage: reduce_vectors(l, eq=assumptions())
+        sage: reduce_vectors(l, eq=assumptions(), cancel_factors=True)
         [(2, 3, 0)]
-        sage: reduce_vectors(l)
+        sage: reduce_vectors(l, cancel_factors=True)
         [(1, 2, 0), (5, 2, 1)]
         sage: reduce_vectors(l, eq=[a == 0], cancel_factors=False)
         [(4, 6, 0)]
-        sage: reduce_vectors(l, eq=assumptions(), reduce_support=True)
+        sage: reduce_vectors(l, eq=assumptions(), reduce_support=True, cancel_factors=True)
         [(2, 3, 0)]
-        sage: reduce_vectors(l, eq=assumptions(), reduce_support=False, remove_zeros=False)
+        sage: reduce_vectors(l, eq=assumptions(), reduce_support=False, remove_zeros=False, cancel_factors=True)
         [(0, 0, 0), (0, 0, 0), (2, 3, 0)]
     """
     L = [reduce_vector(v, eq=eq, cancel_factor=cancel_factors) for v in L]

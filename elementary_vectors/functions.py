@@ -65,7 +65,7 @@ def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=No
     EXAMPLES::
 
         sage: from elementary_vectors import elementary_vectors
-        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
+        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]]); M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
         [ 1  1  1  1  1]
@@ -74,7 +74,7 @@ def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=No
         sage: elementary_vectors(M, kernel=True)
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
         sage: elementary_vectors(M, kernel=False)
-        [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (1, 0, 0, 0, 1), (0, 0, 1, -1, 0)]
+        [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (2, 0, 0, 0, 2), (0, 0, 1, -1, 0)]
         sage: elementary_vectors(M, return_minors=True)
         [[(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)], [1, -1, 0, -2, 0, 0, 0, 1, -1, -2]]
 
@@ -95,18 +95,18 @@ def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=No
 
     Rational matrices are supported as well::
 
-        sage: A = matrix([[1/2,0,0,2/3],[0,0,5/2,-1]])
+        sage: A = matrix([[1/2, 0, 0, 2/3], [0, 0, 5/2, -1]])
         sage: A
         [1/2   0   0 2/3]
         [  0   0 5/2  -1]
         sage: elementary_vectors(A)
-        [(0, -1, 0, 0), (-20, 0, 6, 15)]
+        [(0, -15, 0, 0), (-20, 0, 6, 15)]
         sage: elementary_vectors(A, cancel_factors=False)
         [(0, -5/4, 0, 0), (-5/3, 0, 1/2, 5/4)]
 
     We can also compute elementary vectors over a finite field::
 
-        sage: B = matrix(GF(7),[[1,2,3,4,0],[0,5,2,3,3]])
+        sage: B = matrix(GF(7), [[1, 2, 3, 4, 0], [0, 5, 2, 3, 3]])
         sage: B
         [1 2 3 4 0]
         [0 5 2 3 3]
@@ -124,7 +124,7 @@ def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=No
 
         sage: var('c')
         c
-        sage: C = matrix([[c,0,0,2,1,1],[0,1,0,1,2,1],[0,0,1,1,1,2]])
+        sage: C = matrix([[c, 0, 0, 2, 1, 1], [0, 1, 0, 1, 2, 1], [0, 0, 1, 1, 1, 2]])
         sage: C
         [c 0 0 2 1 1]
         [0 1 0 1 2 1]
@@ -148,18 +148,18 @@ def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=No
 
     Here, ``data`` is a list of maximal minors::
 
-        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
+        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]]); M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
         [ 1  1  1  1  1]
         sage: m = M.minors(3); m
         [2, -2, 0, -4, 0, 0, 0, 2, -2, -4]
         sage: elementary_vectors(m, [3,5])
-        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
         sage: elementary_vectors(m, M.dimensions())
-        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
         sage: elementary_vectors(m, M.dimensions(), ring=QQ)
-        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
 
     TESTS::
 
@@ -224,7 +224,7 @@ def elementary_vectors_from_matrix(M, kernel=True, return_minors=False, ring=Non
     EXAMPLES::
 
         sage: from elementary_vectors.functions import elementary_vectors_from_matrix
-        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
+        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]]); M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
         [ 1  1  1  1  1]
@@ -233,7 +233,7 @@ def elementary_vectors_from_matrix(M, kernel=True, return_minors=False, ring=Non
         sage: elementary_vectors_from_matrix(M, kernel=True)
         [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
         sage: elementary_vectors_from_matrix(M, kernel=False)
-        [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (1, 0, 0, 0, 1), (0, 0, 1, -1, 0)]
+        [(0, 1, 2, 0, 0), (0, 1, 0, 2, 0), (2, 0, 0, 0, 2), (0, 0, 1, -1, 0)]
         sage: elementary_vectors_from_matrix(M, return_minors=True)
         [[(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)], [1, -1, 0, -2, 0, 0, 0, 1, -1, -2]]
     """
@@ -287,7 +287,8 @@ def elementary_vectors_from_minors(m, dim, ring=None, **kwargs):
     .. NOTE::
 
         Keyword arguments may be specified to apply certain reductions to the output.
-        By default, all those reductions (like canceling factors) are applied.
+        By default, multiples and zero vectors are removed from the output.
+        Factors are not canceled by default since this operation is less efficient.
         Possible keyword arguments are the same as in the function
         :func:`elementary_vectors.reductions.reduce_vectors`.
 
@@ -303,18 +304,18 @@ def elementary_vectors_from_minors(m, dim, ring=None, **kwargs):
     EXAMPLES::
 
         sage: from elementary_vectors.functions import elementary_vectors_from_minors
-        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]]); M
+        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]]); M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
         [ 1  1  1  1  1]
         sage: m = M.minors(3); m
         [2, -2, 0, -4, 0, 0, 0, 2, -2, -4]
-        sage: elementary_vectors_from_minors(m,[3,5])
-        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        sage: elementary_vectors_from_minors(m, [3, 5])
+        [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
         sage: elementary_vectors_from_minors(m, M.dimensions())
-        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
         sage: elementary_vectors_from_minors(m, M.dimensions(), ring=QQ)
-        [(0, 2, -1, -1, 0), (1, 0, 0, 0, -1)]
+        [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
     """
     r, n = dim
     if n <= r:
@@ -369,7 +370,7 @@ def non_negative_vectors(L):
     EXAMPLES::
 
         sage: from elementary_vectors import non_negative_vectors
-        sage: l = [vector([1,1,0,-1]), vector([0,0,0,0]), vector([1,0,0,1])]
+        sage: l = [vector([1, 1, 0, -1]), vector([0, 0, 0, 0]), vector([1, 0, 0, 1])]
         sage: l
         [(1, 1, 0, -1), (0, 0, 0, 0), (1, 0, 0, 1)]
         sage: non_negative_vectors(l)
@@ -380,8 +381,8 @@ def non_negative_vectors(L):
         sage: from elementary_vectors import elementary_vectors
         sage: var('a')
         a
-        sage: A = matrix([[a,0,0,0,1],[0,1,0,0,1]])
-        sage: evs = elementary_vectors(A)
+        sage: A = matrix([[a, 0, 0, 0, 1], [0, 1, 0, 0, 1]])
+        sage: evs = elementary_vectors(A, cancel_factors=True)
         sage: evs
         [(0, 0, 1, 0, 0), (0, 0, 0, 1, 0), (-1, -a, 0, 0, a)]
         sage: non_negative_vectors(evs)
@@ -446,12 +447,12 @@ def positive_elementary_vectors(data, dim=None, kernel=True, return_minors=False
     EXAMPLES::
 
         sage: from elementary_vectors import positive_elementary_vectors
-        sage: A = matrix([[1,-1,0]])
+        sage: A = matrix([[1, -1, 0]])
         sage: positive_elementary_vectors(A)
         [[[], [(1, 1, 0), (0, 0, 1)]]]
         sage: positive_elementary_vectors(A, return_minors=True)
         [[[], [(1, 1, 0), (0, 0, 1)], [1, -1, 0]]]
-        sage: M = matrix([[0,0,1,-1,0],[2,0,0,0,2],[1,1,1,1,1]])
+        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]])
         sage: positive_elementary_vectors(M)
         [[[], []]]
 
