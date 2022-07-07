@@ -196,14 +196,12 @@ def reduce_vectors_support(L):
         sage: reduce_vectors_support([zero_vector(5)])
         [(0, 0, 0, 0, 0)]
     """
-    supp = []
-    out = []
+    vector_dict = {}
     for v in L:
-        s = v.support()
-        if s not in supp:
-            supp.append(s)
-            out.append(v)
-    return out
+        s = tuple(v.support())
+        if s not in vector_dict.keys():
+            vector_dict[s] = v
+    return list(vector_dict.values())
 
 
 def remove_zero_vectors(L):
