@@ -491,7 +491,7 @@ class SignVector(SageObject):
 
     def __hash__(self):
         r"""Return the hash value of this sign vector."""
-        return hash(repr(self))
+        return hash((tuple(self._support), tuple(self._psupport)))
 
     def _nsupport(self):
         r"""Return the set corresponding to the negative support."""
