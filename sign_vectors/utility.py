@@ -249,12 +249,7 @@ def parallel_classes(W, positive_only=False):
     if positive_only:
         def is_par(W, e, f):
             val = is_parallel(W, e, f, return_ratio=True)
-            if val[0] is False:
-                return False
-            elif val[1] < 0:
-                return False
-            else:
-                return True
+            return val[1] > 0 if val[0] else False
     else:
         def is_par(W, e, f):
             return is_parallel(W, e, f)
@@ -262,8 +257,7 @@ def parallel_classes(W, positive_only=False):
     while len(toCheck) > 0:
         e = toCheck.pop(0)
         l = [e]
-        # `toCheck` might change in the for loop. -> toCheck[:]
-        for f in toCheck[:]:  # find parallel class `l` of ``e``
+        for f in toCheck[:]:  # find parallel class ``l`` of ``e``
             if is_par(W, e, f):
                 l.append(f)
                 toCheck.remove(f)
@@ -330,20 +324,14 @@ def classes_same_support(W):
         sage: classes_same_support([vector([1,1,0,0]), vector([2,-3,0,0]), vector([0,1,0,0])])
         [[(1, 1, 0, 0), (2, -3, 0, 0)], [(0, 1, 0, 0)]]
     """
-    L = []
-    Lc = []  # checked supports
+    L = dict()
     for X in W:
-        s = X.support()
-        if s not in Lc:  # support of s has not been checked yet
-            L.append([X])  # append new list with X
-            Lc.append(s)
-        else:  # class of X already exists
-            # find respective class of X
-            for Li in L:
-                if s == Li[0].support():
-                    Li.append(X)
-                    break
-    return L
+        s = tuple(X.support())  # tuples are hashable
+        if s not in L.keys():
+            L[s] = [X]
+        else:
+            L[s].append(X)
+    return list(L.values())
 
 
 def adjacent(X, Y, S):
