@@ -49,7 +49,9 @@ def _subvector(F, R):
             return sign_vector(v.list_from_positions(S))
     else:
         def vec(v):
-            return vector(v.list_from_positions(S))
+            v = vector(v.list_from_positions(S))
+            v.set_immutable()
+            return v
     return vec
 
 

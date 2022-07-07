@@ -64,11 +64,11 @@ def closure(W, separate=False):
         sage: W
         [(++-), (-00), (0--)]
         sage: closure(W)
-        [(000), (+00), (-00), (0+0), (0-0), (00-), (++0), (+0-), (0+-), (0--), (++-)]
+        [(000), (0+0), (0-0), (-00), (+00), (00-), (+0-), (0+-), (++0), (0--), (++-)]
         sage: closure(W, separate=True)
         [[(000)],
-         [(+00), (-00), (0+0), (0-0), (00-)],
-         [(++0), (+0-), (0+-), (0--)],
+         [(0+0), (0-0), (-00), (+00), (00-)],
+         [(+0-), (0+-), (++0), (0--)],
          [(++-)]]
 
     TESTS::
@@ -80,23 +80,23 @@ def closure(W, separate=False):
         return []
     n = W[0].length()
     F = [[zero_sign_vector(n)]]
-    F_new = []
+    F_new = set()
     for i in range(n):
         X = zero_sign_vector(n)
         X[i] = 1
         for Z in W:
             if X <= Z:
-                F_new.append(X)
+                F_new.add(X)
                 break
         Y = zero_sign_vector(n)
         Y[i] = -1
         for Z in W:
             if Y <= Z:
-                F_new.append(Y)
+                F_new.add(Y)
                 break
-    F.append(F_new)
+    F.append(list(F_new))
     for i in range(1, n+1):
-        F_new = []
+        F_new = set()
         for X in F[1]:  # X has always |supp(X)| = 1
             for Y in F[i]:
                 if len(set(X.support() + Y.support())) == i+1:  # TODO: utilize that the supports are sorted
@@ -104,12 +104,12 @@ def closure(W, separate=False):
                     if Z not in F_new:  # TODO: is this necessary?
                         for V in W:
                             if Z <= V:
-                                F_new.append(Z)
+                                F_new.add(Z)
                                 break
-        if F_new == []:
+        if F_new == set():
             break
         else:
-            F.append(F_new)
+            F.append(list(F_new))
             if len(F_new) == 1:
                 break
     if separate:
@@ -214,11 +214,11 @@ def deletion(F, R):
     EXAMPLES::
 
         sage: from sign_vectors import sign_vector, deletion
-        sage: W = [sign_vector("+00"), sign_vector("++0"), sign_vector("00-")]
+        sage: W = [sign_vector("++0"), sign_vector("00-"), sign_vector("+00")]
         sage: W
-        [(+00), (++0), (00-)]
+        [(++0), (00-), (+00)]
         sage: deletion(W, [0])
-        [(00), (+0), (0-)]
+        [(+0), (0-), (00)]
 
     Duplicate sign vectors are removed if they would occur::
 
@@ -236,13 +236,7 @@ def deletion(F, R):
     if F == []:
         return F
 
-    vec = _subvector(F, R)
-    L = []
-    for X in F:
-        X_R = vec(X)
-        if X_R not in L:  # naive, might be inefficient
-            L.append(X_R)
-    return L
+    return list(set(_subvector(F, R)(X) for X in F))
 
 
 def plot_sign_vectors(L, vertex_size=600, figsize=10, aspect_ratio=4/8):
