@@ -99,6 +99,24 @@ CoCalc:
 
 * [ ] `is_harmonious` should work for a vector as input.
 * [ ] improve new implementation of `SignVector`
+* [ ] is list/tuple of Sign objects faster than sets for support and positive support?
+* [ ] Cython might not be that useful if length of sign vectors is small (e.g. <100)
+
+#### 2.1.1. hash
+
+NOTE:
+Sign vectors should have a hash value.
+Usually, this means that they are immutable like tuples.
+Computation of hash should be efficient.
+see
+https://docs.python.org/3.5/reference/datamodel.html#object.__hash__
+
+* [ ] Item assignment is the only operation that changes sign vectors.
+  * Do we need it?
+  * Elements with a hash function can usually not change.
+* sign vector could be mutable by default (like vectors)
+  * setting them immutable, makes hash available but restricts changes (item assignment)
+* [ ] should we use `set` or `frozen_set` as `_support` and `_psupport`?
 
 ### 2.2. sign_vectors.oriented_matroids
 
@@ -108,13 +126,20 @@ CoCalc:
 * [ ] Is it possible to move references to the end of the documentation?
 * [ ] It might be useful to use a class for oriented matroids.
   * sign vectors could be stored in a better way
-* [ ] use balanced binary trees in `covectors_from_cocircuits` and `topes_from_cocircuits`.
-  * see Finschi, p.71:
+* [x] use sets in `covectors_from_cocircuits` and `topes_from_cocircuits`.
+  * iterating over lists is very inefficient
+  * checking whether an element is in a set/dict is much faster in Python
+
+#### 2.2.1. lower faces
+
+* [ ] add optional argument for parallel classes.
+  * face enumeration only needs to compute those once
 
 ### 2.3. sign_vectors.utility
 
 * [ ] Improve the implementation of `closure`
   * We could improve the implementation by using Combinations of support.
+  * [ ] use sets
 * [ ] implement lower, upper, total closure
   * We might be able to reuse code.
 * [ ] improve docstring of `adjacent`
@@ -122,6 +147,8 @@ CoCalc:
 
 ## 3. Sphinx documentation
 
-Note: I adapted the files from here: https://github.com/mkauers/ore_algebra
+NOTE:
+I adapted the files from here: https://github.com/mkauers/ore_algebra
 
-* Do we want to have tests in the documentation?
+* [ ] Do we want to have tests in the documentation?
+  * Currently, test are in the documentation
