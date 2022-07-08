@@ -1,21 +1,5 @@
 # TODO
 
-<!-- TOC -->
-- [1. elementary_vectors](#1-elementary_vectors)
-  - [1.1. elementary_vectors.functions](#11-elementary_vectorsfunctions)
-    - [1.1.1. elementary_vectors.functions.positive_elementary_vectors](#111-elementary_vectorsfunctionspositive_elementary_vectors)
-  - [1.2. elementary_vectors.functions_dd](#12-elementary_vectorsfunctions_dd)
-  - [1.3. elementary_vectors.vectors_in_intervals](#13-elementary_vectorsvectors_in_intervals)
-    - [1.3.1. elementary_vectors.vectors_in_intervals.exists_vector](#131-elementary_vectorsvectors_in_intervalsexists_vector)
-  - [1.4. elementary_vectors.utility](#14-elementary_vectorsutility)
-  - [1.5. elementary_vectors.reductions](#15-elementary_vectorsreductions)
-- [2. sign_vectors](#2-sign_vectors)
-  - [2.1. sign_vectors.sign_vectors](#21-sign_vectorssign_vectors)
-  - [2.2. sign_vectors.oriented_matroids](#22-sign_vectorsoriented_matroids)
-  - [2.3. sign_vectors.utility](#23-sign_vectorsutility)
-- [3. Sphinx documentation](#3-sphinx-documentation)
-<!-- /TOC -->
-
 ## 1. elementary_vectors
 
 * [ ] Add explanations and examples to demonstrate functions in this module. (in `__init__`?)
@@ -101,6 +85,9 @@ CoCalc:
 * [ ] improve new implementation of `SignVector`
 * [ ] is list/tuple of Sign objects faster than sets for support and positive support?
 * [ ] Cython might not be that useful if length of sign vectors is small (e.g. <100)
+* [ ] allow generator as input for `sign_vector`
+  * we will need to find the length of the generator object
+  * compare with `vector`
 
 #### 2.1.1. hash
 
@@ -120,7 +107,7 @@ https://docs.python.org/3.5/reference/datamodel.html#object.__hash__
 
 ### 2.2. sign_vectors.oriented_matroids
 
-* [ ] The default value of `kernel` should be true for all functions in this module.
+* [x] The default value of `kernel` should be true for all functions in this module.
 * [ ] Is it useful to add a function `cocircuits_from_elementary_vectors`?
   It would be used in `cocircuits_from_matrix` and `adjacent` of `double_description`.
 * [ ] Is it possible to move references to the end of the documentation?
@@ -130,16 +117,11 @@ https://docs.python.org/3.5/reference/datamodel.html#object.__hash__
   * iterating over lists is very inefficient
   * checking whether an element is in a set/dict is much faster in Python
 
-#### 2.2.1. lower faces
-
-* [ ] add optional argument for parallel classes.
-  * face enumeration only needs to compute those once
-
 ### 2.3. sign_vectors.utility
 
-* [ ] Improve the implementation of `closure`
+* [x] Improve the implementation of `closure`
+  * [x] use sets
   * We could improve the implementation by using Combinations of support.
-  * [ ] use sets
 * [ ] implement lower, upper, total closure
   * We might be able to reuse code.
 * [ ] improve docstring of `adjacent`
