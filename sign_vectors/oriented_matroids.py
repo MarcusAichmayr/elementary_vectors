@@ -9,17 +9,16 @@ EXAMPLES::
 
 We define some matrix::
 
-    sage: A = matrix([[1,2,0],[0,1,-1]])
+    sage: A = matrix([[2, -1, -1]])
     sage: A
-    [ 1  2  0]
-    [ 0  1 -1]
+    [ 2 -1 -1]
 
-Now, we compute the cocircuits of the oriented matroid corresponding to the rows
+Now, we compute the cocircuits of the oriented matroid corresponding to the kernel
 of the matrix ``A``.
 (Cocircuits are minimal non-zero elements of an oriented matroid
 with respect to the conformal relation.)::
 
-    sage: ccA = cocircuits_from_matrix(A, kernel=False)
+    sage: ccA = cocircuits_from_matrix(A)
     sage: ccA
     [(--0), (++0), (-0-), (+0+), (0-+), (0+-)]
 
@@ -50,7 +49,7 @@ Next, we compute the topes using the cocircuits.
 
 There are some further commands to work with oriented matroids::
 
-    sage: covectors_from_matrix(A, kernel=False)
+    sage: covectors_from_matrix(A)
     [(---),
      (--+),
      (-0-),
@@ -64,7 +63,7 @@ There are some further commands to work with oriented matroids::
      (-+-),
      (0+-),
      (++0)]
-    sage: topes_from_matrix(A, kernel=False)
+    sage: topes_from_matrix(A)
     [(--+), (+++), (---), (+-+), (-+-), (++-)]
     sage: covectors_from_topes(tA)
     [(000),
@@ -83,18 +82,6 @@ There are some further commands to work with oriented matroids::
     sage: cocircuits_from_topes(tA)
     [(-0-), (0-+), (--0), (+0+), (0+-), (++0)]
 
-By passing ``kernel=True`` (default), we can compute the covectors of the
-dual oriented matroid::
-
-    sage: cocircuits_from_matrix(A, kernel=True)
-    [(-++), (+--)]
-    sage: cocircuits_from_matrix(A)
-    [(-++), (+--)]
-    sage: topes_from_matrix(A, kernel=True)
-    [(-++), (+--)]
-    sage: covectors_from_matrix(A, kernel=True)
-    [(+--), (-++), (000)]
-
 Next, we compute all covectors separated by their rank::
 
     sage: face_enumeration(tA)
@@ -105,6 +92,12 @@ Next, we compute all covectors separated by their rank::
     [[(000)],
      [(-0-), (0-+), (--0), (+0+), (0+-), (++0)],
      [(--+), (+++), (---), (+-+), (-+-), (++-)]]
+
+By passing ``kernel=False``, we can compute the covectors of the
+dual oriented matroid::
+
+    sage: cocircuits_from_matrix(A, kernel=False)
+    [(-++), (+--)]
 """
 
 #############################################################################
@@ -157,10 +150,14 @@ def cocircuits_from_matrix(M, kernel=True):
         sage: cocircuits_from_matrix(B, kernel=False)
         [(+000), (-000), (0--0), (0++0), (0-0-), (0+0+), (00-+), (00+-)]
     """
-    return sum([
-        [sign_vector(v), sign_vector(-v)]
-        for v in elementary_vectors(M, kernel=kernel)
-    ], [])
+    return list(
+        set().union(
+            *(
+                [sign_vector(v), sign_vector(-v)]
+                for v in elementary_vectors(M, kernel=kernel, generator=True)
+            )
+        )
+    )
 
 
 def covectors_from_cocircuits(cocircuits):
