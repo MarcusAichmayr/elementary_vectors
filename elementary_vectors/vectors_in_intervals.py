@@ -550,18 +550,18 @@ def exists_vector(data, intervals):
         ...
         ValueError: Number of columns of matrix ``data`` and length of ``intervals`` are different!
     """
-    if isinstance(data, list):
-        for interval in intervals:
-            if interval.is_empty():
-                return False
-        evs = data
-    else:
+    if hasattr(data, "ncols"):
         if data.ncols() != len(intervals):
             raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` are different!")
         for interval in intervals:
             if interval.is_empty():
                 return False
-        evs = elementary_vectors(data, kernel=True)
+        evs = elementary_vectors(data, kernel=True, generator=True)
+    else:
+        for interval in intervals:
+            if interval.is_empty():
+                return False
+        evs = data
 
     return all(exists_normal_vector(v, intervals) for v in evs)
 

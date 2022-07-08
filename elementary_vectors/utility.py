@@ -354,5 +354,5 @@ def conformal_elimination(x, y, S=None):
         S = D
     elif not all(s in D for s in S):
         raise ValueError('S is not a subset of D.')
-    lam = max([x[e]/y[e] for e in S])  # x[e]/y[e] < 0 since e in D
+    lam = max(x[e]/y[e] for e in S)  # x[e]/y[e] < 0 since e in D
     return x - lam*y

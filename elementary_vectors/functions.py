@@ -256,9 +256,7 @@ def elementary_vectors_from_matrix(M, kernel=True, return_minors=False, ring=Non
             warnings.warn('Could not determine rank of matrix. Result might be wrong.')
             return []
     try:
-        if not kwargs['cancel_factors']:
-            pass
-        else:
+        if kwargs['cancel_factors']:
             m = [mi/g for mi in m]
     except KeyError:
         m = [mi/g for mi in m]
@@ -271,7 +269,7 @@ def elementary_vectors_from_matrix(M, kernel=True, return_minors=False, ring=Non
         return evs
 
 
-def elementary_vectors_from_minors(m, dim, ring=None, **kwargs):
+def elementary_vectors_from_minors(m, dim, ring=None, generator=False, **kwargs):
     r"""
     Compute elementary vectors determined by given maximal minors of a matrix.
 
@@ -283,6 +281,8 @@ def elementary_vectors_from_minors(m, dim, ring=None, **kwargs):
 
     - ``ring`` -- Parent of the entries of the elementary vectors.
                   By default, determine this from ``m``.
+
+    - ``generator`` -- a boolean (default: ``False``)
 
     .. NOTE::
 
@@ -296,6 +296,8 @@ def elementary_vectors_from_minors(m, dim, ring=None, **kwargs):
 
     Uses the maximal minors ``m`` to compute the elementary vectors of the
     corresponding matrix.
+    If ``generator`` is true, a generator of elementary vectors will be returned instead of a list.
+    In this case, no reductions are applied.
 
     .. SEEALSO::
 
@@ -344,12 +346,11 @@ def elementary_vectors_from_minors(m, dim, ring=None, **kwargs):
             v[k] = (-1)**pos * m[dets.rank(i for i in I if i != k)]
         return v
 
-    evs = [ev_from_minors(I) for I in C]
-
-    if evs != []:
-        return reduce_vectors(evs, **kwargs)
-    else:
+    evs = (ev_from_minors(I) for I in C)
+    if generator:
         return evs
+    else:
+        return reduce_vectors(evs, **kwargs)
 
 
 def non_negative_vectors(L):

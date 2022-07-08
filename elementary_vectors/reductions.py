@@ -135,7 +135,7 @@ def reduce_factor(v):
 def reduce_vector_using_equalities(v, eq):
     r"""Use a list of equalities ``eq`` to simplify expressions in a vector ``v``."""
     if eq:
-        return vector(v.base_ring(), [simplify_using_equalities(vi, eq=eq) for vi in v])
+        return vector(v.base_ring(), (simplify_using_equalities(vi, eq=eq) for vi in v))
     else:
         return v
 

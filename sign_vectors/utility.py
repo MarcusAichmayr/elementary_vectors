@@ -81,17 +81,7 @@ def loops(W):
         raise ValueError('List is empty.')
     n = W[0].length()
 
-    L = []
-    for e in range(n):
-        val = True
-        for X in W:
-            if X[e] != 0:
-                val = False
-                break
-        if val is True:
-            L.append(e)
-
-    return L
+    return [e for e in range(n) if all(X[e] == 0 for X in W)]
 
 
 def is_parallel(W, e, f, return_ratio=False):

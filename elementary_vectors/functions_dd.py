@@ -218,7 +218,7 @@ def dd(E0, Ep, **kwargs):
                     return True
         return False
 
-    out = [X & -Y for X, Y in Combinations(Ep, 2) if check_pair(X, -Y)]
+    out = (X & -Y for X, Y in Combinations(Ep, 2) if check_pair(X, -Y))
 
     return E0 + reduce_vectors(out, cancel_factors=False, **kwargs)
 
@@ -300,7 +300,7 @@ def double_description(M, a):
     The output is identical up to multiplies.
     """
     evs = elementary_vectors(M)
-    svs = [sign_vector(v) for v in evs]
+    svs = (sign_vector(v) for v in evs)
     E0, Ep = dd_input(M, svs, a)
     return dd(E0, Ep)
 
@@ -334,7 +334,7 @@ def cocircuits_iterative(ai):
     n = ai[0].length()
     ring = ai[0].base_ring()
     M = matrix(ring, 0, n)
-    svs = [sign_vector(v) for v in identity_matrix(n)]
+    svs = (sign_vector(v) for v in identity_matrix(n))
     for a in ai:
         E0, Ep = dd_input(M, svs, a)
         svs = dd(E0, Ep)

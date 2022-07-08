@@ -101,11 +101,9 @@ def closure(W, separate=False):
             for Y in F[i]:
                 if len(set(X.support() + Y.support())) == i+1:  # TODO: utilize that the supports are sorted
                     Z = X.compose(Y)
-                    if Z not in F_new:  # TODO: is this necessary?
-                        for V in W:
-                            if Z <= V:
-                                F_new.add(Z)
-                                break
+                    if Z not in F_new:
+                        if any(Z <= V for V in W):
+                            F_new.add(Z)
         if F_new == set():
             break
         else:
@@ -188,16 +186,7 @@ def contraction(F, R, keep_components=False):
     else:
         vec = _subvector(F, R)
 
-    L = []
-    for X in F:
-        val = True
-        for e in X.support():
-            if e in R:
-                val = False
-                break
-        if val:
-            L.append(vec(X))
-    return L
+    return [vec(X) for X in F if not any(e in R for e in X.support())]
 
 
 def deletion(F, R):
