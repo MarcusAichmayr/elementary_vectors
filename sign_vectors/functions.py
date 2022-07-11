@@ -14,7 +14,7 @@ from sage.misc.flatten import flatten
 from sage.combinat.posets.posets import Poset
 
 from .utility import _subvector
-from sign_vectors import zero_sign_vector
+from sign_vectors import sign_vector, zero_sign_vector
 
 
 def closure(W, separate=False):
@@ -82,24 +82,22 @@ def closure(W, separate=False):
     F = [[zero_sign_vector(n)]]
     F_new = set()
     for i in range(n):
-        X = zero_sign_vector(n)
-        X[i] = 1
+        X = sign_vector(1 if k == i else 0 for k in range(n))
         for Z in W:
             if X <= Z:
                 F_new.add(X)
                 break
-        Y = zero_sign_vector(n)
-        Y[i] = -1
+        Y = sign_vector(-1 if k == i else 0 for k in range(n))
         for Z in W:
             if Y <= Z:
                 F_new.add(Y)
                 break
     F.append(list(F_new))
-    for i in range(1, n+1):
+    for i in range(1, n + 1):
         F_new = set()
         for X in F[1]:  # X has always |supp(X)| = 1
             for Y in F[i]:
-                if len(set(X.support() + Y.support())) == i+1:  # TODO: utilize that the supports are sorted
+                if len(set(X.support() + Y.support())) == i + 1:  # TODO: utilize that the supports are sorted
                     Z = X.compose(Y)
                     if Z not in F_new:
                         if any(Z <= V for V in W):

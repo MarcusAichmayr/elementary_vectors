@@ -184,7 +184,10 @@ class Sign(SageObject):
     @staticmethod
     def _sign_sym(a):
         r"""
-        Return appropriate sign of symbolic expression. Prints warning and returns ``0`` if sign cannot be computed.
+        Return appropriate sign of symbolic expression.
+
+        OUTPUT:
+        If the sign cannot be determined, a warning is shown and ``0`` is returned.
 
         EXAMPLES::
 
@@ -453,15 +456,17 @@ class Sign(SageObject):
 
 
 class SignVector(SageObject):
+    __slots__ = ("_support", "_psupport", "_length")
+
     def __init__(self, support, psupport, length):
         r"""
         Create a sign vector object.
 
         INPUT:
 
-        - ``support`` -- a set that represents the support of this sign vector.
+        - ``support`` -- an iterable that represents the support of this sign vector.
 
-        - ``psupport`` -- a set that represents the positive support of this sign vector.
+        - ``psupport`` -- an iterable that represents the positive support of this sign vector.
 
         - ``length`` -- the length of this sign vector.
 
@@ -482,8 +487,8 @@ class SignVector(SageObject):
             sage: SignVector(s, p, 4)
             (-+0+)
         """
-        self._support = support
-        self._psupport = psupport
+        self._support = frozenset(support)
+        self._psupport = frozenset(psupport)
         self._length = length
 
     def _repr_(self):
@@ -495,7 +500,7 @@ class SignVector(SageObject):
 
     def __hash__(self):
         r"""Return the hash value of this sign vector."""
-        return hash((tuple(self._support), tuple(self._psupport)))
+        return hash((self._length, self._support, self._psupport))
 
     def _nsupport(self):
         r"""Return the set corresponding to the negative support."""
@@ -527,7 +532,7 @@ class SignVector(SageObject):
             sage: len(X)
             3
         """
-        return self.length()
+        return self._length
 
     def compose(left, right):
         r"""
@@ -752,38 +757,6 @@ class SignVector(SageObject):
         else:
             return 0
 
-    def __setitem__(self, e, a):
-        r"""
-        Set the element at position ``e`` to ``sign(a)``.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector("0++-"); X
-            (0++-)
-            sage: X[0] = 2
-            sage: X
-            (+++-)
-            sage: X[2] = 0
-            sage: X
-            (++0-)
-        """
-        if a == 0:
-            try:
-                self._support.remove(e)
-                self._psupport.remove(e)
-            except KeyError:
-                pass
-        elif a > 0:
-            self._support.add(e)
-            self._psupport.add(e)
-        else:
-            self._support.add(e)
-            try:
-                self._psupport.remove(e)
-            except KeyError:
-                pass
-
     def support(self):
         r"""
         Return a list of indices where the sign vector is non-zero.
@@ -981,8 +954,8 @@ class SignVector(SageObject):
             sage: X.reverse_signs_in([0, 2, 3])
             (++-0+)
         """
-        support = copy(self._support)
-        psupport = copy(self._psupport)
+        support = set(self._support)
+        psupport = set(self._psupport)
         for e in S:
             if e in support:
                 if e in psupport:
@@ -1263,8 +1236,14 @@ def sign_vector(v):
 
     Variables are supported to some extent::
 
-        sage: v = vector([1, x, -1])
-        sage: assume(x > 0)
+        sage: var('a')
+        a
+        sage: v = vector([1, a, -1])
+        sage: sign_vector(v)
+        ...
+        UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
+        (+0-)
+        sage: assume(a > 0)
         sage: sign_vector(v)
         (++-)
 
@@ -1281,11 +1260,17 @@ def sign_vector(v):
             len(v)
         )
     else:
-        return sign_vector_from_support(
-            {pos for pos, t in enumerate(v) if Sign._sign_sym(t) != 0},
-            {pos for pos, t in enumerate(v) if Sign._sign_sym(t) > 0},
-            len(v)
-        )
+        support = set()
+        psupport = set()
+        length = 0
+        for vi in v:
+            Xi = Sign._sign_sym(vi)
+            if Xi != 0:
+                support.add(length)
+                if Xi > 0:
+                    psupport.add(length)
+            length += 1
+        return SignVector(support, psupport, length)
 
 
 def sign_vector_from_support(support, psupport, length):
@@ -1314,7 +1299,7 @@ def sign_vector_from_support(support, psupport, length):
         sage: sign_vector_from_support([1, 2, 4], [1, 4], 6)
         (0+-0+0)
     """
-    return SignVector(set(support), set(psupport), length)
+    return SignVector(support, psupport, length)
 
 
 def zero_sign_vector(length):
@@ -1348,4 +1333,4 @@ def random_sign_vector(length):
         sage: random_sign_vector(5) # random
         (++-0-)
     """
-    return sign_vector([randint(-1, 1) for k in range(length)])
+    return sign_vector(randint(-1, 1) for k in range(length))

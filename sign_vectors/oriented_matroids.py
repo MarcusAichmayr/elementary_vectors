@@ -88,7 +88,7 @@ Next, we compute all covectors separated by their rank::
     [[(000)],
      [(-0-), (0-+), (--0), (+0+), (0+-), (++0)],
      [(--+), (+++), (---), (+-+), (-+-), (++-)]]
-    sage: covectors_from_matrix(A, kernel=False, algorithm="face_enumeration", separate=True)
+    sage: covectors_from_matrix(A, algorithm="face_enumeration", separate=True)
     [[(000)],
      [(-0-), (0-+), (--0), (+0+), (0+-), (++0)],
      [(--+), (+++), (---), (+-+), (-+-), (++-)]]
@@ -150,14 +150,12 @@ def cocircuits_from_matrix(M, kernel=True):
         sage: cocircuits_from_matrix(B, kernel=False)
         [(+000), (-000), (0--0), (0++0), (0-0-), (0+0+), (00-+), (00+-)]
     """
-    return list(
-        set().union(
-            *(
-                [sign_vector(v), sign_vector(-v)]
-                for v in elementary_vectors(M, kernel=kernel, generator=True)
-            )
-        )
-    )
+    def both_signs(evs):
+        for v in evs:
+            yield sign_vector(v)
+            yield sign_vector(-v)
+
+    return list(set(both_signs(elementary_vectors(M, kernel=kernel, generator=True))))
 
 
 def covectors_from_cocircuits(cocircuits):
@@ -315,7 +313,7 @@ def lower_faces(covectors):
                 for i in D:
                     if X[i] != 0:  # hence X_D != 0
                         if X.reverse_signs_in(D) in Wj:
-                            W_.add(sign_vector([0 if i in D else X[i] for i in range(n)]))
+                            W_.add(sign_vector(0 if i in D else X[i] for i in range(n)))
                         break
     return list(W_)
 
