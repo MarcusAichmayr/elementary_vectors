@@ -79,7 +79,9 @@ def loops(W):
     """
     if not W:
         raise ValueError('List is empty.')
-    n = W[0].length()
+    for _ in W:
+        n = _.length()
+        break
 
     return [e for e in range(n) if all(X[e] == 0 for X in W)]
 
@@ -359,7 +361,7 @@ def adjacent(X, Y, S):
         sage: from sign_vectors.oriented_matroids import *
         sage: cc = cocircuits_from_matrix(M, kernel=False)
         sage: cc
-        [(--0), (++0), (-0-), (+0+), (0-+), (0+-)]
+        {(0-+), (+0+), (--0), (-0-), (0+-), (++0)}
 
     The two sign vectors ``X = (++0)`` and ``Y = (+0+)`` are harmonious::
 

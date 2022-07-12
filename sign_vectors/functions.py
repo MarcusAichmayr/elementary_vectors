@@ -23,7 +23,7 @@ def closure(W, separate=False):
 
     INPUT:
 
-    - ``W`` -- a list of sign vectors
+    - ``W`` -- an iterable of sign vectors
 
     - ``separate`` -- boolean (default: ``False``)
 
@@ -31,7 +31,7 @@ def closure(W, separate=False):
 
     If ``separate`` is false, return the closure of ``W``. (default)
 
-    If ``separate`` is true, separate the closure into lists, where each element
+    If ``separate`` is true, separate the closure into sets, where each element
     has the same number of zero entries.
 
     .. NOTE::
@@ -49,14 +49,14 @@ def closure(W, separate=False):
         sage: W
         [(+-0)]
         sage: closure(W)
-        [(000), (+00), (0-0), (+-0)]
+        {(000), (+00), (0-0), (+-0)}
 
     With the optional argument ``separate=True``, we can separate the resulting
-    list into three lists.
-    Each sign vector in such a list has the same number of zero entries::
+    list into three sets.
+    Each sign vector in such a set has the same number of zero entries::
 
         sage: closure(W, separate=True)
-        [[(000)], [(+00), (0-0)], [(+-0)]]
+        [{(000)}, {(+00), (0-0)}, {(+-0)}]
 
     Now, we consider a list of three sign vectors::
 
@@ -64,22 +64,25 @@ def closure(W, separate=False):
         sage: W
         [(++-), (-00), (0--)]
         sage: closure(W)
-        [(000), (0+0), (0-0), (-00), (+00), (00-), (+0-), (0+-), (++0), (0--), (++-)]
+        {(000), (-00), (00-), (+00), (+0-), (++0), (++-), (0--), (0+0), (0+-), (0-0)}
         sage: closure(W, separate=True)
-        [[(000)],
-         [(0+0), (0-0), (-00), (+00), (00-)],
-         [(+0-), (0+-), (++0), (0--)],
-         [(++-)]]
+        [{(000)},
+         {(-00), (00-), (+00), (0+0), (0-0)},
+         {(0--), (0+-), (+0-), (++0)},
+         {(++-)}]
 
     TESTS::
 
         sage: closure([])
-        []
+        set()
     """
     if not W:
-        return []
-    n = W[0].length()
-    F = [[zero_sign_vector(n)]]
+        return set()
+    for _ in W:
+        n = _.length()
+        break
+
+    F = [{zero_sign_vector(n)}]
     F_new = set()
     for i in range(n):
         X = sign_vector(1 if k == i else 0 for k in range(n))
@@ -92,7 +95,7 @@ def closure(W, separate=False):
             if Y <= Z:
                 F_new.add(Y)
                 break
-    F.append(list(F_new))
+    F.append(F_new)
     for i in range(1, n + 1):
         F_new = set()
         for X in F[1]:  # X has always |supp(X)| = 1
@@ -105,13 +108,13 @@ def closure(W, separate=False):
         if F_new == set():
             break
         else:
-            F.append(list(F_new))
+            F.append(F_new)
             if len(F_new) == 1:
                 break
     if separate:
         return F
     else:
-        return flatten(F)
+        return set().union(*F)
 
 
 def contraction(F, R, keep_components=False):
@@ -120,7 +123,7 @@ def contraction(F, R, keep_components=False):
 
     INPUT:
 
-    - ``F`` -- a list of sign vectors, a list of vectors, or a matrix.
+    - ``F`` -- an iterable of sign vectors or vectors; or a matrix.
 
     - ``R`` -- a list of indices.
 
@@ -143,37 +146,37 @@ def contraction(F, R, keep_components=False):
     Removing this component leads to the following result::
 
         sage: contraction(W, [0])
-        [(0+)]
+        {(0+)}
         sage: contraction(W, [1])
-        [(-0), (0+)]
+        {(0+), (-0)}
         sage: contraction(W, [2])
-        [(++), (-0)]
+        {(++), (-0)}
 
     The second sign vector has zeros at positions ``1`` and ``2``::
 
         sage: contraction(W, [1, 2])
-        [(-)]
+        {(-)}
 
     We take the examples from before. With ``keep_components=True``, we keep the
     zero components of the appropriate sign vectors::
 
         sage: contraction(W, [0], keep_components=True)
-        [(00+)]
+        {(00+)}
         sage: contraction(W, [1], keep_components=True)
-        [(-00), (00+)]
+        {(00+), (-00)}
         sage: contraction(W, [2], keep_components=True)
-        [(++0), (-00)]
+        {(++0), (-00)}
         sage: contraction(W, [1, 2], keep_components=True)
-        [(-00)]
+        {(-00)}
 
     This function also works for matrices or lists of vectors::
 
         sage: l = [vector([0,0,1]), vector([0,2,1]), vector([-1,0,1])]
         sage: contraction(l, [0])
-        [(0, 1), (2, 1)]
+        {(0, 1), (2, 1)}
         sage: A = matrix([[1,1,0],[0,1,0]])
         sage: contraction(A, [2])
-        [(1, 1), (0, 1)]
+        {(0, 1), (1, 1)}
     """
     if F == []:
         return F
@@ -184,7 +187,7 @@ def contraction(F, R, keep_components=False):
     else:
         vec = _subvector(F, R)
 
-    return [vec(X) for X in F if not any(e in R for e in X.support())]
+    return set(vec(X) for X in F if not any(e in R for e in X.support()))
 
 
 def deletion(F, R):
@@ -194,7 +197,7 @@ def deletion(F, R):
 
     INPUT:
 
-    - ``F`` -- a list of sign vectors, a list of real vectors, or a matrix.
+    - ``F`` -- an iterable of sign vectors or real vectors; or a matrix.
 
     - ``R`` -- a list of indices.
 
@@ -205,25 +208,25 @@ def deletion(F, R):
         sage: W
         [(++0), (00-), (+00)]
         sage: deletion(W, [0])
-        [(+0), (0-), (00)]
+        {(00), (0-), (+0)}
 
     Duplicate sign vectors are removed if they would occur::
 
         sage: deletion(W, [1])
-        [(+0), (0-)]
+        {(0-), (+0)}
         sage: deletion(W, [1, 2])
-        [(+), (0)]
+        {(0), (+)}
 
     This function also works for lists of vectors::
 
         sage: l = [vector([0,0,1]), vector([0,2,1]), vector([-1,0,1])]
         sage: deletion(l, [1])
-        [(0, 1), (-1, 1)]
+        {(-1, 1), (0, 1)}
     """
     if F == []:
         return F
 
-    return list(set(_subvector(F, R)(X) for X in F))
+    return set(_subvector(F, R)(X) for X in F)
 
 
 def plot_sign_vectors(L, vertex_size=600, figsize=10, aspect_ratio=4/8):
