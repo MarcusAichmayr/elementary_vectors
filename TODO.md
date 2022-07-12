@@ -21,7 +21,7 @@
 
 * [x] Add examples to `positive_elementary_vectors`.
   * [ ] add examples with variables
-* Do we want more optional arguments for `elementary_vectors` to have more control on reductions?
+* Do we want more optional arguments for `elementary_vectors` to have more control of reductions?
   * optional argument: `cancel_common_factor`?
 
 #### 1.1.1. elementary_vectors.functions.positive_elementary_vectors
@@ -37,9 +37,6 @@
   But then, we would return all assumptions. (e.g. `a is integer`)
 * With `cancel_factor=True`, we could obtain the elementary vector `(1,1,0,0)` from `(x,x,0,0)`.
   For `x=0`, we have a wrong elementary vector `(1,1,0,0)`.
-
-CoCalc:
-* Put functions for elementary vectors in one file. For maintaining, it would be easier to work more with the documentation.
 
 ### 1.2. elementary_vectors.functions_dd
 
@@ -85,9 +82,7 @@ CoCalc:
 * [ ] improve new implementation of `SignVector`
 * [ ] is list/tuple of Sign objects faster than sets for support and positive support?
 * [ ] Cython might not be that useful if length of sign vectors is small (e.g. <100)
-* [ ] allow generator as input for `sign_vector`
-  * we will need to find the length of the generator object
-  * compare with `vector`
+* [x] allow generator as input for `sign_vector`
 
 #### 2.1.1. hash
 
@@ -97,13 +92,6 @@ Usually, this means that they are immutable like tuples.
 Computation of hash should be efficient.
 see
 https://docs.python.org/3.5/reference/datamodel.html#object.__hash__
-
-* [ ] Item assignment is the only operation that changes sign vectors.
-  * Do we need it?
-  * Elements with a hash function can usually not change.
-* sign vector could be mutable by default (like vectors)
-  * setting them immutable, makes hash available but restricts changes (item assignment)
-* [ ] should we use `set` or `frozen_set` as `_support` and `_psupport`?
 
 ### 2.2. sign_vectors.oriented_matroids
 
