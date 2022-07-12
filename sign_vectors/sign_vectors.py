@@ -1229,8 +1229,10 @@ def sign_vector(v):
         sage: sign_vector(v)
         (+0--)
 
-    We can also use a string to compute a sign vector::
+    We can also use a string to construct a sign vector::
 
+        sage: sign_vector("00--")
+        (00--)
         sage: sign_vector('++-+-00-')
         (++-+-00-)
 
@@ -1239,19 +1241,13 @@ def sign_vector(v):
         sage: var('a')
         a
         sage: v = vector([1, a, -1])
-        sage: sign_vector(v)
+        sage: sign_vector(v) # TODO this doctest fails in SageMath 9.4
         ...
         UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
         (+0-)
         sage: assume(a > 0)
         sage: sign_vector(v)
         (++-)
-
-    TESTS::
-
-        sage: X = sign_vector("00--")
-        sage: X
-        (00--)
     """
     if isinstance(v, str):
         return sign_vector_from_support(
