@@ -206,12 +206,19 @@ class Sign(SageObject):
             sage: assume(a > 0)
             sage: Sign._sign_sym(a)
             1
+            sage: forget()
+            sage: var('a, b, c, d')
+            (a, b, c, d)
+            sage: assume(a > 0, b > 0, c > 0, d > 0)
+            sage: Sign._sign_sym((a + b)*(c + d) - b*c)
+            1
         """
-        if SR(a) > 0:
+        expr = SR(a).simplify_full()
+        if expr > 0:
             return 1
-        elif SR(a) < 0:
+        elif expr < 0:
             return -1
-        elif SR(a) == 0:
+        elif expr == 0:
             return 0
         else:
             warnings.warn('Cannot determine sign of symbolic expression, returning 0 instead.')
@@ -1241,7 +1248,7 @@ def sign_vector(v):
         sage: var('a')
         a
         sage: v = vector([1, a, -1])
-        sage: sign_vector(v) # TODO this doctest fails in SageMath 9.4
+        sage: sign_vector(v) # TODO this doctest fails in SageMath 9.4 and 9.5
         ...
         UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
         (+0-)
