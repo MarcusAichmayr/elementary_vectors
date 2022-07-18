@@ -116,6 +116,22 @@ from sign_vectors import sign_vector, zero_sign_vector
 from sign_vectors.utility import loops, classes_same_support, parallel_classes
 
 
+def cocircuits_from_elementary_vectors(evs):
+    r"""
+    Compute a set of cocircuits determined by the elementary vectors.
+
+    INPUT:
+
+    - ``evs`` -- an iterable of elementary vectors
+    """
+    def both_signs(evs):
+        for v in evs:
+            yield sign_vector(v)
+            yield sign_vector(-v)
+
+    return set(both_signs(evs))
+
+
 def cocircuits_from_matrix(M, kernel=True):
     r"""
     Compute a set of cocircuits determined by the matrix ``A``.
@@ -150,12 +166,24 @@ def cocircuits_from_matrix(M, kernel=True):
         sage: cocircuits_from_matrix(B, kernel=False)
         {(-000), (0+0+), (00+-), (00-+), (0-0-), (0--0), (+000), (0++0)}
     """
-    def both_signs(evs):
-        for v in evs:
-            yield sign_vector(v)
-            yield sign_vector(-v)
+    return cocircuits_from_elementary_vectors(
+        elementary_vectors(M, kernel=kernel, generator=True)
+    )
 
-    return set(both_signs(elementary_vectors(M, kernel=kernel, generator=True)))
+
+def cocircuits_from_minors(m, dim):
+    r"""
+    Compute a set of cocircuits determined by the maximal minors of some matrix.
+
+    INPUT:
+
+    - ``m`` -- a list of maximal minors of a matrix
+
+    - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``m``
+    """
+    return cocircuits_from_elementary_vectors(
+        elementary_vectors(m, dim, generator=True)
+    )
 
 
 def covectors_from_cocircuits(cocircuits):
