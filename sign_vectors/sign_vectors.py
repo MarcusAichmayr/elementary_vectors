@@ -213,16 +213,24 @@ class Sign(SageObject):
             sage: Sign._sign_sym((a + b)*(c + d) - b*c)
             1
         """
-        expr = SR(a).simplify_full()
+        expr = SR(a)
         if expr > 0:
             return 1
         elif expr < 0:
             return -1
         elif expr == 0:
             return 0
-        else:
-            warnings.warn('Cannot determine sign of symbolic expression, returning 0 instead.')
+
+        expr = expr.simplify_full()
+        if expr > 0:
+            return 1
+        elif expr < 0:
+            return -1
+        elif expr == 0:
             return 0
+
+        warnings.warn('Cannot determine sign of symbolic expression, returning 0 instead.')
+        return 0
 
     def _repr_(self):
         r"""A sign is represented by ``+``, ``-`` or ``0``."""
