@@ -277,7 +277,7 @@ def elementary_vectors_from_minors(m, dim, ring=None, generator=False, **kwargs)
 
     - ``m`` -- a list of maximal minors of a matrix
 
-    - ``dim`` -- the dimensions of the matrix corresponding to ``m``
+    - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``m``
 
     - ``ring`` -- Parent of the entries of the elementary vectors.
                   By default, determine this from ``m``.
