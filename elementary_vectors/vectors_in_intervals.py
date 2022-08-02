@@ -723,7 +723,7 @@ def construct_normal_vector(v, intervals):
     return z
 
 
-def construct_vector(M, intervals):
+def construct_vector(M, intervals, evs=None):
     r"""
     Return a vector of a given vectorspace such that the components lie in given intervals.
 
@@ -732,6 +732,8 @@ def construct_vector(M, intervals):
     - ``M`` -- a matrix with ``n`` columns
 
     - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
+
+    - ``evs`` -- an optional iterable of elementary vectors
 
     OUTPUT:
 
@@ -782,7 +784,7 @@ def construct_vector(M, intervals):
         sage: construct_vector(M, I)
         (2, 5, 7, 5)
     """
-    if not exists_vector(M, intervals):
+    if not exists_vector(evs if evs else M, intervals):
         raise ValueError("There is no solution.")
 
     def rec(M, intervals):
