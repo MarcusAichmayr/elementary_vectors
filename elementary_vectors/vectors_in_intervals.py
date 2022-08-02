@@ -562,8 +562,15 @@ def exists_vector(data, intervals):
             if interval.is_empty():
                 return False
         evs = data
-
-    return all(exists_normal_vector(v, intervals) for v in evs)
+    
+    checked_supports = set()
+    for v in evs:
+        s = tuple(v.support())
+        if not s in checked_supports:
+            checked_supports.add(s)
+            if not exists_normal_vector(v, intervals):
+                return False
+    return True
 
 
 def construct_normal_vector(v, intervals):
