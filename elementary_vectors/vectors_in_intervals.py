@@ -790,6 +790,20 @@ def construct_vector(M, intervals, evs=None):
         [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
         sage: construct_vector(M, I)
         (2, 5, 7, 5)
+    
+    TESTS:
+
+    This example calls the case ``r == 1``::
+
+        sage: M = matrix([[0, 0, 0, 0, 0, 0], [-1, -1, 0, -1, 1, 0], [-1, 1, 0, -2, -1, -2]])
+        sage: I = setup_intervals(
+        ....:     [-2, -1/2, -1, -1/4, -1/6, 0],
+        ....:     [3/4, 1, 1, 0, 12, 1],
+        ....:     [False, True, True, True, False, True],
+        ....:     [False, True, False, False, False, True]
+        ....: )
+        sage: construct_vector(M, I)
+        (-1/4, -1/4, 0, -1/4, 1/4, 0)
     """
     if not exists_vector(evs if evs else M, intervals):
         raise ValueError("There is no solution.")
@@ -801,7 +815,9 @@ def construct_vector(M, intervals, evs=None):
         if r == n:
             return simplest_vector_in_intervals(intervals)
         elif r == 1:
-            return multiple_in_intervals(vector(M), intervals)
+            for row in M.rows():
+                if row != 0:
+                    return multiple_in_intervals(row, intervals)
         elif r == n - 1:
             # The kernel of ``M`` has one dimension.
             y = M.right_kernel_matrix().row(0)
