@@ -123,11 +123,18 @@ def cocircuits_from_elementary_vectors(evs):
     INPUT:
 
     - ``evs`` -- an iterable of elementary vectors
+
+    TESTS::
+
+        sage: from sign_vectors.oriented_matroids import *
+        sage: cocircuits_from_elementary_vectors([zero_vector(5)])
+        set()
     """
     def both_signs(evs):
         for v in evs:
-            yield sign_vector(v)
-            yield sign_vector(-v)
+            if v != 0:
+                yield sign_vector(v)
+                yield sign_vector(-v)
 
     return set(both_signs(evs))
 
