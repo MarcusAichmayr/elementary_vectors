@@ -287,6 +287,10 @@ def multiple_in_intervals_candidates(v, intervals):
         sage: v = vector([0, 5, -2, 0])
         sage: multiple_in_intervals_candidates(v, I)
         {}
+        sage: I = setup_intervals([-2, -1/4, -7], [0, 1, 0], [True, False, False], [False, False, True])
+        sage: v = vector([-2, -2, -1])
+        sage: multiple_in_intervals_candidates(v, I)
+        (0, 1/8)
     """
     a_inf = -Infinity
     a_sup = Infinity
@@ -303,17 +307,17 @@ def multiple_in_intervals_candidates(v, intervals):
             if vk > 0:
                 if val_inf > a_inf:
                     a_inf = val_inf
+                    lower_closed = Ik.inf() in Ik
                 if val_sup < a_sup:
                     a_sup = val_sup
-                lower_closed = Ik.inf() in Ik
-                upper_closed = Ik.sup() in Ik
+                    upper_closed = Ik.sup() in Ik
             else: # vk < 0
                 if val_sup > a_inf:
                     a_inf = val_sup
+                    lower_closed = Ik.sup() in Ik
                 if val_inf < a_sup:
                     a_sup = val_inf
-                lower_closed = Ik.sup() in Ik
-                upper_closed = Ik.inf() in Ik
+                    upper_closed = Ik.inf() in Ik
             if a_inf > a_sup:
                 return RealSet()
 
