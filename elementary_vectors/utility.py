@@ -17,6 +17,7 @@ from sage.sets.real_set import RealSet
 from sage.rings.infinity import Infinity
 from sage.functions.other import floor, ceil
 from sage.rings.continued_fraction import continued_fraction
+from sage.categories.sets_cat import EmptySetError
 
 
 def sign_determined(a):
