@@ -13,6 +13,7 @@
 from sage.symbolic.ring import SR
 from sign_vectors import sign_vector
 from sage.modules.free_module_element import vector
+from sage.matrix.constructor import matrix
 from sage.sets.real_set import RealSet
 from sage.rings.infinity import Infinity
 from sage.functions.other import floor, ceil
@@ -316,6 +317,25 @@ def sb_child(cfl, left):
         return cfl[:-1] + [cfl[-1] + 1]
     else:
         return cfl[:-1] + [cfl[-1] - 1, 2]
+
+
+def solve_left(A, b):
+    r"""
+    Find a solution for ``x*A = b`` that works for matrizes with roots.
+    
+    INPUT:
+    
+    - ``A`` -- a matrix
+    
+    - ``b`` -- a vector
+    
+    NOTE::
+    
+        The built in method ``solve_left`` for matrices does not always work.
+    """
+    M = matrix(list(A) + [-b]).T.right_kernel_matrix()
+    x = matrix(M.column(-1)).solve_right(vector([1]))
+    return (x * M)[:-1]
 
 
 def conformal_elimination(x, y, S=None):

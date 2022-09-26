@@ -123,7 +123,7 @@ Finally, we consider unbounded intervals::
 #############################################################################
 
 from .functions import elementary_vectors
-from .utility import simplest_element_in_interval, setup_interval
+from .utility import simplest_element_in_interval, setup_interval, solve_left
 from sage.sets.real_set import RealSet
 from sage.rings.infinity import Infinity
 from sage.calculus.var import var
@@ -847,9 +847,16 @@ def construct_vector(M, intervals, evs=None):
                 M_bar = M.delete_columns([k])
                 intervals_bar = intervals[:k] + intervals[k+1:]
                 xk_bar = rec(M_bar, intervals_bar)
+                if hasattr(xk_bar, "simplify_full"):
+                    xk_bar = xk_bar.simplify_full()
                 # solve linear system to project back
-                a = M_bar.solve_left(xk_bar)
-                return a*M
+                
+                try:
+                    a = M_bar.solve_left(xk_bar) # does not work for certain matrices involving roots
+                except ValueError:
+                    a = solve_left(M_bar, xk_bar)
+                xk = a*M
+                return xk.simplify_full() if hasattr(xk, "simplify_full") else xk
 
             x = [comp_xk(k) for k in range(r + 2)]
 
@@ -857,6 +864,7 @@ def construct_vector(M, intervals, evs=None):
             A = matrix([xk - x[0] for xk in x[1:]])
             a = list(A.T.right_kernel_matrix().row(0))
             a = [-sum(a)] + a
-            return sum(ak*xk for ak, xk in zip(a, x) if ak > 0) / sum(ak for ak in a if ak > 0)
+            v = sum(ak*xk for ak, xk in zip(a, x) if ak > 0) / sum(ak for ak in a if ak > 0)
+            return v.simplify_full() if hasattr(v, "simplify_full") else v
 
     return rec(M, intervals)
