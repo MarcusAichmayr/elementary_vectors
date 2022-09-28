@@ -128,7 +128,7 @@ from sage.sets.real_set import RealSet
 from sage.rings.infinity import Infinity
 from sage.calculus.var import var
 from sage.symbolic.relation import solve
-from sage.modules.free_module_element import vector
+from sage.modules.free_module_element import vector, zero_vector
 from sage.matrix.constructor import matrix
 
 
@@ -820,6 +820,18 @@ def construct_vector(M, intervals, evs=None):
         ....: )
         sage: construct_vector(M, I)
         (-1/4, -1/4, 0, -1/4, 1/4, 0)
+    
+    zero matrix::
+    
+        sage: M = zero_matrix(QQ, 1, 5)
+        sage: I = setup_intervals(
+        ....:     [-1, -1, -1, -1, -1],
+        ....:     [1, 1, 1, 1, 1],
+        ....:     False,
+        ....:     True
+        ....: )
+        sage: construct_vector(M, I)
+        (0, 0, 0, 0, 0)
     """
     if not exists_vector(evs if evs else M, intervals):
         raise ValueError("There is no solution.")
@@ -830,14 +842,16 @@ def construct_vector(M, intervals, evs=None):
         r = M.rank()
         if r == n:
             return simplest_vector_in_intervals(intervals)
-        elif r == 1:
-            for row in M.rows():
-                if row != 0:
-                    return multiple_in_intervals(row, intervals)
         elif r == n - 1:
             # The kernel of ``M`` has one dimension.
             y = M.right_kernel_matrix().row(0)
             return construct_normal_vector(y, intervals)
+        elif r == 1:
+            for row in M.rows():
+                if row != 0:
+                    return multiple_in_intervals(row, intervals)
+        elif r == 0:
+            return zero_vector(M.base_ring(), M.ncols())
         else:
             def comp_xk(k):
                 r"""
