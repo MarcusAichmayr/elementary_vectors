@@ -250,16 +250,19 @@ def elementary_vectors_from_matrix(M, kernel=True, return_minors=False, ring=Non
     n = M.ncols()
     r = M.nrows()
     m = M.minors(r)
-    g = gcd(m)
-    if g == 0:
-        if not full_rank:
-            warnings.warn('Could not determine rank of matrix. Result might be wrong.')
-            return []
     try:
-        if kwargs['cancel_factors']:
+        g = gcd(m)
+        if g == 0:
+            if not full_rank:
+                warnings.warn('Could not determine rank of matrix. Result might be wrong.')
+                return []
+        try:
+            if kwargs['cancel_factors']:
+                m = [mi/g for mi in m]
+        except KeyError:
             m = [mi/g for mi in m]
-    except KeyError:
-        m = [mi/g for mi in m]
+    except ValueError:
+        pass
     if ring is None:
         ring = M.base_ring()
     evs = elementary_vectors_from_minors(m, [r, n], ring=ring, **kwargs)
