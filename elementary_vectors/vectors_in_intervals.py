@@ -471,7 +471,7 @@ def exists_normal_vector(v, intervals):
     return True
 
 
-def exists_vector(data, intervals):
+def exists_vector(data, intervals, certificate=False):
     r"""
     Return whether a vector exists in a given vector space such that the components lie in the specified intervals.
 
@@ -481,6 +481,8 @@ def exists_vector(data, intervals):
                   elementary vectors of length ``n``
 
     - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
+    
+    - ``certificate`` -- a boolean (default: ``False``)
 
     OUTPUT:
 
@@ -490,6 +492,8 @@ def exists_vector(data, intervals):
     - If ``data`` is a matrix, then the elementary vectors in the kernel of ``M`` are computed.
 
     - If ``data`` is a list of elementary vectors, then those will be used.
+
+    - If ``certificate`` is true and no vector exists, an elementary vector certifying non-existence is returned.
 
     ALGORITHM:
 
@@ -526,6 +530,12 @@ def exists_vector(data, intervals):
         [(2, 5), (5, 6), (-1, 1)]
         sage: exists_vector(M, I)
         False
+
+    Since no vector exists, there is an elementary vector certifying this.
+    To find one, we pass ``certificate=True``::
+    
+        sage: exists_vector(M, I, certificate=True)
+        (1, -1, 0)
 
     Mixed intervals are also possible::
 
@@ -585,7 +595,10 @@ def exists_vector(data, intervals):
         if not s in checked_supports:
             checked_supports.add(s)
             if not exists_normal_vector(v, intervals):
-                return False
+                if certificate:
+                    return v
+                else:
+                    return False
     return True
 
 
