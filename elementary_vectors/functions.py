@@ -323,17 +323,9 @@ def elementary_vectors_from_minors(m, dim, ring=None, generator=False, **kwargs)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
     """
     r, n = dim
-    if n <= r:
-        return []
-    if binomial(n, r) != len(m):
-        raise ValueError('Dimensions do not fit.')
-    if m == []:
-        return evs
     C = Combinations(n, r+1)
     dets = Combinations(n, r)
     if ring is None:
-        # see SageMath/local/lib/python3.8/site-packages/sage/matrix/args.pyx
-        # find common parent of minors
         ring = get_coercion_model().common_parent(*m)
 
     def ev_from_minors(I):
