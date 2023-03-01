@@ -101,7 +101,7 @@ dual oriented matroid::
 """
 
 #############################################################################
-#  Copyright (C) 2022                                                       #
+#  Copyright (C) 2023                                                       #
 #                Marcus Aichmayr (aichmayr.marcus@gmail.com)                #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
