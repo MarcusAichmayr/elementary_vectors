@@ -2,6 +2,11 @@ r"""
 Motzkin's transposition theorem
 
 This module deals with systems of linear inequalities.
+(see [Ben00]_)
+
+.. [Ben00] Ben-Israel, A.:
+    „Motzkin's transposition theorem, and the related theorems of farkas, gordan and stiemke“.
+
 Given are matrices ``A``, ``B`` and vectors ``b``, ``c``.
 We are interested whether the system ``A x <= b, B x < c`` has a solution ``x``.
 This can be checked using :func:`elementary_vectors.vectors_in_intervals.exists_vector`.
