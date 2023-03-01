@@ -17,6 +17,7 @@ Documentation of sign_vectors
 
     elementary_vectors.functions
     elementary_vectors.vectors_in_intervals
+    elementary_vectors.transposition_theorem
     elementary_vectors.functions_dd
     elementary_vectors.reductions
     elementary_vectors.utility
