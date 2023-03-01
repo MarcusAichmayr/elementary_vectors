@@ -14,7 +14,6 @@ import warnings
 from sage.combinat.combination import Combinations
 from sage.modules.free_module_element import vector, zero_vector
 from sage.structure.element import get_coercion_model
-from sage.functions.other import binomial
 from sage.arith.misc import gcd
 from sign_vectors import sign_vector
 from sign_vectors.utility import adjacent
@@ -24,7 +23,7 @@ from .utility import sign_determined
 from sage.symbolic.assumptions import assume, forget
 
 
-def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=None, **kwargs):
+def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=None, generator=False, **kwargs):
     r"""
     Compute elementary vectors of a subspace determined by the matrix or from a list of maximal minors.
 
@@ -42,6 +41,8 @@ def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=No
 
     - ``ring`` -- Parent of the entries of the elementary vectors.
                   By default, determine this from ``data``.
+
+    - ``generator`` -- a boolean (default: ``False``)
 
     .. NOTE::
 
@@ -61,6 +62,8 @@ def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=No
     - If ``return_minors`` is true, a list is returned where the first
       element is the list of elementary vectors and the second element is
       the list of maximal minors used to compute the elementary vectors.
+    
+    - If ``generator`` is true, a generator of elementary vectors is returned.
 
     EXAMPLES::
 
@@ -174,16 +177,16 @@ def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=No
             raise TypeError("When computing elementary vectors from a list of " +
                             "maximal minors, the dimensions of the corresponding " +
                             "matrix are needed.")
-        evs = elementary_vectors_from_minors(data, dim=dim, ring=ring, **kwargs)
+        evs = elementary_vectors_from_minors(data, dim=dim, ring=ring, generator=generator, **kwargs)
         if return_minors:
             return [evs, data]
         else:
             return evs
     else:
-        return elementary_vectors_from_matrix(data, kernel=kernel, return_minors=return_minors, ring=ring, **kwargs)
+        return elementary_vectors_from_matrix(data, kernel=kernel, return_minors=return_minors, ring=ring, generator=generator, **kwargs)
 
 
-def elementary_vectors_from_matrix(M, kernel=True, return_minors=False, ring=None, **kwargs):
+def elementary_vectors_from_matrix(M, kernel=True, return_minors=False, ring=None, generator=False, **kwargs):
     r"""
     Compute elementary vectors of a subspace determined by the matrix ``M``.
 
@@ -246,6 +249,9 @@ def elementary_vectors_from_matrix(M, kernel=True, return_minors=False, ring=Non
             full_rank = False  # The matrix might not have full rank. In this case, we will obtain ``[]``.
     else:
         M = M.right_kernel_matrix()  # not implemented for polynomial matrices over ZZ (QQ does work.)
+
+    if generator:
+        return elementary_vectors_generator(M, **kwargs)
 
     n = M.ncols()
     r = M.nrows()
@@ -346,6 +352,52 @@ def elementary_vectors_from_minors(m, dim, ring=None, generator=False, **kwargs)
         return evs
     else:
         return reduce_vectors(evs, **kwargs)
+
+
+def elementary_vectors_generator(M, **kwargs):
+    r"""
+    Compute a generator of elementary vectors.
+    
+    INPUT:
+    
+    - ``M`` -- a matrix
+    
+    OUTPUT:
+    
+    a generator of all elementary vectors in the right kernel of ``M``.
+    
+    .. SEEALSO::
+
+        :func:`~elementary_vectors`
+
+    EXAMPLES::
+    
+        sage: from elementary_vectors.functions import elementary_vectors_generator
+        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]]); M
+        [ 0  0  1 -1  0]
+        [ 2  0  0  0  2]
+        [ 1  1  1  1  1]
+        sage: evs = elementary_vectors_generator(M)
+        sage: next(evs)
+        (0, 2, -1, -1, 0)
+        sage: next(evs)
+        (1, 0, 0, 0, -1)
+    """
+    m, n = M.dimensions()
+    
+    checked_supports = set()
+    for I in Combinations(n, m + 1):
+        M_I = M.matrix_from_columns(I)
+        for v in elementary_vectors(M_I, **kwargs):
+            l = list(v)
+            for k in range(n):
+                if not k in I:
+                    l.insert(k, 0)
+            v = vector(l)
+            s = frozenset(v.support())
+            if s not in checked_supports:
+                checked_supports.add(s)
+                yield(v)
 
 
 def non_negative_vectors(L):
