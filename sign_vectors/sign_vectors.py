@@ -1256,7 +1256,7 @@ def sign_vector(v):
         sage: var('a')
         a
         sage: v = vector([1, a, -1])
-        sage: sign_vector(v) # TODO this doctest fails in SageMath 9.4 and 9.5
+        sage: sign_vector(v) # TODO this doctest fails in SageMath 9.4, 9.5 and 9.6
         ...
         UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
         (+0-)

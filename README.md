@@ -2,7 +2,9 @@
 
 ## Description
 
-a Sage package to work with sign vectors, oriented matroids and elementary vectors
+a Sage package to work with elementary vectors, sign vectors and oriented matroids
+
+This package is still in development.
 
 ## License
 
