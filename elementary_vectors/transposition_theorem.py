@@ -62,6 +62,20 @@ This system can be described by two matrices ``M1``, ``M2`` and two lists of int
     sage: exists_vector(M2.T, I2, certificate=True)
     (-1, 0, 1, 0, 0, 0, 2)
 
+The package offers a single function that certifies existence of a solution::
+
+    sage: certify_AB_bc(A, B, b, c)
+    (True, [(5, -2, 1, 0, 0, 2), (-1, 0, 1, 0, 0, 0, 2)])
+
+We consider another example::
+
+    sage: A = matrix([[1, 0], [1, 1]])
+    sage: B = matrix([[-1, -1]])
+    sage: b = vector([1, 0])
+    sage: c = vector([0])
+    sage: certify_AB_bc(A, B, b, c)
+    (False, [(0, 1, 1)])
+    
 There is also a homogeneous version of Motzkin's transposition theorem.
 Here, we have three matrices ``A``, ``B`` and ``C`` and deals with the system
 ``A x > 0, B x >= 0, C x = 0``::
@@ -92,6 +106,16 @@ which consists of a single matrix and intervals::
     False
     sage: exists_vector(M.T, I, certificate=True)
     (0, 1, -1, 0, -3, -1)
+    sage: certify_ABC(A, B, C)
+    (True, (0, 1, -1, 0, -3, -1))
+
+We consider another example::
+
+    sage: A = matrix([[1, 0], [0, 1]])
+    sage: B = matrix([[2, -3]])
+    sage: C = matrix([[-1, -1]])
+    sage: certify_ABC(A, B, C)
+    (False, (1, 1, 0, 1))
 """
 
 #############################################################################
@@ -104,7 +128,8 @@ which consists of a single matrix and intervals::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from .vectors_in_intervals import exists_vector, setup_interval
+from .vectors_in_intervals import exists_vector, exists_normal_vector, setup_interval
+from .functions import elementary_vectors
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.rings.infinity import Infinity
 
@@ -122,6 +147,15 @@ def c_to_intervals(c):
 def bc_to_intervals(b, c):
     r"""Converts both right hand sides of ``A x <= b, B x < c`` to intervals"""
     return b_to_intervals(b) + c_to_intervals(c)
+
+
+def intervals_ABC(A, B, C):
+    r"""Compute the intervals corresponding to ``A x > 0, B x >= 0, C x = 0``."""
+    return (
+        A.nrows() * [setup_interval(0, 1, False, True)] +
+        B.nrows() * [setup_interval(0, 1)] +
+        C.nrows() * [setup_interval(0, 0)]
+    )
 
 
 def alternative_AB_bc1(A, B, b, c):
@@ -171,15 +205,6 @@ def alternative_AB_bc2(A, B, b, c):
     return M, I
 
 
-def intervals_ABC(A, B, C):
-    r"""Compute the intervals corresponding to ``A x > 0, B x >= 0, C x = 0``."""
-    return (
-        A.nrows() * [setup_interval(0, 1, False, True)] +
-        B.nrows() * [setup_interval(0, 1)] +
-        C.nrows() * [setup_interval(0, 0)]
-    )
-
-
 def alternative_ABC(A, B, C):
     r"""
     Alternative system for ``A x > 0, B x >= 0, C x = 0``
@@ -202,3 +227,111 @@ def alternative_ABC(A, B, C):
         [setup_interval(0, 1, False, True)]
     )
     return M, I
+
+
+def certify_AB_bc(A, B, b, c):
+    r"""
+    Return whether the system ``A x <= b, B x < c`` has a solution and certifies it.
+    
+    INPUT:
+    
+    - ``A`` -- a matrix
+    
+    - ``B`` -- a matrix
+    
+    - ``b`` -- a vector
+    
+    - ``c`` -- a vector
+    
+    OUTPUT:
+    
+    A tuple of a boolean and a list of vectors certifying the result.
+    """
+    M = matrix.block([[A], [B]])
+    I = bc_to_intervals(b, c)
+    
+    M1, I1 = alternative_AB_bc1(A, B, b, c)
+    M2, I2 = alternative_AB_bc2(A, B, b, c)
+    
+    evs = elementary_vectors(M.T, generator=True)
+    evs_alt1 = elementary_vectors(M1.T, generator=True)
+    evs_alt2 = elementary_vectors(M2.T, generator=True)
+
+    evs_end_reached = False
+    evs_alt1_end_reached = False
+    evs_alt2_end_reached = False
+    
+    v1_found = False
+    v2_found = False
+    while True:
+        if not evs_end_reached:
+            try:
+                v = next(evs)
+                if not exists_normal_vector(v, I):
+                    return False, [v]
+            except StopIteration:
+                evs_end_reached = True
+
+        if not evs_alt1_end_reached and not v1_found:
+            try:
+                v1 = next(evs_alt1)
+                if not exists_normal_vector(v1, I1):
+                    if v2_found:
+                        return True, [v1, v2]
+                    v1_found = True
+            except StopIteration:
+                evs_alt1_end_reached = True
+
+        if not evs_alt2_end_reached and not v2_found:
+            try:
+                v2 = next(evs_alt2)
+                if not exists_normal_vector(v2, I2):
+                    if v1_found:
+                        return True, [v1, v2]
+                    v2_found = True
+            except StopIteration:
+                evs_alt2_end_reached = True
+
+
+def certify_ABC(A, B, C):
+    r"""
+    Return whether the system ``A x < 0, B x <= 0, C x = 0`` has a solution and certifies it.
+    
+    INPUT:
+    
+    - ``A`` -- a matrix
+    
+    - ``B`` -- a matrix
+    
+    - ``C`` -- a matrix
+    
+    OUTPUT:
+    
+    A tuple of a boolean and a list of vectors certifying the result.
+    """
+    M = matrix.block([[A.T, B.T, C.T]])
+    I = intervals_ABC(A, B, C)
+    
+    M_alt, I_alt = alternative_ABC(A, B, C)
+
+    evs = elementary_vectors(M, generator=True)
+    evs_alt = elementary_vectors(M_alt.T, generator=True)
+
+    evs_end_reached = False
+    evs_alt_end_reached = False
+    while True:
+        if not evs_end_reached:
+            try:
+                v = next(evs)
+                if not exists_normal_vector(v, I):
+                    return False, v
+            except StopIteration:
+                evs_end_reached = True
+
+        if not evs_alt_end_reached:
+            try:
+                v = next(evs_alt)
+                if not exists_normal_vector(v, I_alt):
+                    return True, v
+            except StopIteration:
+                evs_alt_end_reached = True
