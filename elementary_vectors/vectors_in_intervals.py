@@ -24,9 +24,9 @@ Next, we define a vector::
     sage: v = vector([1,1,1])
 
 Is there a normal vector, such that the components lie in the intervals defined above?
-We call :func:`~exists_normal_vector` to answer this question::
+We call :func:`~exists_orthogonal_vector` to answer this question::
 
-    sage: exists_normal_vector(v, I)
+    sage: exists_orthogonal_vector(v, I)
     True
 
 This vector can be constructed by :func:`~construct_normal_vector`::
@@ -37,7 +37,7 @@ This vector can be constructed by :func:`~construct_normal_vector`::
 We define another vector. This time, there is no solution::
 
     sage: v = vector([1,1,-1])
-    sage: exists_normal_vector(v, I)
+    sage: exists_orthogonal_vector(v, I)
     False
     sage: construct_normal_vector(v, I)
     Traceback (most recent call last):
@@ -50,7 +50,7 @@ Next, we consider open intervals::
     sage: I
     [(0, 1], (1, 2], (-1, 1)]
     sage: v = vector([1,0,1])
-    sage: exists_normal_vector(v, I)
+    sage: exists_orthogonal_vector(v, I)
     True
     sage: construct_normal_vector(v, I)
     (1/2, 2, -1/2)
@@ -61,7 +61,7 @@ We can even consider unbounded intervals::
     sage: I
     [(0, +oo), (1, 2], (-oo, -2)]
     sage: v = vector([-1,1,-1])
-    sage: exists_normal_vector(v, I)
+    sage: exists_orthogonal_vector(v, I)
     True
     sage: construct_normal_vector(v, I)
     (5, 2, -3)
@@ -366,7 +366,7 @@ def multiple_in_intervals(v, intervals):
     return simplest_element_in_interval(multiple_in_intervals_candidates(v, intervals)) * v
 
 
-def exists_normal_vector(v, intervals):
+def exists_orthogonal_vector(v, intervals):
     r"""
     Check whether a normal vector exists that lies in the specified intervals.
 
@@ -391,15 +391,15 @@ def exists_normal_vector(v, intervals):
     We define several lists of intervals and vectors
     and apply the function::
 
-        sage: from elementary_vectors import exists_normal_vector, setup_intervals
+        sage: from elementary_vectors import exists_orthogonal_vector, setup_intervals
         sage: I = setup_intervals([0, 1, -1], [1, 2, -1])
         sage: I
         [[0, 1], [1, 2], {-1}]
         sage: v = vector([1,1,1])
-        sage: exists_normal_vector(v, I)
+        sage: exists_orthogonal_vector(v, I)
         True
         sage: v = vector([1,1,-1])
-        sage: exists_normal_vector(v, I)
+        sage: exists_orthogonal_vector(v, I)
         False
 
     Next, we consider open intervals::
@@ -408,7 +408,7 @@ def exists_normal_vector(v, intervals):
         sage: I
         [(0, 1], (1, 2], (-1, 1)]
         sage: v = vector([1,0,1])
-        sage: exists_normal_vector(v, I)
+        sage: exists_orthogonal_vector(v, I)
         True
 
     We can even consider unbounded intervals::
@@ -417,7 +417,7 @@ def exists_normal_vector(v, intervals):
         sage: I
         [(0, +oo), (1, 2], (-oo, -2)]
         sage: v = vector([-1,1,-1])
-        sage: exists_normal_vector(v, I)
+        sage: exists_orthogonal_vector(v, I)
         True
 
     TESTS::
@@ -426,10 +426,10 @@ def exists_normal_vector(v, intervals):
         sage: I
         [(-oo, +oo), {}]
         sage: v = vector([1,0])
-        sage: exists_normal_vector(v, I)
+        sage: exists_orthogonal_vector(v, I)
         False
         sage: v = vector([1])
-        sage: exists_normal_vector(v, I)
+        sage: exists_orthogonal_vector(v, I)
         Traceback (most recent call last):
         ...
         ValueError: Lengths of ``v`` and ``intervals`` are different!
@@ -506,7 +506,7 @@ def exists_vector(data, intervals, certificate=False):
     .. SEEALSO::
 
         :func:`~setup_intervals`
-        :func:`~exists_normal_vector`
+        :func:`~exists_orthogonal_vector`
 
     EXAMPLES::
 
@@ -594,7 +594,7 @@ def exists_vector(data, intervals, certificate=False):
         s = tuple(v.support())
         if not s in checked_supports:
             checked_supports.add(s)
-            if not exists_normal_vector(v, intervals):
+            if not exists_orthogonal_vector(v, intervals):
                 if certificate:
                     return v
                 else:
@@ -621,7 +621,7 @@ def construct_normal_vector(v, intervals):
     .. SEEALSO::
 
         :func:`~setup_intervals`
-        :func:`~exists_normal_vector`
+        :func:`~exists_orthogonal_vector`
 
     EXAMPLES::
 
@@ -659,7 +659,7 @@ def construct_normal_vector(v, intervals):
         sage: construct_normal_vector(v, I)
         (5, 2, -3)
     """
-    if not exists_normal_vector(v, intervals):
+    if not exists_orthogonal_vector(v, intervals):
         raise ValueError("There is no solution.")
 
     # construct z_min and z_max

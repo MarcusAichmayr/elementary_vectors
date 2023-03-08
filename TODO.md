@@ -53,7 +53,7 @@
 
 * [x] Removed optional argument `kernel`
 * [x] Removed optional argument `certificate`
-  * In case, someone wants to find the certificate, they can iterate over all elementary vectors and return the vector that does not satisfy `exists_normal_vector`.
+  * In case, someone wants to find the certificate, they can iterate over all elementary vectors and return the vector that does not satisfy `exists_orthogonal_vector`.
 * [ ] In case the rank is 1, we might want to use `multiple_in_intervals_candidates` instead of computing elementary vectors.
 
 ### 1.4. elementary_vectors.utility

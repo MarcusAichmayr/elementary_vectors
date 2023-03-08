@@ -128,7 +128,7 @@ We consider another example::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from .vectors_in_intervals import exists_vector, exists_normal_vector, setup_interval
+from .vectors_in_intervals import exists_vector, exists_orthogonal_vector, setup_interval
 from .functions import elementary_vectors
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.rings.infinity import Infinity
@@ -152,8 +152,8 @@ def bc_to_intervals(b, c):
 def intervals_ABC(A, B, C):
     r"""Compute the intervals corresponding to ``A x > 0, B x >= 0, C x = 0``."""
     return (
-        A.nrows() * [setup_interval(0, oo, False, False)] +
-        B.nrows() * [setup_interval(0, oo)] +
+        A.nrows() * [setup_interval(0, Infinity, False, False)] +
+        B.nrows() * [setup_interval(0, Infinity)] +
         C.nrows() * [setup_interval(0, 0)]
     )
 
@@ -267,7 +267,7 @@ def certify_AB_bc(A, B, b, c):
         if not evs_end_reached:
             try:
                 v = next(evs)
-                if not exists_normal_vector(v, I):
+                if not exists_orthogonal_vector(v, I):
                     return False, [v]
             except StopIteration:
                 evs_end_reached = True
@@ -275,7 +275,7 @@ def certify_AB_bc(A, B, b, c):
         if not evs_alt1_end_reached and not v1_found:
             try:
                 v1 = next(evs_alt1)
-                if not exists_normal_vector(v1, I1):
+                if not exists_orthogonal_vector(v1, I1):
                     if v2_found:
                         return True, [v1, v2]
                     v1_found = True
@@ -285,7 +285,7 @@ def certify_AB_bc(A, B, b, c):
         if not evs_alt2_end_reached and not v2_found:
             try:
                 v2 = next(evs_alt2)
-                if not exists_normal_vector(v2, I2):
+                if not exists_orthogonal_vector(v2, I2):
                     if v1_found:
                         return True, [v1, v2]
                     v2_found = True
@@ -323,7 +323,7 @@ def certify_ABC(A, B, C):
         if not evs_end_reached:
             try:
                 v = next(evs)
-                if not exists_normal_vector(v, I):
+                if not exists_orthogonal_vector(v, I):
                     return False, v
             except StopIteration:
                 evs_end_reached = True
@@ -331,7 +331,7 @@ def certify_ABC(A, B, C):
         if not evs_alt_end_reached:
             try:
                 v = next(evs_alt)
-                if not exists_normal_vector(v, I_alt):
+                if not exists_orthogonal_vector(v, I_alt):
                     return True, v
             except StopIteration:
                 evs_alt_end_reached = True
