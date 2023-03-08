@@ -152,8 +152,8 @@ def bc_to_intervals(b, c):
 def intervals_ABC(A, B, C):
     r"""Compute the intervals corresponding to ``A x > 0, B x >= 0, C x = 0``."""
     return (
-        A.nrows() * [setup_interval(0, 1, False, True)] +
-        B.nrows() * [setup_interval(0, 1)] +
+        A.nrows() * [setup_interval(0, oo, False, False)] +
+        B.nrows() * [setup_interval(0, oo)] +
         C.nrows() * [setup_interval(0, 0)]
     )
 
