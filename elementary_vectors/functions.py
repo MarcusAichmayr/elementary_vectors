@@ -167,8 +167,6 @@ def elementary_vectors(data, dim=None, kernel=True, return_minors=False, ring=No
     TESTS::
 
         sage: M = random_matrix(QQ, 0, 4)
-        sage: M
-        []
         sage: elementary_vectors(M)
         [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)]
     """
@@ -329,7 +327,6 @@ def elementary_vectors_from_minors(m, dim, ring=None, generator=False, **kwargs)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
     """
     r, n = dim
-    C = Combinations(n, r+1)
     dets = Combinations(n, r)
     if ring is None:
         ring = get_coercion_model().common_parent(*m)
@@ -347,7 +344,7 @@ def elementary_vectors_from_minors(m, dim, ring=None, generator=False, **kwargs)
             v[k] = (-1)**pos * m[dets.rank(i for i in I if i != k)]
         return v
 
-    evs = (ev_from_minors(I) for I in C)
+    evs = (ev_from_minors(I) for I in Combinations(n, r + 1))
     if generator:
         return evs
     else:
