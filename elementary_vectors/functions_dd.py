@@ -46,7 +46,7 @@ The corresponding elementary vectors can be computed as before::
 
     sage: evs_a = elementary_vectors(Ma)
     sage: evs_a
-    [(-2, 1, 1, 0, 0), (-3, 3, 0, -1, -1), (-3, 0, 3, 1, 1), (0, -3, 3, 2, 2)]
+    [(-4, 2, 2, 0, 0), (-6, 6, 0, -2, -2), (-6, 0, 6, 2, 2), (0, -6, 6, 4, 4)]
 
 Similarly, we obtain the following sign vectors::
 
@@ -285,7 +285,7 @@ def double_description(M, a):
 
         sage: evs_a = elementary_vectors(Ma)
         sage: evs_a
-        [(-2, 1, 1, 0, 0), (-3, 3, 0, -1, -1), (-3, 0, 3, 1, 1), (0, -3, 3, 2, 2)]
+        [(-4, 2, 2, 0, 0), (-6, 6, 0, -2, -2), (-6, 0, 6, 2, 2), (0, -6, 6, 4, 4)]
 
     Similarly, we obtain the following sign vectors::
 

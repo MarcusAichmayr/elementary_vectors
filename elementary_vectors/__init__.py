@@ -11,7 +11,6 @@
 from __future__ import absolute_import
 
 from .functions import elementary_vectors
-from .functions import non_negative_vectors, positive_elementary_vectors
 from .functions_dd import double_description
 from .vectors_in_intervals import setup_intervals, exists_vector, construct_vector
 from .vectors_in_intervals import exists_orthogonal_vector, construct_normal_vector

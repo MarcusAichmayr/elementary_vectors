@@ -110,7 +110,6 @@ dual oriented matroid::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from sage.misc.flatten import flatten
 from elementary_vectors import elementary_vectors
 from sign_vectors import sign_vector, zero_sign_vector
 from sign_vectors.utility import loops, classes_same_support, parallel_classes
@@ -173,9 +172,9 @@ def cocircuits_from_matrix(M, kernel=True):
         sage: cocircuits_from_matrix(B, kernel=False)
         {(-000), (0+0+), (00+-), (00-+), (0-0-), (0--0), (+000), (0++0)}
     """
-    return cocircuits_from_elementary_vectors(
-        elementary_vectors(M, kernel=kernel, generator=True)
-    )
+    if not kernel:
+        M = M.right_kernel_matrix()
+    return cocircuits_from_elementary_vectors(elementary_vectors(M))
 
 
 def cocircuits_from_minors(m, dim):

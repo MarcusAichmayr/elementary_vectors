@@ -204,6 +204,22 @@ def reduce_vectors_support(L):
     return list(vector_dict.values())
 
 
+def remove_multiples_generator(vectors):
+    r"""
+    Return a generator of ``vectors`` where multiples are removed.
+
+    INPUT:
+
+    - ``vectors`` -- a list of vectors
+    """
+    checked_supports = set()
+    for v in vectors:
+        s = frozenset(v.support())
+        if s not in checked_supports:
+            checked_supports.add(s)
+            yield(v)
+
+
 def remove_zero_vectors(L):
     r"""
     Remove all zero vectors from this list.
