@@ -582,23 +582,19 @@ def exists_vector(data, intervals, certificate=False):
         for interval in intervals:
             if interval.is_empty():
                 return False
-        evs = elementary_vectors(data, kernel=True, generator=True)
+        evs = elementary_vectors(data, generator=True)
     else:
         for interval in intervals:
             if interval.is_empty():
                 return False
         evs = data
     
-    checked_supports = set()
     for v in evs:
-        s = tuple(v.support())
-        if not s in checked_supports:
-            checked_supports.add(s)
-            if not exists_orthogonal_vector(v, intervals):
-                if certificate:
-                    return v
-                else:
-                    return False
+        if not exists_orthogonal_vector(v, intervals):
+            if certificate:
+                return v
+            else:
+                return False
     return True
 
 

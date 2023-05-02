@@ -21,7 +21,7 @@ from .reductions import remove_multiples_generator
 #from sage.symbolic.assumptions import assume, forget
 
 
-def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, generator=False, **kwargs):
+def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, generator=False):
     r"""
     Compute elementary vectors of a subspace determined by the matrix or from a list of maximal minors.
 
@@ -194,7 +194,7 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
         """
         v = zero_vector(ring, n)
         for pos, k in enumerate(I):
-            Ik = frozenset(i for i in I if i != k)
+            Ik = tuple(i for i in I if i != k)
             try:
                 minor = minors[Ik]
             except KeyError:
@@ -208,7 +208,11 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
     if remove_multiples:
         evs = remove_multiples_generator(evs)
 
-    return evs if generator else list(evs)
+    if generator:
+        return evs
+    else:
+        return list(evs)
+#    return evs if generator else list(evs)
 
 
 def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multiples=True, generator=False):
@@ -267,7 +271,7 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
 
     minors_dict = {}
     for k, I in enumerate(Combinations(n, m)):
-        minors_dict[frozenset(I)] = minors[k]
+        minors_dict[tuple(I)] = minors[k]
 
     def ev_from_support(I):
         r"""
@@ -279,7 +283,7 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
         """
         v = zero_vector(ring, n)
         for pos, k in enumerate(I):
-            Ik = frozenset(i for i in I if i != k)
+            Ik = tuple(i for i in I if i != k)
             minor = minors_dict[Ik]
             v[k] = (-1)**pos * minor
         return v
