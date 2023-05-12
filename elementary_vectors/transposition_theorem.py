@@ -468,7 +468,6 @@ def certify_ABC(A, B, C):
     m_A, n = A.dimensions()
     m_B = B.nrows()
     M = matrix.block([[A.T, B.T, C.T]])
-    I = intervals_ABC(A, B, C)
     
     M_alt = alternative_ABC_matrix(A, B, C)
 
