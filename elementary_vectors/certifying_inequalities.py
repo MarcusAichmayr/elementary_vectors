@@ -1,33 +1,40 @@
 r"""
-Motzkin's transposition theorem
+Certifying solvability of linear inequality systems using elementary vectors
 
-This module deals with systems of linear inequalities.
-(see [Ben00]_)
+Given is a system of linear inequalities.
+We are interested whether the system has a solution.
+Further, we want to certify the result using an elementary vector (support-minimal vector).
+
+Many of the results are derived from theorems in [Ben00]_.
 
 .. [Ben00] A. Ben-Israel.
     Motzkin's transposition theorem, and the related theorems of Farkas, Gordan and Stiemke.
     2000.
 
-Given are matrices ``A``, ``B`` and vectors ``b``, ``c``.
-We are interested whether the system ``A x <= b, B x < c`` has a solution ``x``.
+This module offers functions for linear inequality systems given in the form
+``A x <= b, B x < c`` with matrices ``A``, ``B`` and vectors ``b``, ``c``
+and ``A x > 0, B x >= 0, C x = 0`` with matrices ``A``, ``B``, ``C``.
+
+We are interested whether the system  has a solution ``x``.
 This can be checked using :func:`elementary_vectors.vectors_in_intervals.exists_vector`.
 If no solution exists, this function can be used to certify the result.
 
 To demonstrate this, consider the following example::
 
-    sage: from elementary_vectors.transposition_theorem import *
+    sage: from elementary_vectors.certifying_inequalities import *
+    sage: from elementary_vectors.vectors_in_intervals import *
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: b = vector([1, -1])
     sage: c = vector([2])
-    sage: exists_vector(matrix.block([[A.T, B.T]]), bc_to_intervals(b, c))
+    sage: exists_vector(matrix_AB_bc(A, B).T, bc_to_intervals(b, c))
     True
 
 However, to certify existence of a solution, we need to consider the alternative system.
 This system can be described by two matrices ``M1``, ``M2`` and two lists of intervals ``I1``, ``I2``::
 
-    sage: M1 = alternative_AB_bc1_matrix(A, B, b, c)
-    sage: I1 = alternative_AB_bc1_intervals(A, B, b, c)
+    sage: M1 = matrix_AB_bc1_alternative(A, B, b, c)
+    sage: I1 = intervals_AB_bc1_alternative(A, B, b, c)
     sage: M1
     [ 1  0| 2]
     [ 2  1| 3]
@@ -40,8 +47,8 @@ This system can be described by two matrices ``M1``, ``M2`` and two lists of int
     [-1  1|-2]
     sage: I1
     [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: M2 = alternative_AB_bc2_matrix(A, B, b, c)
-    sage: I2 = alternative_AB_bc2_intervals(A, B, b, c)
+    sage: M2 = matrix_AB_bc2_alternative(A, B, b, c)
+    sage: I2 = intervals_AB_bc2_alternative(A, B, b, c)
     sage: M2
     [ 1  0| 2]
     [ 2  1| 3]
@@ -86,14 +93,14 @@ Here, we have three matrices ``A``, ``B`` and ``C`` and deals with the system
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
-    sage: exists_vector(matrix.block([[A.T, B.T, C.T]]), intervals_ABC(A, B, C))
+    sage: exists_vector(matrix_ABC(A, B, C).T, intervals_ABC(A, B, C))
     True
 
 The certify the result, we consider the alternative system
 which consists of a single matrix and intervals::
 
-    sage: M = alternative_ABC_matrix(A, B, C)
-    sage: I = alternative_ABC_intervals(A, B, C)
+    sage: M = matrix_ABC_alternative(A, B, C)
+    sage: I = intervals_ABC_alternative(A, B, C)
     sage: M
     [ 1  0| 2|-1]
     [ 2  1| 3| 0]
@@ -132,10 +139,20 @@ We consider another example::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from .vectors_in_intervals import exists_vector, exists_orthogonal_vector, setup_interval
+from .vectors_in_intervals import setup_interval
 from .functions import elementary_vectors
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.rings.infinity import Infinity
+
+
+def matrix_AB_bc(A, B, b=None, c=None):
+    r"""Return a block matrix for the system ``A x <= b, B x < c``."""
+    return matrix.block([[A], [B]])
+
+
+def matrix_ABC(A, B, C):
+    r"""Return a block matrix for the system ``A x > 0, B x >= 0, C x = 0``."""
+    return matrix.block([[A], [B], [C]])
 
 
 def b_to_intervals(b):
@@ -180,7 +197,7 @@ def exists_orthogonal_vector_inhomogeneous(v, b, c):
     
     TESTS::
     
-        sage: from elementary_vectors.transposition_theorem import *
+        sage: from elementary_vectors.certifying_inequalities import *
         sage: from elementary_vectors.vectors_in_intervals import *
         sage: A = matrix([[1, 2], [0, 1], [2, 0]])
         sage: B = matrix([[2, 3], [0, 2]])
@@ -232,7 +249,7 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict):
     
     TESTS::
     
-        sage: from elementary_vectors.transposition_theorem import *
+        sage: from elementary_vectors.certifying_inequalities import *
         sage: from elementary_vectors.vectors_in_intervals import *
         sage: A = matrix([[1, 2], [0, 1]])
         sage: B = matrix([[2, 3], [0, -1]])
@@ -261,7 +278,7 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict):
     )
 
 
-def alternative_AB_bc1_matrix(A, B, b, c):
+def matrix_AB_bc1_alternative(A, B, b, c):
     r"""
     Matrix of first alternative system for ``A x <= b, B x < c``
     
@@ -279,24 +296,7 @@ def alternative_AB_bc1_matrix(A, B, b, c):
     return M
 
 
-def alternative_AB_bc1_intervals(A, B, b, c):
-    r"""
-    Intervals of first alternative system for ``A x <= b, B x < c``
-    
-    Returns a list of intervals.
-    """
-    m_A, n = A.dimensions()
-    m_B = B.nrows()
-
-    I = (
-        n * [setup_interval(0, 0)] +
-        (m_A + m_B) * [setup_interval(0, 1)] +
-        [setup_interval(0, 1, False, True)]
-    )
-    return I
-
-
-def alternative_AB_bc2_matrix(A, B, b, c):
+def matrix_AB_bc2_alternative(A, B, b, c):
     r"""
     Matrix of second alternative system for ``A x <= b, B x < c``
     
@@ -315,7 +315,47 @@ def alternative_AB_bc2_matrix(A, B, b, c):
     return M
 
 
-def alternative_AB_bc2_intervals(A, B, b, c):
+def matrix_ABC_alternative(A, B, C):
+    r"""
+    Alternative system matrix for ``A x > 0, B x >= 0, C x = 0``
+    
+    Returns a matrix.
+    
+    .. SEEALSO::
+    
+        :func:`~intervals_ABC_alternative`
+    """
+    m_A = A.nrows()
+    m_B = B.nrows()
+    m_C = C.nrows()
+
+    M = matrix.block([
+        [A.T, B.T, C.T],
+        [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, m_C)],
+        [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, m_C)],
+        [ones_matrix(1, m_A), zero_matrix(1, m_B), zero_matrix(1, m_C)]
+    ])
+    return M
+
+
+def intervals_AB_bc1_alternative(A, B, b=None, c=None):
+    r"""
+    Intervals of first alternative system for ``A x <= b, B x < c``
+    
+    Returns a list of intervals.
+    """
+    m_A, n = A.dimensions()
+    m_B = B.nrows()
+
+    I = (
+        n * [setup_interval(0, 0)] +
+        (m_A + m_B) * [setup_interval(0, 1)] +
+        [setup_interval(0, 1, False, True)]
+    )
+    return I
+
+
+def intervals_AB_bc2_alternative(A, B, b=None, c=None):
     r"""
     Intervals of second alternative system for ``A x <= b, B x < c``
     
@@ -332,30 +372,7 @@ def alternative_AB_bc2_intervals(A, B, b, c):
     return I
 
 
-def alternative_ABC_matrix(A, B, C):
-    r"""
-    Alternative system matrix for ``A x > 0, B x >= 0, C x = 0``
-    
-    Returns a matrix.
-    
-    .. SEEALSO::
-    
-        :func:`~alternative_ABC_intervals`
-    """
-    m_A = A.nrows()
-    m_B = B.nrows()
-    m_C = C.nrows()
-
-    M = matrix.block([
-        [A.T, B.T, C.T],
-        [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, m_C)],
-        [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, m_C)],
-        [ones_matrix(1, m_A), zero_matrix(1, m_B), zero_matrix(1, m_C)]
-    ])
-    return M
-
-
-def alternative_ABC_intervals(A, B, C):
+def intervals_ABC_alternative(A, B, C=None):
     r"""
     Alternative system intervals for ``A x > 0, B x >= 0, C x = 0``
     
@@ -363,7 +380,7 @@ def alternative_ABC_intervals(A, B, C):
 
     .. SEEALSO::
     
-        :func:`~alternative_ABC_matrix`
+        :func:`~matrix_ABC_alternative`
     """
     m_A, n = A.dimensions()
     m_B = B.nrows()
@@ -399,8 +416,8 @@ def certify_AB_bc(A, B, b, c):
     m_A = A.nrows()
     m_B = B.nrows()
 
-    M1 = alternative_AB_bc1_matrix(A, B, b, c)
-    M2 = alternative_AB_bc2_matrix(A, B, b, c)
+    M1 = matrix_AB_bc1_alternative(A, B, b, c)
+    M2 = matrix_AB_bc2_alternative(A, B, b, c)
     
     evs = elementary_vectors(M.T, generator=True)
     evs_alt1 = elementary_vectors(M1.T, generator=True)
@@ -469,7 +486,7 @@ def certify_ABC(A, B, C):
     m_B = B.nrows()
     M = matrix.block([[A.T, B.T, C.T]])
     
-    M_alt = alternative_ABC_matrix(A, B, C)
+    M_alt = matrix_ABC_alternative(A, B, C)
 
     evs = elementary_vectors(M, generator=True)
     evs_alt = elementary_vectors(M_alt.T, generator=True)
