@@ -27,14 +27,14 @@ To demonstrate this, consider the following example::
     sage: B = matrix([[2, 3]])
     sage: b = vector([1, -1])
     sage: c = vector([2])
-    sage: exists_vector(matrix_AB_bc(A, B).T, bc_to_intervals(b, c))
+    sage: exists_vector(matrix_inhomogeneous(A, B).T, bc_to_intervals(b, c))
     True
 
 However, to certify existence of a solution, we need to consider the alternative system.
 This system can be described by two matrices ``M1``, ``M2`` and two lists of intervals ``I1``, ``I2``::
 
-    sage: M1 = matrix_AB_bc1_alternative(A, B, b, c)
-    sage: I1 = intervals_AB_bc1_alternative(A, B, b, c)
+    sage: M1 = matrix_inhomogeneous1_alternative(A, B, b, c)
+    sage: I1 = intervals_inhomogeneous1_alternative(A, B, b, c)
     sage: M1
     [ 1  0| 2]
     [ 2  1| 3]
@@ -47,8 +47,8 @@ This system can be described by two matrices ``M1``, ``M2`` and two lists of int
     [-1  1|-2]
     sage: I1
     [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: M2 = matrix_AB_bc2_alternative(A, B, b, c)
-    sage: I2 = intervals_AB_bc2_alternative(A, B, b, c)
+    sage: M2 = matrix_inhomogeneous2_alternative(A, B, b, c)
+    sage: I2 = intervals_inhomogeneous2_alternative(A, B, b, c)
     sage: M2
     [ 1  0| 2]
     [ 2  1| 3]
@@ -74,7 +74,7 @@ This system can be described by two matrices ``M1``, ``M2`` and two lists of int
 
 The package offers a single function that certifies existence of a solution::
 
-    sage: certify_AB_bc(A, B, b, c)
+    sage: certify_inhomogeneous(A, B, b, c)
     (True, [(5, -2, 1, 0, 0, 2), (-1, 0, 1, 0, 0, 0, 2)])
 
 We consider another example::
@@ -83,7 +83,7 @@ We consider another example::
     sage: B = matrix([[-1, -1]])
     sage: b = vector([1, 0])
     sage: c = vector([0])
-    sage: certify_AB_bc(A, B, b, c)
+    sage: certify_inhomogeneous(A, B, b, c)
     (False, [(0, 1, 1)])
     
 There is also a homogeneous version of Motzkin's transposition theorem.
@@ -93,14 +93,14 @@ Here, we have three matrices ``A``, ``B`` and ``C`` and deals with the system
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
-    sage: exists_vector(matrix_ABC(A, B, C).T, intervals_ABC(A, B, C))
+    sage: exists_vector(matrix_homogeneous(A, B, C).T, intervals_homogeneous(A, B, C))
     True
 
 The certify the result, we consider the alternative system
 which consists of a single matrix and intervals::
 
-    sage: M = matrix_ABC_alternative(A, B, C)
-    sage: I = intervals_ABC_alternative(A, B, C)
+    sage: M = matrix_homogeneous_alternative(A, B, C)
+    sage: I = intervals_homogeneous_alternative(A, B, C)
     sage: M
     [ 1  0| 2|-1]
     [ 2  1| 3| 0]
@@ -117,7 +117,7 @@ which consists of a single matrix and intervals::
     False
     sage: exists_vector(M.T, I, certificate=True)
     (0, 1, -1, 0, -3, -1)
-    sage: certify_ABC(A, B, C)
+    sage: certify_homogeneous(A, B, C)
     (True, (0, 1, -1, 0, -3, -1))
 
 We consider another example::
@@ -125,7 +125,7 @@ We consider another example::
     sage: A = matrix([[1, 0], [0, 1]])
     sage: B = matrix([[2, -3]])
     sage: C = matrix([[-1, -1]])
-    sage: certify_ABC(A, B, C)
+    sage: certify_homogeneous(A, B, C)
     (False, (1, 1, 0, 1))
 """
 
@@ -149,12 +149,12 @@ from sage.modules.free_module_element import zero_vector
 from sage.combinat.combination import Combinations
 
 
-def matrix_AB_bc(A, B, b=None, c=None):
+def matrix_inhomogeneous(A, B, b=None, c=None):
     r"""Return a block matrix for the system ``A x <= b, B x < c``."""
     return matrix.block([[A], [B]])
 
 
-def matrix_ABC(A, B, C):
+def matrix_homogeneous(A, B, C):
     r"""Return a block matrix for the system ``A x > 0, B x >= 0, C x = 0``."""
     return matrix.block([[A], [B], [C]])
 
@@ -174,7 +174,7 @@ def bc_to_intervals(b, c):
     return b_to_intervals(b) + c_to_intervals(c)
 
 
-def intervals_ABC(A, B, C):
+def intervals_homogeneous(A, B, C):
     r"""Compute the intervals corresponding to ``A x > 0, B x >= 0, C x = 0``."""
     return (
         A.nrows() * [setup_interval(0, Infinity, False, False)] +
@@ -259,7 +259,7 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict):
         sage: B = matrix([[2, 3], [0, -1]])
         sage: C = matrix([[-1, 0], [1, 1]])
         sage: M = matrix.block([[A.T, B.T, C.T]])
-        sage: I = intervals_ABC(A, B, C)
+        sage: I = intervals_homogeneous(A, B, C)
         sage: for v in elementary_vectors(M, generator=True):
         ....:     assert(exists_orthogonal_vector(v, I) == exists_orthogonal_vector_homogeneous(v, range(A.nrows()), range(A.nrows(), A.nrows() + B.nrows())))
     """
@@ -330,7 +330,7 @@ def elementary_vectors_generator_trailing_nonzero(M):
     return evs
 
 
-def matrix_AB_bc1_alternative(A, B, b, c):
+def matrix_inhomogeneous1_alternative(A, B, b, c):
     r"""
     Matrix of first alternative system for ``A x <= b, B x < c``
     
@@ -348,7 +348,7 @@ def matrix_AB_bc1_alternative(A, B, b, c):
     return M
 
 
-def matrix_AB_bc2_alternative(A, B, b, c):
+def matrix_inhomogeneous2_alternative(A, B, b, c):
     r"""
     Matrix of second alternative system for ``A x <= b, B x < c``
     
@@ -367,7 +367,7 @@ def matrix_AB_bc2_alternative(A, B, b, c):
     return M
 
 
-def matrix_ABC_alternative(A, B, C):
+def matrix_homogeneous_alternative(A, B, C):
     r"""
     Alternative system matrix for ``A x > 0, B x >= 0, C x = 0``
     
@@ -375,7 +375,7 @@ def matrix_ABC_alternative(A, B, C):
     
     .. SEEALSO::
     
-        :func:`~intervals_ABC_alternative`
+        :func:`~intervals_homogeneous_alternative`
     """
     m_A = A.nrows()
     m_B = B.nrows()
@@ -390,7 +390,7 @@ def matrix_ABC_alternative(A, B, C):
     return M
 
 
-def intervals_AB_bc1_alternative(A, B, b=None, c=None):
+def intervals_inhomogeneous1_alternative(A, B, b=None, c=None):
     r"""
     Intervals of first alternative system for ``A x <= b, B x < c``
     
@@ -407,7 +407,7 @@ def intervals_AB_bc1_alternative(A, B, b=None, c=None):
     return I
 
 
-def intervals_AB_bc2_alternative(A, B, b=None, c=None):
+def intervals_inhomogeneous2_alternative(A, B, b=None, c=None):
     r"""
     Intervals of second alternative system for ``A x <= b, B x < c``
     
@@ -424,7 +424,7 @@ def intervals_AB_bc2_alternative(A, B, b=None, c=None):
     return I
 
 
-def intervals_ABC_alternative(A, B, C=None):
+def intervals_homogeneous_alternative(A, B, C=None):
     r"""
     Alternative system intervals for ``A x > 0, B x >= 0, C x = 0``
     
@@ -432,7 +432,7 @@ def intervals_ABC_alternative(A, B, C=None):
 
     .. SEEALSO::
     
-        :func:`~matrix_ABC_alternative`
+        :func:`~matrix_homogeneous_alternative`
     """
     m_A, n = A.dimensions()
     m_B = B.nrows()
@@ -445,7 +445,7 @@ def intervals_ABC_alternative(A, B, C=None):
     return I
 
 
-def certify_AB_bc(A, B, b, c):
+def certify_inhomogeneous(A, B, b, c):
     r"""
     Return whether the system ``A x <= b, B x < c`` has a solution and certifies it.
     
@@ -468,8 +468,8 @@ def certify_AB_bc(A, B, b, c):
     m_A = A.nrows()
     m_B = B.nrows()
 
-    M1 = matrix_AB_bc1_alternative(A, B, b, c)
-    M2 = matrix_AB_bc2_alternative(A, B, b, c)
+    M1 = matrix_inhomogeneous1_alternative(A, B, b, c)
+    M2 = matrix_inhomogeneous2_alternative(A, B, b, c)
     
     evs = elementary_vectors(M.T, generator=True)
     evs_alt1 = elementary_vectors_generator_trailing_nonzero(M1.T)
@@ -519,7 +519,7 @@ def certify_AB_bc(A, B, b, c):
                 evs_alt2_end_reached = True
 
 
-def certify_ABC(A, B, C):
+def certify_homogeneous(A, B, C):
     r"""
     Return whether the system ``A x < 0, B x <= 0, C x = 0`` has a solution and certifies it.
     
@@ -538,7 +538,7 @@ def certify_ABC(A, B, C):
     m_B = B.nrows()
     M = matrix.block([[A.T, B.T, C.T]])
     
-    M_alt = matrix_ABC_alternative(A, B, C)
+    M_alt = matrix_homogeneous_alternative(A, B, C)
 
     evs = elementary_vectors(M, generator=True)
     evs_alt = elementary_vectors(M_alt.T, generator=True)
