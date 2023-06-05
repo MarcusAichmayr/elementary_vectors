@@ -141,8 +141,12 @@ We consider another example::
 
 from .vectors_in_intervals import setup_interval
 from .functions import elementary_vectors
+from .reductions import remove_multiples_generator
+import warnings
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.rings.infinity import Infinity
+from sage.modules.free_module_element import zero_vector
+from sage.combinat.combination import Combinations
 
 
 def matrix_AB_bc(A, B, b=None, c=None):
@@ -276,6 +280,54 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict):
             )
         )
     )
+
+
+def elementary_vectors_generator_trailing_nonzero(M):
+    r"""
+    Return generator of elementary vectors that are non-zero at last component
+    
+    INPUT:
+    
+    - ``M`` -- a matrix
+    
+    .. SEEALSO::
+    
+        :func:`elementary_vectors.functions.elementary_vectors`
+    """
+    try:
+        ind = M.pivot_rows()  # does not work for polynomial matrices
+        M = M.matrix_from_rows(ind)
+    except (ArithmeticError, NotImplementedError):
+        warnings.warn('Could not determine rank of matrix. Result might be wrong.')
+
+    m, n = M.dimensions()
+    minors = {}
+    ring = M.base_ring()
+
+    def ev_from_support(I):
+        r"""
+        Return the elementary vector corresponding to ``I``.
+
+        INPUT:
+
+        - ``I`` -- a list of indices
+        """
+        v = zero_vector(ring, n)
+        for pos, k in enumerate(I):
+            Ik = tuple(i for i in I if i != k)
+            try:
+                minor = minors[Ik]
+            except KeyError:
+                minors[Ik] = M.matrix_from_columns(Ik).det()
+                minor = minors[Ik]
+            v[k] = (-1)**pos * minor
+        return v
+    
+    evs = (ev_from_support(I + [n - 1]) for I in Combinations(n - 1, m))
+    evs = (v for v in evs if v)
+    evs = remove_multiples_generator(evs)
+
+    return evs
 
 
 def matrix_AB_bc1_alternative(A, B, b, c):
@@ -420,8 +472,8 @@ def certify_AB_bc(A, B, b, c):
     M2 = matrix_AB_bc2_alternative(A, B, b, c)
     
     evs = elementary_vectors(M.T, generator=True)
-    evs_alt1 = elementary_vectors(M1.T, generator=True)
-    evs_alt2 = elementary_vectors(M2.T, generator=True)
+    evs_alt1 = elementary_vectors_generator_trailing_nonzero(M1.T)
+    evs_alt2 = elementary_vectors_generator_trailing_nonzero(M2.T)
 
     evs_end_reached = False
     evs_alt1_end_reached = False
