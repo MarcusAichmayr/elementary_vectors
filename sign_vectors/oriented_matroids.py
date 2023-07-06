@@ -140,7 +140,7 @@ def cocircuits_from_elementary_vectors(evs):
 
 def cocircuits_from_matrix(M, kernel=True):
     r"""
-    Compute a set of cocircuits determined by the matrix ``A``.
+    Compute a set of cocircuits determined by the matrix ``M``.
 
     INPUT:
 
@@ -543,7 +543,7 @@ def cocircuits_from_topes(topes):
 
 def covectors_from_matrix(M, kernel=True, algorithm=None, separate=False):
     r"""
-    Return the covectors of the oriented matroid corresponding to the matrix ``A``.
+    Return the covectors of the oriented matroid corresponding to the matrix ``M``.
 
     INPUT:
 
