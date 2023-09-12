@@ -89,7 +89,7 @@ from sign_vectors import sign_vector
 from sign_vectors.utility import adjacent
 from sage.combinat.combination import Combinations
 from .reductions import reduce_vectors
-from .utility import vector_from_matrix
+from .utility import kernel_vector_support_given
 from .functions import elementary_vectors
 from sage.matrix.constructor import matrix
 from sage.matrix.special import identity_matrix
@@ -180,7 +180,7 @@ def determine_sign(X, a, M=None):
     else:
         if M is None:
             raise ValueError("Sign could not be determined. Pass a suitable matrix to determine the sign.")
-        x = vector_from_matrix(M, X.support())
+        x = kernel_vector_support_given(M, X.support())
         if sign_vector(x) != X:
             x = -x
         s = a*x

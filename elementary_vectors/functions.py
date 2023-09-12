@@ -16,14 +16,11 @@ from sage.modules.free_module_element import zero_vector
 from sage.structure.element import get_coercion_model
 from sign_vectors import sign_vector
 from .reductions import remove_multiples_generator
-#from sage.symbolic.ring import SR
-#from .utility import sign_determined
-#from sage.symbolic.assumptions import assume, forget
 
 
 def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, generator=False):
     r"""
-    Compute elementary vectors of a subspace determined by the matrix or from a list of maximal minors.
+    Compute elementary vectors of a subspace determined by a matrix or a list of maximal minors.
 
     INPUT:
 
@@ -126,11 +123,9 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, 
                             "maximal minors, the dimensions of the corresponding " +
                             "matrix are needed.")
         return elementary_vectors_from_minors(data, dimensions=dimensions, ring=ring, remove_multiples=remove_multiples, generator=generator)
-    else:
-        if generator:
-            return elementary_vectors_from_matrix(data, remove_multiples=remove_multiples, generator=True)
-        else:
-            return elementary_vectors_from_minors(data.minors(data.nrows()), data.dimensions(), ring=data.base_ring(), remove_multiples=remove_multiples)
+    if generator:
+        return elementary_vectors_from_matrix(data, remove_multiples=remove_multiples, generator=True)
+    return elementary_vectors_from_minors(data.minors(data.nrows()), data.dimensions(), ring=data.base_ring(), remove_multiples=remove_multiples)
 
 
 def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
@@ -210,8 +205,7 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
 
     if generator:
         return evs
-    else:
-        return list(evs)
+    return list(evs)
 #    return evs if generator else list(evs)
 
 
@@ -296,17 +290,17 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
     return evs if generator else list(evs)
     
 
-def non_negative_vectors(L):
+def non_negative_vectors(vectors):
     r"""
     Return non-negative vectors.
 
     INPUT:
 
-    - ``L`` -- a list of vectors
+    - ``vectors`` -- a list of vectors
 
     OUTPUT:
 
-    Return all vectors of ``L`` that are
+    Return all vectors of ``vectors`` that are
     - non_negative in each component; or
     - negative in each component. Those will be multiplied by ``-1``; or
     - containing variables such that no opposing signs occur.
@@ -338,13 +332,13 @@ def non_negative_vectors(L):
         sage: non_negative_vectors(evs)
         [(0, 0, 1, 0, 0), (0, 0, 0, 1, 0)]
     """
-    out = []
-    for v in L:
+    result = []
+    for v in vectors:
         if sign_vector(v) >= 0:  # Use ``>=`` instead of ``>``, (0,0,x) -> (000) should be returned
-            out.append(v)
+            result.append(v)
         elif sign_vector(v) < 0:
-            out.append(-v)
-    return out
+            result.append(-v)
+    return result
 
 
 # TODO: should assumptions be an optional argument?
@@ -437,26 +431,26 @@ def non_negative_vectors(L):
 #             if m_eq == 0:  # minors are all zero
 #                 warnings.warn('For ' + str(l) + ' all maximal minors are zero. There might be missing positive elementary vectors.')
 # #                 if isinstance(data, list):
-# #                     out.append([l, 'maximal minors are zero, could not compute elementary vectors for this branch'])
+# #                     result.append([l, 'maximal minors are zero, could not compute elementary vectors for this branch'])
 # #                     return
 # #                 else:
 # #                     print('Todo')
 # #                     # substitute in data
 # #                     # compute positive_elementary_vectors from resulting matrix, eventuell auch l übergeben.
-# #                     # append each pair of result to out, also append assumptions l to first arguments
+# #                     # append each pair of result to result, also append assumptions l to first arguments
 # #                     pass
 #             # Do not overwrite ``evs`` here! It might be used in another branch.
 
 #             L = reduce_vectors(evs, eq=eq, **kwargs)  # TODO: this might result in an empty list. Instead, compute elementary vectors again if data is matrix
 #             if return_minors:
-#                 out.append([l, non_negative_vectors(L), list(m_eq)])
+#                 result.append([l, non_negative_vectors(L), list(m_eq)])
 #             else:
-#                 out.append([l, non_negative_vectors(L)])
+#                 result.append([l, non_negative_vectors(L)])
 #             return
 
 #     evs, m = elementary_vectors(data, dim=dim, kernel=kernel, return_minors=True, ring=ring, **kwargs)
 #     if evs == []:
 #         return []
-#     out = []
+#     result = []
 #     rec(0, [], [])
-#     return out
+#     return result

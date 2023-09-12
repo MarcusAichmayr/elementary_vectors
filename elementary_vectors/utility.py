@@ -21,9 +21,9 @@ from sage.rings.continued_fraction import continued_fraction
 from sage.categories.sets_cat import EmptySetError
 
 
-def sign_determined(a):
+def sign_determined(expression):
     r"""
-    Check whether the sign of a number or symbolic expression ``a`` is uniquely determined.
+    Check whether the sign of a number or symbolic expression ``expression`` is uniquely determined.
 
     EXAMPLES::
 
@@ -51,75 +51,73 @@ def sign_determined(a):
         sage: sign_determined(a - 1)
         False
     """
-    return bool(SR(a) > 0 or SR(a) < 0 or SR(a) == 0)
+    return bool(SR(expression) > 0 or SR(expression) < 0 or SR(expression) == 0)
 
 
-def vector_from_matrix(M, I):
+def kernel_vector_support_given(M, indices):
     r"""
-    Return a vector in the right kernel of ``M`` such that
-    the support is a subset of ``I``.
+    Return a vector in the right kernel of ``M`` such that the support is a subset of ``indices``.
 
     INPUT:
 
     - ``M`` -- a matrix
 
-    - ``I`` -- a list of indices
+    - ``indices`` -- a list of indices
 
     OUTPUT:
     a vector ``v`` in the right kernel of ``M`` such that
-    the support is a subset of ``I``.
+    the support is a subset of ``indices``.
 
     EXAMPLES::
 
-        sage: from elementary_vectors.utility import vector_from_matrix
+        sage: from elementary_vectors.utility import kernel_vector_support_given
         sage: M = matrix([[1, 2, 0, 0], [0, 1, -1, 0]])
-        sage: vector_from_matrix(M, [0, 1, 2])
+        sage: kernel_vector_support_given(M, [0, 1, 2])
         (2, -1, -1, 0)
-        sage: vector_from_matrix(M, [3])
+        sage: kernel_vector_support_given(M, [3])
         (0, 0, 0, 1)
-        sage: vector_from_matrix(M, [0, 3])
+        sage: kernel_vector_support_given(M, [0, 3])
         (0, 0, 0, 1)
     """
-    n = M.ncols()
-    M_I = M.matrix_from_columns(I)
+    M_I = M.matrix_from_columns(indices)
     try:
-        l = list(M_I.right_kernel_matrix()[0])
+        subvector_list = list(M_I.right_kernel_matrix()[0])
     except IndexError:
-        raise(ValueError("Right kernel of ``M`` restricted to the columns ``I`` is empty."))
-    for k in range(n):
-        if not k in I:
-            l.insert(k, 0)
-    return vector(l)
+        raise ValueError("Right kernel of ``M`` restricted to the columns ``indices`` is empty.")
+    for k in range(M.ncols()):
+        if not k in indices:
+            subvector_list.insert(k, 0)
+    return vector(subvector_list)
 
 
-def setup_interval(L, R, l=True, r=True):
+def setup_interval(lower_bound, upper_bound, lower_closed=True, upper_closed=True):
     r"""
     Construct an intervals.
 
     INPUT:
 
-    - ``L`` -- a lower bound
+    - ``lower_bound`` -- a lower bound
 
-    - ``R`` -- an upper bound
+    - ``upper_bound`` -- an upper bound
 
-    - ``l`` -- a boolean (default: ``True``)
+    - ``lower_closed`` -- a boolean (default: ``True``)
 
-    - ``r`` -- a boolean (default: ``True``)
+    - ``upper_closed`` -- a boolean (default: ``True``)
 
     OUTPUT:
 
-    A ``RealSet`` objects.
+    A ``RealSet`` object.
 
-    - ``L`` and ``R`` are the left and right interval values.
-      If ``L > R``, those elements will be exchanged.
+    - ``lower_bound`` and ``upper_bound`` are the left and right interval values.
+      If ``lower_bound > upper_bound``, those elements will be exchanged.
 
-    - ``l`` and ``r`` determine the intervals.
+    - ``lower_closed`` and ``upper_closed`` determine the intervals.
 
     - The left (or right) interval half of the interval is
 
-        - closed if ``l`` (or ``r``) is ``True`` (default).
+        - closed if ``lower_closed`` (or ``upper_closed``) is ``True`` (default).
 
-        - open if ``l`` (or ``r``) is ``False``.
+        - open if ``lower_closed`` (or ``upper_closed``) is ``False``.
 
     EXAMPLES::
 
@@ -135,32 +133,32 @@ def setup_interval(L, R, l=True, r=True):
         sage: setup_interval(0, oo, False, False)
         (0, +oo)
     """
-    if R < L:
-        L, R = (R, L)
-    if L == -Infinity:
-        l = False
-    if R == Infinity:
-        r = False
+    if upper_bound < lower_bound:
+        lower_bound, upper_bound = (upper_bound, lower_bound)
+    if lower_bound == -Infinity:
+        lower_closed = False
+    if upper_bound == Infinity:
+        upper_closed = False
 
-    if l and r:
-        interval = RealSet.closed(L, R)
-    elif (not l) and (not r):
-        interval = RealSet.open(L, R)
-    elif l and (not r):
-        interval = RealSet.closed_open(L, R)
+    if lower_closed and upper_closed:
+        interval = RealSet.closed(lower_bound, upper_bound)
+    elif (not lower_closed) and (not upper_closed):
+        interval = RealSet.open(lower_bound, upper_bound)
+    elif lower_closed and (not upper_closed):
+        interval = RealSet.closed_open(lower_bound, upper_bound)
     else:
-        interval = RealSet.open_closed(L, R)
+        interval = RealSet.open_closed(lower_bound, upper_bound)
 
     return interval
 
 
-def simplest_element_in_interval(I):
+def simplest_element_in_interval(interval):
     r"""
     Return the simplest rational element in an interval.
 
     INPUT:
 
-    - ``I`` -- an interval (``RealSet``)
+    - ``interval`` -- an interval (``RealSet``)
 
     OUTPUT:
     If possible, an integer with smallest possible absolute value will be returned.
@@ -202,49 +200,45 @@ def simplest_element_in_interval(I):
         sage: simplest_element_in_interval(I)
         1/2
     """
-    if I.is_empty():
+    if interval.is_empty():
         raise EmptySetError
 
-    a = I.inf()
-    b = I.sup()
+    lower_bound = interval.inf()
+    upper_bound = interval.sup()
     if (
-        b - a > 1
-        or floor(a) + 1 in I
-        or ceil(b) - 1 in I
-        or (a.is_integer() and a == b)
+        upper_bound - lower_bound > 1
+        or floor(lower_bound) + 1 in interval
+        or ceil(upper_bound) - 1 in interval
+        or (lower_bound.is_integer() and lower_bound == upper_bound)
     ):
-        if 0 in I:
+        if 0 in interval:
             return 0
-        elif b == Infinity:
-            if ceil(a) in I:
-                return ceil(a)
-            else:
-                return ceil(a) + 1
-        elif a == -Infinity:
-            if floor(b) in I:
-                return floor(b)
-            else:
-                return floor(b) - 1
-        else:
-            if a == 0:
-                return 1
-            elif b == 0:
-                return -1
-            elif b < 0:
-                return floor(b) if floor(b) in I else floor(b) - 1
-            else: # a > 0
-                return ceil(a) if ceil(a) in I else ceil(a) + 1
-    else:
-        return simplest_rational_in_interval(I)
+        if upper_bound == Infinity:
+            if ceil(lower_bound) in interval:
+                return ceil(lower_bound)
+            return ceil(lower_bound) + 1
+        if lower_bound == -Infinity:
+            if floor(upper_bound) in interval:
+                return floor(upper_bound)
+            return floor(upper_bound) - 1
+        if lower_bound == 0:
+            return 1
+        if upper_bound == 0:
+            return -1
+        if upper_bound < 0:
+            return floor(upper_bound) if floor(upper_bound) in interval else floor(upper_bound) - 1
+        # lower_bound > 0
+        return ceil(lower_bound) if ceil(lower_bound) in interval else ceil(lower_bound) + 1
+    return simplest_rational_in_interval(interval)
 
 
-def simplest_rational_in_interval(I):
+def simplest_rational_in_interval(interval):
     r"""
     Find the rational with smallest denominator in a given interval.
 
     INPUT:
 
-    - ``I`` -- an interval (``RealSet``) that has no integer in it.
+    - ``interval`` -- an interval (``RealSet``) that has no integer in it.
 
     EXAMPLES::
 
@@ -265,16 +259,15 @@ def simplest_rational_in_interval(I):
         sage: simplest_rational_in_interval(I)
         2/3
     """
-    cfl = [floor(I.inf()), 2] # continued fraction representation of inf(I) + 1/2
+    cfl = [floor(interval.inf()), 2] # continued fraction representation of inf(interval) + 1/2
     while True:
-        val = continued_fraction(cfl).value()
-        if val in I:
-            return val
+        value = continued_fraction(cfl).value()
+        if value in interval:
+            return value
+        if value <= interval.inf():
+            cfl = sb_child(cfl, left=False)
         else:
-            if val <= I.inf():
-                cfl = sb_child(cfl, left=False)
-            else: # >= I.sup()
-                cfl = sb_child(cfl, left=True)
+            cfl = sb_child(cfl, left=True)
 
 
 def sb_child(cfl, left):
@@ -315,8 +308,7 @@ def sb_child(cfl, left):
     """
     if left == (len(cfl) % 2 == 0):
         return cfl[:-1] + [cfl[-1] + 1]
-    else:
-        return cfl[:-1] + [cfl[-1] - 1, 2]
+    return cfl[:-1] + [cfl[-1] - 1, 2]
 
 
 def solve_left(A, b):
@@ -338,7 +330,7 @@ def solve_left(A, b):
     return (x * M)[:-1]
 
 
-def conformal_elimination(x, y, S=None):
+def conformal_elimination(x, y, indices=None):
     r"""
     Apply conformal elimination to two real vectors to find a new vector.
 
@@ -348,22 +340,23 @@ def conformal_elimination(x, y, S=None):
 
     - ``y`` -- a real vector
 
-    - ``S`` -- a list of indices (default: ``[]``)
+    - ``indices`` -- a list of indices (default: ``[]``)
 
     OUTPUT:
 
     Returns a new vector ``z = x + a y`` where ``a > 0``, such that ``z[e] == 0``
-    for some ``e`` in ``S`` and ``Z_S <= X_S`` and ``Z_f = (X o Y)_f`` for ``f``
-    not in ``D(X, Y)``. Here, ``X``, ``Y`` and ``Z`` are the sign vectors
+    for some ``e`` in ``indices`` and ``Z_k <= X_k`` for ``k`` in ``indices``
+    and ``Z_f = (X o Y)_f`` for ``f`` not in ``D(X, Y)``.
+    Here, ``X``, ``Y`` and ``Z`` are the sign vectors
     corresponding to ``x``, ``y`` and ``z``.
 
     .. NOTE::
 
-        If ``S`` is the empty list ``[]``, the whole list of separating elements
+        If ``indices`` is not given, the whole list of separating elements
         will be considered instead. (default)
     """
-    if S is None:
-        S = []
+    if indices is None:
+        indices = []
     if x.length() != y.length():
         raise ValueError('Vectors have different length.')
     X = sign_vector(x)
@@ -371,9 +364,9 @@ def conformal_elimination(x, y, S=None):
     D = X.separating_elements(Y)
     if D == []:
         raise ValueError('List of separating elements is empty.')
-    if S == []:
-        S = D
-    elif not all(s in D for s in S):
-        raise ValueError('S is not a subset of D.')
-    lam = max(x[e]/y[e] for e in S)  # x[e]/y[e] < 0 since e in D
+    if indices == []:
+        indices = D
+    elif not all(s in D for s in indices):
+        raise ValueError('indices is not a subset of D.')
+    lam = max(x[e]/y[e] for e in indices)  # x[e]/y[e] < 0 since e in D
     return x - lam*y

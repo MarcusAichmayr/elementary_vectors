@@ -13,7 +13,8 @@ First, we load the functions from the package::
     sage: from elementary_vectors import *
 
 The package offers the function :func:`~setup_intervals` that helps us creating lists of intervals.
-This function takes two lists as input, the corresponding elements in those lists determine the intervals::
+This function takes two lists as input,
+the corresponding elements in those lists determine the intervals::
 
     sage: I = setup_intervals([0, 1, -1], [1, 2, -1])
     sage: I
@@ -46,7 +47,7 @@ We define another vector. This time, there is no solution::
 
 Next, we consider open intervals::
 
-    sage: I = setup_intervals([0, 1, -1], [1, 2, 1], l=False, r=[True, True, False])
+    sage: I = setup_intervals([0, 1, -1], [1, 2, 1], False, [True, True, False])
     sage: I
     [(0, 1], (1, 2], (-1, 1)]
     sage: v = vector([1,0,1])
@@ -57,7 +58,7 @@ Next, we consider open intervals::
 
 We can even consider unbounded intervals::
 
-    sage: I = setup_intervals([0, 1, -oo], [oo, 2, -2], l=False, r=[True, True, False])
+    sage: I = setup_intervals([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
     sage: I
     [(0, +oo), (1, 2], (-oo, -2)]
     sage: v = vector([-1,1,-1])
@@ -66,17 +67,19 @@ We can even consider unbounded intervals::
     sage: construct_normal_vector(v, I)
     (5, 2, -3)
 
-The most important functions of this module are :func:`~exists_vector` and :func:`~construct_vector`.
-Given a matrix ``M`` and a list of intervals, we want to examine whether there exists a vector in the rowspace of ``M``,
+The most important functions of this module are
+:func:`~exists_vector` and :func:`~construct_vector`.
+Given a matrix ``M`` and a list of intervals,
+we want to examine whether there exists a vector in the rowspace of ``M``,
 such that the components lie in the given intervals::
 
     sage: M = matrix([1, 1, 0])
-    sage: L = [2, 5, -1]
-    sage: R = [5, 6, 1]
+    sage: lower_bounds = [2, 5, -1]
+    sage: upper_bounds = [5, 6, 1]
 
 First, we consider closed intervals::
 
-    sage: I = setup_intervals(L, R)
+    sage: I = setup_intervals(lower_bounds, upper_bounds)
     sage: I
     [[2, 5], [5, 6], [-1, 1]]
     sage: exists_vector(M, I)
@@ -86,7 +89,7 @@ First, we consider closed intervals::
 
 Next, we take open intervals. This time, there is no solution::
 
-    sage: I = setup_intervals(L, R, l=False, r=False)
+    sage: I = setup_intervals(lower_bounds, upper_bounds, False, False)
     sage: I
     [(2, 5), (5, 6), (-1, 1)]
     sage: exists_vector(M, I)
@@ -99,11 +102,11 @@ Next, we take open intervals. This time, there is no solution::
 Finally, we consider unbounded intervals::
 
     sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
-    sage: L = [2, 5, 0, -oo]
-    sage: R = [5, oo, 8, 5]
-    sage: l = [True, True, False, False]
-    sage: r = [False, False, False, True]
-    sage: I = setup_intervals(L, R, l, r)
+    sage: lower_bounds = [2, 5, 0, -oo]
+    sage: upper_bounds = [5, oo, 8, 5]
+    sage: lower_bounds_closed = [True, True, False, False]
+    sage: upper_bounds_closed = [False, False, False, True]
+    sage: I = setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
     sage: I
     [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
     sage: exists_vector(M, I)
@@ -132,102 +135,103 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.matrix.constructor import matrix
 
 
-def setup_intervals(L, R, l=True, r=True):
+def setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed=True, upper_bounds_closed=True):
     r"""
     Construct a list of intervals from lists of bounds.
 
     INPUT:
 
-    - ``L`` -- a list of real values and infinity of length ``n``
+    - ``lower_bounds`` -- a list of real values and infinity of length ``n``
 
-    - ``R`` -- a list of real values and infinity of length ``n``
+    - ``upper_bounds`` -- a list of real values and infinity of length ``n``
 
-    - ``l`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
+    - ``lower_bounds_closed`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
 
-    - ``r`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
+    - ``upper_bounds_closed`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
 
     OUTPUT:
 
     A list of ``RealSet`` objects of length ``n``.
 
-    - ``L`` and ``R`` are the left and right interval values.
-      If ``L[i] > R[i]``, those elements will be exchanged.
+    - ``lower_bounds`` and ``upper_bounds`` are the lower and upper interval bounds.
+      If ``lower_bounds[i] > upper_bounds[i]``, those elements will be exchanged.
 
-    - ``l`` and ``r`` determine the intervals.
+    - ``lower_bounds_closed`` and ``upper_bounds_closed`` determine the intervals.
 
-    - The left (or right) interval half of the ``i``-th interval is
+    - The lower (or upper) interval bounds of the ``i``-th interval is
 
-        - closed if ``l[i]`` (or ``r[i]``) is ``True`` (default).
+        - closed if ``lower_bounds_closed[i]`` (or ``upper_bounds_closed[i]``) is ``True`` (default).
 
-        - open if ``l[i]`` (or ``r[i]``) is ``False``.
+        - open if ``lower_bounds_closed[i]`` (or ``upper_bounds_closed[i]``) is ``False``.
 
-    - If ``l`` (or ``r``) is a boolean, then all left (or right) interval halves
+    - If ``lower_bounds_closed`` (or ``upper_bounds_closed``) is a boolean,
+      then all lower or upper interval bounds
       are considered closed if ``True`` (default) and open if ``False``.
 
     EXAMPLES::
 
         sage: from elementary_vectors.vectors_in_intervals import setup_intervals
-        sage: L = [2,5,-1]
-        sage: R = [5,6,1]
+        sage: lower_bounds = [2, 5, -1]
+        sage: upper_bounds = [5, 6, 1]
 
     By default, the intervals are closed::
 
-        sage: setup_intervals(L, R)
+        sage: setup_intervals(lower_bounds, upper_bounds)
         [[2, 5], [5, 6], [-1, 1]]
 
-    We obtain open intervals if both ``l`` and ``r`` are false::
+    We obtain open intervals if both ``lower_bounds_closed`` and ``upper_bounds_closed`` are false::
 
-        sage: setup_intervals(L, R, l=False, r=False)
+        sage: setup_intervals(lower_bounds, upper_bounds, False, False)
         [(2, 5), (5, 6), (-1, 1)]
 
     Mixed intervals are also possible::
 
-        sage: setup_intervals(L, R, l=False)
+        sage: setup_intervals(lower_bounds, upper_bounds, False)
         [(2, 5], (5, 6], (-1, 1]]
-        sage: setup_intervals(L, R, l=[False, True, True], r=[True, True, False])
+        sage: setup_intervals(lower_bounds, upper_bounds, [False, True, True], [True, True, False])
         [(2, 5], [5, 6], [-1, 1)]
 
     We can also specify unbounded intervals.
     Note that bounds at infinity are always open::
 
-        sage: L = [-oo, 2, -oo]
-        sage: R = [-5, oo, oo]
-        sage: setup_intervals(L, R)
+        sage: lower_bounds = [-oo, 2, -oo]
+        sage: upper_bounds = [-5, oo, oo]
+        sage: setup_intervals(lower_bounds, upper_bounds)
         [(-oo, -5], [2, +oo), (-oo, +oo)]
 
     Finite and empty intervals are represented as usual::
 
-        sage: L = [0, 2]
-        sage: R = [0, 2]
-        sage: setup_intervals(L, R, l=[True, False], r=True)
+        sage: lower_bounds = [0, 2]
+        sage: upper_bounds = [0, 2]
+        sage: setup_intervals(lower_bounds, upper_bounds, [True, False], True)
         [{0}, {}]
 
     If the lower bound is greater than the upper bound, those bounds will be exchanged::
 
-        sage: L = [1, 4]
-        sage: R = [2, 3]
-        sage: setup_intervals(L, R, l=False)
+        sage: lower_bounds = [1, 4]
+        sage: upper_bounds = [2, 3]
+        sage: setup_intervals(lower_bounds, upper_bounds, False)
         [(1, 2], (3, 4]]
     """
-    n = len(L)
-    if len(R) != n:
-        raise ValueError('``R`` should be a list of length ' + str(n) + '.')
+    n = len(lower_bounds)
+    if len(upper_bounds) != n:
+        raise ValueError('``upper_bounds`` should be a list of length ' + str(n) + '.')
 
-    if l is True:
-        l = [True]*n
-    elif l is False:
-        l = [False]*n
-    elif len(l) != n:
-        raise ValueError('``l`` should be a list of length ' + str(n) + '.')
+    if lower_bounds_closed is True:
+        lower_bounds_closed = [True] * n
+    elif lower_bounds_closed is False:
+        lower_bounds_closed = [False] * n
+    elif len(lower_bounds_closed) != n:
+        raise ValueError('``lower_bounds_closed`` should be a list of length ' + str(n) + '.')
 
-    if r is True:
-        r = [True]*n
-    elif r is False:
-        r = [False]*n
-    elif len(r) != n:
-        raise ValueError('``r`` should be a list of length ' + str(n) + '.')
+    if upper_bounds_closed is True:
+        upper_bounds_closed = [True] * n
+    elif upper_bounds_closed is False:
+        upper_bounds_closed = [False] * n
+    elif len(upper_bounds_closed) != n:
+        raise ValueError('``upper_bounds_closed`` should be a list of length ' + str(n) + '.')
 
-    return [setup_interval(Li, Ri, li, ri) for Li, Ri, li, ri in zip(L, R, l, r)]
+    return [setup_interval(*bounds) for bounds in zip(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)]
 
 
 def simplest_vector_in_intervals(intervals):
@@ -247,20 +251,20 @@ def simplest_vector_in_intervals(intervals):
     EXAMPLES::
 
         sage: from elementary_vectors.vectors_in_intervals import *
-        sage: L = [2,5,-1]
-        sage: R = [5,6,1]
-        sage: I = setup_intervals(L, R)
+        sage: lower_bounds = [2, 5, -1]
+        sage: upper_bounds = [5, 6, 1]
+        sage: I = setup_intervals(lower_bounds, upper_bounds)
         sage: I
         [[2, 5], [5, 6], [-1, 1]]
         sage: simplest_vector_in_intervals(I)
         (2, 5, 0)
-        sage: I = setup_intervals(L, R, l=False, r=False)
+        sage: I = setup_intervals(lower_bounds, upper_bounds, False, False)
         sage: I
         [(2, 5), (5, 6), (-1, 1)]
         sage: simplest_vector_in_intervals(I)
         (3, 11/2, 0)
     """
-    return vector(simplest_element_in_interval(I) for I in intervals)
+    return vector(simplest_element_in_interval(interval) for interval in intervals)
 
 
 def multiple_in_intervals_candidates(v, intervals):
@@ -298,42 +302,42 @@ def multiple_in_intervals_candidates(v, intervals):
     """
     a_inf = -Infinity
     a_sup = Infinity
-    lower_closed = False
-    upper_closed = False
+    lower_bound_closed = False
+    upper_bound_closed = False
 
-    for vk, Ik in zip(v, intervals):
-        if vk == 0:
-            if not 0 in Ik:
+    for entry, interval in zip(v, intervals):
+        if entry == 0:
+            if not 0 in interval:
                 return RealSet()
         else:
-            val_inf = Ik.inf() / vk
-            val_sup = Ik.sup() / vk
-            if vk > 0:
+            val_inf = interval.inf() / entry
+            val_sup = interval.sup() / entry
+            if entry > 0:
                 if val_inf > a_inf:
                     a_inf = val_inf
-                    lower_closed = Ik.inf() in Ik
+                    lower_bound_closed = interval.inf() in interval
                 elif val_inf == a_inf:
-                    lower_closed = Ik.inf() in Ik and lower_closed
+                    lower_bound_closed = interval.inf() in interval and lower_bound_closed
                 if val_sup < a_sup:
                     a_sup = val_sup
-                    upper_closed = Ik.sup() in Ik
+                    upper_bound_closed = interval.sup() in interval
                 elif val_sup == a_sup:
-                    upper_closed = Ik.sup() in Ik and upper_closed
-            else: # vk < 0
+                    upper_bound_closed = interval.sup() in interval and upper_bound_closed
+            else: # entry < 0
                 if val_sup > a_inf:
                     a_inf = val_sup
-                    lower_closed = Ik.sup() in Ik
+                    lower_bound_closed = interval.sup() in interval
                 elif val_sup == a_inf:
-                    lower_closed = Ik.sup() in Ik and lower_closed
+                    lower_bound_closed = interval.sup() in interval and lower_bound_closed
                 if val_inf < a_sup:
                     a_sup = val_inf
-                    upper_closed = Ik.inf() in Ik
+                    upper_bound_closed = interval.inf() in interval
                 elif val_inf == a_sup:
-                    upper_closed = Ik.inf() in Ik and upper_closed
+                    upper_bound_closed = interval.inf() in interval and upper_bound_closed
             if a_inf > a_sup:
                 return RealSet()
 
-    return setup_interval(a_inf, a_sup, lower_closed, upper_closed)
+    return setup_interval(a_inf, a_sup, lower_bound_closed, upper_bound_closed)
 
 
 def multiple_in_intervals(v, intervals):
@@ -395,37 +399,37 @@ def exists_orthogonal_vector(v, intervals):
         sage: I = setup_intervals([0, 1, -1], [1, 2, -1])
         sage: I
         [[0, 1], [1, 2], {-1}]
-        sage: v = vector([1,1,1])
+        sage: v = vector([1, 1, 1])
         sage: exists_orthogonal_vector(v, I)
         True
-        sage: v = vector([1,1,-1])
+        sage: v = vector([1, 1, -1])
         sage: exists_orthogonal_vector(v, I)
         False
 
     Next, we consider open intervals::
 
-        sage: I = setup_intervals([0, 1, -1], [1, 2, 1], l=False, r=[True, True, False])
+        sage: I = setup_intervals([0, 1, -1], [1, 2, 1], False, [True, True, False])
         sage: I
         [(0, 1], (1, 2], (-1, 1)]
-        sage: v = vector([1,0,1])
+        sage: v = vector([1, 0, 1])
         sage: exists_orthogonal_vector(v, I)
         True
 
     We can even consider unbounded intervals::
 
-        sage: I = setup_intervals([0, 1, -oo], [oo, 2, -2], l=False, r=[True, True, False])
+        sage: I = setup_intervals([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
         sage: I
         [(0, +oo), (1, 2], (-oo, -2)]
-        sage: v = vector([-1,1,-1])
+        sage: v = vector([-1, 1, -1])
         sage: exists_orthogonal_vector(v, I)
         True
 
     TESTS::
 
-        sage: I = setup_intervals([-oo, 0], [oo, 0], l=False, r=False)
+        sage: I = setup_intervals([-oo, 0], [oo, 0], False, False)
         sage: I
         [(-oo, +oo), {}]
-        sage: v = vector([1,0])
+        sage: v = vector([1, 0])
         sage: exists_orthogonal_vector(v, I)
         False
         sage: v = vector([1])
@@ -442,23 +446,23 @@ def exists_orthogonal_vector(v, intervals):
     lower_bound_zero = True
     upper_bound_zero = True
 
-    for vi, I in zip(v, intervals):
-        if I.is_empty():
+    for entry, interval in zip(v, intervals):
+        if interval.is_empty():
             return False
-        if vi != 0:
-            if I.is_finite():  # I consists of one point
-                lower_bound += vi*I.an_element()
-                upper_bound += vi*I.an_element()
-            elif vi > 0:
-                lower_bound += vi*I.inf()
-                upper_bound += vi*I.sup()
-                lower_bound_zero &= I.inf() in I
-                upper_bound_zero &= I.sup() in I
-            else:  # vi < 0
-                lower_bound += vi*I.sup()
-                upper_bound += vi*I.inf()
-                lower_bound_zero &= I.sup() in I
-                upper_bound_zero &= I.inf() in I
+        if entry != 0:
+            if interval.is_finite():  # interval consists of one point
+                lower_bound += entry * interval.an_element()
+                upper_bound += entry * interval.an_element()
+            elif entry > 0:
+                lower_bound += entry * interval.inf()
+                upper_bound += entry * interval.sup()
+                lower_bound_zero &= interval.inf() in interval
+                upper_bound_zero &= interval.sup() in interval
+            else:  # entry < 0
+                lower_bound += entry * interval.sup()
+                upper_bound += entry * interval.inf()
+                lower_bound_zero &= interval.sup() in interval
+                upper_bound_zero &= interval.inf() in interval
 
     if lower_bound > 0:
         return False
@@ -512,12 +516,12 @@ def exists_vector(data, intervals, certificate=False):
 
         sage: from elementary_vectors import exists_vector, setup_intervals
         sage: M = matrix([1, 1, 0])
-        sage: L = [2, 5, -1]
-        sage: R = [5, 6, 1]
+        sage: lower_bounds = [2, 5, -1]
+        sage: upper_bounds = [5, 6, 1]
 
     First, we consider closed intervals::
 
-        sage: I = setup_intervals(L, R)
+        sage: I = setup_intervals(lower_bounds, upper_bounds)
         sage: I
         [[2, 5], [5, 6], [-1, 1]]
         sage: exists_vector(M, I)
@@ -525,7 +529,7 @@ def exists_vector(data, intervals, certificate=False):
 
     Next, we take open intervals::
 
-        sage: I = setup_intervals(L, R, l=False, r=False)
+        sage: I = setup_intervals(lower_bounds, upper_bounds, False, False)
         sage: I
         [(2, 5), (5, 6), (-1, 1)]
         sage: exists_vector(M, I)
@@ -539,9 +543,9 @@ def exists_vector(data, intervals, certificate=False):
 
     Mixed intervals are also possible::
 
-        sage: l = [True, True, False]
-        sage: r = [False, True, True]
-        sage: I = setup_intervals(L, R, l, r)
+        sage: lower_bounds_closed = [True, True, False]
+        sage: upper_bounds_closed = [False, True, True]
+        sage: I = setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
         sage: I
         [[2, 5), [5, 6], (-1, 1]]
         sage: exists_vector(M, I)
@@ -550,11 +554,11 @@ def exists_vector(data, intervals, certificate=False):
     Finally, we consider unbounded intervals::
 
         sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
-        sage: L = [2, 5, 0, -oo]
-        sage: R = [5, oo, 8, 5]
-        sage: l = [True, True, False, False]
-        sage: r = [False, False, False, True]
-        sage: I = setup_intervals(L, R, l, r)
+        sage: lower_bounds = [2, 5, 0, -oo]
+        sage: upper_bounds = [5, oo, 8, 5]
+        sage: lower_bounds_closed = [True, True, False, False]
+        sage: upper_bounds_closed = [False, False, False, True]
+        sage: I = setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
         sage: I
         [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
         sage: exists_vector(M, I)
@@ -562,7 +566,7 @@ def exists_vector(data, intervals, certificate=False):
 
     TESTS::
 
-        sage: I = setup_intervals([0, 0], [1, 0], l=False)
+        sage: I = setup_intervals([0, 0], [1, 0], False)
         sage: I
         [(0, 1], {}]
         sage: exists_vector([], I)
@@ -625,13 +629,13 @@ def construct_normal_vector(v, intervals):
         sage: I = setup_intervals([0, 1, -1], [1, 2, -1])
         sage: I
         [[0, 1], [1, 2], {-1}]
-        sage: v = vector([1,1,1])
+        sage: v = vector([1, 1, 1])
         sage: construct_normal_vector(v, I)
         (0, 1, -1)
 
     We define another vector. This time, there is no solution::
 
-        sage: v = vector([1,1,-1])
+        sage: v = vector([1, 1, -1])
         sage: construct_normal_vector(v, I)
         Traceback (most recent call last):
         ...
@@ -639,19 +643,19 @@ def construct_normal_vector(v, intervals):
 
     Next, we consider open intervals::
 
-        sage: I = setup_intervals([0, 1, -1], [1, 2, 1], l=False, r=[True, True, False])
+        sage: I = setup_intervals([0, 1, -1], [1, 2, 1], False, [True, True, False])
         sage: I
         [(0, 1], (1, 2], (-1, 1)]
-        sage: v = vector([1,0,1])
+        sage: v = vector([1, 0, 1])
         sage: construct_normal_vector(v, I)
         (1/2, 2, -1/2)
 
     We can even consider unbounded intervals::
 
-        sage: I = setup_intervals([0, 1, -oo], [oo, 2, -2], l=False, r=[True, True, False])
+        sage: I = setup_intervals([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
         sage: I
         [(0, +oo), (1, 2], (-oo, -2)]
-        sage: v = vector([-1,1,-1])
+        sage: v = vector([-1, 1, -1])
         sage: construct_normal_vector(v, I)
         (5, 2, -3)
     """
@@ -664,20 +668,20 @@ def construct_normal_vector(v, intervals):
     var('eps')
     var('lam')
 
-    for vk, I in zip(v, intervals):
-        if vk == 0:
-            z_min.append(simplest_element_in_interval(I))
-            z_max.append(simplest_element_in_interval(I))
+    for entry, interval in zip(v, intervals):
+        if entry == 0:
+            z_min.append(simplest_element_in_interval(interval))
+            z_max.append(simplest_element_in_interval(interval))
         else:
-            l = (I.inf() + (0 if I.inf() in I else eps)) if I.inf() != -Infinity else -lam
-            r = (I.sup() + (0 if I.sup() in I else -eps)) if I.sup() != Infinity else lam
+            lower_bound_closed = (interval.inf() + (0 if interval.inf() in interval else eps)) if interval.inf() != -Infinity else -lam
+            upper_bound_closed = (interval.sup() + (0 if interval.sup() in interval else -eps)) if interval.sup() != Infinity else lam
 
-            if vk > 0:
-                z_min.append(l)
-                z_max.append(r)
+            if entry > 0:
+                z_min.append(lower_bound_closed)
+                z_max.append(upper_bound_closed)
             else:
-                z_min.append(r)
-                z_max.append(l)
+                z_min.append(upper_bound_closed)
+                z_max.append(lower_bound_closed)
 
     z_min = vector(z_min)
     z_max = vector(z_max)
@@ -685,34 +689,33 @@ def construct_normal_vector(v, intervals):
     # find candidates for eps and lam
     eps_candidates = []
     lam_candidates = []
-    for vk, I in zip(v, intervals):
-        if vk != 0:
-            if I.inf() == -Infinity and I.sup() == Infinity:  # (-oo, oo)
+    for entry, interval in zip(v, intervals):
+        if entry != 0:
+            if interval.inf() == -Infinity and interval.sup() == Infinity:  # (-oo, oo)
                 lam_candidates.append(0)
-            elif I.inf() == -Infinity:
-                if I.sup() in I:  # (-oo, b]
-                    lam_candidates.append(-I.sup())
+            elif interval.inf() == -Infinity:
+                if interval.sup() in interval:  # (-oo, b]
+                    lam_candidates.append(-interval.sup())
                 else:  # (-oo, b)
-                    lam_candidates.append(1 - I.sup())
+                    lam_candidates.append(1 - interval.sup())
                     eps_candidates.append(1)
-            elif I.sup() == Infinity:
-                if I.inf() in I:  # [a, oo)
-                    lam_candidates.append(I.inf())
+            elif interval.sup() == Infinity:
+                if interval.inf() in interval:  # [a, oo)
+                    lam_candidates.append(interval.inf())
                 else:  # (a, oo)
-                    lam_candidates.append(1 + I.inf())
+                    lam_candidates.append(1 + interval.inf())
                     eps_candidates.append(1)
-            elif not I.is_closed():
-                if I.sup() in I or I.inf() in I:  # [a, b) or (a, b]
-                    eps_candidates.append(I.sup() - I.inf())
+            elif not interval.is_closed():
+                if interval.sup() in interval or interval.inf() in interval:  # [a, b) or (a, b]
+                    eps_candidates.append(interval.sup() - interval.inf())
                 else:  # (a, b)
-                    eps_candidates.append((I.sup() - I.inf())/2)
+                    eps_candidates.append((interval.sup() - interval.inf())/2)
 
-    # determine eps
     if eps_candidates:
-        for eq in [z_min*v, z_max*v]:
+        for product in [z_min * v, z_max * v]:
             try:
-                if eps in eq.variables() and lam not in eq.variables():
-                    eps_candidates.append(solve(eq, eps, solution_dict=True)[0][eps])
+                if eps in product.variables() and lam not in product.variables():
+                    eps_candidates.append(solve(product, eps, solution_dict=True)[0][eps])
             except AttributeError:
                 pass
         eps_min = min(eps_candidates)
@@ -725,12 +728,11 @@ def construct_normal_vector(v, intervals):
         except TypeError:
             pass
 
-    # determine lam
     if lam_candidates:
-        for eq in [z_min*v, z_max*v]:
-            if eq != 0:
+        for product in [z_min * v, z_max * v]:
+            if product != 0:
                 try:
-                    lam_candidates.append(solve(eq, lam, solution_dict=True)[0][lam])
+                    lam_candidates.append(solve(product, lam, solution_dict=True)[0][lam])
                 except (IndexError, TypeError):
                     pass
         lam_max = max(lam_candidates)
@@ -743,16 +745,14 @@ def construct_normal_vector(v, intervals):
         except TypeError:
             pass
 
-    a = v*z_min
-    b = v*z_max
-    if a == 0:
+    product_min = v * z_min
+    product_max = v * z_max
+    if product_min == 0:
         return z_min
-    if b == 0:
+    if product_max == 0:
         return z_max
 
-    z = (b*z_min - a*z_max)/(b - a)  # convex combination lies in the intervals
-
-    return z
+    return (product_max * z_min - product_min * z_max) / (product_max - product_min)
 
 
 def construct_vector(M, intervals, evs=None):
@@ -782,12 +782,12 @@ def construct_vector(M, intervals, evs=None):
 
         sage: from elementary_vectors import construct_vector, setup_intervals
         sage: M = matrix([1, 1, 0])
-        sage: L = [2, 5, -1]
-        sage: R = [5, 6, 1]
+        sage: lower_bounds = [2, 5, -1]
+        sage: upper_bounds = [5, 6, 1]
 
     First, we consider closed intervals::
 
-        sage: I = setup_intervals(L, R)
+        sage: I = setup_intervals(lower_bounds, upper_bounds)
         sage: I
         [[2, 5], [5, 6], [-1, 1]]
         sage: construct_vector(M, I)
@@ -795,7 +795,7 @@ def construct_vector(M, intervals, evs=None):
 
     Next, we take open intervals. This time, there is no solution::
 
-        sage: I = setup_intervals(L, R, l=False, r=False)
+        sage: I = setup_intervals(lower_bounds, upper_bounds, False, False)
         sage: I
         [(2, 5), (5, 6), (-1, 1)]
         sage: construct_vector(M, I)
@@ -806,11 +806,11 @@ def construct_vector(M, intervals, evs=None):
     Finally, we consider unbounded intervals::
 
         sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
-        sage: L = [2, 5, 0, -oo]
-        sage: R = [5, oo, 8, 5]
-        sage: l = [True, True, False, False]
-        sage: r = [False, False, False, True]
-        sage: I = setup_intervals(L, R, l, r)
+        sage: lower_bounds = [2, 5, 0, -oo]
+        sage: upper_bounds = [5, oo, 8, 5]
+        sage: lower_bounds_closed = [True, True, False, False]
+        sage: upper_bounds_closed = [False, False, False, True]
+        sage: I = setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
         sage: I
         [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
         sage: construct_vector(M, I)
@@ -818,7 +818,7 @@ def construct_vector(M, intervals, evs=None):
     
     TESTS:
 
-    This example calls the case ``r == 1``::
+    This example shows the case ``upper_bounds_closed == 1``::
 
         sage: M = matrix([[0, 0, 0, 0, 0, 0], [-1, -1, 0, -1, 1, 0], [-1, 1, 0, -2, -1, -2]])
         sage: I = setup_intervals(
@@ -847,47 +847,44 @@ def construct_vector(M, intervals, evs=None):
 
     def rec(M, intervals):
         r"""Recursive call."""
-        n = M.ncols()
-        r = M.rank()
-        if r == n:
+        length = M.ncols()
+        rank = M.rank()
+        if rank == length:
             return simplest_vector_in_intervals(intervals)
-        elif r == n - 1:
+        if rank == length - 1:
             # The kernel of ``M`` has one dimension.
-            y = M.right_kernel_matrix().row(0)
-            return construct_normal_vector(y, intervals)
-        elif r == 1:
+            return construct_normal_vector(M.right_kernel_matrix().row(0), intervals)
+        if rank == 1:
             for row in M.rows():
                 if row != 0:
                     return multiple_in_intervals(row, intervals)
-        elif r == 0:
+        if rank == 0:
             return zero_vector(M.base_ring(), M.ncols())
-        else:
-            def comp_xk(k):
-                r"""
-                Recursively construct ``x_k``.
-                """
-                # projection to k-th component
-                M_bar = M.delete_columns([k])
-                intervals_bar = intervals[:k] + intervals[k+1:]
-                xk_bar = rec(M_bar, intervals_bar)
-                if hasattr(xk_bar, "simplify_full"):
-                    xk_bar = xk_bar.simplify_full()
-                # solve linear system to project back
-                
-                try:
-                    a = M_bar.solve_left(xk_bar) # does not work for certain matrices involving roots
-                except ValueError:
-                    a = solve_left(M_bar, xk_bar)
-                xk = a*M
-                return xk.simplify_full() if hasattr(xk, "simplify_full") else xk
 
-            x = [comp_xk(k) for k in range(r + 2)]
+        def coefficient(k):
+            r"""Construct ``x_k`` recursively"""
+            # projection to k-th component
+            M_bar = M.delete_columns([k])
+            intervals_bar = intervals[:k] + intervals[k + 1:]
+            xk_bar = rec(M_bar, intervals_bar)
+            if hasattr(xk_bar, "simplify_full"):
+                xk_bar = xk_bar.simplify_full()
 
-            # use vectors in x to construct vector
-            A = matrix([xk - x[0] for xk in x[1:]])
-            a = list(A.T.right_kernel_matrix().row(0))
-            a = [-sum(a)] + a
-            v = sum(ak*xk for ak, xk in zip(a, x) if ak > 0) / sum(ak for ak in a if ak > 0)
-            return v.simplify_full() if hasattr(v, "simplify_full") else v
+            # solve linear system to project back
+            try:
+                x_k = M_bar.solve_left(xk_bar) * M # fails for certain matrices involving roots
+            except ValueError:
+                x_k = solve_left(M_bar, xk_bar) * M
+
+            return x_k.simplify_full() if hasattr(x_k, "simplify_full") else x_k
+
+        x = [coefficient(k) for k in range(rank + 2)]
+
+        # use vectors in x to construct vector
+        A = matrix([xk - x[0] for xk in x[1:]])
+        weights = list(A.T.right_kernel_matrix().row(0))
+        weights = [-sum(weights)] + weights
+        v = sum(a * x_k for a, x_k in zip(weights, x) if a > 0) / sum(a for a in weights if a > 0)
+        return v.simplify_full() if hasattr(v, "simplify_full") else v
 
     return rec(M, intervals)

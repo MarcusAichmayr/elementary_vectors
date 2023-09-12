@@ -20,9 +20,9 @@ from sage.arith.misc import gcd
 from sage.symbolic.ring import SR
 
 
-def simplify_using_equalities(a, eq):
+def simplify_using_equalities(value, equalities):
     r"""
-    Simplifies the expression ``a`` using a list of equalities ``eq``. Only considers equalities in ``eq``. Other expressions (e.g. inequalities) are ignored.
+    Simplifies the expression ``value`` using a list of equalities ``equalities``. Only considers equalities in ``equalities``. Other expressions (e.g. inequalities) are ignored.
 
     EXAMPLES::
 
@@ -43,34 +43,27 @@ def simplify_using_equalities(a, eq):
         sage: simplify_using_equalities(x+1, assumptions())
         1
     """
-    # There might be inequalities in ``eq`` or other expressions like ``a is real``.
+    # There might be inequalities in ``equalities`` or other expressions like ``a is real``.
     # We get rid of them:
     l = []
-    for s in eq:
+    for equation in equalities:
         try:
-            if s.operator() is operator.eq:
-                l.append(s)
+            if equation.operator() is operator.eq:
+                l.append(equation)
         except AttributeError:
             pass
 
-#    eq = [s for s in eq if s.operator() is operator.eq]
-    if eq:
-        # We cast ``a`` to SR. Then, we can substitute and cast the result back.
-        # Substituting directly into ``a``, does not work for polynomials
-        # since substitute works differently.
-        expr = SR(a).substitute(l)
+    if equalities:
+        # casting because substitute would work differently for polynomials
+        expr = SR(value).substitute(l)
         try:
-            return a.base_ring()(expr)
+            return value.base_ring()(expr)
         except TypeError:
             return expr
-    else:
-        return a
+    return value
 
 
-# TODO: Should ``reduce_factor`` reduce by e.g. ``a`` if we have ``assume(a == 0)``?
-# For ``a == 0``, ``[4*a, 6*a]`` could be reduced to either ``[2, 3]`` or ``[2 a, 3 a]``.
-# What do we expect?
-def reduce_factor(v):
+def reduce_factor(iterable):
     r"""
     Cancel a common factor of each entry of this vector. Also works for lists.
 
@@ -122,25 +115,23 @@ def reduce_factor(v):
         sage: w[0].base_ring()
         Integer Ring
     """
-    g = gcd(v)
+    g = gcd(iterable)
     try:
-        if isinstance(v, list):
-            return type(v)(vi // g for vi in v)
-        else:
-            return (v/g).change_ring(v.base_ring())
+        if isinstance(iterable, list):
+            return type(iterable)(vi // g for vi in iterable)
+        return (iterable/g).change_ring(iterable.base_ring())
     except ZeroDivisionError:
-        return v
+        return iterable
 
 
-def reduce_vector_using_equalities(v, eq):
-    r"""Use a list of equalities ``eq`` to simplify expressions in a vector ``v``."""
-    if eq:
-        return vector(v.base_ring(), (simplify_using_equalities(vi, eq=eq) for vi in v))
-    else:
-        return v
+def reduce_vector_using_equalities(iterable, equalities):
+    r"""Use a list of equalities ``equalities`` to simplify expressions in a vector ``iterable``."""
+    if equalities:
+        return vector(iterable.base_ring(), (simplify_using_equalities(vi, equalities=equalities) for vi in iterable))
+    return iterable
 
 
-def reduce_vector(v, eq=None, cancel_factor=True):
+def reduce_vector(v, equalities=None, cancel_factor=True):
     r"""
     Reduces this vector.
 
@@ -148,7 +139,7 @@ def reduce_vector(v, eq=None, cancel_factor=True):
 
     - ``v`` -- a vector
 
-    - ``eq`` -- a list of equalities (default: ``None``)
+    - ``equalities`` -- a list of equalities (default: ``None``)
 
     - ``cancel_factor`` -- a boolean (default: ``True``). If true, cancels a common factor.
 
@@ -159,29 +150,29 @@ def reduce_vector(v, eq=None, cancel_factor=True):
         a
         sage: assume(a == 0)
         sage: v = vector([5*a, 10*a])
-        sage: reduce_vector(v, eq=assumptions())
+        sage: reduce_vector(v, equalities=assumptions())
         (0, 0)
         sage: reduce_vector(v)
         (1, 2)
-        sage: reduce_vector(v, eq=[a == 0], cancel_factor=False)
+        sage: reduce_vector(v, equalities=[a == 0], cancel_factor=False)
         (0, 0)
         sage: reduce_vector(v, cancel_factor=False)
         (5*a, 10*a)
     """
-    if eq:
-        v = reduce_vector_using_equalities(v, eq=eq)
+    if equalities:
+        v = reduce_vector_using_equalities(v, equalities=equalities)
     if cancel_factor:
         v = reduce_factor(v)
     return v
 
 
-def reduce_vectors_support(L):
+def reduce_vectors_support(vectors):
     r"""
     Return a sublist of vectors where each vector has distinct support.
 
     INPUT:
 
-    - ``L`` -- a list of vectors
+    - ``vectors`` -- a list of vectors
 
     OUTPUT:
 
@@ -197,10 +188,10 @@ def reduce_vectors_support(L):
         [(0, 0, 0, 0, 0)]
     """
     vector_dict = {}
-    for v in L:
-        s = tuple(v.support())
-        if s not in vector_dict.keys():
-            vector_dict[s] = v
+    for v in vectors:
+        support = tuple(v.support())
+        if support not in vector_dict.keys():
+            vector_dict[support] = v
     return list(vector_dict.values())
 
 
@@ -214,13 +205,13 @@ def remove_multiples_generator(vectors):
     """
     checked_supports = set()
     for v in vectors:
-        s = frozenset(v.support())
-        if s not in checked_supports:
-            checked_supports.add(s)
+        support = frozenset(v.support())
+        if support not in checked_supports:
+            checked_supports.add(support)
             yield(v)
 
 
-def remove_zero_vectors(L):
+def remove_zero_vectors(vectors):
     r"""
     Remove all zero vectors from this list.
 
@@ -232,18 +223,18 @@ def remove_zero_vectors(L):
         sage: remove_zero_vectors([vector([5,2,3]), zero_vector(3), vector([a*0,0,0])])
         [(5, 2, 3)]
     """
-    return [v for v in L if v != 0]
+    return [v for v in vectors if v != 0]
 
 
-def reduce_vectors(L, eq=None, cancel_factors=False, reduce_support=True, remove_zeros=True):
+def reduce_vectors(vectors, equalities=None, cancel_factors=False, reduce_support=True, remove_zeros=True):
     r"""
     Reduces this list of vectors.
 
     INPUT:
 
-    - ``L`` -- a list of vectors
+    - ``vectors`` -- a list of vectors
 
-    - ``eq`` -- a list of equalities (default: ``None``)
+    - ``equalities`` -- a list of equalities (default: ``None``)
 
     - ``cancel_factors`` -- a boolean (default: ``False``). If true, cancels common factors of each vector.
 
@@ -258,20 +249,20 @@ def reduce_vectors(L, eq=None, cancel_factors=False, reduce_support=True, remove
         a
         sage: assume(a == 0)
         sage: l = [vector([5*a, 10*a, 0]), vector([5*a, 2*a, a]), vector([4, 6, 0])]
-        sage: reduce_vectors(l, eq=assumptions(), cancel_factors=True)
+        sage: reduce_vectors(l, equalities=assumptions(), cancel_factors=True)
         [(2, 3, 0)]
         sage: reduce_vectors(l, cancel_factors=True)
         [(1, 2, 0), (5, 2, 1)]
-        sage: reduce_vectors(l, eq=[a == 0], cancel_factors=False)
+        sage: reduce_vectors(l, equalities=[a == 0], cancel_factors=False)
         [(4, 6, 0)]
-        sage: reduce_vectors(l, eq=assumptions(), reduce_support=True, cancel_factors=True)
+        sage: reduce_vectors(l, equalities=assumptions(), reduce_support=True, cancel_factors=True)
         [(2, 3, 0)]
-        sage: reduce_vectors(l, eq=assumptions(), reduce_support=False, remove_zeros=False, cancel_factors=True)
+        sage: reduce_vectors(l, equalities=assumptions(), reduce_support=False, remove_zeros=False, cancel_factors=True)
         [(0, 0, 0), (0, 0, 0), (2, 3, 0)]
     """
-    L = [reduce_vector(v, eq=eq, cancel_factor=cancel_factors) for v in L]
+    vectors = [reduce_vector(v, equalities=equalities, cancel_factor=cancel_factors) for v in vectors]
     if remove_zeros:
-        L = remove_zero_vectors(L)
+        vectors = remove_zero_vectors(vectors)
     if reduce_support:
-        L = reduce_vectors_support(L)
-    return L
+        vectors = reduce_vectors_support(vectors)
+    return vectors

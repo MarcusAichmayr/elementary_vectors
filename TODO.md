@@ -58,7 +58,7 @@
 
 ### 1.4. elementary_vectors.utility
 
-* `vector_from_matrix`
+* `kernel_vector_support_given`
   * [ ] rename this function
 
 * `conformal_elimination`
