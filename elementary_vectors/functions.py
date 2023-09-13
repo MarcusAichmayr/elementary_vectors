@@ -175,30 +175,30 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
     except (ArithmeticError, NotImplementedError):
         warnings.warn('Could not determine rank of matrix. Result might be wrong.')
 
-    m, n = M.dimensions()
+    rank, length = M.dimensions()
     minors = {}
     ring = M.base_ring()
 
-    def ev_from_support(I):
+    def ev_from_support(indices):
         r"""
-        Return the elementary vector corresponding to ``I``.
+        Return the elementary vector corresponding to ``indices``.
 
         INPUT:
 
-        - ``I`` -- a list of indices
+        - ``indices`` -- a list of indices
         """
-        v = zero_vector(ring, n)
-        for pos, k in enumerate(I):
-            Ik = tuple(i for i in I if i != k)
+        element = zero_vector(ring, length)
+        for pos, k in enumerate(indices):
+            indices_minor = tuple(i for i in indices if i != k)
             try:
-                minor = minors[Ik]
+                minor = minors[indices_minor]
             except KeyError:
-                minors[Ik] = M.matrix_from_columns(Ik).det()
-                minor = minors[Ik]
-            v[k] = (-1)**pos * minor
-        return v
-    
-    evs = (ev_from_support(I) for I in Combinations(n, m + 1))
+                minors[indices_minor] = M.matrix_from_columns(indices_minor).det()
+                minor = minors[indices_minor]
+            element[k] = (-1)**pos * minor
+        return element
+
+    evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))
     evs = (v for v in evs if v)
     if remove_multiples:
         evs = remove_multiples_generator(evs)
@@ -215,12 +215,12 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
 
     INPUT:
 
-    - ``m`` -- a list of maximal minors of a matrix
+    - ``minors`` -- a list of maximal minors of a matrix
 
-    - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``m``
+    - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``minors``
 
     - ``ring`` -- Parent of the entries of the elementary vectors.
-                  By default, determine this from ``m``.
+                  By default, determine this from ``minors``.
 
     - ``generator`` -- a boolean (default: ``False``)
 
@@ -234,7 +234,7 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
 
     OUTPUT:
 
-    Uses the maximal minors ``m`` to compute the elementary vectors of the
+    Uses the maximal minors ``minors`` to compute the elementary vectors of the
     corresponding matrix.
     If ``generator`` is true, a generator of elementary vectors will be returned instead of a list.
     In this case, no reductions are applied.
@@ -259,36 +259,36 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
         sage: elementary_vectors_from_minors(m, M.dimensions(), ring=QQ)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
     """
-    m, n = dimensions
+    rank, length = dimensions
     if ring is None:
         ring = get_coercion_model().common_parent(*minors)
 
     minors_dict = {}
-    for k, I in enumerate(Combinations(n, m)):
-        minors_dict[tuple(I)] = minors[k]
+    for k, indices in enumerate(Combinations(length, rank)):
+        minors_dict[tuple(indices)] = minors[k]
 
-    def ev_from_support(I):
+    def ev_from_support(indices):
         r"""
-        Return the elementary vector corresponding to ``I``.
+        Return the elementary vector corresponding to ``indices``.
 
         INPUT:
 
-        - ``I`` -- a list of indices
+        - ``indices`` -- a list of indices
         """
-        v = zero_vector(ring, n)
-        for pos, k in enumerate(I):
-            Ik = tuple(i for i in I if i != k)
-            minor = minors_dict[Ik]
-            v[k] = (-1)**pos * minor
-        return v
-    
-    evs = (ev_from_support(I) for I in Combinations(n, m + 1))
+        element = zero_vector(ring, length)
+        for pos, k in enumerate(indices):
+            indices_minor = tuple(i for i in indices if i != k)
+            minor = minors_dict[indices_minor]
+            element[k] = (-1)**pos * minor
+        return element
+
+    evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))
     evs = (v for v in evs if v)
     if remove_multiples:
         evs = remove_multiples_generator(evs)
 
     return evs if generator else list(evs)
-    
+
 
 def non_negative_vectors(vectors):
     r"""
@@ -333,11 +333,11 @@ def non_negative_vectors(vectors):
         [(0, 0, 1, 0, 0), (0, 0, 0, 1, 0)]
     """
     result = []
-    for v in vectors:
-        if sign_vector(v) >= 0:  # Use ``>=`` instead of ``>``, (0,0,x) -> (000) should be returned
-            result.append(v)
-        elif sign_vector(v) < 0:
-            result.append(-v)
+    for element in vectors:
+        if sign_vector(element) >= 0:  # ``>=`` instead of ``>``, (0,0,x) -> (000) should be returned
+            result.append(element)
+        elif sign_vector(element) < 0:
+            result.append(-element)
     return result
 
 

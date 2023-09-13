@@ -10,26 +10,25 @@ r"""Functions for working with oriented matroids."""
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from sage.misc.flatten import flatten
 from sage.combinat.posets.posets import Poset
 
 from .utility import _subvector
 from sign_vectors import sign_vector, zero_sign_vector
 
 
-def closure(W, separate=False):
+def closure(iterable, separate=False):
     r"""
     Compute the closure of a list of sign vectors.
 
     INPUT:
 
-    - ``W`` -- an iterable of sign vectors
+    - ``iterable`` -- an iterable of sign vectors
 
     - ``separate`` -- boolean (default: ``False``)
 
     OUTPUT:
 
-    If ``separate`` is false, return the closure of ``W``. (default)
+    If ``separate`` is false, return the closure of ``iterable``. (default)
 
     If ``separate`` is true, separate the closure into sets, where each element
     has the same number of zero entries.
@@ -76,64 +75,60 @@ def closure(W, separate=False):
         sage: closure([])
         set()
     """
-    if not W:
+    if not iterable:
         return set()
-    for _ in W:
-        n = _.length()
+    for _ in iterable:
+        length = _.length()
         break
 
-    F = [{zero_sign_vector(n)}]
-    F_new = set()
-    for i in range(n):
-        X = sign_vector(1 if k == i else 0 for k in range(n))
-        for Z in W:
+    output = [{zero_sign_vector(length)}]
+    new_elements = set()
+    for i in range(length):
+        X = sign_vector(1 if k == i else 0 for k in range(length))
+        for Z in iterable:
             if X <= Z:
-                F_new.add(X)
+                new_elements.add(X)
                 break
-        Y = sign_vector(-1 if k == i else 0 for k in range(n))
-        for Z in W:
+        Y = sign_vector(-1 if k == i else 0 for k in range(length))
+        for Z in iterable:
             if Y <= Z:
-                F_new.add(Y)
+                new_elements.add(Y)
                 break
-    F.append(F_new)
-    for i in range(1, n + 1):
-        F_new = set()
-        for X in F[1]:  # X has always |supp(X)| = 1
-            for Y in F[i]:
-                if len(set(X.support() + Y.support())) == i + 1:  # TODO: utilize that the supports are sorted
+    output.append(new_elements)
+    for i in range(1, length + 1):
+        new_elements = set()
+        for X in output[1]:  # X has always |supp(X)| = 1
+            for Y in output[i]:
+                # TODO: utilize that the supports are sorted
+                if len(set(X.support() + Y.support())) == i + 1:
                     Z = X.compose(Y)
-                    if Z not in F_new:
-                        if any(Z <= V for V in W):
-                            F_new.add(Z)
-        if F_new == set():
+                    if Z not in new_elements and any(Z <= V for V in iterable):
+                        new_elements.add(Z)
+        if new_elements == set():
             break
-        else:
-            F.append(F_new)
-            if len(F_new) == 1:
-                break
-    if separate:
-        return F
-    else:
-        return set().union(*F)
+        output.append(new_elements)
+        if len(new_elements) == 1:
+            break
+    return output if separate else set().union(*output)
 
 
-def contraction(F, R, keep_components=False):
+def contraction(iterable, indices, keep_components=False):
     r"""
-    Return all sign vectors that are zero on ``R``. Also works for real vectors.
+    Return all sign vectors that are zero on ``indices``. Also works for real vectors.
 
     INPUT:
 
-    - ``F`` -- an iterable of sign vectors or vectors; or a matrix.
+    - ``iterable`` -- an iterable of sign vectors or vectors; or a matrix.
 
-    - ``R`` -- a list of indices.
+    - ``indices`` -- a list of indices.
 
     - ``keep_components`` -- a boolean (default: ``False``).
 
     OUTPUT:
 
-    - If ``keep_components`` is false, remove entries in ``R``. (default)
+    - If ``keep_components`` is false, remove entries in ``indices``. (default)
 
-    - If ``keep_components`` is true, keep entries in ``R``.
+    - If ``keep_components`` is true, keep entries in ``indices``.
 
     EXAMPLES::
 
@@ -178,28 +173,27 @@ def contraction(F, R, keep_components=False):
         sage: contraction(A, [2])
         {(0, 1), (1, 1)}
     """
-    if F == []:
-        return F
-
+    if iterable == []:
+        return iterable
     if keep_components:
-        def vec(v):
-            return v
+        def vec(iterable):
+            return iterable
     else:
-        vec = _subvector(F, R)
+        vec = _subvector(iterable, indices)
+    
+    return set(vec(X) for X in iterable if not any(e in indices for e in X.support()))
 
-    return set(vec(X) for X in F if not any(e in R for e in X.support()))
 
-
-def deletion(F, R):
+def deletion(iterable, indices):
     r"""
-    Remove the components corresponding to ``R`` from a list of sign vectors.
+    Remove the components corresponding to ``indices`` from a list of sign vectors.
     Also works for real vectors.
 
     INPUT:
 
-    - ``F`` -- an iterable of sign vectors or real vectors; or a matrix.
+    - ``iterable`` -- an iterable of sign vectors or real vectors; or a matrix.
 
-    - ``R`` -- a list of indices.
+    - ``indices`` -- a list of indices.
 
     EXAMPLES::
 
@@ -223,14 +217,12 @@ def deletion(F, R):
         sage: deletion(l, [1])
         {(-1, 1), (0, 1)}
     """
-    if F == []:
-        return F
+    if iterable == []:
+        return iterable
 
-    return set(_subvector(F, R)(X) for X in F)
+    return set(_subvector(iterable, indices)(X) for X in iterable)
 
 
 def plot_sign_vectors(L, vertex_size=600, figsize=10, aspect_ratio=4/8):
     r"""Plot the Hasse Diagram of a list of given sign vectors using the conformal relation."""
-    fcn = lambda X, Y: X.conforms(Y)
-    P = Poset((L, fcn))
-    P.plot(vertex_size=vertex_size, element_color='white', cover_style='-', vertex_shape='+').show(figsize=figsize, aspect_ratio=aspect_ratio)
+    Poset((L, lambda X, Y: X.conforms(Y))).plot(vertex_size=vertex_size, element_color='white', cover_style='-', vertex_shape='+').show(figsize=figsize, aspect_ratio=aspect_ratio)

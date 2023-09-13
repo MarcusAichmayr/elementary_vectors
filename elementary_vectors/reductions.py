@@ -45,17 +45,17 @@ def simplify_using_equalities(value, equalities):
     """
     # There might be inequalities in ``equalities`` or other expressions like ``a is real``.
     # We get rid of them:
-    l = []
+    expressions = []
     for equation in equalities:
         try:
             if equation.operator() is operator.eq:
-                l.append(equation)
+                expressions.append(equation)
         except AttributeError:
             pass
 
     if equalities:
         # casting because substitute would work differently for polynomials
-        expr = SR(value).substitute(l)
+        expr = SR(value).substitute(expressions)
         try:
             return value.base_ring()(expr)
         except TypeError:
@@ -115,11 +115,11 @@ def reduce_factor(iterable):
         sage: w[0].base_ring()
         Integer Ring
     """
-    g = gcd(iterable)
+    divisor = gcd(iterable)
     try:
         if isinstance(iterable, list):
-            return type(iterable)(vi // g for vi in iterable)
-        return (iterable/g).change_ring(iterable.base_ring())
+            return type(iterable)(entry // divisor for entry in iterable)
+        return (iterable / divisor).change_ring(iterable.base_ring())
     except ZeroDivisionError:
         return iterable
 
@@ -127,17 +127,17 @@ def reduce_factor(iterable):
 def reduce_vector_using_equalities(iterable, equalities):
     r"""Use a list of equalities ``equalities`` to simplify expressions in a vector ``iterable``."""
     if equalities:
-        return vector(iterable.base_ring(), (simplify_using_equalities(vi, equalities=equalities) for vi in iterable))
+        return vector(iterable.base_ring(), (simplify_using_equalities(entry, equalities=equalities) for entry in iterable))
     return iterable
 
 
-def reduce_vector(v, equalities=None, cancel_factor=True):
+def reduce_vector(element, equalities=None, cancel_factor=True):
     r"""
     Reduces this vector.
 
     INPUT:
 
-    - ``v`` -- a vector
+    - ``element`` -- a vector
 
     - ``equalities`` -- a list of equalities (default: ``None``)
 
@@ -160,10 +160,10 @@ def reduce_vector(v, equalities=None, cancel_factor=True):
         (5*a, 10*a)
     """
     if equalities:
-        v = reduce_vector_using_equalities(v, equalities=equalities)
+        element = reduce_vector_using_equalities(element, equalities=equalities)
     if cancel_factor:
-        v = reduce_factor(v)
-    return v
+        element = reduce_factor(element)
+    return element
 
 
 def reduce_vectors_support(vectors):
@@ -188,10 +188,10 @@ def reduce_vectors_support(vectors):
         [(0, 0, 0, 0, 0)]
     """
     vector_dict = {}
-    for v in vectors:
-        support = tuple(v.support())
+    for element in vectors:
+        support = tuple(element.support())
         if support not in vector_dict.keys():
-            vector_dict[support] = v
+            vector_dict[support] = element
     return list(vector_dict.values())
 
 
@@ -204,11 +204,11 @@ def remove_multiples_generator(vectors):
     - ``vectors`` -- a list of vectors
     """
     checked_supports = set()
-    for v in vectors:
-        support = frozenset(v.support())
+    for element in vectors:
+        support = frozenset(element.support())
         if support not in checked_supports:
             checked_supports.add(support)
-            yield(v)
+            yield(element)
 
 
 def remove_zero_vectors(vectors):

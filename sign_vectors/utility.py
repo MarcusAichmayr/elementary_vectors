@@ -14,15 +14,15 @@ from sage.modules.free_module_element import vector
 from sign_vectors import SignVector, sign_vector
 
 
-def _subvector(F, R):
+def _subvector(vectors, indices):
     r"""
-    Return a function that returns a sign vector or vector consisting of entries not in ``R``. Used by ``contraction`` and ``deletion``.
+    Return a function that returns a sign vector or vector consisting of entries not in ``indices``. Used by ``contraction`` and ``deletion``.
 
     INPUT:
 
-    - ``F`` -- a list of vectors or sign vectors
+    - ``vectors`` -- a list of vectors or sign vectors
 
-    - ``R`` -- a list of indices
+    - ``indices`` -- a list of indices
 
     EXAMPLES::
 
@@ -39,29 +39,29 @@ def _subvector(F, R):
         sage: f(vector([1,2,3]))
         (1, 3)
     """
-    if F == []:
+    if vectors == []:
         raise ValueError('List is empty.')
-    n = len(list(F[0]))
-    S = [e for e in range(n) if e not in R]  # S = E\R
+    length = len(list(vectors[0]))
+    other_indices = [e for e in range(length) if e not in indices]
 
-    if isinstance(F[0], SignVector):
-        def vec(v):
-            return sign_vector(v.list_from_positions(S))
+    if isinstance(vectors[0], SignVector):
+        def vec(iterable):
+            return sign_vector(iterable.list_from_positions(other_indices))
     else:
-        def vec(v):
-            v = vector(v.list_from_positions(S))
-            v.set_immutable()
-            return v
+        def vec(iterable):
+            iterable = vector(iterable.list_from_positions(other_indices))
+            iterable.set_immutable()
+            return iterable
     return vec
 
 
-def loops(W):
+def loops(iterable):
     r"""
-    Compute the list of loops of a given list of sign vectors (or real vectors) ``W``.
+    Compute the list of loops of a given list of sign vectors (or real vectors) ``iterable``.
 
     .. NOTE::
 
-        A loop is a component where every sign vector of ``W`` is zero.
+        A loop is a component where every sign vector of ``iterable`` is zero.
 
     EXAMPLES::
 
@@ -77,26 +77,26 @@ def loops(W):
         sage: loops([vector([5,0,0,0]), vector([2,0,-3,0])])
         [1, 3]
     """
-    if not W:
+    if not iterable:
         raise ValueError('List is empty.')
-    for _ in W:
-        n = _.length()
+    for _ in iterable:
+        length = _.length()
         break
 
-    return [e for e in range(n) if all(X[e] == 0 for X in W)]
+    return [e for e in range(length) if all(element[e] == 0 for element in iterable)]
 
 
-def is_parallel(W, e, f, return_ratio=False):
+def is_parallel(iterable, component1, component2, return_ratio=False):
     r"""
-    Determine whether two elements ``e, f`` are parallel for each vector of ``W``. This also works for a set of sign vectors.
+    Determine whether two elements ``component1, component2`` are parallel for each vector of ``iterable``. This also works for a set of sign vectors.
 
     INPUT:
 
-    - ``W`` -- a list of vectors or sign vectors of length ``n``
+    - ``iterable`` -- a list of vectors or sign vectors of length ``length``
 
-    - ``e`` -- an integer with :math:`0 \leq e \leq n-1`
+    - ``component1`` -- an integer with ``0 <= component1 <= length - 1`
 
-    - ``f`` -- an integer with :math:`0 \leq e \leq n-1`
+    - ``component2`` -- an integer with ``0  <= component2 <= length - 1`
 
     - ``return_ratio`` -- a boolean (default: False)
 
@@ -107,8 +107,8 @@ def is_parallel(W, e, f, return_ratio=False):
 
     .. NOTE::
 
-        The elements ``e`` and ``f`` are parallel if there exists a ratio ``d`` such that
-        ``v[e] = d v[f]`` for each ``v`` in ``W``.
+        The elements ``component1`` and ``component2`` are parallel if there exists a ratio ``d`` such that
+        ``v[component1] = d v[component2]`` for each ``v`` in ``iterable``.
 
     EXAMPLES::
 
@@ -155,52 +155,51 @@ def is_parallel(W, e, f, return_ratio=False):
         sage: is_parallel(M,0,1)
         False
     """
-    d = 0  # will later be set to the ratio of X[e] and X[f]
+    ratio = 0
 
     if return_ratio:
-        ret = [False, 0]
+        false_return = [False, 0]
     else:
-        ret = False
+        false_return = False
 
-    for X in W:
-        if d == 0:
-            if X[f] == 0:
-                if X[e] != 0:
-                    return ret
-            elif X[e] == 0:
-                return ret
-            else:  # determine ratio
-                d = X[e]/X[f]
+    for element in iterable:
+        if ratio == 0:
+            if element[component2] == 0:
+                if element[component1] != 0:
+                    return false_return
+            elif element[component1] == 0:
+                return false_return
+            else:
+                ratio = element[component1] / element[component2]
         else:
-            if X[e] != d * X[f]:
-                return ret
+            if element[component1] != ratio * element[component2]:
+                return false_return
     if return_ratio:
-        return [True, d]
-    else:
-        return True
+        return [True, ratio]
+    return True
 
 
-def parallel_classes(W, positive_only=False):
+def parallel_classes(iterable, positive_only=False):
     r"""
-    Compute the parallel classes of a given set of vectors ``W``. This also works for a set of sign vectors.
+    Compute the parallel classes of a given set of vectors ``iterable``. This also works for a set of sign vectors.
 
     INPUT:
 
-    - ``W`` -- a list of vectors or sign vectors of length ``n``
+    - ``iterable`` -- a list of vectors or sign vectors of length ``length``
 
     - ``positive_only`` -- a boolean (default: False)
 
     OUTPUT:
 
-    Returns a partition of ``[0, ..., n-1]`` into parallel classes.
+    Returns a partition of ``[0, ..., length - 1]`` into parallel classes.
 
-    If ``positive_only`` is true, returns a partition of ``[0, ..., n-1]`` into positive parallel classes,
+    If ``positive_only`` is true, returns a partition of ``[0, ..., length - 1]`` into positive parallel classes,
     that is, the ratios of the corresponding classes are non-negative.
 
     .. NOTE::
 
-        The elements ``e`` and ``f`` are parallel if there exists a ratio ``d`` such that
-        ``v[e] = d v[f]`` for each ``v`` in ``W``.
+        The elements ``component1`` and ``component2`` are parallel if there exists a ratio ``d`` such that
+        ``v[component1] = d v[component2]`` for each ``v`` in ``iterable``.
 
     EXAMPLES::
 
@@ -234,34 +233,34 @@ def parallel_classes(W, positive_only=False):
         sage: parallel_classes(M, positive_only=True)
         [[0, 4], [1], [2], [3]]
     """
-    if not W:
+    if not iterable:
         raise ValueError('List is empty.')
-    L = []
-    k = W[0].length()
-    toCheck = list(range(k))
+    output = []
+    k = iterable[0].length()
+    indices_to_check = list(range(k))
 
     if positive_only:
-        def is_par(W, e, f):
-            val = is_parallel(W, e, f, return_ratio=True)
-            return val[1] > 0 if val[0] else False
+        def is_par(iterable, component1, component2):
+            value = is_parallel(iterable, component1, component2, return_ratio=True)
+            return value[1] > 0 if value[0] else False
     else:
-        def is_par(W, e, f):
-            return is_parallel(W, e, f)
+        def is_par(iterable, component1, component2):
+            return is_parallel(iterable, component1, component2)
 
-    while len(toCheck) > 0:
-        e = toCheck.pop(0)
-        l = [e]
-        for f in toCheck[:]:  # find parallel class ``l`` of ``e``
-            if is_par(W, e, f):
-                l.append(f)
-                toCheck.remove(f)
-        L.append(l)
-    return L
+    while len(indices_to_check) > 0:
+        component1 = indices_to_check.pop(0)
+        l = [component1]
+        for component2 in indices_to_check[:]:  # find parallel class ``l`` of ``component1``
+            if is_par(iterable, component1, component2):
+                l.append(component2)
+                indices_to_check.remove(component2)
+        output.append(l)
+    return output
 
 
-def positive_parallel_classes(W):
+def positive_parallel_classes(iterable):
     r"""
-    Compute the positive parallel classes of a given set of vectors ``W``. This also works for a set of sign vectors.
+    Compute the positive parallel classes of a given set of vectors ``iterable``. This also works for a set of sign vectors.
 
     .. SEEALSO::
 
@@ -295,16 +294,16 @@ def positive_parallel_classes(W):
         sage: positive_parallel_classes(M)
         [[0, 4], [1], [2], [3]]
     """
-    return parallel_classes(W, positive_only=True)
+    return parallel_classes(iterable, positive_only=True)
 
 
-def classes_same_support(W):
+def classes_same_support(iterable):
     r"""
     Compute the classes with same support of a given list of sign vectors. Also works for a list of real vectors.
 
     INPUT:
 
-    - ``W`` -- a list of vectors of length ``n``.
+    - ``iterable`` -- a list of vectors of length ``length``.
 
     EXAMPLES::
 
@@ -318,27 +317,27 @@ def classes_same_support(W):
         sage: classes_same_support([vector([1,1,0,0]), vector([2,-3,0,0]), vector([0,1,0,0])])
         [[(1, 1, 0, 0), (2, -3, 0, 0)], [(0, 1, 0, 0)]]
     """
-    L = dict()
-    for X in W:
-        s = tuple(X.support())  # tuples are hashable
-        if s not in L.keys():
-            L[s] = [X]
+    output = {}
+    for element in iterable:
+        support = tuple(element.support())  # tuples are hashable
+        if support not in output.keys():
+            output[support] = [element]
         else:
-            L[s].append(X)
-    return list(L.values())
+            output[support].append(element)
+    return list(output.values())
 
 
-def adjacent(X, Y, S):
+def adjacent(element1, element2, iterable):
     r"""
-    Return whether the sign vectors ``X`` and ``Y`` are adjacent over the set of sign vectors ``S``.
+    Return whether the sign vectors ``element1`` and ``element2`` are adjacent over the set of sign vectors ``iterable``.
 
     INPUT:
 
-    - ``X`` -- a sign vector
+    - ``element1`` -- a sign vector
 
-    - ``Y`` -- a sign vector
+    - ``element2`` -- a sign vector
 
-    - ``S`` -- a list of sign vectors
+    - ``iterable`` -- a list of sign vectors
 
     OUTPUT:
     a boolean
@@ -392,5 +391,5 @@ def adjacent(X, Y, S):
         sage: adjacent(Y, Z, cc)
         False
     """
-    XY = X & Y
-    return not any(Z < XY for Z in S if Z != X and Z != Y)
+    composition = element1 & element2
+    return not any(Z < composition for Z in iterable if not Z in [element1, element2])

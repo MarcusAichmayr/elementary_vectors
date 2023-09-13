@@ -242,10 +242,10 @@ def covectors_from_cocircuits(cocircuits):
     if not cocircuits:
         raise ValueError('List of cocircuits is empty.')
     for _ in cocircuits:
-        n = _.length()
+        length = _.length()
         break
-    covectors = {zero_sign_vector(n)}
-    covectors_new = {zero_sign_vector(n)}
+    covectors = {zero_sign_vector(length)}
+    covectors_new = {zero_sign_vector(length)}
     while covectors_new != set():
         Y = covectors_new.pop()
         for X in cocircuits:
@@ -291,11 +291,11 @@ def topes_from_cocircuits(cocircuits):
     if not cocircuits:
         raise ValueError('List is empty.')
     for _ in cocircuits:
-        n = _.length()
+        length = _.length()
         break
 
-    covectors = {zero_sign_vector(n)}
-    covectors_new = {zero_sign_vector(n)}
+    covectors = {zero_sign_vector(length)}
+    covectors_new = {zero_sign_vector(length)}
     topes = set()
     E0 = loops(cocircuits)
 
@@ -343,7 +343,7 @@ def lower_faces(covectors):
     if not covectors:
         raise ValueError('List is empty.')
     for _ in covectors:
-        n = _.length()
+        length = _.length()
         break
     W_ = set()
     for Wj in classes_same_support(covectors):
@@ -353,7 +353,7 @@ def lower_faces(covectors):
                 for i in D:
                     if X[i] != 0:  # hence X_D != 0
                         if X.reverse_signs_in(D) in Wj:
-                            W_.add(sign_vector(0 if i in D else X[i] for i in range(n)))
+                            W_.add(sign_vector(0 if i in D else X[i] for i in range(length)))
                         break
     return W_
 
@@ -444,10 +444,10 @@ def topes_from_matrix(M, kernel=True):
         sage: topes_from_matrix(M, kernel=False)
         {(000)}
     """
-    cc = cocircuits_from_matrix(M, kernel=kernel)
-    if cc == set():
+    cocircuits = cocircuits_from_matrix(M, kernel=kernel)
+    if cocircuits == set():
         return {zero_sign_vector(M.ncols())}
-    return topes_from_cocircuits(cc)
+    return topes_from_cocircuits(cocircuits)
 
 
 def covectors_from_topes(topes, separate=False):
@@ -507,8 +507,7 @@ def covectors_from_topes(topes, separate=False):
     """
     if separate:
         return face_enumeration(topes)
-    else:
-        return set().union(*face_enumeration(topes))
+    return set().union(*face_enumeration(topes))
 
 
 def cocircuits_from_topes(topes):
@@ -625,11 +624,10 @@ def covectors_from_matrix(M, kernel=True, algorithm=None, separate=False):
         if separate:
             algorithm = 'face_enumeration'
         else:
-            cc = cocircuits_from_matrix(M, kernel=kernel)
-            if cc == set():
+            cocircuits = cocircuits_from_matrix(M, kernel=kernel)
+            if cocircuits == set():
                 return {zero_sign_vector(M.ncols())}
-            return covectors_from_cocircuits(cc)
+            return covectors_from_cocircuits(cocircuits)
     if algorithm in ['face_enumeration', 'fe']:
         return covectors_from_topes(topes_from_matrix(M, kernel=kernel), separate=separate)
-    else:
-        raise ValueError("no algorithm '%s'" % algorithm)
+    raise ValueError("no algorithm '%s'" % algorithm)
