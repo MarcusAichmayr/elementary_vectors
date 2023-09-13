@@ -139,14 +139,15 @@ We consider another example::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from .vectors_in_intervals import setup_interval
+import warnings
+from sage.combinat.combination import Combinations
+from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
+from sage.modules.free_module_element import zero_vector
+from sage.rings.infinity import Infinity
+
 from .functions import elementary_vectors
 from .reductions import remove_multiples_generator
-import warnings
-from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
-from sage.rings.infinity import Infinity
-from sage.modules.free_module_element import zero_vector
-from sage.combinat.combination import Combinations
+from .vectors_in_intervals import setup_interval
 
 
 def matrix_inhomogeneous(A, B, b=None, c=None):

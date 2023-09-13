@@ -125,14 +125,15 @@ Finally, we consider unbounded intervals::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from sage.calculus.var import var
+from sage.matrix.constructor import matrix
+from sage.modules.free_module_element import vector, zero_vector
+from sage.rings.infinity import Infinity
+from sage.sets.real_set import RealSet
+from sage.symbolic.relation import solve
+
 from .functions import elementary_vectors
 from .utility import simplest_element_in_interval, setup_interval, solve_left
-from sage.sets.real_set import RealSet
-from sage.rings.infinity import Infinity
-from sage.calculus.var import var
-from sage.symbolic.relation import solve
-from sage.modules.free_module_element import vector, zero_vector
-from sage.matrix.constructor import matrix
 
 
 def setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed=True, upper_bounds_closed=True):

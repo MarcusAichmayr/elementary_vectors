@@ -85,14 +85,16 @@ There, is also a convenient command that computed this list of sign vectors::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from sign_vectors import sign_vector
-from sign_vectors.utility import adjacent
 from sage.combinat.combination import Combinations
-from .reductions import reduce_vectors
-from .utility import kernel_vector_support_given
-from .functions import elementary_vectors
 from sage.matrix.constructor import matrix
 from sage.matrix.special import identity_matrix
+
+from sign_vectors import sign_vector
+from sign_vectors.utility import adjacent
+
+from .functions import elementary_vectors
+from .reductions import reduce_vectors
+from .utility import kernel_vector_support_given
 
 
 def dd_input(M, svs, a):

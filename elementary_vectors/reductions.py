@@ -15,8 +15,8 @@ This module offers several functions to reduce a list of vector.
 #############################################################################
 
 import operator
-from sage.modules.free_module_element import vector
 from sage.arith.misc import gcd
+from sage.modules.free_module_element import vector
 from sage.symbolic.ring import SR
 
 

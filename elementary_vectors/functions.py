@@ -14,7 +14,9 @@ import warnings
 from sage.combinat.combination import Combinations
 from sage.modules.free_module_element import zero_vector
 from sage.structure.element import get_coercion_model
+
 from sign_vectors import sign_vector
+
 from .reductions import remove_multiples_generator
 
 

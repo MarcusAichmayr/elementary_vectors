@@ -12,8 +12,9 @@ r"""Functions for working with oriented matroids."""
 
 from sage.combinat.posets.posets import Poset
 
-from .utility import _subvector
 from sign_vectors import sign_vector, zero_sign_vector
+
+from .utility import _subvector
 
 
 def closure(iterable, separate=False):

@@ -10,15 +10,16 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from sage.symbolic.ring import SR
-from sign_vectors import sign_vector
-from sage.modules.free_module_element import vector
-from sage.matrix.constructor import matrix
-from sage.sets.real_set import RealSet
-from sage.rings.infinity import Infinity
-from sage.functions.other import floor, ceil
-from sage.rings.continued_fraction import continued_fraction
 from sage.categories.sets_cat import EmptySetError
+from sage.functions.other import floor, ceil
+from sage.matrix.constructor import matrix
+from sage.modules.free_module_element import vector
+from sage.rings.continued_fraction import continued_fraction
+from sage.rings.infinity import Infinity
+from sage.sets.real_set import RealSet
+from sage.symbolic.ring import SR
+
+from sign_vectors import sign_vector
 
 
 def sign_determined(expression):
@@ -330,15 +331,15 @@ def solve_left(A, b):
     return (x * M)[:-1]
 
 
-def conformal_elimination(x, y, indices=None):
+def conformal_elimination(vector1, vector2, indices=None):
     r"""
     Apply conformal elimination to two real vectors to find a new vector.
 
     INPUT:
 
-    - ``x`` -- a real vector
+    - ``vector1`` -- a real vector
 
-    - ``y`` -- a real vector
+    - ``vector2`` -- a real vector
 
     - ``indices`` -- a list of indices (default: ``[]``)
 
@@ -354,19 +355,25 @@ def conformal_elimination(x, y, indices=None):
 
         If ``indices`` is not given, the whole list of separating elements
         will be considered instead. (default)
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors.utility import conformal_elimination
+        sage: x = vector([1, 0, 2])
+        sage: y = vector([-1, 1, 1])
+        sage: conformal_elimination(x, y)
+        (0, 1, 3)
     """
     if indices is None:
         indices = []
-    if x.length() != y.length():
+    if vector1.length() != vector2.length():
         raise ValueError('Vectors have different length.')
-    X = sign_vector(x)
-    Y = sign_vector(y)
-    D = X.separating_elements(Y)
-    if D == []:
+    separating_elements = sign_vector(vector1).separating_elements(sign_vector(vector2))
+    if separating_elements == []:
         raise ValueError('List of separating elements is empty.')
     if indices == []:
-        indices = D
-    elif not all(s in D for s in indices):
-        raise ValueError('indices is not a subset of D.')
-    lam = max(x[e]/y[e] for e in indices)  # x[e]/y[e] < 0 since e in D
-    return x - lam*y
+        indices = separating_elements
+    elif not all(s in separating_elements for s in indices):
+        raise ValueError('indices is not a subset of separating_elements.')
+    lam = max(vector1[e] / vector2[e] for e in indices)  # vector1[e] / vector2[e] < 0 since e in separating_elements
+    return vector1 - lam*vector2

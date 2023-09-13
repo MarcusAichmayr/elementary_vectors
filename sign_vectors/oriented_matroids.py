@@ -112,7 +112,8 @@ dual oriented matroid::
 
 from elementary_vectors import elementary_vectors
 from sign_vectors import sign_vector, zero_sign_vector
-from sign_vectors.utility import loops, classes_same_support, parallel_classes
+
+from .utility import loops, classes_same_support, parallel_classes
 
 
 def cocircuits_from_elementary_vectors(evs):

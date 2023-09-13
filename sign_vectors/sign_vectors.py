@@ -152,14 +152,9 @@ sign vectors are also orthogonal::
 #############################################################################
 
 import warnings
-from sage.structure.sage_object import SageObject
-from sage.modules.free_module_element import vector
-from sage.functions.generalized import sign
 from sage.misc.prandom import randint
-from sage.rings.integer_ring import ZZ
-from sage.rings.integer import Integer
+from sage.structure.sage_object import SageObject
 from sage.symbolic.ring import SR
-from copy import copy
 
 length_error = ValueError("Elements have different length.")
 
