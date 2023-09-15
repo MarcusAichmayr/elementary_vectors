@@ -476,7 +476,7 @@ def exists_orthogonal_vector(v, intervals):
     return True
 
 
-def exists_vector(data, intervals, certificate=False):
+def exists_vector(data, intervals, certify=False):
     r"""
     Return whether a vector exists in a given vector space such that the components lie in the specified intervals.
 
@@ -487,7 +487,7 @@ def exists_vector(data, intervals, certificate=False):
 
     - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
     
-    - ``certificate`` -- a boolean (default: ``False``)
+    - ``certify`` -- a boolean (default: ``False``)
 
     OUTPUT:
 
@@ -498,7 +498,7 @@ def exists_vector(data, intervals, certificate=False):
 
     - If ``data`` is a list of elementary vectors, then those will be used.
 
-    - If ``certificate`` is true and no vector exists, an elementary vector certifying non-existence is returned.
+    - If ``certify`` is true and no vector exists, an elementary vector certifying non-existence is returned.
 
     ALGORITHM:
 
@@ -537,9 +537,9 @@ def exists_vector(data, intervals, certificate=False):
         False
 
     Since no vector exists, there is an elementary vector certifying this.
-    To find one, we pass ``certificate=True``::
+    To find one, we pass ``certify=True``::
     
-        sage: exists_vector(M, I, certificate=True)
+        sage: exists_vector(M, I, certify=True)
         (1, -1, 0)
 
     Mixed intervals are also possible::
@@ -596,7 +596,7 @@ def exists_vector(data, intervals, certificate=False):
     
     for v in evs:
         if not exists_orthogonal_vector(v, intervals):
-            if certificate:
+            if certify:
                 return v
             else:
                 return False

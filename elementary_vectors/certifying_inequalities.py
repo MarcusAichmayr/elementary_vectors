@@ -67,9 +67,9 @@ This system can be described by two matrices ``M1``, ``M2`` and two lists of int
     False
     sage: exists_vector(M2.T, I2)
     False
-    sage: exists_vector(M1.T, I1, certificate=True)
+    sage: exists_vector(M1.T, I1, certify=True)
     (5, -2, 1, 0, 0, 2)
-    sage: exists_vector(M2.T, I2, certificate=True)
+    sage: exists_vector(M2.T, I2, certify=True)
     (-1, 0, 1, 0, 0, 0, 2)
 
 The package offers a single function that certifies existence of a solution::
@@ -115,7 +115,7 @@ which consists of a single matrix and intervals::
     [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
     sage: exists_vector(M.T, I)
     False
-    sage: exists_vector(M.T, I, certificate=True)
+    sage: exists_vector(M.T, I, certify=True)
     (0, 1, -1, 0, -3, -1)
     sage: certify_homogeneous(A, B, C)
     (True, (0, 1, -1, 0, -3, -1))
