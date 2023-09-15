@@ -214,23 +214,23 @@ def setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed=True, upper_
         sage: setup_intervals(lower_bounds, upper_bounds, False)
         [(1, 2], (3, 4]]
     """
-    n = len(lower_bounds)
-    if len(upper_bounds) != n:
-        raise ValueError('``upper_bounds`` should be a list of length ' + str(n) + '.')
+    length = len(lower_bounds)
+    if len(upper_bounds) != length:
+        raise ValueError('``upper_bounds`` should be a list of length ' + str(length) + '.')
 
     if lower_bounds_closed is True:
-        lower_bounds_closed = [True] * n
+        lower_bounds_closed = [True] * length
     elif lower_bounds_closed is False:
-        lower_bounds_closed = [False] * n
-    elif len(lower_bounds_closed) != n:
-        raise ValueError('``lower_bounds_closed`` should be a list of length ' + str(n) + '.')
+        lower_bounds_closed = [False] * length
+    elif len(lower_bounds_closed) != length:
+        raise ValueError('``lower_bounds_closed`` should be a list of length ' + str(length) + '.')
 
     if upper_bounds_closed is True:
-        upper_bounds_closed = [True] * n
+        upper_bounds_closed = [True] * length
     elif upper_bounds_closed is False:
-        upper_bounds_closed = [False] * n
-    elif len(upper_bounds_closed) != n:
-        raise ValueError('``upper_bounds_closed`` should be a list of length ' + str(n) + '.')
+        upper_bounds_closed = [False] * length
+    elif len(upper_bounds_closed) != length:
+        raise ValueError('``upper_bounds_closed`` should be a list of length ' + str(length) + '.')
 
     return [setup_interval(*bounds) for bounds in zip(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)]
 
