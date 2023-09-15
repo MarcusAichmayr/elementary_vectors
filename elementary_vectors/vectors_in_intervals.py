@@ -593,13 +593,10 @@ def exists_vector(data, intervals, certify=False):
             if interval.is_empty():
                 return False
         evs = data
-    
+
     for v in evs:
         if not exists_orthogonal_vector(v, intervals):
-            if certify:
-                return v
-            else:
-                return False
+            return v if certify else False
     return True
 
 
@@ -691,26 +688,27 @@ def construct_normal_vector(v, intervals):
     eps_candidates = []
     lam_candidates = []
     for entry, interval in zip(v, intervals):
-        if entry != 0:
-            if interval.inf() == -Infinity and interval.sup() == Infinity:  # (-oo, oo)
-                lam_candidates.append(0)
-            elif interval.inf() == -Infinity:
-                if interval.sup() in interval:  # (-oo, b]
-                    lam_candidates.append(-interval.sup())
-                else:  # (-oo, b)
-                    lam_candidates.append(1 - interval.sup())
-                    eps_candidates.append(1)
-            elif interval.sup() == Infinity:
-                if interval.inf() in interval:  # [a, oo)
-                    lam_candidates.append(interval.inf())
-                else:  # (a, oo)
-                    lam_candidates.append(1 + interval.inf())
-                    eps_candidates.append(1)
-            elif not interval.is_closed():
-                if interval.sup() in interval or interval.inf() in interval:  # [a, b) or (a, b]
-                    eps_candidates.append(interval.sup() - interval.inf())
-                else:  # (a, b)
-                    eps_candidates.append((interval.sup() - interval.inf())/2)
+        if entry == 0:
+            continue
+        if interval.inf() == -Infinity and interval.sup() == Infinity:  # (-oo, oo)
+            lam_candidates.append(0)
+        elif interval.inf() == -Infinity:
+            if interval.sup() in interval:  # (-oo, b]
+                lam_candidates.append(-interval.sup())
+            else:  # (-oo, b)
+                lam_candidates.append(1 - interval.sup())
+                eps_candidates.append(1)
+        elif interval.sup() == Infinity:
+            if interval.inf() in interval:  # [a, oo)
+                lam_candidates.append(interval.inf())
+            else:  # (a, oo)
+                lam_candidates.append(1 + interval.inf())
+                eps_candidates.append(1)
+        elif not interval.is_closed():
+            if interval.sup() in interval or interval.inf() in interval:  # [a, b) or (a, b]
+                eps_candidates.append(interval.sup() - interval.inf())
+            else:  # (a, b)
+                eps_candidates.append((interval.sup() - interval.inf())/2)
 
     if eps_candidates:
         for product in [z_min * v, z_max * v]:
@@ -731,11 +729,12 @@ def construct_normal_vector(v, intervals):
 
     if lam_candidates:
         for product in [z_min * v, z_max * v]:
-            if product != 0:
-                try:
-                    lam_candidates.append(solve(product, lam, solution_dict=True)[0][lam])
-                except (IndexError, TypeError):
-                    pass
+            if product == 0:
+                continue
+            try:
+                lam_candidates.append(solve(product, lam, solution_dict=True)[0][lam])
+            except (IndexError, TypeError):
+                pass
         lam_max = max(lam_candidates)
         try:
             z_min = z_min(lam=lam_max)
