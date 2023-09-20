@@ -375,5 +375,5 @@ def conformal_elimination(vector1, vector2, indices=None):
         indices = separating_elements
     elif not all(s in separating_elements for s in indices):
         raise ValueError('indices is not a subset of separating_elements.')
-    lam = max(vector1[e] / vector2[e] for e in indices)  # vector1[e] / vector2[e] < 0 since e in separating_elements
-    return vector1 - lam*vector2
+    lam = max(vector1[e] / vector2[e] for e in indices)  # lam < 0 since e in separating_elements
+    return vector1 - lam * vector2

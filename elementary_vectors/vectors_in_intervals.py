@@ -235,6 +235,23 @@ def setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed=True, upper_
     return [setup_interval(*bounds) for bounds in zip(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)]
 
 
+def lies_in_intervals(v, intervals):
+    r"""
+    Check if a vector lies in a list of intervals
+    
+    EXAMPLES::
+    
+        sage: from elementary_vectors import *
+        sage: v = vector([5, 0, -10])
+        sage: intervals = setup_intervals([0, 0, -oo], [oo, 0, 0])
+        sage: lies_in_intervals(v, intervals)
+        True
+        sage: lies_in_intervals(-v, intervals)
+        False
+    """
+    return all(entry in interval for entry, interval in zip(v, intervals))
+
+
 def simplest_vector_in_intervals(intervals):
     r"""
     Return the simplest vector such that each component is in a given interval.
@@ -670,16 +687,16 @@ def construct_normal_vector(v, intervals):
         if entry == 0:
             z_min.append(simplest_element_in_interval(interval))
             z_max.append(simplest_element_in_interval(interval))
-        else:
-            lower_bound_closed = (interval.inf() + (0 if interval.inf() in interval else eps)) if interval.inf() != -Infinity else -lam
-            upper_bound_closed = (interval.sup() + (0 if interval.sup() in interval else -eps)) if interval.sup() != Infinity else lam
+            continue
+        lower_bound_closed = (interval.inf() + (0 if interval.inf() in interval else eps)) if interval.inf() != -Infinity else -lam
+        upper_bound_closed = (interval.sup() + (0 if interval.sup() in interval else -eps)) if interval.sup() != Infinity else lam
 
-            if entry > 0:
-                z_min.append(lower_bound_closed)
-                z_max.append(upper_bound_closed)
-            else:
-                z_min.append(upper_bound_closed)
-                z_max.append(lower_bound_closed)
+        if entry > 0:
+            z_min.append(lower_bound_closed)
+            z_max.append(upper_bound_closed)
+        else:
+            z_min.append(upper_bound_closed)
+            z_max.append(lower_bound_closed)
 
     z_min = vector(z_min)
     z_max = vector(z_max)
