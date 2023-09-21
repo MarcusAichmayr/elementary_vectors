@@ -132,7 +132,7 @@ def cocircuits_from_elementary_vectors(evs):
     """
     def both_signs(evs):
         for v in evs:
-            if v != 0:
+            if v:
                 yield sign_vector(v)
                 yield sign_vector(-v)
 
@@ -188,9 +188,7 @@ def cocircuits_from_minors(m, dim):
 
     - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``m``
     """
-    return cocircuits_from_elementary_vectors(
-        elementary_vectors(m, dim, generator=True)
-    )
+    return cocircuits_from_elementary_vectors(elementary_vectors(m, dim, generator=True))
 
 
 def covectors_from_cocircuits(cocircuits):
@@ -247,14 +245,15 @@ def covectors_from_cocircuits(cocircuits):
         break
     covectors = {zero_sign_vector(length)}
     covectors_new = {zero_sign_vector(length)}
-    while covectors_new != set():
-        Y = covectors_new.pop()
-        for X in cocircuits:
-            if not X <= Y:  # otherwise Z = X.compose(Y) = Y in ``covectors``
-                Z = X.compose(Y)
-                if Z not in covectors:
-                    covectors.add(Z)
-                    covectors_new.add(Z)
+    while covectors_new:
+        covector1 = covectors_new.pop()
+        for covector2 in cocircuits:
+            if covector2 <= covector1:
+                continue
+            composition = covector2.compose(covector1)
+            if composition not in covectors:
+                covectors.add(composition)
+                covectors_new.add(composition)
     return covectors
 
 
@@ -298,19 +297,20 @@ def topes_from_cocircuits(cocircuits):
     covectors = {zero_sign_vector(length)}
     covectors_new = {zero_sign_vector(length)}
     topes = set()
-    E0 = loops(cocircuits)
+    loop_list = loops(cocircuits)
 
-    while covectors_new != set():
-        Y = covectors_new.pop()
-        for X in cocircuits:
-            if not X <= Y:  # otherwise Z = X.compose(Y) = Y in F
-                Z = X.compose(Y)
-                if Z not in covectors:
-                    covectors.add(Z)
-                    if Z.zero_support() == E0:
-                        topes.add(Z)
-                    else:
-                        covectors_new.add(Z)
+    while covectors_new:
+        covector1 = covectors_new.pop()
+        for covector2 in cocircuits:
+            if covector2 <= covector1:
+                continue
+            composition = covector2.compose(covector1)
+            if composition not in covectors:
+                covectors.add(composition)
+                if composition.zero_support() == loop_list:
+                    topes.add(composition)
+                else:
+                    covectors_new.add(composition)
     return topes
 
 
@@ -346,17 +346,17 @@ def lower_faces(covectors):
     for _ in covectors:
         length = _.length()
         break
-    W_ = set()
-    for Wj in classes_same_support(covectors):
-        PC = parallel_classes(Wj)
-        for X in Wj:
-            for D in PC:
-                for i in D:
-                    if X[i] != 0:  # hence X_D != 0
-                        if X.reverse_signs_in(D) in Wj:
-                            W_.add(sign_vector(0 if i in D else X[i] for i in range(length)))
+    output = set()
+    for covectors_with_same_support in classes_same_support(covectors):
+        p_classes = parallel_classes(covectors_with_same_support)
+        for covector in covectors_with_same_support:
+            for parallel_class in p_classes:
+                for i in parallel_class:
+                    if covector[i]:
+                        if covector.reverse_signs_in(parallel_class) in covectors_with_same_support:
+                            output.add(sign_vector(0 if i in parallel_class else covector[i] for i in range(length)))
                         break
-    return W_
+    return output
 
 
 def face_enumeration(covectors):
@@ -446,9 +446,9 @@ def topes_from_matrix(M, kernel=True):
         {(000)}
     """
     cocircuits = cocircuits_from_matrix(M, kernel=kernel)
-    if cocircuits == set():
-        return {zero_sign_vector(M.ncols())}
-    return topes_from_cocircuits(cocircuits)
+    if cocircuits:
+        return topes_from_cocircuits(cocircuits)
+    return {zero_sign_vector(M.ncols())}
 
 
 def covectors_from_topes(topes, separate=False):
@@ -626,9 +626,9 @@ def covectors_from_matrix(M, kernel=True, algorithm=None, separate=False):
             algorithm = 'face_enumeration'
         else:
             cocircuits = cocircuits_from_matrix(M, kernel=kernel)
-            if cocircuits == set():
-                return {zero_sign_vector(M.ncols())}
-            return covectors_from_cocircuits(cocircuits)
+            if cocircuits:
+                return covectors_from_cocircuits(cocircuits)
+            return {zero_sign_vector(M.ncols())}
     if algorithm in ['face_enumeration', 'fe']:
         return covectors_from_topes(topes_from_matrix(M, kernel=kernel), separate=separate)
     raise ValueError("no algorithm '%s'" % algorithm)
