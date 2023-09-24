@@ -159,7 +159,7 @@ def cocircuits_from_matrix(M, kernel=True):
 
     EXAMPLES::
 
-        sage: from sign_vectors.oriented_matroids import cocircuits_from_matrix
+        sage: from sign_vectors.oriented_matroids import *
         sage: A = matrix([[2, -1, -1]])
         sage: A
         [ 2 -1 -1]
@@ -216,7 +216,7 @@ def covectors_from_cocircuits(cocircuits):
     First, we need cocircuits.
     For this purpose, we compute the cocircuits corresponding to some matrix::
 
-        sage: from sign_vectors.oriented_matroids import cocircuits_from_matrix, covectors_from_cocircuits
+        sage: from sign_vectors.oriented_matroids import *
         sage: A = matrix([[2, -1, -1]])
         sage: A
         [ 2 -1 -1]
@@ -278,7 +278,7 @@ def topes_from_cocircuits(cocircuits):
     First, we need cocircuits.
     For this purpose, we compute the cocircuits corresponding to some matrix::
 
-        sage: from sign_vectors.oriented_matroids import cocircuits_from_matrix, topes_from_cocircuits
+        sage: from sign_vectors.oriented_matroids import *
         sage: A = matrix([[2, -1, -1]])
         sage: A
         [ 2 -1 -1]
@@ -388,7 +388,7 @@ def face_enumeration(covectors):
     We define some matrix and compute the topes of the corresponding
     oriented matroid::
 
-        sage: from sign_vectors.oriented_matroids import topes_from_matrix, face_enumeration
+        sage: from sign_vectors.oriented_matroids import *
         sage: A = matrix([[2, -1, -1]])
         sage: A
         [ 2 -1 -1]
@@ -432,7 +432,7 @@ def topes_from_matrix(M, kernel=True):
     We define some matrix and compute the topes of the corresponding
     oriented matroid::
 
-        sage: from sign_vectors.oriented_matroids import topes_from_matrix
+        sage: from sign_vectors.oriented_matroids import *
         sage: A = matrix([[2, -1, -1]])
         sage: A
         [ 2 -1 -1]
@@ -480,7 +480,7 @@ def covectors_from_topes(topes, separate=False):
     We define some matrix and compute the topes of the corresponding
     oriented matroid::
 
-        sage: from sign_vectors.oriented_matroids import topes_from_matrix, covectors_from_topes
+        sage: from sign_vectors.oriented_matroids import *
         sage: A = matrix([[2, -1, -1]])
         sage: A
         [ 2 -1 -1]
@@ -528,7 +528,7 @@ def cocircuits_from_topes(topes):
     We define some matrix and compute the topes of the corresponding
     oriented matroid::
 
-        sage: from sign_vectors.oriented_matroids import topes_from_matrix, cocircuits_from_topes
+        sage: from sign_vectors.oriented_matroids import *
         sage: A = matrix([[2, -1, -1]])
         sage: A
         [ 2 -1 -1]
@@ -580,7 +580,7 @@ def covectors_from_matrix(M, kernel=True, algorithm=None, separate=False):
 
     EXAMPLES::
 
-        sage: from sign_vectors.oriented_matroids import covectors_from_matrix
+        sage: from sign_vectors.oriented_matroids import *
 
     We define some matrix::
 
@@ -631,4 +631,4 @@ def covectors_from_matrix(M, kernel=True, algorithm=None, separate=False):
             return {zero_sign_vector(M.ncols())}
     if algorithm in ['face_enumeration', 'fe']:
         return covectors_from_topes(topes_from_matrix(M, kernel=kernel), separate=separate)
-    raise ValueError("no algorithm '%s'" % algorithm)
+    raise ValueError(f"no algorithm '{algorithm}'")
