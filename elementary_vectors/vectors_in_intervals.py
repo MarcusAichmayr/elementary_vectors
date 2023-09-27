@@ -235,6 +235,23 @@ def setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed=True, upper_
     return [setup_interval(*bounds) for bounds in zip(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)]
 
 
+def intervals_from_sign_vector(sv):
+    r"""
+    Return intervals that are determined by a sign vector.
+
+    EXAMPLES::
+
+        sage: from sign_vectors import *
+        sage: from elementary_vectors import intervals_from_sign_vector
+        sage: intervals_from_sign_vector(sign_vector("++0-"))
+        [(0, +oo), (0, +oo), {0}, (-oo, 0)]
+    """
+    lower_bounds = (0 if element > 0 else (-Infinity if element < 0 else 0) for element in sv)
+    upper_bounds = (Infinity if element > 0 else (0 if element < 0 else 0) for element in sv)
+    closed = [element == 0 for element in sv]
+    return [setup_interval(*bounds) for bounds in zip(lower_bounds, upper_bounds, closed, closed)]
+
+
 def lies_in_intervals(v, intervals):
     r"""
     Check if a vector lies in a list of intervals
