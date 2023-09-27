@@ -135,6 +135,8 @@ from sage.symbolic.relation import solve
 from .functions import elementary_vectors
 from .utility import simplest_element_in_interval, setup_interval, solve_left
 
+from sign_vectors import sign_vector
+
 
 def setup_intervals(lower_bounds, upper_bounds, lower_bounds_closed=True, upper_bounds_closed=True):
     r"""
@@ -632,6 +634,77 @@ def exists_vector(data, intervals, certify=False):
         if not exists_orthogonal_vector(v, intervals):
             return v if certify else False
     return True
+
+
+def vector_from_sign_vector(sv, data):
+    r"""
+    Find a vector in the row space of a matrix that has given signs.
+
+    INPUT:
+
+    - ``sv`` -- a sign vector of length ``n``
+    
+    - ``data`` -- either a real matrix with ``n`` columns or a list of
+                elementary vectors of length ``n``
+    
+    OUTPUT:
+    Return a conformal sum of elementary vectors that lies in the given subspace.
+
+    If ``data`` is a matrix, the elementary vectors in the kernel of this matrix are used for the result.
+    If ``data`` is a list of elementary vectors, those are used.
+
+    .. NOTE::
+
+        A ``ValueError`` is raised if no solution exists.
+
+    EXAMPLES::
+
+        sage: from sign_vectors import *
+        sage: from elementary_vectors import *
+        sage: M = matrix([[1, 0, 2, 0], [0, 1, 1, 0], [0, 0, 0, 1]])
+        sage: vector_from_sign_vector(zero_sign_vector(4), M)
+        (0, 0, 0, 0)
+        sage: vector_from_sign_vector(sign_vector("+-+0"), M)
+        (2, -2, 2, 0)
+        sage: vector_from_sign_vector(sign_vector("+0+0"), M)
+        (1, 0, 2, 0)
+        sage: vector_from_sign_vector(sign_vector("+-0+"), M)
+        (1, -2, 0, 2)
+        sage: vector_from_sign_vector(sign_vector("+-0+"), M)
+        (1, -2, 0, 2)
+        sage: evs = elementary_vectors(M.right_kernel_matrix())
+        sage: vector_from_sign_vector(sign_vector("+-0+"), evs)
+        (1, -2, 0, 2)
+        sage: try:
+        ....:     vector_from_sign_vector(sign_vector("+0-0"), M)
+        ....: except ValueError:
+        ....:     print("no solution")
+        no solution
+    """
+    if isinstance(data, list):
+        evs = data
+    else:
+        evs = elementary_vectors(data.right_kernel_matrix())
+
+    def both_signs(evs):
+        for v in evs:
+            yield v
+            yield -v
+
+    result = sum(v for v in both_signs(evs) if sign_vector(v) <= sv)
+
+    if isinstance(result, int): # empty sum is 0 (no evs or no solution)
+        if isinstance(data, list):
+            try:
+                result = data[0].parent().zero_vector()
+            except IndexError:
+                result = zero_vector(sv.length())
+        else:
+            result = zero_vector(data.base_ring(), data.ncols())
+
+    if sign_vector(result) != sv:
+        raise ValueError("There is no solution.")
+    return result
 
 
 def construct_normal_vector(v, intervals):
