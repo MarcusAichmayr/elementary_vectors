@@ -1,119 +1,4 @@
-r"""
-Finding vectors in intervals.
-
-With this module, we can check whether there is a vector in a subspace such that
-the components lie in given intervals.
-
-There is also an algorithmic approach to construct such a vector.
-
-EXAMPLES:
-
-First, we load the functions from the package::
-
-    sage: from elementary_vectors import *
-
-The package offers the function :func:`~intervals_from_bounds` that helps us creating lists of intervals.
-This function takes two lists as input,
-the corresponding elements in those lists determine the intervals::
-
-    sage: I = intervals_from_bounds([0, 1, -1], [1, 2, -1])
-    sage: I
-    [[0, 1], [1, 2], {-1}]
-
-Next, we define a vector::
-
-    sage: v = vector([1,1,1])
-
-Is there a normal vector, such that the components lie in the intervals defined above?
-We call :func:`~exists_orthogonal_vector` to answer this question::
-
-    sage: exists_orthogonal_vector(v, I)
-    True
-
-This vector can be constructed by :func:`~construct_orthogonal_vector`::
-
-    sage: construct_orthogonal_vector(v, I)
-    (0, 1, -1)
-
-We define another vector. This time, there is no solution::
-
-    sage: v = vector([1,1,-1])
-    sage: exists_orthogonal_vector(v, I)
-    False
-    sage: construct_orthogonal_vector(v, I)
-    Traceback (most recent call last):
-    ...
-    ValueError: There is no solution.
-
-Next, we consider open intervals::
-
-    sage: I = intervals_from_bounds([0, 1, -1], [1, 2, 1], False, [True, True, False])
-    sage: I
-    [(0, 1], (1, 2], (-1, 1)]
-    sage: v = vector([1,0,1])
-    sage: exists_orthogonal_vector(v, I)
-    True
-    sage: construct_orthogonal_vector(v, I)
-    (1/2, 2, -1/2)
-
-We can even consider unbounded intervals::
-
-    sage: I = intervals_from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
-    sage: I
-    [(0, +oo), (1, 2], (-oo, -2)]
-    sage: v = vector([-1,1,-1])
-    sage: exists_orthogonal_vector(v, I)
-    True
-    sage: construct_orthogonal_vector(v, I)
-    (5, 2, -3)
-
-The most important functions of this module are
-:func:`~exists_vector` and :func:`~construct_vector`.
-Given a matrix ``M`` and a list of intervals,
-we want to examine whether there exists a vector in the rowspace of ``M``,
-such that the components lie in the given intervals::
-
-    sage: M = matrix([1, 1, 0])
-    sage: lower_bounds = [2, 5, -1]
-    sage: upper_bounds = [5, 6, 1]
-
-First, we consider closed intervals::
-
-    sage: I = intervals_from_bounds(lower_bounds, upper_bounds)
-    sage: I
-    [[2, 5], [5, 6], [-1, 1]]
-    sage: exists_vector(M, I)
-    True
-    sage: construct_vector(M, I)
-    (5, 5, 0)
-
-Next, we take open intervals. This time, there is no solution::
-
-    sage: I = intervals_from_bounds(lower_bounds, upper_bounds, False, False)
-    sage: I
-    [(2, 5), (5, 6), (-1, 1)]
-    sage: exists_vector(M, I)
-    False
-    sage: construct_vector(M, I)
-    Traceback (most recent call last):
-    ...
-    ValueError: There is no solution.
-
-Finally, we consider unbounded intervals::
-
-    sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
-    sage: lower_bounds = [2, 5, 0, -oo]
-    sage: upper_bounds = [5, oo, 8, 5]
-    sage: lower_bounds_closed = [True, True, False, False]
-    sage: upper_bounds_closed = [False, False, False, True]
-    sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
-    sage: I
-    [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
-    sage: exists_vector(M, I)
-    True
-    sage: construct_vector(M, I)
-    (2, 5, 7, 5)
-"""
+"""Constructing vectors with components in intervals."""
 
 #############################################################################
 #  Copyright (C) 2023                                                       #
@@ -132,143 +17,10 @@ from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
 from sage.symbolic.relation import solve
 
-from .functions import elementary_vectors
+from .existence import exists_orthogonal_vector, exists_vector
 from .utility import simplest_element_in_interval, interval_from_bounds, solve_left
-
+from elementary_vectors import elementary_vectors
 from sign_vectors import sign_vector
-
-
-def intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed=True, upper_bounds_closed=True):
-    r"""
-    Construct a list of intervals from lists of bounds.
-
-    INPUT:
-
-    - ``lower_bounds`` -- a list of real values and infinity of length ``n``
-
-    - ``upper_bounds`` -- a list of real values and infinity of length ``n``
-
-    - ``lower_bounds_closed`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
-
-    - ``upper_bounds_closed`` -- a boolean (default: ``True``) or a list of booleans of length ``n``
-
-    OUTPUT:
-
-    A list of ``RealSet`` objects of length ``n``.
-
-    - ``lower_bounds`` and ``upper_bounds`` are the lower and upper interval bounds.
-      If ``lower_bounds[i] > upper_bounds[i]``, those elements will be exchanged.
-
-    - ``lower_bounds_closed`` and ``upper_bounds_closed`` determine the intervals.
-
-    - The lower (or upper) interval bounds of the ``i``-th interval is
-
-        - closed if ``lower_bounds_closed[i]`` (or ``upper_bounds_closed[i]``) is ``True`` (default).
-
-        - open if ``lower_bounds_closed[i]`` (or ``upper_bounds_closed[i]``) is ``False``.
-
-    - If ``lower_bounds_closed`` (or ``upper_bounds_closed``) is a boolean,
-      then all lower or upper interval bounds
-      are considered closed if ``True`` (default) and open if ``False``.
-
-    EXAMPLES::
-
-        sage: from elementary_vectors.vectors_in_intervals import intervals_from_bounds
-        sage: lower_bounds = [2, 5, -1]
-        sage: upper_bounds = [5, 6, 1]
-
-    By default, the intervals are closed::
-
-        sage: intervals_from_bounds(lower_bounds, upper_bounds)
-        [[2, 5], [5, 6], [-1, 1]]
-
-    We obtain open intervals if both ``lower_bounds_closed`` and ``upper_bounds_closed`` are false::
-
-        sage: intervals_from_bounds(lower_bounds, upper_bounds, False, False)
-        [(2, 5), (5, 6), (-1, 1)]
-
-    Mixed intervals are also possible::
-
-        sage: intervals_from_bounds(lower_bounds, upper_bounds, False)
-        [(2, 5], (5, 6], (-1, 1]]
-        sage: intervals_from_bounds(lower_bounds, upper_bounds, [False, True, True], [True, True, False])
-        [(2, 5], [5, 6], [-1, 1)]
-
-    We can also specify unbounded intervals.
-    Note that bounds at infinity are always open::
-
-        sage: lower_bounds = [-oo, 2, -oo]
-        sage: upper_bounds = [-5, oo, oo]
-        sage: intervals_from_bounds(lower_bounds, upper_bounds)
-        [(-oo, -5], [2, +oo), (-oo, +oo)]
-
-    Finite and empty intervals are represented as usual::
-
-        sage: lower_bounds = [0, 2]
-        sage: upper_bounds = [0, 2]
-        sage: intervals_from_bounds(lower_bounds, upper_bounds, [True, False], True)
-        [{0}, {}]
-
-    If the lower bound is greater than the upper bound, those bounds will be exchanged::
-
-        sage: lower_bounds = [1, 4]
-        sage: upper_bounds = [2, 3]
-        sage: intervals_from_bounds(lower_bounds, upper_bounds, False)
-        [(1, 2], (3, 4]]
-    """
-    length = len(lower_bounds)
-    if len(upper_bounds) != length:
-        raise ValueError('``upper_bounds`` should be a list of length ' + str(length) + '.')
-
-    if lower_bounds_closed is True:
-        lower_bounds_closed = [True] * length
-    elif lower_bounds_closed is False:
-        lower_bounds_closed = [False] * length
-    elif len(lower_bounds_closed) != length:
-        raise ValueError('``lower_bounds_closed`` should be a list of length ' + str(length) + '.')
-
-    if upper_bounds_closed is True:
-        upper_bounds_closed = [True] * length
-    elif upper_bounds_closed is False:
-        upper_bounds_closed = [False] * length
-    elif len(upper_bounds_closed) != length:
-        raise ValueError('``upper_bounds_closed`` should be a list of length ' + str(length) + '.')
-
-    return [interval_from_bounds(*bounds) for bounds in zip(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)]
-
-
-def intervals_from_sign_vector(sv):
-    r"""
-    Return intervals that are determined by a sign vector.
-
-    EXAMPLES::
-
-        sage: from sign_vectors import *
-        sage: from elementary_vectors import intervals_from_sign_vector
-        sage: intervals_from_sign_vector(sign_vector("++0-"))
-        [(0, +oo), (0, +oo), {0}, (-oo, 0)]
-    """
-    lower_bounds = (0 if element > 0 else (-Infinity if element < 0 else 0) for element in sv)
-    upper_bounds = (Infinity if element > 0 else (0 if element < 0 else 0) for element in sv)
-    closed = [element == 0 for element in sv]
-    return [interval_from_bounds(*bounds) for bounds in zip(lower_bounds, upper_bounds, closed, closed)]
-
-
-def lies_in_intervals(v, intervals):
-    r"""
-    Check if a vector lies in a list of intervals
-    
-    EXAMPLES::
-    
-        sage: from elementary_vectors import *
-        sage: v = vector([5, 0, -10])
-        sage: intervals = intervals_from_bounds([0, 0, -oo], [oo, 0, 0])
-        sage: lies_in_intervals(v, intervals)
-        True
-        sage: lies_in_intervals(-v, intervals)
-        False
-    """
-    return all(entry in interval for entry, interval in zip(v, intervals))
 
 
 def simplest_vector_in_intervals(intervals):
@@ -287,7 +39,8 @@ def simplest_vector_in_intervals(intervals):
 
     EXAMPLES::
 
-        sage: from elementary_vectors.vectors_in_intervals import *
+        sage: from vectors_in_intervals import *
+        sage: from vectors_in_intervals.construction import *
         sage: lower_bounds = [2, 5, -1]
         sage: upper_bounds = [5, 6, 1]
         sage: I = intervals_from_bounds(lower_bounds, upper_bounds)
@@ -320,7 +73,8 @@ def multiple_in_intervals_candidates(v, intervals):
 
     EXAMPLES::
 
-        sage: from elementary_vectors.vectors_in_intervals import *
+        sage: from vectors_in_intervals import *
+        sage: from vectors_in_intervals.construction import *
         sage: I = intervals_from_bounds([0, 0, -1/4, -oo], [2, oo, 1/5, 1/9], False, [True, False, False, True])
         sage: v = vector([1, 5, -2, 0])
         sage: multiple_in_intervals_candidates(v, I)
@@ -398,242 +152,14 @@ def multiple_in_intervals(v, intervals):
 
     EXAMPLES::
 
-        sage: from elementary_vectors.vectors_in_intervals import *
+        sage: from vectors_in_intervals import *
+        sage: from vectors_in_intervals.construction import *
         sage: I = intervals_from_bounds([0, 0, -1/4, -oo], [2, oo, 1/5, 1/9], False, [True, False, False, True])
         sage: v = vector([1, 5, -2, 0])
         sage: multiple_in_intervals(v, I)
         (1/9, 5/9, -2/9, 0)
     """
     return simplest_element_in_interval(multiple_in_intervals_candidates(v, intervals)) * v
-
-
-def exists_orthogonal_vector(v, intervals):
-    r"""
-    Check whether a normal vector exists that lies in the specified intervals.
-
-    INPUT:
-
-    - ``v`` -- a vector of length ``n``
-
-    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
-
-    OUTPUT:
-
-    Return whether there exists a vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
-    and each component of ``z`` lies in the respective interval of the list ``intervals``.
-    Raises a ``ValueError`` if the lengths of ``v`` and ``intervals`` are different.
-
-    .. SEEALSO::
-
-        :func:`~intervals_from_bounds`
-
-    EXAMPLES:
-
-    We define several lists of intervals and vectors
-    and apply the function::
-
-        sage: from elementary_vectors import exists_orthogonal_vector, intervals_from_bounds
-        sage: I = intervals_from_bounds([0, 1, -1], [1, 2, -1])
-        sage: I
-        [[0, 1], [1, 2], {-1}]
-        sage: v = vector([1, 1, 1])
-        sage: exists_orthogonal_vector(v, I)
-        True
-        sage: v = vector([1, 1, -1])
-        sage: exists_orthogonal_vector(v, I)
-        False
-
-    Next, we consider open intervals::
-
-        sage: I = intervals_from_bounds([0, 1, -1], [1, 2, 1], False, [True, True, False])
-        sage: I
-        [(0, 1], (1, 2], (-1, 1)]
-        sage: v = vector([1, 0, 1])
-        sage: exists_orthogonal_vector(v, I)
-        True
-
-    We can even consider unbounded intervals::
-
-        sage: I = intervals_from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
-        sage: I
-        [(0, +oo), (1, 2], (-oo, -2)]
-        sage: v = vector([-1, 1, -1])
-        sage: exists_orthogonal_vector(v, I)
-        True
-
-    TESTS::
-
-        sage: I = intervals_from_bounds([-oo, 0], [oo, 0], False, False)
-        sage: I
-        [(-oo, +oo), {}]
-        sage: v = vector([1, 0])
-        sage: exists_orthogonal_vector(v, I)
-        False
-        sage: v = vector([1])
-        sage: exists_orthogonal_vector(v, I)
-        Traceback (most recent call last):
-        ...
-        ValueError: Lengths of ``v`` and ``intervals`` are different!
-    """
-    if len(v) != len(intervals):
-        raise ValueError("Lengths of ``v`` and ``intervals`` are different!")
-
-    lower_bound = 0
-    upper_bound = 0
-    lower_bound_zero = True
-    upper_bound_zero = True
-
-    for entry, interval in zip(v, intervals):
-        if interval.is_empty():
-            return False
-        if entry != 0:
-            if interval.is_finite():  # interval consists of one point
-                lower_bound += entry * interval.an_element()
-                upper_bound += entry * interval.an_element()
-            elif entry > 0:
-                lower_bound += entry * interval.inf()
-                upper_bound += entry * interval.sup()
-                lower_bound_zero &= interval.inf() in interval
-                upper_bound_zero &= interval.sup() in interval
-            else:  # entry < 0
-                lower_bound += entry * interval.sup()
-                upper_bound += entry * interval.inf()
-                lower_bound_zero &= interval.sup() in interval
-                upper_bound_zero &= interval.inf() in interval
-
-    if lower_bound > 0:
-        return False
-    if upper_bound < 0:
-        return False
-    if lower_bound == 0 and not lower_bound_zero:
-        return False
-    if upper_bound == 0 and not upper_bound_zero:
-        return False
-    return True
-
-
-def exists_vector(data, intervals, certify=False):
-    r"""
-    Return whether a vector exists in a given vector space such that the components lie in the specified intervals.
-
-    INPUT:
-
-    - ``data`` -- either a real matrix with ``n`` columns or a list of
-                  elementary vectors of length ``n``
-
-    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
-    
-    - ``certify`` -- a boolean (default: ``False``)
-
-    OUTPUT:
-
-    Return whether there exists a vector in a vector space
-    such that the components lie in specified intervals using elementary vectors.
-
-    - If ``data`` is a matrix, check if a vector in the rowspace of this matrix lies in the intervals.
-
-    - If ``data`` is a list of elementary vectors, check if a vector exists orthogonal to those elementary vectors.
-
-    - If ``certify`` is true and no vector exists, an elementary vector certifying non-existence is returned.
-
-    ALGORITHM:
-
-    The underlying algorithm is based on Minty's Lemma. (see [Min74]_)
-
-    .. [Min74] Minty, G. J.:
-       „A `from scratch` proof of a theorem of Rockafellar and Fulkerson“.
-       In: Mathematical Programming 7 (1974), pp. 368-375.
-
-    .. SEEALSO::
-
-        :func:`~intervals_from_bounds`
-        :func:`~exists_orthogonal_vector`
-
-    EXAMPLES::
-
-        sage: from elementary_vectors import *
-        sage: M = matrix([1, 1, 0])
-        sage: lower_bounds = [2, 5, -1]
-        sage: upper_bounds = [5, 6, 1]
-
-    First, we consider closed intervals::
-
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds)
-        sage: I
-        [[2, 5], [5, 6], [-1, 1]]
-        sage: exists_vector(M, I)
-        True
-
-    Next, we take open intervals::
-
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, False, False)
-        sage: I
-        [(2, 5), (5, 6), (-1, 1)]
-        sage: exists_vector(M, I)
-        False
-
-    Since no vector exists, there is an elementary vector certifying this.
-    To find one, we pass ``certify=True``::
-    
-        sage: exists_vector(M, I, certify=True)
-        (1, -1, 0)
-
-    Mixed intervals are also possible::
-
-        sage: lower_bounds_closed = [True, True, False]
-        sage: upper_bounds_closed = [False, True, True]
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
-        sage: I
-        [[2, 5), [5, 6], (-1, 1]]
-        sage: exists_vector(M, I)
-        False
-
-    Finally, we consider unbounded intervals::
-
-        sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
-        sage: lower_bounds = [2, 5, 0, -oo]
-        sage: upper_bounds = [5, oo, 8, 5]
-        sage: lower_bounds_closed = [True, True, False, False]
-        sage: upper_bounds_closed = [False, False, False, True]
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
-        sage: I
-        [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
-        sage: exists_vector(M, I)
-        True
-
-    TESTS::
-
-        sage: I = intervals_from_bounds([0, 0], [1, 0], False)
-        sage: I
-        [(0, 1], {}]
-        sage: exists_vector([], I)
-        False
-        sage: M = random_matrix(QQ, 0, 2)
-        sage: exists_vector(M, I)
-        False
-        sage: M = random_matrix(QQ, 0, 1)
-        sage: exists_vector(M, I)
-        Traceback (most recent call last):
-        ...
-        ValueError: Number of columns of matrix ``data`` and length of ``intervals`` are different!
-    """
-    if hasattr(data, "ncols"):
-        if data.ncols() != len(intervals):
-            raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` are different!")
-        for interval in intervals:
-            if interval.is_empty():
-                return False
-        evs = elementary_vectors(data, generator=True)
-    else:
-        for interval in intervals:
-            if interval.is_empty():
-                return False
-        evs = data
-
-    for v in evs:
-        if not exists_orthogonal_vector(v, intervals):
-            return v if certify else False
-    return True
 
 
 def vector_from_sign_vector(sv, data):
@@ -659,8 +185,9 @@ def vector_from_sign_vector(sv, data):
 
     EXAMPLES::
 
-        sage: from sign_vectors import *
+        sage: from vectors_in_intervals import *
         sage: from elementary_vectors import *
+        sage: from sign_vectors import *
         sage: M = matrix([[1, 0, 2, 0], [0, 1, 1, 0], [0, 0, 0, 1]])
         sage: vector_from_sign_vector(zero_sign_vector(4), M)
         (0, 0, 0, 0)
@@ -675,11 +202,10 @@ def vector_from_sign_vector(sv, data):
         sage: evs = elementary_vectors(M.right_kernel_matrix())
         sage: vector_from_sign_vector(sign_vector("+-0+"), evs)
         (1, -2, 0, 2)
-        sage: try:
-        ....:     vector_from_sign_vector(sign_vector("+0-0"), M)
-        ....: except ValueError:
-        ....:     print("no solution")
-        no solution
+        sage: vector_from_sign_vector(sign_vector("+0-0"), M)
+        Traceback (most recent call last):
+        ...
+        ValueError: There is no solution.
     """
     if isinstance(data, list):
         evs = data
@@ -725,12 +251,11 @@ def construct_orthogonal_vector(v, intervals):
 
     .. SEEALSO::
 
-        :func:`~intervals_from_bounds`
-        :func:`~exists_orthogonal_vector`
+        :func:`vectors_in_intervals.existence.exists_orthogonal_vector`
 
     EXAMPLES::
 
-        sage: from elementary_vectors import construct_orthogonal_vector, intervals_from_bounds
+        sage: from vectors_in_intervals import *
         sage: I = intervals_from_bounds([0, 1, -1], [1, 2, -1])
         sage: I
         [[0, 1], [1, 2], {-1}]
@@ -882,12 +407,11 @@ def construct_vector(M, intervals, evs=None):
 
     .. SEEALSO::
 
-        :func:`~intervals_from_bounds`
-        :func:`~exists_vector`
+        :func:`vectors_in_intervals.existence.exists_vector`
 
     EXAMPLES::
 
-        sage: from elementary_vectors import construct_vector, intervals_from_bounds
+        sage: from vectors_in_intervals import *
         sage: M = matrix([1, 1, 0])
         sage: lower_bounds = [2, 5, -1]
         sage: upper_bounds = [5, 6, 1]

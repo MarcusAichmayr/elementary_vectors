@@ -16,13 +16,13 @@ This module offers functions for linear inequality systems given in the form
 and ``A x > 0, B x >= 0, C x = 0`` with matrices ``A``, ``B``, ``C``.
 
 We are interested whether the system  has a solution ``x``.
-This can be checked using :func:`elementary_vectors.vectors_in_intervals.exists_vector`.
+This can be checked using :func:`vectors_in_intervals.existence.exists_vector`.
 If no solution exists, this function can be used to certify the result.
 
 To demonstrate this, consider the following example::
 
-    sage: from elementary_vectors.certifying_inequalities import *
-    sage: from elementary_vectors.vectors_in_intervals import *
+    sage: from vectors_in_intervals import *
+    sage: from vectors_in_intervals.certifying_inequalities import *
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: b = vector([1, -1])
@@ -145,9 +145,9 @@ from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_m
 from sage.modules.free_module_element import zero_vector
 from sage.rings.infinity import Infinity
 
-from .functions import elementary_vectors
-from .reductions import remove_multiples_generator
-from .vectors_in_intervals import interval_from_bounds
+from elementary_vectors import elementary_vectors
+from elementary_vectors.reductions import remove_multiples_generator
+from .utility import interval_from_bounds
 
 
 def matrix_inhomogeneous(A, B, b=None, c=None):
@@ -198,12 +198,12 @@ def exists_orthogonal_vector_inhomogeneous(v, b, c):
     
     .. SEEALSO::
     
-        :func:`elementary_vectors.vectors_in_intervals.exists_orthogonal_vector`
+        :func:`vectors_in_intervals.existence.exists_orthogonal_vector`
     
     TESTS::
     
-        sage: from elementary_vectors.certifying_inequalities import *
-        sage: from elementary_vectors.vectors_in_intervals import *
+        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: from vectors_in_intervals import *
         sage: A = matrix([[1, 2], [0, 1], [2, 0]])
         sage: B = matrix([[2, 3], [0, 2]])
         sage: b = vector([1, -1, 2])
@@ -250,12 +250,12 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict):
 
     .. SEEALSO::
     
-        :func:`elementary_vectors.vectors_in_intervals.exists_orthogonal_vector`
+        :func:`vectors_in_intervals.existence.exists_orthogonal_vector`
     
     TESTS::
     
-        sage: from elementary_vectors.certifying_inequalities import *
-        sage: from elementary_vectors.vectors_in_intervals import *
+        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: from vectors_in_intervals import *
         sage: A = matrix([[1, 2], [0, 1]])
         sage: B = matrix([[2, 3], [0, -1]])
         sage: C = matrix([[-1, 0], [1, 1]])

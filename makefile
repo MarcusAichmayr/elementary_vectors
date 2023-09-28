@@ -10,7 +10,7 @@ test_sign_vectors:
 	sage -t sign_vectors/
 
 test:
-	sage -t elementary_vectors/ sign_vectors/
+	sage -t elementary_vectors/ sign_vectors/ vectors_in_intervals/
 
 doc:
 	cd docs && make html

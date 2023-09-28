@@ -29,6 +29,7 @@ setup(
     keywords = ['sign vectors', 'elementary vectors', 'oriented matroids'],
     packages = [
         'elementary_vectors',
+        'vectors_in_intervals',
         'sign_vectors',
     ],
     setup_requires   = [],
