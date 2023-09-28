@@ -23,7 +23,7 @@ Sage 9.0 or later is recommended. Some features should work with older versions.
 
 Download the source from the git repository:
 
-    $ git clone https://github.com/MarcusAichmayr/sign_vectors.git
+    $ git clone https://github.com/MarcusAichmayr/elementary_vectors.git
 
 Change to the root directory of the repository and run:
 
@@ -38,11 +38,11 @@ You can also run instead the shorthand:
 To download and install the latest development version on a system where Sage
 was built from source or installed from official packages, run
 
-    $ sage -pip install git+https://github.com/MarcusAichmayr/sign_vectors.git
+    $ sage -pip install git+https://github.com/MarcusAichmayr/elementary_vectors.git
 
 or
 
-    $ sage -pip install --user git+https://github.com/MarcusAichmayr/sign_vectors.git
+    $ sage -pip install --user git+https://github.com/MarcusAichmayr/elementary_vectors.git
 
 The optional `--user` flag causes the package to be installed in your `.sage` directory instead of the Sage installation tree.
 

@@ -1,5 +1,5 @@
-Documentation of sign_vectors
-=============================
+Documentation of elementary_vectors
+===================================
 
 .. rubric:: Elementary vectors
 

@@ -6,12 +6,12 @@ def readfile(filename):
         return f.read()
 
 setup(
-    name = "sign_vectors",
+    name = "elementary_vectors",
     version = readfile("VERSION").strip(), # the VERSION file is shared with the documentation
-    description = 'a Sage package to work with sign vectors, oriented matroids and elementary vectors',
+    description = 'a SageMath package to work with elementary vectors, sign vectors, oriented matroids and vectors with components in intervals',
     long_description = readfile("README.md"),
     long_description_content_type = "text/markdown",
-    url = 'https://github.com/MarcusAichmayr/sign_vectors',
+    url = 'https://github.com/MarcusAichmayr/elementary_vectors',
     author = 'Marcus Aichmayr',
     author_email = 'aichmayr@mathematik.uni-kassel.de',
     license='GPLv3',
@@ -26,7 +26,7 @@ setup(
       'License :: OSI Approved :: GNU General Public License v3',
       'Programming Language :: Python :: 3.8.5',
     ], # classifiers list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-    keywords = ['sign vectors', 'elementary vectors', 'oriented matroids'],
+    keywords = ['elementary_vectors', 'vectors', 'intervals', 'sign vectors', 'oriented matroids'],
     packages = [
         'elementary_vectors',
         'vectors_in_intervals',
