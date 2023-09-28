@@ -127,6 +127,6 @@ Finally, we consider unbounded intervals::
 
 from __future__ import absolute_import
 
-from .setup_intervals import lies_in_intervals, intervals_from_bounds, intervals_from_sign_vector
+from .setup_intervals import is_vector_in_intervals, intervals_from_bounds, intervals_from_sign_vector
 from .existence import exists_vector, exists_orthogonal_vector
 from .construction import construct_vector, construct_orthogonal_vector, vector_from_sign_vector

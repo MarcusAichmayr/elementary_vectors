@@ -15,7 +15,7 @@ from sage.rings.infinity import Infinity
 from .utility import interval_from_bounds
 
 
-def lies_in_intervals(v, intervals):
+def is_vector_in_intervals(v, intervals):
     r"""
     Check if a vector lies in a list of intervals
     
@@ -24,9 +24,9 @@ def lies_in_intervals(v, intervals):
         sage: from vectors_in_intervals import *
         sage: v = vector([5, 0, -10])
         sage: intervals = intervals_from_bounds([0, 0, -oo], [oo, 0, 0])
-        sage: lies_in_intervals(v, intervals)
+        sage: is_vector_in_intervals(v, intervals)
         True
-        sage: lies_in_intervals(-v, intervals)
+        sage: is_vector_in_intervals(-v, intervals)
         False
     """
     return all(entry in interval for entry, interval in zip(v, intervals))
