@@ -527,12 +527,12 @@ def exists_vector(data, intervals, certify=False):
 
     OUTPUT:
 
-    Return whether there exists a vector in the vector space determined by data
-    such that the components lie in the specified intervals.
+    Return whether there exists a vector in a vector space
+    such that the components lie in specified intervals using elementary vectors.
 
-    - If ``data`` is a matrix, then the elementary vectors in the kernel of ``M`` are computed.
+    - If ``data`` is a matrix, check if a vector in the rowspace of this matrix lies in the intervals.
 
-    - If ``data`` is a list of elementary vectors, then those will be used.
+    - If ``data`` is a list of elementary vectors, check if a vector exists orthogonal to those elementary vectors.
 
     - If ``certify`` is true and no vector exists, an elementary vector certifying non-existence is returned.
 
@@ -551,7 +551,7 @@ def exists_vector(data, intervals, certify=False):
 
     EXAMPLES::
 
-        sage: from elementary_vectors import exists_vector, setup_intervals
+        sage: from elementary_vectors import *
         sage: M = matrix([1, 1, 0])
         sage: lower_bounds = [2, 5, -1]
         sage: upper_bounds = [5, 6, 1]
