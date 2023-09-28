@@ -115,9 +115,10 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, 
 
     TESTS::
 
-        sage: M = random_matrix(QQ, 0, 4)
-        sage: elementary_vectors(M)
+        sage: elementary_vectors(random_matrix(QQ, 0, 4))
         [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)]
+        sage: elementary_vectors(matrix([[1, 0, 0], [0, 0, 0]]))
+        [(0, -1, 0), (0, 0, -1)]
     """
     if isinstance(data, list):
         if dimensions is None:
@@ -125,9 +126,7 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, 
                             "maximal minors, the dimensions of the corresponding " +
                             "matrix are needed.")
         return elementary_vectors_from_minors(data, dimensions=dimensions, ring=ring, remove_multiples=remove_multiples, generator=generator)
-    if generator:
-        return elementary_vectors_from_matrix(data, remove_multiples=remove_multiples, generator=True)
-    return elementary_vectors_from_minors(data.minors(data.nrows()), data.dimensions(), ring=data.base_ring(), remove_multiples=remove_multiples)
+    return elementary_vectors_from_matrix(data, remove_multiples=remove_multiples, generator=generator)
 
 
 def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
@@ -208,7 +207,6 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
     if generator:
         return evs
     return list(evs)
-#    return evs if generator else list(evs)
 
 
 def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multiples=True, generator=False):
