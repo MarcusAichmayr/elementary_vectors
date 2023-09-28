@@ -91,7 +91,7 @@ def kernel_vector_support_given(M, indices):
     return vector(subvector_list)
 
 
-def setup_interval(lower_bound, upper_bound, lower_closed=True, upper_closed=True):
+def interval_from_bounds(lower_bound, upper_bound, lower_closed=True, upper_closed=True):
     r"""
     Construct an intervals.
 
@@ -122,16 +122,16 @@ def setup_interval(lower_bound, upper_bound, lower_closed=True, upper_closed=Tru
 
     EXAMPLES::
 
-        sage: from elementary_vectors.vectors_in_intervals import setup_interval
-        sage: setup_interval(5, 6)
+        sage: from elementary_vectors.vectors_in_intervals import interval_from_bounds
+        sage: interval_from_bounds(5, 6)
         [5, 6]
-        sage: setup_interval(6, 5, False, True)
+        sage: interval_from_bounds(6, 5, False, True)
         (5, 6]
-        sage: setup_interval(5, 5, False, True)
+        sage: interval_from_bounds(5, 5, False, True)
         {}
-        sage: setup_interval(-oo, 5)
+        sage: interval_from_bounds(-oo, 5)
         (-oo, 5]
-        sage: setup_interval(0, oo, False, False)
+        sage: interval_from_bounds(0, oo, False, False)
         (0, +oo)
     """
     if upper_bound < lower_bound:

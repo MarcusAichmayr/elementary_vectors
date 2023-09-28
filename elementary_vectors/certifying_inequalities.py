@@ -147,7 +147,7 @@ from sage.rings.infinity import Infinity
 
 from .functions import elementary_vectors
 from .reductions import remove_multiples_generator
-from .vectors_in_intervals import setup_interval
+from .vectors_in_intervals import interval_from_bounds
 
 
 def matrix_inhomogeneous(A, B, b=None, c=None):
@@ -162,12 +162,12 @@ def matrix_homogeneous(A, B, C):
 
 def b_to_intervals(b):
     r"""Converts the right hand side of ``A x <= b`` to intervals"""
-    return [setup_interval(-Infinity, bi) for bi in b]
+    return [interval_from_bounds(-Infinity, bi) for bi in b]
 
 
 def c_to_intervals(c):
     r"""Converts the right hand side of ``B x < c`` to intervals"""
-    return [setup_interval(-Infinity, ci, False, False) for ci in c]
+    return [interval_from_bounds(-Infinity, ci, False, False) for ci in c]
 
 
 def bc_to_intervals(b, c):
@@ -178,9 +178,9 @@ def bc_to_intervals(b, c):
 def intervals_homogeneous(A, B, C):
     r"""Compute the intervals corresponding to ``A x > 0, B x >= 0, C x = 0``."""
     return (
-        A.nrows() * [setup_interval(0, Infinity, False, False)] +
-        B.nrows() * [setup_interval(0, Infinity)] +
-        C.nrows() * [setup_interval(0, 0)]
+        A.nrows() * [interval_from_bounds(0, Infinity, False, False)] +
+        B.nrows() * [interval_from_bounds(0, Infinity)] +
+        C.nrows() * [interval_from_bounds(0, 0)]
     )
 
 
@@ -401,9 +401,9 @@ def intervals_inhomogeneous1_alternative(A, B, b=None, c=None):
     m_B = B.nrows()
 
     I = (
-        n * [setup_interval(0, 0)] +
-        (m_A + m_B) * [setup_interval(0, 1)] +
-        [setup_interval(0, 1, False, True)]
+        n * [interval_from_bounds(0, 0)] +
+        (m_A + m_B) * [interval_from_bounds(0, 1)] +
+        [interval_from_bounds(0, 1, False, True)]
     )
     return I
 
@@ -418,9 +418,9 @@ def intervals_inhomogeneous2_alternative(A, B, b=None, c=None):
     m_B = B.nrows()
 
     I = (
-        n * [setup_interval(0, 0)] +
-        (m_A + m_B + 1) * [setup_interval(0, 1)] +
-        [setup_interval(0, 1, False, True)]
+        n * [interval_from_bounds(0, 0)] +
+        (m_A + m_B + 1) * [interval_from_bounds(0, 1)] +
+        [interval_from_bounds(0, 1, False, True)]
     )
     return I
 
@@ -439,9 +439,9 @@ def intervals_homogeneous_alternative(A, B, C=None):
     m_B = B.nrows()
 
     I = (
-        n * [setup_interval(0, 0)] +
-        (m_A + m_B) * [setup_interval(0, 1)] +
-        [setup_interval(0, 1, False, True)]
+        n * [interval_from_bounds(0, 0)] +
+        (m_A + m_B) * [interval_from_bounds(0, 1)] +
+        [interval_from_bounds(0, 1, False, True)]
     )
     return I
 
