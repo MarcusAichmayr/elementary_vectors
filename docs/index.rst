@@ -19,12 +19,14 @@ Documentation of sign_vectors
     sign_vectors.sign_vectors
     sign_vectors.oriented_matroids
     sign_vectors.functions
+    sign_vectors.utility
 
 .. rubric:: Vectors in intervals
 
 .. autosummary::
     :toctree: generated
 
+    vectors_in_intervals
     vectors_in_intervals.setup_intervals
     vectors_in_intervals.existence
     vectors_in_intervals.construction

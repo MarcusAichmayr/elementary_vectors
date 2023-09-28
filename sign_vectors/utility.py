@@ -1,4 +1,4 @@
-r"""Utility functions and other useful functions for working with oriented matroids."""
+"""Utility functions and other useful functions for working with oriented matroids."""
 
 #############################################################################
 #  Copyright (C) 2023                                                       #
@@ -88,15 +88,15 @@ def loops(iterable):
 
 def is_parallel(iterable, component1, component2, return_ratio=False):
     r"""
-    Determine whether two elements ``component1, component2`` are parallel for each vector of ``iterable``. This also works for a set of sign vectors.
+    Determine whether two components of an iterable of vectors or sign vectors are parallel.
 
     INPUT:
 
     - ``iterable`` -- a list of vectors or sign vectors of length ``length``
 
-    - ``component1`` -- an integer with ``0 <= component1 <= length - 1`
+    - ``component1`` -- an integer with ``0 <= component1 < length``
 
-    - ``component2`` -- an integer with ``0  <= component2 <= length - 1`
+    - ``component2`` -- an integer with ``0  <= component2 < length``
 
     - ``return_ratio`` -- a boolean (default: False)
 
