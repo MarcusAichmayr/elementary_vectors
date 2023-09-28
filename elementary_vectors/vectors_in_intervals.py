@@ -30,9 +30,9 @@ We call :func:`~exists_orthogonal_vector` to answer this question::
     sage: exists_orthogonal_vector(v, I)
     True
 
-This vector can be constructed by :func:`~construct_normal_vector`::
+This vector can be constructed by :func:`~construct_orthogonal_vector`::
 
-    sage: construct_normal_vector(v, I)
+    sage: construct_orthogonal_vector(v, I)
     (0, 1, -1)
 
 We define another vector. This time, there is no solution::
@@ -40,7 +40,7 @@ We define another vector. This time, there is no solution::
     sage: v = vector([1,1,-1])
     sage: exists_orthogonal_vector(v, I)
     False
-    sage: construct_normal_vector(v, I)
+    sage: construct_orthogonal_vector(v, I)
     Traceback (most recent call last):
     ...
     ValueError: There is no solution.
@@ -53,7 +53,7 @@ Next, we consider open intervals::
     sage: v = vector([1,0,1])
     sage: exists_orthogonal_vector(v, I)
     True
-    sage: construct_normal_vector(v, I)
+    sage: construct_orthogonal_vector(v, I)
     (1/2, 2, -1/2)
 
 We can even consider unbounded intervals::
@@ -64,7 +64,7 @@ We can even consider unbounded intervals::
     sage: v = vector([-1,1,-1])
     sage: exists_orthogonal_vector(v, I)
     True
-    sage: construct_normal_vector(v, I)
+    sage: construct_orthogonal_vector(v, I)
     (5, 2, -3)
 
 The most important functions of this module are
@@ -707,7 +707,7 @@ def vector_from_sign_vector(sv, data):
     return result
 
 
-def construct_normal_vector(v, intervals):
+def construct_orthogonal_vector(v, intervals):
     r"""
     Construct a vector that is normal on a given vector and lies in the specified intervals.
 
@@ -730,18 +730,18 @@ def construct_normal_vector(v, intervals):
 
     EXAMPLES::
 
-        sage: from elementary_vectors import construct_normal_vector, intervals_from_bounds
+        sage: from elementary_vectors import construct_orthogonal_vector, intervals_from_bounds
         sage: I = intervals_from_bounds([0, 1, -1], [1, 2, -1])
         sage: I
         [[0, 1], [1, 2], {-1}]
         sage: v = vector([1, 1, 1])
-        sage: construct_normal_vector(v, I)
+        sage: construct_orthogonal_vector(v, I)
         (0, 1, -1)
 
     We define another vector. This time, there is no solution::
 
         sage: v = vector([1, 1, -1])
-        sage: construct_normal_vector(v, I)
+        sage: construct_orthogonal_vector(v, I)
         Traceback (most recent call last):
         ...
         ValueError: There is no solution.
@@ -752,7 +752,7 @@ def construct_normal_vector(v, intervals):
         sage: I
         [(0, 1], (1, 2], (-1, 1)]
         sage: v = vector([1, 0, 1])
-        sage: construct_normal_vector(v, I)
+        sage: construct_orthogonal_vector(v, I)
         (1/2, 2, -1/2)
 
     We can even consider unbounded intervals::
@@ -761,7 +761,7 @@ def construct_normal_vector(v, intervals):
         sage: I
         [(0, +oo), (1, 2], (-oo, -2)]
         sage: v = vector([-1, 1, -1])
-        sage: construct_normal_vector(v, I)
+        sage: construct_orthogonal_vector(v, I)
         (5, 2, -3)
     """
     if not exists_orthogonal_vector(v, intervals):
@@ -960,7 +960,7 @@ def construct_vector(M, intervals, evs=None):
             return simplest_vector_in_intervals(intervals)
         if rank == length - 1:
             # The kernel of ``M`` has one dimension.
-            return construct_normal_vector(M.right_kernel_matrix().row(0), intervals)
+            return construct_orthogonal_vector(M.right_kernel_matrix().row(0), intervals)
         if rank == 1:
             for row in M.rows():
                 if row != 0:

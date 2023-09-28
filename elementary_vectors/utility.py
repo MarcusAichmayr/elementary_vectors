@@ -314,7 +314,7 @@ def sb_child(cfl, left):
 
 def solve_left(A, b):
     r"""
-    Find a solution for ``x*A = b`` that works for matrizes with roots.
+    Find a solution for ``x*A = b`` that works for matrices with roots.
     
     INPUT:
     

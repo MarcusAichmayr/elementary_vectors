@@ -13,5 +13,5 @@ from __future__ import absolute_import
 from .functions import elementary_vectors
 from .functions_dd import double_description
 from .vectors_in_intervals import intervals_from_bounds, intervals_from_sign_vector, lies_in_intervals, exists_vector, construct_vector
-from .vectors_in_intervals import exists_orthogonal_vector, construct_normal_vector, vector_from_sign_vector
+from .vectors_in_intervals import exists_orthogonal_vector, construct_orthogonal_vector, vector_from_sign_vector
 from .reductions import reduce_vectors_support, reduce_vectors
