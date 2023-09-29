@@ -257,6 +257,17 @@ def covectors_from_cocircuits(cocircuits):
     return covectors
 
 
+def covectors_from_elementary_vectors(evs):
+    r"""
+    Compute the covectors of an oriented matroid using elementary vectors.
+
+    INPUT:
+
+    - ``evs`` -- elementary vectors
+    """
+    return covectors_from_cocircuits(cocircuits_from_elementary_vectors(evs))
+
+
 def topes_from_cocircuits(cocircuits):
     r"""
     Use the cocircuits of an oriented matroid to compute the topes.
