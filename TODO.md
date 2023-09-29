@@ -44,17 +44,10 @@
   * Should this function work for real vectors (as `X` and `a`)? Does not make much sense.
   * [ ] This function works for cocircuits. For other sign vectors, it might fail.
 
-### 1.3. elementary_vectors.vectors_in_intervals
+### 1.3. vectors_in_intervals
 
 * [ ] Right now, this works only for matrices.
   What if elementary vectors are given? Can we use those to construct a vector in the corresponding vector space?
-
-#### 1.3.1. elementary_vectors.vectors_in_intervals.exists_vector
-
-* [x] Removed optional argument `kernel`
-* [x] Removed optional argument `certificate`
-  * In case, someone wants to find the certificate, they can iterate over all elementary vectors and return the vector that does not satisfy `exists_orthogonal_vector`.
-* [ ] In case the rank is 1, we might want to use `multiple_in_intervals_candidates` instead of computing elementary vectors.
 
 ### 1.4. elementary_vectors.utility
 
@@ -62,7 +55,7 @@
   * [ ] rename this function
 
 * `conformal_elimination`
-  * [ ] Should this be here?
+  * [ ] should this be here?
   * [ ] add examples
   * [ ] add tests
 
@@ -73,7 +66,6 @@
   * [ ] `reduce_factor` should use these functions
 * [ ] improve `reduce_factor` by canceling denominators if applicable
 
-
 ## 2. sign_vectors
 
 ### 2.1. sign_vectors.sign_vectors
@@ -82,28 +74,12 @@
 * [ ] improve new implementation of `SignVector`
 * [ ] is list/tuple of Sign objects faster than sets for support and positive support?
 * [ ] Cython might not be that useful if length of sign vectors is small (e.g. <100)
-* [x] allow generator as input for `sign_vector`
-
-#### 2.1.1. hash
-
-NOTE:
-Sign vectors should have a hash value.
-Usually, this means that they are immutable like tuples.
-Computation of hash should be efficient.
-see
-https://docs.python.org/3.5/reference/datamodel.html#object.__hash__
 
 ### 2.2. sign_vectors.oriented_matroids
 
-* [x] The default value of `kernel` should be true for all functions in this module.
-* [ ] Is it useful to add a function `cocircuits_from_elementary_vectors`?
-  It would be used in `cocircuits_from_matrix` and `adjacent` of `double_description`.
 * [ ] Is it possible to move references to the end of the documentation?
 * [ ] It might be useful to use a class for oriented matroids.
   * sign vectors could be stored in a better way
-* [x] use sets in `covectors_from_cocircuits` and `topes_from_cocircuits`.
-  * iterating over lists is very inefficient
-  * checking whether an element is in a set/dict is much faster in Python
 
 ### 2.3. sign_vectors.utility
 
