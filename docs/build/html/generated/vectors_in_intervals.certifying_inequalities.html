@@ -1,0 +1,491 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>vectors_in_intervals.certifying_inequalities &#8212; elementary_vectors 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pyramid.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="vectors_in_intervals.utility" href="vectors_in_intervals.utility.html" />
+    <link rel="prev" title="vectors_in_intervals.construction" href="vectors_in_intervals.construction.html" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.utility.html" title="vectors_in_intervals.utility"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.construction.html" title="vectors_in_intervals.construction"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">elementary_vectors 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">vectors_in_intervals.certifying_inequalities</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-vectors_in_intervals.certifying_inequalities">
+<span id="vectors-in-intervals-certifying-inequalities"></span><h1>vectors_in_intervals.certifying_inequalities<a class="headerlink" href="#module-vectors_in_intervals.certifying_inequalities" title="Permalink to this headline">¶</a></h1>
+<p>Certifying solvability of linear inequality systems using elementary vectors</p>
+<p>Given is a system of linear inequalities.
+We are interested whether the system has a solution.
+Further, we want to certify the result using an elementary vector (support-minimal vector).</p>
+<p>Many of the results are derived from theorems in <a class="reference internal" href="#ben00" id="id1"><span>[Ben00]</span></a>.</p>
+<dl class="citation">
+<dt class="label" id="ben00"><span class="brackets"><a class="fn-backref" href="#id1">Ben00</a></span></dt>
+<dd><p>A. Ben-Israel.
+Motzkin’s transposition theorem, and the related theorems of Farkas, Gordan and Stiemke.
+2000.</p>
+</dd>
+</dl>
+<p>This module offers functions for linear inequality systems given in the form
+<code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code> with matrices <code class="docutils literal notranslate"><span class="pre">A</span></code>, <code class="docutils literal notranslate"><span class="pre">B</span></code> and vectors <code class="docutils literal notranslate"><span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code>
+and <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code> with matrices <code class="docutils literal notranslate"><span class="pre">A</span></code>, <code class="docutils literal notranslate"><span class="pre">B</span></code>, <code class="docutils literal notranslate"><span class="pre">C</span></code>.</p>
+<p>We are interested whether the system  has a solution <code class="docutils literal notranslate"><span class="pre">x</span></code>.
+This can be checked using <a class="reference internal" href="vectors_in_intervals.existence.html#vectors_in_intervals.existence.exists_vector" title="vectors_in_intervals.existence.exists_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">vectors_in_intervals.existence.exists_vector()</span></code></a>.
+If no solution exists, this function can be used to certify the result.</p>
+<p>To demonstrate this, consider the following example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals.certifying_inequalities</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">b</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">c</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">matrix_inhomogeneous</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">bc_to_intervals</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+<span class="kc">True</span>
+</pre></div>
+</div>
+<p>However, to certify existence of a solution, we need to consider the alternative system.
+This system can be described by two matrices <code class="docutils literal notranslate"><span class="pre">M1</span></code>, <code class="docutils literal notranslate"><span class="pre">M2</span></code> and two lists of intervals <code class="docutils literal notranslate"><span class="pre">I1</span></code>, <code class="docutils literal notranslate"><span class="pre">I2</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">M1</span> <span class="o">=</span> <span class="n">matrix_inhomogeneous1_alternative</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I1</span> <span class="o">=</span> <span class="n">intervals_inhomogeneous1_alternative</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M1</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">2</span>  <span class="mi">1</span><span class="o">|</span> <span class="mi">3</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">1</span><span class="o">|</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-</span><span class="mi">1</span>  <span class="mi">1</span><span class="o">|-</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I1</span>
+<span class="p">[{</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="mi">0</span><span class="p">},</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M2</span> <span class="o">=</span> <span class="n">matrix_inhomogeneous2_alternative</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I2</span> <span class="o">=</span> <span class="n">intervals_inhomogeneous2_alternative</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M2</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">2</span>  <span class="mi">1</span><span class="o">|</span> <span class="mi">3</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">1</span><span class="o">|</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-</span><span class="mi">1</span>  <span class="mi">1</span><span class="o">|-</span><span class="mi">2</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I2</span>
+<span class="p">[{</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="mi">0</span><span class="p">},</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">I1</span><span class="p">)</span>
+<span class="kc">False</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M2</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">I2</span><span class="p">)</span>
+<span class="kc">False</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">I1</span><span class="p">,</span> <span class="n">certify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M2</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">I2</span><span class="p">,</span> <span class="n">certify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The package offers a single function that certifies existence of a solution:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">certify_inhomogeneous</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="p">[(</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>We consider another example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">b</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">c</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">certify_inhomogeneous</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>There is also a homogeneous version of Motzkin’s transposition theorem.
+Here, we have three matrices <code class="docutils literal notranslate"><span class="pre">A</span></code>, <code class="docutils literal notranslate"><span class="pre">B</span></code> and <code class="docutils literal notranslate"><span class="pre">C</span></code> and deals with the system
+<code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">C</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">matrix_homogeneous</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">intervals_homogeneous</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">))</span>
+<span class="kc">True</span>
+</pre></div>
+</div>
+<p>The certify the result, we consider the alternative system
+which consists of a single matrix and intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix_homogeneous_alternative</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_homogeneous_alternative</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">2</span><span class="o">|-</span><span class="mi">1</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">2</span>  <span class="mi">1</span><span class="o">|</span> <span class="mi">3</span><span class="o">|</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--+--</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">0</span><span class="o">|</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">1</span><span class="o">|</span> <span class="mi">0</span><span class="o">|</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--+--</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">0</span><span class="o">|</span> <span class="mi">1</span><span class="o">|</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span><span class="o">-----+--+--</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">1</span><span class="o">|</span> <span class="mi">0</span><span class="o">|</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[{</span><span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="mi">0</span><span class="p">},</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="kc">False</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">certify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">certify_homogeneous</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+<span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>We consider another example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">C</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">certify_homogeneous</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+<span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.b_to_intervals" title="vectors_in_intervals.certifying_inequalities.b_to_intervals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">b_to_intervals</span></code></a>(b)</p></td>
+<td><p>Converts the right hand side of <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b</span></code> to intervals</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.bc_to_intervals" title="vectors_in_intervals.certifying_inequalities.bc_to_intervals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bc_to_intervals</span></code></a>(b, c)</p></td>
+<td><p>Converts both right hand sides of <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code> to intervals</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.c_to_intervals" title="vectors_in_intervals.certifying_inequalities.c_to_intervals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">c_to_intervals</span></code></a>(c)</p></td>
+<td><p>Converts the right hand side of <code class="docutils literal notranslate"><span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code> to intervals</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.certify_homogeneous" title="vectors_in_intervals.certifying_inequalities.certify_homogeneous"><code class="xref py py-obj docutils literal notranslate"><span class="pre">certify_homogeneous</span></code></a>(A, B, C)</p></td>
+<td><p>Return whether the system <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code> has a solution and certifies it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.certify_inhomogeneous" title="vectors_in_intervals.certifying_inequalities.certify_inhomogeneous"><code class="xref py py-obj docutils literal notranslate"><span class="pre">certify_inhomogeneous</span></code></a>(A, B, b, c)</p></td>
+<td><p>Return whether the system <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code> has a solution and certifies it.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.elementary_vectors_generator_trailing_nonzero" title="vectors_in_intervals.certifying_inequalities.elementary_vectors_generator_trailing_nonzero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elementary_vectors_generator_trailing_nonzero</span></code></a>(M)</p></td>
+<td><p>Return generator of elementary vectors that are non-zero at last component</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.exists_orthogonal_vector_homogeneous" title="vectors_in_intervals.certifying_inequalities.exists_orthogonal_vector_homogeneous"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exists_orthogonal_vector_homogeneous</span></code></a>(v, ...)</p></td>
+<td><p>Return whether there exists an orthogonal vector to <code class="docutils literal notranslate"><span class="pre">v</span></code> lying by homogeneous intervals.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.exists_orthogonal_vector_inhomogeneous" title="vectors_in_intervals.certifying_inequalities.exists_orthogonal_vector_inhomogeneous"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exists_orthogonal_vector_inhomogeneous</span></code></a>(v, b, c)</p></td>
+<td><p>Return whether there exists an orthogonal vector <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">(z_1,</span> <span class="pre">z_2)</span></code> to <code class="docutils literal notranslate"><span class="pre">v</span></code> satisfying <code class="docutils literal notranslate"><span class="pre">z_1</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">z_2</span> <span class="pre">&lt;</span> <span class="pre">c</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.intervals_homogeneous" title="vectors_in_intervals.certifying_inequalities.intervals_homogeneous"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intervals_homogeneous</span></code></a>(A, B, C)</p></td>
+<td><p>Compute the intervals corresponding to <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.intervals_homogeneous_alternative" title="vectors_in_intervals.certifying_inequalities.intervals_homogeneous_alternative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intervals_homogeneous_alternative</span></code></a>(A, B[, C])</p></td>
+<td><p>Alternative system intervals for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.intervals_inhomogeneous1_alternative" title="vectors_in_intervals.certifying_inequalities.intervals_inhomogeneous1_alternative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intervals_inhomogeneous1_alternative</span></code></a>(A, B[, ...])</p></td>
+<td><p>Intervals of first alternative system for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.intervals_inhomogeneous2_alternative" title="vectors_in_intervals.certifying_inequalities.intervals_inhomogeneous2_alternative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intervals_inhomogeneous2_alternative</span></code></a>(A, B[, ...])</p></td>
+<td><p>Intervals of second alternative system for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.matrix_homogeneous" title="vectors_in_intervals.certifying_inequalities.matrix_homogeneous"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_homogeneous</span></code></a>(A, B, C)</p></td>
+<td><p>Return a block matrix for the system <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.matrix_homogeneous_alternative" title="vectors_in_intervals.certifying_inequalities.matrix_homogeneous_alternative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_homogeneous_alternative</span></code></a>(A, B, C)</p></td>
+<td><p>Alternative system matrix for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous" title="vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_inhomogeneous</span></code></a>(A, B[, b, c])</p></td>
+<td><p>Return a block matrix for the system <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous1_alternative" title="vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous1_alternative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_inhomogeneous1_alternative</span></code></a>(A, B, b, c)</p></td>
+<td><p>Matrix of first alternative system for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous2_alternative" title="vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous2_alternative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix_inhomogeneous2_alternative</span></code></a>(A, B, b, c)</p></td>
+<td><p>Matrix of second alternative system for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.b_to_intervals">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">b_to_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.b_to_intervals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the right hand side of <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b</span></code> to intervals</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.bc_to_intervals">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">bc_to_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.bc_to_intervals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts both right hand sides of <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code> to intervals</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.c_to_intervals">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">c_to_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.c_to_intervals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the right hand side of <code class="docutils literal notranslate"><span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code> to intervals</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.certify_homogeneous">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">certify_homogeneous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.certify_homogeneous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the system <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code> has a solution and certifies it.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> – a matrix</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B</span></code> – a matrix</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">C</span></code> – a matrix</p></li>
+</ul>
+<p>OUTPUT:
+A tuple of a boolean and a list of vectors certifying the result.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.certify_inhomogeneous">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">certify_inhomogeneous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.certify_inhomogeneous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the system <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code> has a solution and certifies it.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> – a matrix</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B</span></code> – a matrix</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b</span></code> – a vector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c</span></code> – a vector</p></li>
+</ul>
+<p>OUTPUT:
+A tuple of a boolean and a list of vectors certifying the result.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.elementary_vectors_generator_trailing_nonzero">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">elementary_vectors_generator_trailing_nonzero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.elementary_vectors_generator_trailing_nonzero" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return generator of elementary vectors that are non-zero at last component</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">M</span></code> – a matrix</p></li>
+</ul>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="elementary_vectors.functions.html#elementary_vectors.functions.elementary_vectors" title="elementary_vectors.functions.elementary_vectors"><code class="xref py py-func docutils literal notranslate"><span class="pre">elementary_vectors.functions.elementary_vectors()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.exists_orthogonal_vector_homogeneous">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">exists_orthogonal_vector_homogeneous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_strict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_non_strict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.exists_orthogonal_vector_homogeneous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether there exists an orthogonal vector to <code class="docutils literal notranslate"><span class="pre">v</span></code> lying by homogeneous intervals.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> – a vector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">range_strict</span></code> – range of strict inequalities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">range_non_strict</span></code> – range of non-strict inequalities</p></li>
+</ul>
+<p>OUTPUT:
+Checks if there exists an orthogonal vector to <code class="docutils literal notranslate"><span class="pre">v</span></code> that lies in homogeneous intervals.
+The intervals are <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">oo)</span></code> for components in <code class="docutils literal notranslate"><span class="pre">range_strict</span></code>,
+<code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">oo)</span></code> for components in <code class="docutils literal notranslate"><span class="pre">range_non_strict</span></code>
+and <code class="docutils literal notranslate"><span class="pre">{0}</span></code> for all remaining components.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="vectors_in_intervals.existence.html#vectors_in_intervals.existence.exists_orthogonal_vector" title="vectors_in_intervals.existence.exists_orthogonal_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">vectors_in_intervals.existence.exists_orthogonal_vector()</span></code></a></p>
+</div>
+<p>TESTS:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals.certifying_inequalities</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">C</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">B</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_homogeneous</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="o">....</span><span class="p">:</span>     <span class="k">assert</span><span class="p">(</span><span class="n">exists_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span> <span class="o">==</span> <span class="n">exists_orthogonal_vector_homogeneous</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">nrows</span><span class="p">()),</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">nrows</span><span class="p">(),</span> <span class="n">A</span><span class="o">.</span><span class="n">nrows</span><span class="p">()</span> <span class="o">+</span> <span class="n">B</span><span class="o">.</span><span class="n">nrows</span><span class="p">())))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.exists_orthogonal_vector_inhomogeneous">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">exists_orthogonal_vector_inhomogeneous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.exists_orthogonal_vector_inhomogeneous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether there exists an orthogonal vector <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">(z_1,</span> <span class="pre">z_2)</span></code> to <code class="docutils literal notranslate"><span class="pre">v</span></code> satisfying <code class="docutils literal notranslate"><span class="pre">z_1</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">z_2</span> <span class="pre">&lt;</span> <span class="pre">c</span></code>.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> – a vector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">b</span></code> – a vector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c</span></code> – a vector</p></li>
+</ul>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="vectors_in_intervals.existence.html#vectors_in_intervals.existence.exists_orthogonal_vector" title="vectors_in_intervals.existence.exists_orthogonal_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">vectors_in_intervals.existence.exists_orthogonal_vector()</span></code></a></p>
+</div>
+<p>TESTS:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals.certifying_inequalities</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">b</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">c</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">bc_to_intervals</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">block</span><span class="p">([[</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">B</span><span class="o">.</span><span class="n">T</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="o">....</span><span class="p">:</span>     <span class="k">assert</span><span class="p">(</span><span class="n">exists_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span> <span class="o">==</span> <span class="n">exists_orthogonal_vector_inhomogeneous</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.intervals_homogeneous">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">intervals_homogeneous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.intervals_homogeneous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the intervals corresponding to <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.intervals_homogeneous_alternative">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">intervals_homogeneous_alternative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.intervals_homogeneous_alternative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alternative system intervals for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<p>Returns a list of intervals.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.matrix_homogeneous_alternative" title="vectors_in_intervals.certifying_inequalities.matrix_homogeneous_alternative"><code class="xref py py-func docutils literal notranslate"><span class="pre">matrix_homogeneous_alternative()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.intervals_inhomogeneous1_alternative">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">intervals_inhomogeneous1_alternative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.intervals_inhomogeneous1_alternative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intervals of first alternative system for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code></p>
+<p>Returns a list of intervals.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.intervals_inhomogeneous2_alternative">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">intervals_inhomogeneous2_alternative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.intervals_inhomogeneous2_alternative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intervals of second alternative system for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code></p>
+<p>Returns a list of intervals.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.matrix_homogeneous">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">matrix_homogeneous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.matrix_homogeneous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a block matrix for the system <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.matrix_homogeneous_alternative">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">matrix_homogeneous_alternative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.matrix_homogeneous_alternative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alternative system matrix for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&gt;=</span> <span class="pre">0,</span> <span class="pre">C</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+<p>Returns a matrix.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#vectors_in_intervals.certifying_inequalities.intervals_homogeneous_alternative" title="vectors_in_intervals.certifying_inequalities.intervals_homogeneous_alternative"><code class="xref py py-func docutils literal notranslate"><span class="pre">intervals_homogeneous_alternative()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">matrix_inhomogeneous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a block matrix for the system <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous1_alternative">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">matrix_inhomogeneous1_alternative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous1_alternative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix of first alternative system for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code></p>
+<p>Returns a matrix.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous2_alternative">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.certifying_inequalities.</span></span><span class="sig-name descname"><span class="pre">matrix_inhomogeneous2_alternative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.certifying_inequalities.matrix_inhomogeneous2_alternative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix of second alternative system for <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">x</span> <span class="pre">&lt;=</span> <span class="pre">b,</span> <span class="pre">B</span> <span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">c</span></code></p>
+<p>Returns a matrix.</p>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="vectors_in_intervals.construction.html"
+                        title="previous chapter">vectors_in_intervals.construction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="vectors_in_intervals.utility.html"
+                        title="next chapter">vectors_in_intervals.utility</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/vectors_in_intervals.certifying_inequalities.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.utility.html" title="vectors_in_intervals.utility"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.construction.html" title="vectors_in_intervals.construction"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">elementary_vectors 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">vectors_in_intervals.certifying_inequalities</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023, Marcus Aichmayr.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>

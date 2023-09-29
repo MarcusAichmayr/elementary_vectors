@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>vectors_in_intervals.existence &#8212; elementary_vectors 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pyramid.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="vectors_in_intervals.construction" href="vectors_in_intervals.construction.html" />
+    <link rel="prev" title="vectors_in_intervals.setup_intervals" href="vectors_in_intervals.setup_intervals.html" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.construction.html" title="vectors_in_intervals.construction"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.setup_intervals.html" title="vectors_in_intervals.setup_intervals"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">elementary_vectors 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">vectors_in_intervals.existence</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-vectors_in_intervals.existence">
+<span id="vectors-in-intervals-existence"></span><h1>vectors_in_intervals.existence<a class="headerlink" href="#module-vectors_in_intervals.existence" title="Permalink to this headline">¶</a></h1>
+<p>Existence of vectors with components in intervals.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.existence.exists_orthogonal_vector" title="vectors_in_intervals.existence.exists_orthogonal_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exists_orthogonal_vector</span></code></a>(v, intervals)</p></td>
+<td><p>Check whether a normal vector exists that lies in the specified intervals.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.existence.exists_vector" title="vectors_in_intervals.existence.exists_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exists_vector</span></code></a>(data, intervals[, certify])</p></td>
+<td><p>Return whether a vector exists in a given vector space such that the components lie in the specified intervals.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.existence.exists_orthogonal_vector">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.existence.</span></span><span class="sig-name descname"><span class="pre">exists_orthogonal_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.existence.exists_orthogonal_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether a normal vector exists that lies in the specified intervals.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> – a vector of length <code class="docutils literal notranslate"><span class="pre">n</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">intervals</span></code> – a list of <code class="docutils literal notranslate"><span class="pre">n</span></code> intervals (<code class="docutils literal notranslate"><span class="pre">RealSet</span></code>)</p></li>
+</ul>
+<p>OUTPUT:</p>
+<p>Return whether there exists a vector <code class="docutils literal notranslate"><span class="pre">z</span></code> such that the scalar product of <code class="docutils literal notranslate"><span class="pre">z</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> is zero
+and each component of <code class="docutils literal notranslate"><span class="pre">z</span></code> lies in the respective interval of the list <code class="docutils literal notranslate"><span class="pre">intervals</span></code>.
+Raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if the lengths of <code class="docutils literal notranslate"><span class="pre">v</span></code> and <code class="docutils literal notranslate"><span class="pre">intervals</span></code> are different.</p>
+<p>EXAMPLES:</p>
+<p>We define several lists of intervals and vectors
+and apply the function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="kc">True</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="kc">False</span>
+</pre></div>
+</div>
+<p>Next, we consider open intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="kc">True</span>
+</pre></div>
+</div>
+<p>We can even consider unbounded intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">oo</span><span class="p">],</span> <span class="p">[</span><span class="n">oo</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="o">+</span><span class="n">oo</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="n">oo</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="kc">True</span>
+</pre></div>
+</div>
+<p>TESTS:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>sage: I = intervals_from_bounds([-oo, 0], [oo, 0], False, False)
+sage: I
+[(-oo, +oo), {}]
+sage: v = vector([1, 0])
+sage: exists_orthogonal_vector(v, I)
+False
+sage: v = vector([1])
+sage: exists_orthogonal_vector(v, I)
+Traceback (most recent call last):
+...
+ValueError: Lengths of ``v`` and ``intervals`` are different!
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.existence.exists_vector">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.existence.</span></span><span class="sig-name descname"><span class="pre">exists_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">certify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.existence.exists_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether a vector exists in a given vector space such that the components lie in the specified intervals.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">data</span></code> – either a real matrix with <code class="docutils literal notranslate"><span class="pre">n</span></code> columns or a list of</dt><dd><p>elementary vectors of length <code class="docutils literal notranslate"><span class="pre">n</span></code></p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">intervals</span></code> – a list of <code class="docutils literal notranslate"><span class="pre">n</span></code> intervals (<code class="docutils literal notranslate"><span class="pre">RealSet</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">certify</span></code> – a boolean (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
+<p>OUTPUT:</p>
+<p>Return whether there exists a vector in a vector space
+such that the components lie in specified intervals using elementary vectors.</p>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">data</span></code> is a matrix, check if a vector in the rowspace of this matrix lies in the intervals.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">data</span></code> is a list of elementary vectors, check if a vector exists orthogonal to those elementary vectors.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">certify</span></code> is true and no vector exists, an elementary vector certifying non-existence is returned.</p></li>
+</ul>
+<p>ALGORITHM:</p>
+<p>The underlying algorithm is based on Minty’s Lemma. (see <a class="reference internal" href="#min74" id="id1"><span>[Min74]</span></a>)</p>
+<dl class="citation">
+<dt class="label" id="min74"><span class="brackets"><a class="fn-backref" href="#id1">Min74</a></span></dt>
+<dd><p>Minty, G. J.:
+„A <cite>from scratch</cite> proof of a theorem of Rockafellar and Fulkerson“.
+In: Mathematical Programming 7 (1974), pp. 368-375.</p>
+</dd>
+</dl>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">lower_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">upper_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>First, we consider closed intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="kc">True</span>
+</pre></div>
+</div>
+<p>Next, we take open intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="kc">False</span>
+</pre></div>
+</div>
+<p>Since no vector exists, there is an elementary vector certifying this.
+To find one, we pass <code class="docutils literal notranslate"><span class="pre">certify=True</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">certify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Mixed intervals are also possible:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">lower_bounds_closed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">upper_bounds_closed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">,</span> <span class="n">lower_bounds_closed</span><span class="p">,</span> <span class="n">upper_bounds_closed</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="kc">False</span>
+</pre></div>
+</div>
+<p>Finally, we consider unbounded intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">lower_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">oo</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">upper_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="n">oo</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">lower_bounds_closed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">upper_bounds_closed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">,</span> <span class="n">lower_bounds_closed</span><span class="p">,</span> <span class="n">upper_bounds_closed</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="o">+</span><span class="n">oo</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">oo</span><span class="p">,</span> <span class="mi">5</span><span class="p">]]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">exists_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="kc">True</span>
+</pre></div>
+</div>
+<p>TESTS:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>sage: I = intervals_from_bounds([0, 0], [1, 0], False)
+sage: I
+[(0, 1], {}]
+sage: exists_vector([], I)
+False
+sage: M = random_matrix(QQ, 0, 2)
+sage: exists_vector(M, I)
+False
+sage: M = random_matrix(QQ, 0, 1)
+sage: exists_vector(M, I)
+Traceback (most recent call last):
+...
+ValueError: Number of columns of matrix ``data`` and length of ``intervals`` are different!
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="vectors_in_intervals.setup_intervals.html"
+                        title="previous chapter">vectors_in_intervals.setup_intervals</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="vectors_in_intervals.construction.html"
+                        title="next chapter">vectors_in_intervals.construction</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/vectors_in_intervals.existence.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.construction.html" title="vectors_in_intervals.construction"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.setup_intervals.html" title="vectors_in_intervals.setup_intervals"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">elementary_vectors 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">vectors_in_intervals.existence</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023, Marcus Aichmayr.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>

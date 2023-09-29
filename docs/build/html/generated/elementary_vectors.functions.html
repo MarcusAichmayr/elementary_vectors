@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>elementary_vectors.functions &#8212; elementary_vectors 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pyramid.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="elementary_vectors.functions_dd" href="elementary_vectors.functions_dd.html" />
+    <link rel="prev" title="Documentation of elementary_vectors" href="../index.html" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="elementary_vectors.functions_dd.html" title="elementary_vectors.functions_dd"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Documentation of elementary_vectors"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">elementary_vectors 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">elementary_vectors.functions</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-elementary_vectors.functions">
+<span id="elementary-vectors-functions"></span><h1>elementary_vectors.functions<a class="headerlink" href="#module-elementary_vectors.functions" title="Permalink to this headline">¶</a></h1>
+<p>Computing elementary vectors.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#elementary_vectors.functions.elementary_vectors" title="elementary_vectors.functions.elementary_vectors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elementary_vectors</span></code></a>(data[, dimensions, ...])</p></td>
+<td><p>Compute elementary vectors of a subspace determined by a matrix or a list of maximal minors.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#elementary_vectors.functions.elementary_vectors_from_matrix" title="elementary_vectors.functions.elementary_vectors_from_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elementary_vectors_from_matrix</span></code></a>(M[, ...])</p></td>
+<td><p>Compute elementary vectors of a subspace determined by the matrix <code class="docutils literal notranslate"><span class="pre">M</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#elementary_vectors.functions.elementary_vectors_from_minors" title="elementary_vectors.functions.elementary_vectors_from_minors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elementary_vectors_from_minors</span></code></a>(minors, ...)</p></td>
+<td><p>Compute elementary vectors determined by given maximal minors of a matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#elementary_vectors.functions.non_negative_vectors" title="elementary_vectors.functions.non_negative_vectors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">non_negative_vectors</span></code></a>(vectors)</p></td>
+<td><p>Return non-negative vectors.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="elementary_vectors.functions.elementary_vectors">
+<span class="sig-prename descclassname"><span class="pre">elementary_vectors.functions.</span></span><span class="sig-name descname"><span class="pre">elementary_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_multiples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#elementary_vectors.functions.elementary_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute elementary vectors of a subspace determined by a matrix or a list of maximal minors.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code> – a matrix or a list of maximal minors</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">dimensions</span></code> – Not needed if <code class="docutils literal notranslate"><span class="pre">data</span></code> is a matrix.</dt><dd><p>Otherwise, this is a list of dimensions of the matrix
+corresponding to the list of maximal minors <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remove_multiples</span></code> – a boolean (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">ring</span></code> – Parent of the entries of the elementary vectors.</dt><dd><p>By default, determine this from <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">generator</span></code> – a boolean (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
+<p>OUTPUT:</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">data</span></code> is a matrix,
+returns a list of elementary vectors lying in the kernel of this matrix.</p>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">generator</span></code> is true, a generator of elementary vectors is returned.</p></li>
+</ul>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">elementary_vectors</span> <span class="kn">import</span> <span class="n">elementary_vectors</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]);</span> <span class="n">M</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">1</span> <span class="o">-</span><span class="mi">1</span>  <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">2</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">2</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>We can also compute elementary vectors over a finite field:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">(</span><span class="n">GF</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">B</span>
+<span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">0</span> <span class="mi">5</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+<span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>Variables are also supported:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">var</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)</span>
+<span class="n">c</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">C</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">C</span>
+<span class="p">[</span><span class="n">c</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">0</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">),</span>
+ <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+ <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">),</span>
+ <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span>
+ <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">c</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">data</span></code> is a list of maximal minors:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]);</span> <span class="n">M</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">1</span> <span class="o">-</span><span class="mi">1</span>  <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">2</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">2</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">m</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">minors</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span> <span class="n">m</span>
+<span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="n">dimensions</span><span class="p">())</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="n">dimensions</span><span class="p">(),</span> <span class="n">ring</span><span class="o">=</span><span class="n">QQ</span><span class="p">)</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>TESTS:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">random_matrix</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]))</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="elementary_vectors.functions.elementary_vectors_from_matrix">
+<span class="sig-prename descclassname"><span class="pre">elementary_vectors.functions.</span></span><span class="sig-name descname"><span class="pre">elementary_vectors_from_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_multiples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#elementary_vectors.functions.elementary_vectors_from_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute elementary vectors of a subspace determined by the matrix <code class="docutils literal notranslate"><span class="pre">M</span></code>.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">M</span></code> – a matrix</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remove_multiples</span></code> – a boolean (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">generator</span></code> – a boolean (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
+<p>OUTPUT:</p>
+<p>Returns a list of elementary vectors lying in the kernel of <code class="docutils literal notranslate"><span class="pre">M</span></code>.</p>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">remove_multiples</span></code> is true, the output will be reduced such that
+all elementary vectors have distinct support.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">generator</span></code> is true, the output will be a generator object instead of a list.</p></li>
+</ul>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#elementary_vectors.functions.elementary_vectors" title="elementary_vectors.functions.elementary_vectors"><code class="xref py py-func docutils literal notranslate"><span class="pre">elementary_vectors()</span></code></a></p>
+</div>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">elementary_vectors.functions</span> <span class="kn">import</span> <span class="n">elementary_vectors_from_matrix</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]);</span> <span class="n">M</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">1</span> <span class="o">-</span><span class="mi">1</span>  <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">2</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">2</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors_from_matrix</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors_from_matrix</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">remove_multiples</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span>
+ <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+ <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+ <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="elementary_vectors.functions.elementary_vectors_from_minors">
+<span class="sig-prename descclassname"><span class="pre">elementary_vectors.functions.</span></span><span class="sig-name descname"><span class="pre">elementary_vectors_from_minors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_multiples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#elementary_vectors.functions.elementary_vectors_from_minors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute elementary vectors determined by given maximal minors of a matrix.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">minors</span></code> – a list of maximal minors of a matrix</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dim</span></code> – a tuple of the dimensions of the matrix corresponding to <code class="docutils literal notranslate"><span class="pre">minors</span></code></p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">ring</span></code> – Parent of the entries of the elementary vectors.</dt><dd><p>By default, determine this from <code class="docutils literal notranslate"><span class="pre">minors</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">generator</span></code> – a boolean (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Keyword arguments may be specified to apply certain reductions to the output.
+By default, multiples and zero vectors are removed from the output.
+Factors are not canceled by default since this operation is less efficient.
+Possible keyword arguments are the same as in the function
+<a class="reference internal" href="elementary_vectors.reductions.html#elementary_vectors.reductions.reduce_vectors" title="elementary_vectors.reductions.reduce_vectors"><code class="xref py py-func docutils literal notranslate"><span class="pre">elementary_vectors.reductions.reduce_vectors()</span></code></a>.</p>
+</div>
+<p>OUTPUT:</p>
+<p>Uses the maximal minors <code class="docutils literal notranslate"><span class="pre">minors</span></code> to compute the elementary vectors of the
+corresponding matrix.
+If <code class="docutils literal notranslate"><span class="pre">generator</span></code> is true, a generator of elementary vectors will be returned instead of a list.
+In this case, no reductions are applied.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#elementary_vectors.functions.elementary_vectors" title="elementary_vectors.functions.elementary_vectors"><code class="xref py py-func docutils literal notranslate"><span class="pre">elementary_vectors()</span></code></a></p>
+</div>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">elementary_vectors.functions</span> <span class="kn">import</span> <span class="n">elementary_vectors_from_minors</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]);</span> <span class="n">M</span>
+<span class="p">[</span> <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">1</span> <span class="o">-</span><span class="mi">1</span>  <span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">2</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">0</span>  <span class="mi">2</span><span class="p">]</span>
+<span class="p">[</span> <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span>  <span class="mi">1</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">m</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">minors</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span> <span class="n">m</span>
+<span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors_from_minors</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors_from_minors</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="n">dimensions</span><span class="p">())</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">elementary_vectors_from_minors</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="n">dimensions</span><span class="p">(),</span> <span class="n">ring</span><span class="o">=</span><span class="n">QQ</span><span class="p">)</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="elementary_vectors.functions.non_negative_vectors">
+<span class="sig-prename descclassname"><span class="pre">elementary_vectors.functions.</span></span><span class="sig-name descname"><span class="pre">non_negative_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vectors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#elementary_vectors.functions.non_negative_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return non-negative vectors.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">vectors</span></code> – a list of vectors</p></li>
+</ul>
+<p>OUTPUT:</p>
+<p>Return all vectors of <code class="docutils literal notranslate"><span class="pre">vectors</span></code> that are
+- non_negative in each component; or
+- negative in each component. Those will be multiplied by <code class="docutils literal notranslate"><span class="pre">-1</span></code>; or
+- containing variables such that no opposing signs occur.</p>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">elementary_vectors.functions</span> <span class="kn">import</span> <span class="n">non_negative_vectors</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">vector</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">l</span>
+<span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">non_negative_vectors</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>Now, we consider an example with a variable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">elementary_vectors</span> <span class="kn">import</span> <span class="n">elementary_vectors</span>
+<span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">elementary_vectors.reductions</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">var</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+<span class="n">a</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">evs</span> <span class="o">=</span> <span class="n">reduce_vectors</span><span class="p">(</span><span class="n">elementary_vectors</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">cancel_factors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">evs</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">a</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">non_negative_vectors</span><span class="p">(</span><span class="n">evs</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="ne">UserWarning</span><span class="p">:</span> <span class="n">Cannot</span> <span class="n">determine</span> <span class="n">sign</span> <span class="n">of</span> <span class="n">symbolic</span> <span class="n">expression</span><span class="p">,</span> <span class="n">returning</span> <span class="mi">0</span> <span class="n">instead</span><span class="o">.</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">a</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">assume</span><span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">non_negative_vectors</span><span class="p">(</span><span class="n">evs</span><span class="p">)</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Documentation of elementary_vectors</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="elementary_vectors.functions_dd.html"
+                        title="next chapter">elementary_vectors.functions_dd</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/elementary_vectors.functions.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="elementary_vectors.functions_dd.html" title="elementary_vectors.functions_dd"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Documentation of elementary_vectors"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">elementary_vectors 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">elementary_vectors.functions</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023, Marcus Aichmayr.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>

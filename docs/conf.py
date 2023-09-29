@@ -18,19 +18,19 @@ sys.path.insert(0, os.path.abspath('../src'))
 
 # Imports of some subpackages of Sage fail if executed in the wrong order.
 # We work around that issue by having Sphinx import sage.all before trying
-# to import anything from sign_vectors.
+# to import anything from elementary_vectors.
 import sage.all
 
 # -- Project information -----------------------------------------------------
 
-project = u'sign_vectors'
-copyright = u'2022, Marcus Aichmayr'
+project = u'elementary_vectors'
+copyright = u'2023, Marcus Aichmayr'
 author = u'Marcus Aichmayr'
 
 # The short X.Y version
 version = u''
 # The full version, including alpha/beta/rc tags
-release = u'0.1'
+release = u'1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -108,7 +108,7 @@ html_static_path = []
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'sign_vectorsdoc'
+htmlhelp_basename = 'elementary_vectors_doc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -135,7 +135,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'sign_vectors.tex', u'sign\\_vectors Documentation',
+    (master_doc, 'elementary_vectors.tex', u'elementary\\_vectors Documentation',
      u'Marcus Aichmayr', 'manual'),
 ]
 
@@ -145,7 +145,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'sign_vectors', u'sign_vectors Documentation',
+    (master_doc, 'elementary_vectors', u'elementary_vectors Documentation',
      [author], 1)
 ]
 
@@ -156,8 +156,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'sign_vectors', u'sign_vectors Documentation',
-     author, 'sign_vectors', 'One line description of project.',
+    (master_doc, 'elementary_vectors', u'elementary_vectors Documentation',
+     author, 'elementary_vectors', 'One line description of project.',
      'Miscellaneous'),
 ]
 

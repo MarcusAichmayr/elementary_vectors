@@ -1,0 +1,421 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>vectors_in_intervals.construction &#8212; elementary_vectors 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pyramid.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="vectors_in_intervals.certifying_inequalities" href="vectors_in_intervals.certifying_inequalities.html" />
+    <link rel="prev" title="vectors_in_intervals.existence" href="vectors_in_intervals.existence.html" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.certifying_inequalities.html" title="vectors_in_intervals.certifying_inequalities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.existence.html" title="vectors_in_intervals.existence"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">elementary_vectors 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">vectors_in_intervals.construction</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-vectors_in_intervals.construction">
+<span id="vectors-in-intervals-construction"></span><h1>vectors_in_intervals.construction<a class="headerlink" href="#module-vectors_in_intervals.construction" title="Permalink to this headline">¶</a></h1>
+<p>Constructing vectors with components in intervals.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.construction.construct_orthogonal_vector" title="vectors_in_intervals.construction.construct_orthogonal_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">construct_orthogonal_vector</span></code></a>(v, intervals)</p></td>
+<td><p>Construct a vector that is normal on a given vector and lies in the specified intervals.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.construction.construct_vector" title="vectors_in_intervals.construction.construct_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">construct_vector</span></code></a>(M, intervals[, evs])</p></td>
+<td><p>Return a vector of a given vectorspace such that the components lie in given intervals.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.construction.multiple_in_intervals" title="vectors_in_intervals.construction.multiple_in_intervals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiple_in_intervals</span></code></a>(v, intervals)</p></td>
+<td><p>Return a multiple of a vector that lies in given intervals if possible.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.construction.multiple_in_intervals_candidates" title="vectors_in_intervals.construction.multiple_in_intervals_candidates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiple_in_intervals_candidates</span></code></a>(v, intervals)</p></td>
+<td><p>Return the biggest interval <code class="docutils literal notranslate"><span class="pre">J</span></code> such that <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">v</span></code> lies in given intervals for all <code class="docutils literal notranslate"><span class="pre">a</span></code> in <code class="docutils literal notranslate"><span class="pre">J</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vectors_in_intervals.construction.simplest_vector_in_intervals" title="vectors_in_intervals.construction.simplest_vector_in_intervals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simplest_vector_in_intervals</span></code></a>(intervals)</p></td>
+<td><p>Return the simplest vector such that each component is in a given interval.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vectors_in_intervals.construction.vector_from_sign_vector" title="vectors_in_intervals.construction.vector_from_sign_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vector_from_sign_vector</span></code></a>(sv, data)</p></td>
+<td><p>Find a vector in the row space of a matrix that has given signs.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.construction.construct_orthogonal_vector">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.construction.</span></span><span class="sig-name descname"><span class="pre">construct_orthogonal_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.construction.construct_orthogonal_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a vector that is normal on a given vector and lies in the specified intervals.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> – a vector of length <code class="docutils literal notranslate"><span class="pre">n</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">intervals</span></code> – a list of <code class="docutils literal notranslate"><span class="pre">n</span></code> intervals (<code class="docutils literal notranslate"><span class="pre">RealSet</span></code>)</p></li>
+</ul>
+<p>OUTPUT:</p>
+<p>Returns a (rational) vector <code class="docutils literal notranslate"><span class="pre">z</span></code> such that the scalar product of <code class="docutils literal notranslate"><span class="pre">z</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> is zero
+and each component of <code class="docutils literal notranslate"><span class="pre">z</span></code> lies in the respective interval of the list <code class="docutils literal notranslate"><span class="pre">intervals</span></code>.
+If no such vector exists, raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> instead.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="vectors_in_intervals.existence.html#vectors_in_intervals.existence.exists_orthogonal_vector" title="vectors_in_intervals.existence.exists_orthogonal_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">vectors_in_intervals.existence.exists_orthogonal_vector()</span></code></a></p>
+</div>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">}]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">construct_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We define another vector. This time, there is no solution:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">construct_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="o">...</span>
+<span class="ne">ValueError</span><span class="p">:</span> <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">solution</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Next, we consider open intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">construct_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can even consider unbounded intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">oo</span><span class="p">],</span> <span class="p">[</span><span class="n">oo</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="o">+</span><span class="n">oo</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="n">oo</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">construct_orthogonal_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.construction.construct_vector">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.construction.</span></span><span class="sig-name descname"><span class="pre">construct_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.construction.construct_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a vector of a given vectorspace such that the components lie in given intervals.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">M</span></code> – a matrix with <code class="docutils literal notranslate"><span class="pre">n</span></code> columns</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">intervals</span></code> – a list of <code class="docutils literal notranslate"><span class="pre">n</span></code> intervals (<code class="docutils literal notranslate"><span class="pre">RealSet</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">evs</span></code> – an optional iterable of elementary vectors</p></li>
+</ul>
+<p>OUTPUT:</p>
+<p>Returns a vector in the rowspace of <code class="docutils literal notranslate"><span class="pre">M</span></code> such that each component lies
+in the respective interval of the list <code class="docutils literal notranslate"><span class="pre">intervals</span></code>.
+If no such vector exists, raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> instead.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="vectors_in_intervals.existence.html#vectors_in_intervals.existence.exists_vector" title="vectors_in_intervals.existence.exists_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">vectors_in_intervals.existence.exists_vector()</span></code></a></p>
+</div>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">lower_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">upper_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>First, we consider closed intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">construct_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we take open intervals. This time, there is no solution:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">construct_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="o">...</span>
+<span class="ne">ValueError</span><span class="p">:</span> <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">solution</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Finally, we consider unbounded intervals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">lower_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">oo</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">upper_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="n">oo</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">lower_bounds_closed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">upper_bounds_closed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">,</span> <span class="n">lower_bounds_closed</span><span class="p">,</span> <span class="n">upper_bounds_closed</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="o">+</span><span class="n">oo</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">oo</span><span class="p">,</span> <span class="mi">5</span><span class="p">]]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">construct_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>TESTS:</p>
+<p>This example shows the case <code class="docutils literal notranslate"><span class="pre">upper_bounds_closed</span> <span class="pre">==</span> <span class="pre">1</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span>
+<span class="o">....</span><span class="p">:</span>     <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="o">....</span><span class="p">:</span>     <span class="p">[</span><span class="mi">3</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="o">....</span><span class="p">:</span>     <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span>
+<span class="o">....</span><span class="p">:</span>     <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+<span class="o">....</span><span class="p">:</span> <span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">construct_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>zero matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">zero_matrix</span><span class="p">(</span><span class="n">QQ</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span>
+<span class="o">....</span><span class="p">:</span>     <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="o">....</span><span class="p">:</span>     <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="o">....</span><span class="p">:</span>     <span class="kc">False</span><span class="p">,</span>
+<span class="o">....</span><span class="p">:</span>     <span class="kc">True</span>
+<span class="o">....</span><span class="p">:</span> <span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">construct_vector</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.construction.multiple_in_intervals">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.construction.</span></span><span class="sig-name descname"><span class="pre">multiple_in_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.construction.multiple_in_intervals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a multiple of a vector that lies in given intervals if possible.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> – a vector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">intervals</span></code> – a list of intervals (<code class="docutils literal notranslate"><span class="pre">RealSet</span></code>)</p></li>
+</ul>
+<p>OUTPUT:
+Computes a multiple <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">v</span></code> that lies in the intervals.
+The number <code class="docutils literal notranslate"><span class="pre">a</span></code> is chosen as simple as possible.
+However, there might exist a simpler multiple lying in the intervals.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="vectors_in_intervals.utility.html#vectors_in_intervals.utility.simplest_element_in_interval" title="vectors_in_intervals.utility.simplest_element_in_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">utility.simplest_element_in_interval()</span></code></a></p>
+</div>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals.construction</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="n">oo</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">oo</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">9</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">multiple_in_intervals</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="o">/</span><span class="mi">9</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="o">/</span><span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.construction.multiple_in_intervals_candidates">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.construction.</span></span><span class="sig-name descname"><span class="pre">multiple_in_intervals_candidates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.construction.multiple_in_intervals_candidates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the biggest interval <code class="docutils literal notranslate"><span class="pre">J</span></code> such that <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">v</span></code> lies in given intervals for all <code class="docutils literal notranslate"><span class="pre">a</span></code> in <code class="docutils literal notranslate"><span class="pre">J</span></code>.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> – a vector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">intervals</span></code> – a list of intervals (<code class="docutils literal notranslate"><span class="pre">RealSet</span></code>)</p></li>
+</ul>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#vectors_in_intervals.construction.multiple_in_intervals" title="vectors_in_intervals.construction.multiple_in_intervals"><code class="xref py py-func docutils literal notranslate"><span class="pre">multiple_in_intervals()</span></code></a></p>
+</div>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals.construction</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="n">oo</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">oo</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">9</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">multiple_in_intervals_candidates</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">multiple_in_intervals_candidates</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">{}</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">multiple_in_intervals_candidates</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="n">vector</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">multiple_in_intervals_candidates</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.construction.simplest_vector_in_intervals">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.construction.</span></span><span class="sig-name descname"><span class="pre">simplest_vector_in_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.construction.simplest_vector_in_intervals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the simplest vector such that each component is in a given interval.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">intervals</span></code> – a list of intervals (<code class="docutils literal notranslate"><span class="pre">RealSet</span></code>)</p></li>
+</ul>
+<p>OUTPUT:
+A vector with components in the intervals.
+If possible, each component is the integer
+with smallest possible absolute value in the corresponding interval.
+Otherwise, components are rational with smallest possible denominator.</p>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals.construction</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">lower_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">upper_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">simplest_vector_in_intervals</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span> <span class="o">=</span> <span class="n">intervals_from_bounds</span><span class="p">(</span><span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">I</span>
+<span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">simplest_vector_in_intervals</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">11</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vectors_in_intervals.construction.vector_from_sign_vector">
+<span class="sig-prename descclassname"><span class="pre">vectors_in_intervals.construction.</span></span><span class="sig-name descname"><span class="pre">vector_from_sign_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vectors_in_intervals.construction.vector_from_sign_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a vector in the row space of a matrix that has given signs.</p>
+<p>INPUT:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sv</span></code> – a sign vector of length <code class="docutils literal notranslate"><span class="pre">n</span></code></p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">data</span></code> – either a real matrix with <code class="docutils literal notranslate"><span class="pre">n</span></code> columns or a list of</dt><dd><p>elementary vectors of length <code class="docutils literal notranslate"><span class="pre">n</span></code></p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>OUTPUT:
+Return a conformal sum of elementary vectors that lies in the given subspace.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">data</span></code> is a matrix, the elementary vectors in the kernel of this matrix are used for the result.
+If <code class="docutils literal notranslate"><span class="pre">data</span></code> is a list of elementary vectors, those are used.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> is raised if no solution exists.</p>
+</div>
+<p>EXAMPLES:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">vectors_in_intervals</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">elementary_vectors</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="kn">from</span> <span class="nn">sign_vectors</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">M</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">vector_from_sign_vector</span><span class="p">(</span><span class="n">zero_sign_vector</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">M</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">vector_from_sign_vector</span><span class="p">(</span><span class="n">sign_vector</span><span class="p">(</span><span class="s2">&quot;+-+0&quot;</span><span class="p">),</span> <span class="n">M</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">vector_from_sign_vector</span><span class="p">(</span><span class="n">sign_vector</span><span class="p">(</span><span class="s2">&quot;+0+0&quot;</span><span class="p">),</span> <span class="n">M</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">vector_from_sign_vector</span><span class="p">(</span><span class="n">sign_vector</span><span class="p">(</span><span class="s2">&quot;+-0+&quot;</span><span class="p">),</span> <span class="n">M</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">vector_from_sign_vector</span><span class="p">(</span><span class="n">sign_vector</span><span class="p">(</span><span class="s2">&quot;+-0+&quot;</span><span class="p">),</span> <span class="n">M</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">evs</span> <span class="o">=</span> <span class="n">elementary_vectors</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">right_kernel_matrix</span><span class="p">())</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">vector_from_sign_vector</span><span class="p">(</span><span class="n">sign_vector</span><span class="p">(</span><span class="s2">&quot;+-0+&quot;</span><span class="p">),</span> <span class="n">evs</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">sage</span><span class="p">:</span> <span class="n">vector_from_sign_vector</span><span class="p">(</span><span class="n">sign_vector</span><span class="p">(</span><span class="s2">&quot;+0-0&quot;</span><span class="p">),</span> <span class="n">M</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="o">...</span>
+<span class="ne">ValueError</span><span class="p">:</span> <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">solution</span><span class="o">.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="vectors_in_intervals.existence.html"
+                        title="previous chapter">vectors_in_intervals.existence</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="vectors_in_intervals.certifying_inequalities.html"
+                        title="next chapter">vectors_in_intervals.certifying_inequalities</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/vectors_in_intervals.construction.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.certifying_inequalities.html" title="vectors_in_intervals.certifying_inequalities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="vectors_in_intervals.existence.html" title="vectors_in_intervals.existence"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">elementary_vectors 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">vectors_in_intervals.construction</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023, Marcus Aichmayr.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>
