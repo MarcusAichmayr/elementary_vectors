@@ -448,6 +448,38 @@ def non_negative_vectors(vectors):
 #                 result.append([l, non_negative_vectors(L)])
 #             return
 
+    # def sign_determined(expression):
+    #     r"""
+    #     Check whether the sign of a number or symbolic expression ``expression`` is uniquely determined.
+
+    #     EXAMPLES::
+
+    #         sage: from elementary_vectors.utility import sign_determined
+
+    #     Integers have always a unique sign::
+
+    #         sage: sign_determined(2)
+    #         True
+    #         sage: sign_determined(-5)
+    #         True
+
+    #     Now, we consider a variable::
+
+    #         sage: var('a')
+    #         a
+    #         sage: sign_determined(a)
+    #         False
+    #         sage: assume(a >= 0)
+    #         sage: sign_determined(a)
+    #         False
+    #         sage: assume(a != 0)
+    #         sage: sign_determined(a)
+    #         True
+    #         sage: sign_determined(a - 1)
+    #         False
+    #     """
+    #     return bool(SR(expression) > 0 or SR(expression) < 0 or SR(expression) == 0)
+
 #     evs, m = elementary_vectors(data, dim=dim, kernel=kernel, return_minors=True, ring=ring, **kwargs)
 #     if evs == []:
 #         return []

@@ -11,42 +11,8 @@
 #############################################################################
 
 from sage.modules.free_module_element import vector
-from sage.symbolic.ring import SR
 
 from sign_vectors import sign_vector
-
-
-def sign_determined(expression):
-    r"""
-    Check whether the sign of a number or symbolic expression ``expression`` is uniquely determined.
-
-    EXAMPLES::
-
-        sage: from elementary_vectors.utility import sign_determined
-
-    Integers have always a unique sign::
-
-        sage: sign_determined(2)
-        True
-        sage: sign_determined(-5)
-        True
-
-    Now, we consider a variable::
-
-        sage: var('a')
-        a
-        sage: sign_determined(a)
-        False
-        sage: assume(a >= 0)
-        sage: sign_determined(a)
-        False
-        sage: assume(a != 0)
-        sage: sign_determined(a)
-        True
-        sage: sign_determined(a - 1)
-        False
-    """
-    return bool(SR(expression) > 0 or SR(expression) < 0 or SR(expression) == 0)
 
 
 def kernel_vector_support_given(M, indices):
