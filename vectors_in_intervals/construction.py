@@ -18,7 +18,7 @@ from sage.sets.real_set import RealSet
 from sage.symbolic.relation import solve
 
 from .existence import exists_orthogonal_vector, exists_vector
-from .utility import simplest_element_in_interval, interval_from_bounds, solve_left
+from .utility import simplest_element_in_interval, interval_from_bounds, solve_left_for_roots
 from elementary_vectors import elementary_vectors
 from sign_vectors import sign_vector
 
@@ -503,9 +503,9 @@ def construct_vector(M, intervals, evs=None):
 
             # solve linear system to project back
             try:
-                x_k = M_bar.solve_left(xk_bar) * M # fails for certain matrices involving roots
+                x_k = M_bar.solve_left(xk_bar) * M
             except ValueError:
-                x_k = solve_left(M_bar, xk_bar) * M
+                x_k = solve_left_for_roots(M_bar, xk_bar) * M
 
             return x_k.simplify_full() if hasattr(x_k, "simplify_full") else x_k
 

@@ -240,7 +240,7 @@ def sb_child(cfl, left):
     return cfl[:-1] + [cfl[-1] - 1, 2]
 
 
-def solve_left(A, b):
+def solve_left_for_roots(A, b):
     r"""
     Find a solution for ``x*A = b`` that works for matrices with roots.
     
