@@ -30,11 +30,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v3
-      - name: Install SageMath and set PATH
-        run: |
-          wget https://github.com/sagemath/sage/archive/refs/tags/10.1.tar.gz
-          tar -xf 10.1.tar.gz
-          echo "export SAGE_PATH=$(pwd)/10.1.tar.gz" >> $GITHUB_ENV
+      - name: Install SageMath
+        run: apt install sagemath
       - name: Build with Sphinx
         uses: ammaraskar/sphinx-action@master
         with:
