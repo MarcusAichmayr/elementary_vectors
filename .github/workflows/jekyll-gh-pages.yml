@@ -32,8 +32,20 @@ jobs:
         uses: actions/configure-pages@v3
       - name: Install SageMath
         run: sudo apt install sagemath
+      - name: Install package
+        run: make install
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run doctests
+        run: make test
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
       - name: Generate documentation
-        run: make install && make doc
+        run: make doc
       - name: Move documentation
         run: mv ./docs/build/html ./_site
       - name: Upload artifact
