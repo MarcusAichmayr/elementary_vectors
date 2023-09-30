@@ -33,7 +33,7 @@ jobs:
       - name: Install SageMath
         run: sudo apt install sagemath
       - name: Generate documentation
-        run: make doc
+        run: make install && make doc
       - name: Move documentation
         run: mv ./docs/build/html ./_site
       - name: Upload artifact
