@@ -70,7 +70,7 @@ We can even consider unbounded intervals::
 The most important functions of this module are
 :func:`vectors_in_intervals.existence.exists_vector` and :func:`vectors_in_intervals.construction.construct_vector`.
 Given a matrix ``M`` and a list of intervals,
-we want to examine whether there exists a vector in the rowspace of ``M``,
+we want to examine whether there exists a vector in the row space of ``M``,
 such that the components lie in the given intervals::
 
     sage: M = matrix([1, 1, 0])

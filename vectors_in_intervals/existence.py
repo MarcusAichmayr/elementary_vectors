@@ -132,7 +132,7 @@ def exists_vector(data, intervals, certify=False):
     Return whether there exists a vector in a vector space
     such that the components lie in specified intervals using elementary vectors.
 
-    - If ``data`` is a matrix, check if a vector in the rowspace of this matrix lies in the intervals.
+    - If ``data`` is a matrix, check if a vector in the row space of this matrix lies in the intervals.
 
     - If ``data`` is a list of elementary vectors, check if a vector exists orthogonal to those elementary vectors.
 

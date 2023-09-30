@@ -389,7 +389,7 @@ def construct_orthogonal_vector(v, intervals):
 
 def construct_vector(M, intervals, evs=None):
     r"""
-    Return a vector of a given vectorspace such that the components lie in given intervals.
+    Return a vector of a given vector space such that the components lie in given intervals.
 
     INPUT:
 
@@ -401,7 +401,7 @@ def construct_vector(M, intervals, evs=None):
 
     OUTPUT:
 
-    Returns a vector in the rowspace of ``M`` such that each component lies
+    Returns a vector in the row space of ``M`` such that each component lies
     in the respective interval of the list ``intervals``.
     If no such vector exists, raises a ``ValueError`` instead.
 
