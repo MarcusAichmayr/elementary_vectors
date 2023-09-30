@@ -32,9 +32,9 @@ jobs:
         uses: actions/configure-pages@v3
       - name: Install SageMath and set PATH
         run: |
-          wget https://github.com/sagemath/sage/releases/download/v9.5/sage-9.5-Ubuntu_20.04-x86_64.tar.bz2
-          tar -xjf sage-9.5-Ubuntu_20.04-x86_64.tar.bz2
-          echo "export SAGE_PATH=$(pwd)/sage-9.5-Ubuntu_20.04-x86_64" >> $GITHUB_ENV
+          wget https://github.com/sagemath/sage/archive/refs/tags/10.1.tar.gz
+          tar -xjf 10.1.tar.gz
+          echo "export SAGE_PATH=$(pwd)/10.1.tar.gz" >> $GITHUB_ENV
       - name: Build with Sphinx
         uses: ammaraskar/sphinx-action@master
         with:
