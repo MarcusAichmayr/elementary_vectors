@@ -6,7 +6,7 @@ SHELL = sage -sh
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = sign_vectors
+SPHINXPROJ    = elementary_vectors
 SOURCEDIR     = .
 BUILDDIR      = build
 
