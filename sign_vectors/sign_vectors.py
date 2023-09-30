@@ -160,24 +160,26 @@ length_error = ValueError("Elements have different length.")
 
 
 class Sign(SageObject):
+    r"""Auxiliary object for sign vectors."""
     def __init__(self, value):
         if isinstance(value, Sign):
             self.__positive = value.__positive
             self.__negative = value.__negative
+            return
+
+        value = Sign.sign_sym(value)
+        if value > 0:
+            self.__positive = True
+            self.__negative = False
+        elif value < 0:
+            self.__positive = False
+            self.__negative = True
         else:
-            value = Sign._sign_sym(value)
-            if value > 0:
-                self.__positive = True
-                self.__negative = False
-            elif value < 0:
-                self.__positive = False
-                self.__negative = True
-            else:
-                self.__positive = False
-                self.__negative = False
+            self.__positive = False
+            self.__negative = False
 
     @staticmethod
-    def _sign_sym(value):
+    def sign_sym(value):
         r"""
         Return appropriate sign of symbolic expression.
 
@@ -188,24 +190,24 @@ class Sign(SageObject):
 
             sage: from sign_vectors.sign_vectors import Sign
             sage: from sign_vectors import SignVector
-            sage: Sign._sign_sym(1)
+            sage: Sign.sign_sym(1)
             1
-            sage: Sign._sign_sym(-2)
+            sage: Sign.sign_sym(-2)
             -1
             sage: var('a')
             a
-            sage: Sign._sign_sym(a)
+            sage: Sign.sign_sym(a)
             ...
             UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
             0
             sage: assume(a > 0)
-            sage: Sign._sign_sym(a)
+            sage: Sign.sign_sym(a)
             1
             sage: forget()
             sage: var('a, b, c, d')
             (a, b, c, d)
             sage: assume(a > 0, b > 0, c > 0, d > 0)
-            sage: Sign._sign_sym((a + b)*(c + d) - b*c)
+            sage: Sign.sign_sym((a + b)*(c + d) - b*c)
             1
         """
         expr = SR(value)
@@ -452,7 +454,8 @@ class Sign(SageObject):
 
 
 class SignVector(SageObject):
-    __slots__ = ("_support", "_psupport", "_length")
+    r"""A sign vector."""
+    __slots__ = ("_support", "_positive_support", "_length")
 
     def __init__(self, support, psupport, length):
         r"""
@@ -484,23 +487,23 @@ class SignVector(SageObject):
             (-+0+)
         """
         self._support = frozenset(support)
-        self._psupport = frozenset(psupport)
+        self._positive_support = frozenset(psupport)
         self._length = length
 
     def _repr_(self):
         return "(" + "".join(
-            "+" if e in self._psupport else
+            "+" if e in self._positive_support else
             ("-" if e in self._support else "0")
             for e in range(self.length())
         ) + ")"
 
     def __hash__(self):
         r"""Return the hash value of this sign vector."""
-        return hash((self._length, self._support, self._psupport))
+        return hash((self._length, self._support, self._positive_support))
 
-    def _nsupport(self):
+    def _negative_support(self):
         r"""Return the set corresponding to the negative support."""
-        return self._support.symmetric_difference(self._psupport)
+        return self._support.symmetric_difference(self._positive_support)
 
     def length(self):
         r"""
@@ -570,8 +573,8 @@ class SignVector(SageObject):
         support = left._support.union(right._support)
         psupport = {
             e for e in support
-            if (e in left._psupport)
-            or (e in right._psupport and not e in left._support)
+            if (e in left._positive_support)
+            or (e in right._positive_support and not e in left._support)
         }
 
         return SignVector(
@@ -614,7 +617,7 @@ class SignVector(SageObject):
 
         return SignVector(
             left._support.union(right._support),
-            left._psupport.union(right._psupport),
+            left._positive_support.union(right._positive_support),
             left.length()
         )
 
@@ -690,7 +693,7 @@ class SignVector(SageObject):
         """
         return SignVector(
             self._support,
-            self._nsupport(),
+            self._negative_support(),
             self.length()
         )
 
@@ -708,7 +711,7 @@ class SignVector(SageObject):
         """
         return SignVector(
             self._support,
-            self._psupport,
+            self._positive_support,
             self.length()
         )
 
@@ -743,12 +746,12 @@ class SignVector(SageObject):
         """
         if isinstance(e, slice):
             raise NotImplementedError("TODO")
-        if e >= self.length() or e < - self.length():
+        if e >= self.length() or e < -self.length():
             raise IndexError("index out of range")
         if e < 0:
             e %= self.length()
         if e in self._support:
-            return 1 if e in self._psupport else -1
+            return 1 if e in self._positive_support else -1
         return 0
 
     def support(self):
@@ -791,7 +794,7 @@ class SignVector(SageObject):
             sage: X.positive_support()
             [2]
         """
-        return list(self._psupport)
+        return list(self._positive_support)
 
     def negative_support(self):
         r"""
@@ -805,7 +808,7 @@ class SignVector(SageObject):
             sage: X.negative_support()
             [0, 3]
         """
-        return list(self._nsupport())
+        return list(self._negative_support())
 
     def list_from_positions(self, S):
         r"""
@@ -850,7 +853,7 @@ class SignVector(SageObject):
             raise length_error
         return [
             e for e in self._support.intersection(other._support)
-            if (e in self._psupport).__xor__(e in other._psupport)
+            if (e in self._positive_support) ^ (e in other._positive_support)
         ]
 
     def is_harmonious(self, other):
@@ -893,7 +896,7 @@ class SignVector(SageObject):
             other = sign_vector(other)
 
         return not any(
-            (e in self._psupport).__xor__(e in other._psupport)
+            (e in self._positive_support) ^ (e in other._positive_support)
             for e in self._support.intersection(other._support)
         )
 
@@ -949,7 +952,7 @@ class SignVector(SageObject):
             (++-0+)
         """
         support = set(self._support)
-        psupport = set(self._psupport)
+        psupport = set(self._positive_support)
         for e in indices:
             if e in support:
                 if e in psupport:
@@ -1016,7 +1019,7 @@ class SignVector(SageObject):
         if isinstance(other, SignVector):
             if self.length() != other.length():
                 raise length_error
-            return self._support == other._support and self._psupport == other._psupport
+            return self._support == other._support and self._positive_support == other._positive_support
         elif other == 0:
             return not self._support
         else:
@@ -1184,11 +1187,15 @@ class SignVector(SageObject):
             raise length_error
         if self._support.isdisjoint(other._support):
             return True
+        have_positive_product = False
+        have_negative_product = False
         for e in self._support:
             if self[e] * other[e] > 0:
-                for f in self._support:
-                    if self[f] * other[f] < 0:
-                        return True
+                have_positive_product = True
+            elif self[e] * other[e] < 0:
+                have_negative_product = True
+            if have_positive_product and have_negative_product:
+                return True
         return False
 
 
@@ -1249,7 +1256,7 @@ def sign_vector(iterable):
     psupport = set()
     length = 0
     for entry in iterable:
-        sign_entry = Sign._sign_sym(entry)
+        sign_entry = Sign.sign_sym(entry)
         if sign_entry != 0:
             support.add(length)
             if sign_entry > 0:
@@ -1318,4 +1325,4 @@ def random_sign_vector(length):
         sage: random_sign_vector(5) # random
         (++-0-)
     """
-    return sign_vector(randint(-1, 1) for k in range(length))
+    return sign_vector(randint(-1, 1) for _ in range(length))
