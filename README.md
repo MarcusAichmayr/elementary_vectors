@@ -48,7 +48,10 @@ The optional `--user` flag causes the package to be installed in your `.sage` di
 
 ### Documentation
 
-To generate the documentation of this package, run
+The documentation of this package can be found on GitHub:
+https://marcusaichmayr.github.io/elementary_vectors/index.html
+
+If you want to generate it yourself, run
 
     $ make doc
 
