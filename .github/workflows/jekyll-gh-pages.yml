@@ -5,6 +5,9 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["master"]
+    paths:
+      - "**.py"
+      - "docs/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -34,18 +37,8 @@ jobs:
         run: sudo apt install sagemath
       - name: Install package
         run: make install
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Run doctests
         run: make test
-
-  docs:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Generate documentation
         run: make doc
       - name: Move documentation
