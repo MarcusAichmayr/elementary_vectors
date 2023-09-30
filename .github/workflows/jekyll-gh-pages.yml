@@ -33,7 +33,7 @@ jobs:
       - name: Install SageMath and set PATH
         run: |
           wget https://github.com/sagemath/sage/archive/refs/tags/10.1.tar.gz
-          tar -xjf 10.1.tar.gz
+          tar -xf 10.1.tar.gz
           echo "export SAGE_PATH=$(pwd)/10.1.tar.gz" >> $GITHUB_ENV
       - name: Build with Sphinx
         uses: ammaraskar/sphinx-action@master
