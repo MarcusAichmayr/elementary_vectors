@@ -34,16 +34,8 @@ jobs:
         run: sudo apt install sagemath
       - name: Install package
         run: make install
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
       - name: Run doctests
         run: make test
-
-  docs:
-    runs-on: ubuntu-latest
-    steps:
       - name: Generate documentation
         run: make doc
       - name: Move documentation
