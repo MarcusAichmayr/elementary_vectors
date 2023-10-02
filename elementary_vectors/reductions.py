@@ -208,7 +208,7 @@ def remove_multiples_generator(vectors):
         support = frozenset(element.support())
         if support not in checked_supports:
             checked_supports.add(support)
-            yield(element)
+            yield element
 
 
 def remove_zero_vectors(vectors):
