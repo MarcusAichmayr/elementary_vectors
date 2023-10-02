@@ -88,20 +88,18 @@ def exists_orthogonal_vector(v, intervals):
     for entry, interval in zip(v, intervals):
         if interval.is_empty():
             return False
-        if entry != 0:
-            if interval.is_finite():  # interval consists of one point
-                lower_bound += entry * interval.an_element()
-                upper_bound += entry * interval.an_element()
-            elif entry > 0:
-                lower_bound += entry * interval.inf()
-                upper_bound += entry * interval.sup()
-                lower_bound_zero &= interval.inf() in interval
-                upper_bound_zero &= interval.sup() in interval
-            else:  # entry < 0
-                lower_bound += entry * interval.sup()
-                upper_bound += entry * interval.inf()
-                lower_bound_zero &= interval.sup() in interval
-                upper_bound_zero &= interval.inf() in interval
+        if entry == 0:
+            continue
+        if entry > 0:
+            lower_bound += entry * interval.inf()
+            upper_bound += entry * interval.sup()
+            lower_bound_zero &= interval.inf() in interval
+            upper_bound_zero &= interval.sup() in interval
+        else:
+            lower_bound += entry * interval.sup()
+            upper_bound += entry * interval.inf()
+            lower_bound_zero &= interval.sup() in interval
+            upper_bound_zero &= interval.inf() in interval
 
     if lower_bound > 0:
         return False
@@ -214,18 +212,14 @@ def exists_vector(data, intervals, certify=False):
         ...
         ValueError: Number of columns of matrix ``data`` and length of ``intervals`` are different!
     """
-    if hasattr(data, "ncols"):
-        if data.ncols() != len(intervals):
-            raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` are different!")
-        for interval in intervals:
-            if interval.is_empty():
-                return False
-        evs = elementary_vectors(data, generator=True)
-    else:
-        for interval in intervals:
-            if interval.is_empty():
-                return False
+    if hasattr(data, "ncols") and data.ncols() != len(intervals):
+        raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` are different!")
+    if any(interval.is_empty() for interval in intervals):
+        return False
+    if isinstance(data, list):
         evs = data
+    else:
+        evs = elementary_vectors(data, generator=True)
 
     for v in evs:
         if not exists_orthogonal_vector(v, intervals):
