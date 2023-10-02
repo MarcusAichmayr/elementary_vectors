@@ -223,7 +223,7 @@ def remove_zero_vectors(vectors):
         sage: remove_zero_vectors([vector([5,2,3]), zero_vector(3), vector([a*0,0,0])])
         [(5, 2, 3)]
     """
-    return [v for v in vectors if v != 0]
+    return [v for v in vectors if v]
 
 
 def reduce_vectors(vectors, equalities=None, cancel_factors=False, reduce_support=True, remove_zeros=True):

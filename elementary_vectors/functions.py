@@ -434,7 +434,7 @@ def non_negative_vectors(vectors):
 # #                     result.append([l, 'maximal minors are zero, could not compute elementary vectors for this branch'])
 # #                     return
 # #                 else:
-# #                     print('Todo')
+# #                     print('TODO')
 # #                     # substitute in data
 # #                     # compute positive_elementary_vectors from resulting matrix, eventuell auch l übergeben.
 # #                     # append each pair of result to result, also append assumptions l to first arguments
