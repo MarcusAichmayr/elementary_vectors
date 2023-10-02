@@ -134,11 +134,12 @@ def simplest_element_in_interval(interval):
 
     lower_bound = interval.inf()
     upper_bound = interval.sup()
+
     if (
-        upper_bound - lower_bound > 1
-        or floor(lower_bound) + 1 in interval
-        or ceil(upper_bound) - 1 in interval
-        or (lower_bound.is_integer() and lower_bound == upper_bound)
+       upper_bound - lower_bound > 1
+       or floor(lower_bound) + 1 in interval
+       or ceil(upper_bound) - 1 in interval
+       or (lower_bound == upper_bound and (isinstance(lower_bound, int) or lower_bound.is_integer()))
     ):
         if 0 in interval:
             return 0
