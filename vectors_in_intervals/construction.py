@@ -206,31 +206,32 @@ def vector_from_sign_vector(sv, data):
         Traceback (most recent call last):
         ...
         ValueError: There is no solution.
+        sage: vector_from_sign_vector(zero_sign_vector(4), [])
+        (0, 0, 0, 0)
     """
     if isinstance(data, list):
         evs = data
+        try:
+            result = data[0].parent().zero_vector()
+        except IndexError:
+            result = zero_vector(sv.length())
     else:
-        evs = elementary_vectors(data.right_kernel_matrix())
+        evs = elementary_vectors(data.right_kernel_matrix(), generator=True)
+        result = zero_vector(data.base_ring(), sv.length())
 
-    def both_signs(evs):
-        for v in evs:
-            yield v
-            yield -v
+    if sign_vector(result) == sv:
+        return result
+    for v in evs:
+        if sign_vector(v) <= sv:
+            result += v
+            if sign_vector(result) == sv:
+                return result
+        elif sign_vector(-v) <= sv:
+            result -= v
+            if sign_vector(result) == sv:
+                return result
 
-    result = sum(v for v in both_signs(evs) if sign_vector(v) <= sv)
-
-    if isinstance(result, int): # empty sum is 0 (no evs or no solution)
-        if isinstance(data, list):
-            try:
-                result = data[0].parent().zero_vector()
-            except IndexError:
-                result = zero_vector(sv.length())
-        else:
-            result = zero_vector(data.base_ring(), data.ncols())
-
-    if sign_vector(result) != sv:
-        raise ValueError("There is no solution.")
-    return result
+    raise ValueError("There is no solution.")
 
 
 def construct_orthogonal_vector(v, intervals):
