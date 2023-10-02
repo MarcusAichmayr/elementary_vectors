@@ -12,7 +12,8 @@ First, we load the functions from the package::
 
     sage: from vectors_in_intervals import *
 
-The package offers the function :func:`vectors_in_intervals.setup_intervals.intervals_from_bounds` that helps us creating lists of intervals.
+The package offers the function :func:`vectors_in_intervals.setup_intervals.intervals_from_bounds`
+that helps us creating lists of intervals.
 This function takes two lists as input,
 the corresponding elements in those lists determine the intervals::
 
@@ -30,7 +31,8 @@ We call :func:`vectors_in_intervals.existence.exists_orthogonal_vector` to answe
     sage: exists_orthogonal_vector(v, I)
     True
 
-This vector can be constructed by :func:`vectors_in_intervals.construction.construct_orthogonal_vector`::
+This vector can be constructed by
+:func:`vectors_in_intervals.construction.construct_orthogonal_vector`::
 
     sage: construct_orthogonal_vector(v, I)
     (0, 1, -1)
@@ -67,8 +69,8 @@ We can even consider unbounded intervals::
     sage: construct_orthogonal_vector(v, I)
     (5, 2, -3)
 
-The most important functions of this module are
-:func:`vectors_in_intervals.existence.exists_vector` and :func:`vectors_in_intervals.construction.construct_vector`.
+The most important functions of this module are :func:`vectors_in_intervals.existence.exists_vector`
+and :func:`vectors_in_intervals.construction.construct_vector`.
 Given a matrix ``M`` and a list of intervals,
 we want to examine whether there exists a vector in the row space of ``M``,
 such that the components lie in the given intervals::
@@ -129,4 +131,4 @@ from __future__ import absolute_import
 
 from .setup_intervals import is_vector_in_intervals, intervals_from_bounds, intervals_from_sign_vector
 from .existence import exists_vector, exists_orthogonal_vector
-from .construction import construct_vector, construct_orthogonal_vector, vector_from_sign_vector
+from .construction import construct_vector, construct_orthogonal_vector, vector_from_sign_vector, sign_vectors_in_intervals

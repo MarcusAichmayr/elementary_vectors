@@ -12,6 +12,7 @@
 
 from sage.calculus.var import var
 from sage.matrix.constructor import matrix
+from sage.misc.mrange import cartesian_product_iterator
 from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
@@ -232,6 +233,60 @@ def vector_from_sign_vector(sv, data):
                 return result
 
     raise ValueError("There is no solution.")
+
+
+def sign_vectors_in_intervals(intervals, generator=False):
+    r"""
+    Compute all sign vectors that correspond to a vector in given intervals
+
+    INPUT:
+
+    - ``intervals`` -- a list of intervals
+
+    - ``generator`` -- a boolean (default: ``False``)
+
+    EXAMPLES::
+
+        sage: from vectors_in_intervals import *
+        sage: intervals = intervals_from_bounds([-1, 1], [0, 1])
+        sage: sign_vectors_in_intervals(intervals)
+        [(0+), (-+)]
+        sage: intervals = intervals_from_bounds([-1, -2], [0, 1])
+        sage: sign_vectors_in_intervals(intervals)
+        [(00), (0+), (0-), (-0), (-+), (--)]
+        sage: intervals = intervals_from_bounds([-1, -1, 0], [0, 5, 0])
+        sage: sign_vectors_in_intervals(intervals)
+        [(000), (0+0), (0-0), (-00), (-+0), (--0)]
+        sage: intervals = intervals_from_bounds([-1, -1, -1], [0, 1, 0], False, False)
+        sage: sign_vectors_in_intervals(intervals)
+        [(-0-), (-+-), (---)]
+        sage: intervals = intervals_from_bounds([-1, 0], [1, 0], False, False)
+        sage: sign_vectors_in_intervals(intervals)
+        []
+        sage: intervals = intervals_from_bounds([], [])
+        sage: sign_vectors_in_intervals(intervals)
+        []
+    """
+    list_of_signs = []
+    if not intervals:
+        if generator:
+            def empty():
+                yield from ()
+            return empty()
+        return []
+    for interval in intervals:
+        available_signs = []
+        if 0 in interval:
+            available_signs.append(0)
+        if interval.sup() > 0:
+            available_signs.append(1)
+        if interval.inf() < 0:
+            available_signs.append(-1)
+        list_of_signs.append(available_signs)
+
+    if generator:
+        return (sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs))
+    return [sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs)]
 
 
 def construct_orthogonal_vector(v, intervals):
