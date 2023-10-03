@@ -110,7 +110,7 @@ def simplest_element_in_interval(interval):
 
     INPUT:
 
-    - ``interval`` -- an interval (``RealSet``)
+    - ``interval`` -- an interval
 
     OUTPUT:
     If possible, an integer with smallest possible absolute value will be returned.
@@ -191,7 +191,7 @@ def simplest_rational_in_interval(interval):
 
     INPUT:
 
-    - ``interval`` -- an interval (``RealSet``) that has no integer in it.
+    - ``interval`` -- an interval that has no integer in it.
 
     EXAMPLES::
 

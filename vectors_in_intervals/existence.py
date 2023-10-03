@@ -15,17 +15,18 @@ from elementary_vectors import elementary_vectors
 
 def exists_orthogonal_vector(v, intervals):
     r"""
-    Check whether a normal vector exists that lies in the specified intervals.
+    Check whether an orthogonal vector exists that lies in the specified intervals.
 
     INPUT:
 
     - ``v`` -- a vector of length ``n``
 
-    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
+    - ``intervals`` -- a list of ``n`` intervals
 
     OUTPUT:
 
-    Return whether there exists a vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
+    Return whether there exists a vector ``z``
+    such that the scalar product of ``z`` and ``v`` is zero
     and each component of ``z`` lies in the respective interval of the list ``intervals``.
     Raises a ``ValueError`` if the lengths of ``v`` and ``intervals`` are different.
 
@@ -114,14 +115,14 @@ def exists_orthogonal_vector(v, intervals):
 
 def exists_vector(data, intervals, certify=False):
     r"""
-    Return whether a vector exists in a given vector space such that the components lie in the specified intervals.
+    Check whether a vector exists in a given vector space with components in given intervals.
 
     INPUT:
 
     - ``data`` -- either a real matrix with ``n`` columns or a list of
                   elementary vectors of length ``n``
 
-    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
+    - ``intervals`` -- a list of ``n`` intervals
     
     - ``certify`` -- a boolean (default: ``False``)
 

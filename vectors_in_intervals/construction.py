@@ -26,11 +26,11 @@ from sign_vectors import sign_vector
 
 def simplest_vector_in_intervals(intervals):
     r"""
-    Return the simplest vector such that each component is in a given interval.
+    Return the simplest vector with components in given intervals.
 
     INPUT:
 
-    - ``intervals`` -- a list of intervals (``RealSet``)
+    - ``intervals`` -- a list of intervals
 
     OUTPUT:
     A vector with components in the intervals.
@@ -60,13 +60,16 @@ def simplest_vector_in_intervals(intervals):
 
 def multiple_in_intervals_candidates(v, intervals):
     r"""
-    Return the biggest interval ``J`` such that ``a v`` lies in given intervals for all ``a`` in ``J``.
+    Return the largest interval where the vector, when multiplied with elements of this interval, lies in given intervals.
 
     INPUT:
 
     - ``v`` -- a vector
 
-    - ``intervals`` -- a list of intervals (``RealSet``)
+    - ``intervals`` -- a list of intervals
+
+    OUTPUT:
+    Return the largest interval ``J`` such that ``a v`` lies in given intervals for all ``a`` in ``J``.
 
     .. SEEALSO::
 
@@ -140,7 +143,7 @@ def multiple_in_intervals(v, intervals):
 
     - ``v`` -- a vector
 
-    - ``intervals`` -- a list of intervals (``RealSet``)
+    - ``intervals`` -- a list of intervals
 
     OUTPUT:
     Computes a multiple ``a v`` that lies in the intervals.
@@ -237,7 +240,7 @@ def vector_from_sign_vector(sv, data):
 
 def sign_vectors_in_intervals(intervals, generator=False):
     r"""
-    Compute all sign vectors that correspond to a vector in given intervals
+    Compute all sign vectors that correspond to a vector with components in given intervals.
 
     INPUT:
 
@@ -291,17 +294,17 @@ def sign_vectors_in_intervals(intervals, generator=False):
 
 def construct_orthogonal_vector(v, intervals):
     r"""
-    Construct a vector that is normal on a given vector and lies in the specified intervals.
+    Construct a vector, orthogonal to a given vector, with components in specified intervals.
 
     INPUT:
 
     - ``v`` -- a vector of length ``n``
 
-    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
+    - ``intervals`` -- a list of ``n`` intervals
 
     OUTPUT:
 
-    Returns a (rational) vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
+    Return a (rational) vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
     and each component of ``z`` lies in the respective interval of the list ``intervals``.
     If no such vector exists, raises a ``ValueError`` instead.
 
@@ -445,19 +448,19 @@ def construct_orthogonal_vector(v, intervals):
 
 def construct_vector(M, intervals, evs=None):
     r"""
-    Return a vector of a given vector space such that the components lie in given intervals.
+    Construct a vector of a given vector space with components in given intervals.
 
     INPUT:
 
     - ``M`` -- a matrix with ``n`` columns
 
-    - ``intervals`` -- a list of ``n`` intervals (``RealSet``)
+    - ``intervals`` -- a list of ``n`` intervals
 
     - ``evs`` -- an optional iterable of elementary vectors
 
     OUTPUT:
 
-    Returns a vector in the row space of ``M`` such that each component lies
+    Return a vector in the row space of ``M`` such that each component lies
     in the respective interval of the list ``intervals``.
     If no such vector exists, raises a ``ValueError`` instead.
 
@@ -505,7 +508,7 @@ def construct_vector(M, intervals, evs=None):
     
     TESTS:
 
-    This example shows the case ``upper_bounds_closed == 1``::
+    This example shows the case ``rank == 1``::
 
         sage: M = matrix([[0, 0, 0, 0, 0, 0], [-1, -1, 0, -1, 1, 0], [-1, 1, 0, -2, -1, -2]])
         sage: I = intervals_from_bounds(
@@ -517,17 +520,16 @@ def construct_vector(M, intervals, evs=None):
         sage: construct_vector(M, I)
         (-1/4, -1/4, 0, -1/4, 1/4, 0)
     
-    zero matrix::
+    Other special cases::
     
-        sage: M = zero_matrix(QQ, 1, 5)
-        sage: I = intervals_from_bounds(
-        ....:     [-1, -1, -1, -1, -1],
-        ....:     [1, 1, 1, 1, 1],
-        ....:     False,
-        ....:     True
-        ....: )
+        sage: M = zero_matrix(QQ, 1, 3)
+        sage: I = intervals_from_bounds([-1, -1, -1], [1, 1, 1], False, True)
         sage: construct_vector(M, I)
-        (0, 0, 0, 0, 0)
+        (0, 0, 0)
+        sage: M = matrix([[0, 0], [1, 1]])
+        sage: I = intervals_from_bounds([0, 0], [1, 1], False, True)
+        sage: construct_vector(M, I)
+        (1, 1)
     """
     if not exists_vector(evs if evs else M, intervals):
         raise ValueError("There is no solution.")
@@ -543,13 +545,13 @@ def construct_vector(M, intervals, evs=None):
             return construct_orthogonal_vector(M.right_kernel_matrix().row(0), intervals)
         if rank == 1:
             for row in M.rows():
-                if row != 0:
+                if row:
                     return multiple_in_intervals(row, intervals)
         if rank == 0:
             return zero_vector(M.base_ring(), M.ncols())
 
         def coefficient(k):
-            r"""Construct ``x_k`` recursively"""
+            r"""Construct the ``k``-th component recursively"""
             # projection to k-th component
             M_bar = M.delete_columns([k])
             intervals_bar = intervals[:k] + intervals[k + 1:]

@@ -1257,7 +1257,7 @@ def sign_vector(iterable):
     length = 0
     for entry in iterable:
         sign_entry = Sign.sign_sym(entry)
-        if sign_entry != 0:
+        if sign_entry:
             support.add(length)
             if sign_entry > 0:
                 psupport.add(length)
