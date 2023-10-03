@@ -13,9 +13,11 @@
 from sage.categories.sets_cat import EmptySetError
 from sage.functions.other import floor, ceil
 from sage.matrix.constructor import matrix
+from sage.misc.prandom import randint
 from sage.modules.free_module_element import vector
 from sage.rings.continued_fraction import continued_fraction
 from sage.rings.infinity import Infinity
+from sage.rings.rational_field import QQ
 from sage.sets.real_set import RealSet
 
 
@@ -78,6 +80,27 @@ def interval_from_bounds(lower_bound, upper_bound, lower_closed=True, upper_clos
     else:
         interval = RealSet.open_closed(lower_bound, upper_bound)
 
+    return interval
+
+
+def random_interval(ring=QQ, allow_infinity=True, allow_open=True, allow_empty=False):
+    r"""Generate a random interval."""
+    lower_bound = ring.random_element()
+    upper_bound = ring.random_element()
+    if allow_infinity:
+        if randint(0, 5) == 0:
+            lower_bound = -Infinity
+        if randint(0, 5) == 0:
+            upper_bound = Infinity
+    if allow_open:
+        lower_bound_closed = True if randint(0, 1) == 0 else False
+        upper_bound_closed = True if randint(0, 1) == 0 else False
+    else:
+        lower_bound_closed = True
+        upper_bound_closed = True
+    interval = interval_from_bounds(lower_bound, upper_bound, lower_bound_closed, upper_bound_closed)
+    if (not allow_empty) and interval.is_empty():
+        return random_interval(ring, allow_infinity, allow_open, allow_empty)
     return interval
 
 

@@ -11,25 +11,9 @@
 #############################################################################
 
 from sage.rings.infinity import Infinity
+from sage.rings.rational_field import QQ
 
-from .utility import interval_from_bounds
-
-
-def is_vector_in_intervals(v, intervals):
-    r"""
-    Check if a vector lies in a list of intervals
-    
-    EXAMPLES::
-    
-        sage: from vectors_in_intervals import *
-        sage: v = vector([5, 0, -10])
-        sage: intervals = intervals_from_bounds([0, 0, -oo], [oo, 0, 0])
-        sage: is_vector_in_intervals(v, intervals)
-        True
-        sage: is_vector_in_intervals(-v, intervals)
-        False
-    """
-    return all(entry in interval for entry, interval in zip(v, intervals))
+from .utility import interval_from_bounds, random_interval
 
 
 def intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed=True, upper_bounds_closed=True):
@@ -129,6 +113,36 @@ def intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed=True, 
         raise ValueError('``upper_bounds_closed`` should be a list of length ' + str(length) + '.')
 
     return [interval_from_bounds(*bounds) for bounds in zip(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)]
+
+
+def is_vector_in_intervals(v, intervals):
+    r"""
+    Check if a vector lies in a list of intervals.
+    
+    EXAMPLES::
+    
+        sage: from vectors_in_intervals import *
+        sage: v = vector([5, 0, -10])
+        sage: intervals = intervals_from_bounds([0, 0, -oo], [oo, 0, 0])
+        sage: is_vector_in_intervals(v, intervals)
+        True
+        sage: is_vector_in_intervals(-v, intervals)
+        False
+    """
+    return all(entry in interval for entry, interval in zip(v, intervals))
+
+
+def random_intervals(length, ring=QQ, allow_infinity=True, allow_open=True, allow_empty=False):
+    r"""
+    Generate a list of random intervals.
+
+    EXAMPLES::
+
+        sage: from vectors_in_intervals import *
+        sage: random_intervals(5) # random
+        [(-oo, -4), [1, 2], (0, 1], (-oo, 1/2], (0, oo)]
+    """
+    return [random_interval(ring=ring, allow_infinity=allow_infinity, allow_open=allow_open, allow_empty=allow_empty) for _ in range(length)]
 
 
 def intervals_from_sign_vector(sv):
