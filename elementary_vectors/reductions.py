@@ -1,8 +1,4 @@
-r"""
-Reducing lists of vectors.
-
-This module offers several functions to reduce a list of vector.
-"""
+r"""Reducing and simplifying lists of vectors."""
 
 #############################################################################
 #  Copyright (C) 2023                                                       #
@@ -22,7 +18,11 @@ from sage.symbolic.ring import SR
 
 def simplify_using_equalities(value, equalities):
     r"""
-    Simplifies the expression ``value`` using a list of equalities ``equalities``. Only considers equalities in ``equalities``. Other expressions (e.g. inequalities) are ignored.
+    Simplifies an expression using a list of equalities.
+    
+    .. NOTE::
+
+        Only equalities are considered. Other expressions (e.g. inequalities) are ignored.
 
     EXAMPLES::
 
@@ -43,8 +43,6 @@ def simplify_using_equalities(value, equalities):
         sage: simplify_using_equalities(x+1, assumptions())
         1
     """
-    # There might be inequalities in ``equalities`` or other expressions like ``a is real``.
-    # We get rid of them:
     expressions = []
     for equation in equalities:
         try:
@@ -88,7 +86,7 @@ def reduce_factor(iterable):
 
         sage: reduce_factor([4, 6])
         [2, 3]
-        sage: reduce_factor([-4, -6]) # TODO: Do we expect this?
+        sage: reduce_factor([-4, -6])
         [-2, -3]
 
     The function also cancels denominators::
