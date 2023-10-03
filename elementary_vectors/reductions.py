@@ -40,7 +40,7 @@ def simplify_using_equalities(value, equalities):
         sage: R = PolynomialRing(ZZ, 'x')
         sage: x = R.gen()
         sage: assume(SR(x) == 0)
-        sage: simplify_using_equalities(x+1, assumptions())
+        sage: simplify_using_equalities(x + 1, assumptions())
         1
     """
     expressions = []
@@ -218,7 +218,7 @@ def remove_zero_vectors(vectors):
         sage: from elementary_vectors.reductions import remove_zero_vectors
         sage: var('a')
         a
-        sage: remove_zero_vectors([vector([5,2,3]), zero_vector(3), vector([a*0,0,0])])
+        sage: remove_zero_vectors([vector([5, 2, 3]), zero_vector(3), vector([a*0, 0, 0])])
         [(5, 2, 3)]
     """
     return [v for v in vectors if v]

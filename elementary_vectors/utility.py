@@ -17,7 +17,7 @@ from sign_vectors import sign_vector
 
 def kernel_vector_support_given(M, indices):
     r"""
-    Return a vector in the right kernel of ``M`` such that the support is a subset of ``indices``.
+    Return a right kernel vector such that the support is a subset of given indices.
 
     INPUT:
 
@@ -26,8 +26,7 @@ def kernel_vector_support_given(M, indices):
     - ``indices`` -- a list of indices
 
     OUTPUT:
-    a vector ``v`` in the right kernel of ``M`` such that
-    the support is a subset of ``indices``.
+    a vector in the right kernel of ``M`` such that the support is a subset of ``indices``.
 
     EXAMPLES::
 
@@ -43,8 +42,8 @@ def kernel_vector_support_given(M, indices):
     M_I = M.matrix_from_columns(indices)
     try:
         subvector_list = list(M_I.right_kernel_matrix()[0])
-    except IndexError:
-        raise ValueError("Right kernel of ``M`` restricted to the columns ``indices`` is empty.")
+    except IndexError as exc:
+        raise ValueError("Right kernel restricted to column ``indices`` is empty.") from exc
     for k in range(M.ncols()):
         if not k in indices:
             subvector_list.insert(k, 0)
@@ -61,11 +60,10 @@ def conformal_elimination(vector1, vector2, indices=None):
 
     - ``vector2`` -- a real vector
 
-    - ``indices`` -- a list of indices (default: ``[]``)
+    - ``indices`` -- a list of indices (default: ``None``)
 
     OUTPUT:
-
-    Returns a new vector ``z = x + a y`` where ``a > 0``, such that ``z[e] == 0``
+    Return a new vector ``z = x + a y`` where ``a > 0``, such that ``z[e] == 0``
     for some ``e`` in ``indices`` and ``Z_k <= X_k`` for ``k`` in ``indices``
     and ``Z_f = (X o Y)_f`` for ``f`` not in ``D(X, Y)``.
     Here, ``X``, ``Y`` and ``Z`` are the sign vectors
@@ -89,9 +87,9 @@ def conformal_elimination(vector1, vector2, indices=None):
     if vector1.length() != vector2.length():
         raise ValueError('Vectors have different length.')
     separating_elements = sign_vector(vector1).separating_elements(sign_vector(vector2))
-    if separating_elements == []:
+    if not separating_elements:
         raise ValueError('List of separating elements is empty.')
-    if indices == []:
+    if not indices:
         indices = separating_elements
     elif not all(s in separating_elements for s in indices):
         raise ValueError('indices is not a subset of separating_elements.')

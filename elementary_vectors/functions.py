@@ -481,7 +481,7 @@ def non_negative_vectors(vectors):
     #     return bool(SR(expression) > 0 or SR(expression) < 0 or SR(expression) == 0)
 
 #     evs, m = elementary_vectors(data, dim=dim, kernel=kernel, return_minors=True, ring=ring, **kwargs)
-#     if evs == []:
+#     if not evs:
 #         return []
 #     result = []
 #     rec(0, [], [])

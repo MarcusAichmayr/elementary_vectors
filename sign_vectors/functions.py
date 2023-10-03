@@ -14,12 +14,12 @@ from sage.combinat.posets.posets import Poset
 
 from sign_vectors import sign_vector, zero_sign_vector
 
-from .utility import _subvector
+from .utility import exclude_indices
 
 
 def closure(iterable, separate=False):
     r"""
-    Compute the closure of a list of sign vectors.
+    Compute the closure of given sign vectors.
 
     INPUT:
 
@@ -105,7 +105,7 @@ def closure(iterable, separate=False):
                     Z = X.compose(Y)
                     if Z not in new_elements and any(Z <= V for V in iterable):
                         new_elements.add(Z)
-        if new_elements == set():
+        if not new_elements:
             break
         output.append(new_elements)
         if len(new_elements) == 1:
@@ -115,15 +115,15 @@ def closure(iterable, separate=False):
 
 def contraction(iterable, indices, keep_components=False):
     r"""
-    Return all sign vectors that are zero on ``indices``. Also works for real vectors.
+    Return all sign vectors or vectors that are zero on given components.
 
     INPUT:
 
-    - ``iterable`` -- an iterable of sign vectors or vectors; or a matrix.
+    - ``iterable`` -- an iterable of sign vectors or vectors
 
     - ``indices`` -- a list of indices.
 
-    - ``keep_components`` -- a boolean (default: ``False``).
+    - ``keep_components`` -- a boolean
 
     OUTPUT:
 
@@ -133,7 +133,7 @@ def contraction(iterable, indices, keep_components=False):
 
     EXAMPLES::
 
-        sage: from sign_vectors import sign_vector, contraction
+        sage: from sign_vectors import *
         sage: W = [sign_vector("++0"), sign_vector("-00"), sign_vector("00+")]
         sage: W
         [(++0), (-00), (00+)]
@@ -167,38 +167,37 @@ def contraction(iterable, indices, keep_components=False):
 
     This function also works for matrices or lists of vectors::
 
-        sage: l = [vector([0,0,1]), vector([0,2,1]), vector([-1,0,1])]
+        sage: l = [vector([0, 0, 1]), vector([0, 2, 1]), vector([-1, 0, 1])]
         sage: contraction(l, [0])
         {(0, 1), (2, 1)}
-        sage: A = matrix([[1,1,0],[0,1,0]])
+        sage: A = matrix([[1, 1, 0], [0, 1, 0]])
         sage: contraction(A, [2])
         {(0, 1), (1, 1)}
     """
-    if iterable == []:
+    if not iterable:
         return iterable
     if keep_components:
         def vec(iterable):
             return iterable
     else:
-        vec = _subvector(iterable, indices)
+        vec = exclude_indices(iterable, indices)
     
     return set(vec(X) for X in iterable if not any(e in indices for e in X.support()))
 
 
 def deletion(iterable, indices):
     r"""
-    Remove the components corresponding to ``indices`` from a list of sign vectors.
-    Also works for real vectors.
+    Remove given components from an iterable of sign vectors or vectors.
 
     INPUT:
 
-    - ``iterable`` -- an iterable of sign vectors or real vectors; or a matrix.
+    - ``iterable`` -- an iterable of sign vectors or vectors
 
-    - ``indices`` -- a list of indices.
+    - ``indices`` -- a list of indices
 
     EXAMPLES::
 
-        sage: from sign_vectors import sign_vector, deletion
+        sage: from sign_vectors import *
         sage: W = [sign_vector("++0"), sign_vector("00-"), sign_vector("+00")]
         sage: W
         [(++0), (00-), (+00)]
@@ -214,16 +213,16 @@ def deletion(iterable, indices):
 
     This function also works for lists of vectors::
 
-        sage: l = [vector([0,0,1]), vector([0,2,1]), vector([-1,0,1])]
+        sage: l = [vector([0, 0, 1]), vector([0, 2, 1]), vector([-1, 0, 1])]
         sage: deletion(l, [1])
         {(-1, 1), (0, 1)}
     """
-    if iterable == []:
+    if not iterable:
         return iterable
 
-    return set(_subvector(iterable, indices)(X) for X in iterable)
+    return set(exclude_indices(iterable, indices)(X) for X in iterable)
 
 
-def plot_sign_vectors(L, vertex_size=600, figsize=10, aspect_ratio=4/8):
-    r"""Plot the Hasse Diagram of a list of given sign vectors using the conformal relation."""
-    Poset((L, lambda X, Y: X.conforms(Y))).plot(vertex_size=vertex_size, element_color='white', cover_style='-', vertex_shape='+').show(figsize=figsize, aspect_ratio=aspect_ratio)
+def plot_sign_vectors(iterable, vertex_size=600, figsize=10, aspect_ratio=4/8):
+    r"""Plot the Hasse Diagram of sign vectors using the conformal relation."""
+    Poset((iterable, lambda X, Y: X.conforms(Y))).plot(vertex_size=vertex_size, element_color='white', cover_style='-', vertex_shape='+').show(figsize=figsize, aspect_ratio=aspect_ratio)
