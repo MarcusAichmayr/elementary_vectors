@@ -13,12 +13,11 @@ r"""Computing elementary vectors."""
 import warnings
 from sage.combinat.combination import Combinations
 from sage.modules.free_module_element import zero_vector
-from sage.structure.element import get_coercion_model
 
 from .reductions import remove_multiples_generator
 
 
-def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, generator=False):
+def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=False):
     r"""
     Compute elementary vectors of a subspace determined by a matrix or a list of maximal minors.
 
@@ -30,19 +29,24 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, 
                  Otherwise, this is a list of dimensions of the matrix
                  corresponding to the list of maximal minors ``data``.
 
-    - ``remove_multiples`` -- a boolean (default: ``False``)
-
-    - ``ring`` -- Parent of the entries of the elementary vectors.
-                  By default, determine this from ``data``.
+    - ``remove_multiples`` -- a boolean (default: ``True``)
 
     - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
+    Return a list of elementary vectors in the kernel of a matrix given by ``data``.
+    The element ``data`` can be a matrix or a list of maximal minors.
+    In the latter case, dimensions are also required.
 
-    If ``data`` is a matrix,
-    returns a list of elementary vectors lying in the kernel of this matrix.
+    - If ``remove_multiples`` is true, the output will be reduced such that
+      all elementary vectors have distinct support.
+    
+    - If ``generator`` is true, the output will be a generator object instead of a list.
 
-    - If ``generator`` is true, a generator of elementary vectors is returned.
+    .. SEEALSO::
+
+        :func:`~elementary_vectors_from_matrix`
+        :func:`~elementary_vectors_from_minors`
 
     EXAMPLES::
 
@@ -96,7 +100,8 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, 
          (0, 4, 0, 1, -3, 1),
          (0, 0, 4, 1, 1, -3)]
 
-    Here, ``data`` is a list of maximal minors::
+    Next, we determine the maximal minors of some matrix and use them as input.
+    This is useful if we want to reuse the maximal minors or if they are given::
 
         sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]]); M
         [ 0  0  1 -1  0]
@@ -104,11 +109,9 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, 
         [ 1  1  1  1  1]
         sage: m = M.minors(3); m
         [2, -2, 0, -4, 0, 0, 0, 2, -2, -4]
-        sage: elementary_vectors(m, [3,5])
+        sage: elementary_vectors(m, [3, 5])
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
         sage: elementary_vectors(m, M.dimensions())
-        [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
-        sage: elementary_vectors(m, M.dimensions(), ring=QQ)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
 
     TESTS::
@@ -123,7 +126,7 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, ring=None, 
             raise TypeError("When computing elementary vectors from a list of " +
                             "maximal minors, the dimensions of the corresponding " +
                             "matrix are needed.")
-        return elementary_vectors_from_minors(data, dimensions=dimensions, ring=ring, remove_multiples=remove_multiples, generator=generator)
+        return elementary_vectors_from_minors(data, dimensions=dimensions, remove_multiples=remove_multiples, generator=generator)
     return elementary_vectors_from_matrix(data, remove_multiples=remove_multiples, generator=generator)
 
 
@@ -135,13 +138,13 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
 
     - ``M`` -- a matrix
 
-    - ``remove_multiples`` -- a boolean (default: ``False``)
+    - ``remove_multiples`` -- a boolean (default: ``True``)
 
     - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
 
-    Returns a list of elementary vectors lying in the kernel of ``M``.
+    Return a list of elementary vectors in the kernel of ``M``.
 
     - If ``remove_multiples`` is true, the output will be reduced such that
       all elementary vectors have distinct support.
@@ -169,23 +172,16 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
          (0, -4, 2, 2, 0)]
     """
     try:
-        ind = M.pivot_rows()  # does not work for polynomial matrices
-        M = M.matrix_from_rows(ind)
+        M = M.matrix_from_rows(M.pivot_rows()) # does not work for polynomial matrices
     except (ArithmeticError, NotImplementedError):
-        warnings.warn('Could not determine rank of matrix. Result might be wrong.')
+        warnings.warn('Could not determine rank of matrix. Expect wrong result!')
 
     rank, length = M.dimensions()
     minors = {}
     ring = M.base_ring()
 
     def ev_from_support(indices):
-        r"""
-        Return the elementary vector corresponding to ``indices``.
-
-        INPUT:
-
-        - ``indices`` -- a list of indices
-        """
+        r"""Return the elementary vector with support in a given list of indices."""
         element = zero_vector(ring, length)
         for pos, k in enumerate(indices):
             indices_minor = tuple(i for i in indices if i != k)
@@ -217,25 +213,22 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
 
     - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``minors``
 
-    - ``ring`` -- Parent of the entries of the elementary vectors.
-                  By default, determine this from ``minors``.
+    - ``ring`` -- the ring in which the elementary vectors should live
+                  by default, this is determined from ``minors``
+
+    - ``remove_multiples`` -- a boolean (default: ``True``)
 
     - ``generator`` -- a boolean (default: ``False``)
 
-    .. NOTE::
-
-        Keyword arguments may be specified to apply certain reductions to the output.
-        By default, multiples and zero vectors are removed from the output.
-        Factors are not canceled by default since this operation is less efficient.
-        Possible keyword arguments are the same as in the function
-        :func:`elementary_vectors.reductions.reduce_vectors`.
-
     OUTPUT:
-
-    Uses the maximal minors ``minors`` to compute the elementary vectors of the
-    corresponding matrix.
+    Return a list of elementary vectors in the kernel of a matrix with
+    maximal minors ``minors`` and dimension ``dimensions``.
     If ``generator`` is true, a generator of elementary vectors will be returned instead of a list.
-    In this case, no reductions are applied.
+
+    - If ``remove_multiples`` is true, the output will be reduced such that
+      all elementary vectors have distinct support.
+    
+    - If ``generator`` is true, the output will be a generator object instead of a list.
 
     .. SEEALSO::
 
@@ -258,21 +251,15 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
     """
     rank, length = dimensions
-    if ring is None:
-        ring = get_coercion_model().common_parent(*minors)
+    if not ring:
+        ring = minors[0].base_ring()
 
     minors_dict = {}
     for k, indices in enumerate(Combinations(length, rank)):
         minors_dict[tuple(indices)] = minors[k]
 
     def ev_from_support(indices):
-        r"""
-        Return the elementary vector corresponding to ``indices``.
-
-        INPUT:
-
-        - ``indices`` -- a list of indices
-        """
+        r"""Return the elementary vector with support in a given list of indices."""
         element = zero_vector(ring, length)
         for pos, k in enumerate(indices):
             indices_minor = tuple(i for i in indices if i != k)

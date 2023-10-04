@@ -198,7 +198,7 @@ class Sign(SageObject):
             a
             sage: Sign.sign_sym(a)
             ...
-            UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
+            UserWarning: Cannot determine sign of symbolic expression, using 0 for sign vector instead.
             0
             sage: assume(a > 0)
             sage: Sign.sign_sym(a)
@@ -226,7 +226,7 @@ class Sign(SageObject):
         if expr == 0:
             return 0
 
-        warnings.warn('Cannot determine sign of symbolic expression, returning 0 instead.')
+        warnings.warn('Cannot determine sign of symbolic expression, using 0 for sign vector instead.')
         return 0
 
     def _repr_(self):
@@ -1240,7 +1240,7 @@ def sign_vector(iterable):
         sage: v = vector([1, a, -1])
         sage: sign_vector(v) # not tested TODO fails for some reason
         ...
-        UserWarning: Cannot determine sign of symbolic expression, returning 0 instead.
+        UserWarning: Cannot determine sign of symbolic expression, using 0 for sign vector instead.
         (+0-)
         sage: assume(a > 0)
         sage: sign_vector(v)

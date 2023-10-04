@@ -299,7 +299,7 @@ def elementary_vectors_generator_trailing_nonzero(M):
         ind = M.pivot_rows()  # does not work for polynomial matrices
         M = M.matrix_from_rows(ind)
     except (ArithmeticError, NotImplementedError):
-        warnings.warn('Could not determine rank of matrix. Result might be wrong.')
+        warnings.warn('Could not determine rank of matrix. Expect wrong result!')
 
     m, n = M.dimensions()
     minors = {}
