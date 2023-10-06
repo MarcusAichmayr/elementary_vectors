@@ -14,7 +14,7 @@ import warnings
 from sage.combinat.combination import Combinations
 from sage.modules.free_module_element import zero_vector
 
-from .reductions import remove_multiples_generator
+from .reductions import reduce_vectors_support
 
 
 def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=False):
@@ -196,7 +196,7 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
     evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))
     evs = (v for v in evs if v)
     if remove_multiples:
-        evs = remove_multiples_generator(evs)
+        evs = reduce_vectors_support(evs, generator=True)
 
     if generator:
         return evs
@@ -270,6 +270,6 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
     evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))
     evs = (v for v in evs if v)
     if remove_multiples:
-        evs = remove_multiples_generator(evs)
+        evs = reduce_vectors_support(evs, generator=True)
 
     return evs if generator else list(evs)

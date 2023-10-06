@@ -146,7 +146,7 @@ from sage.modules.free_module_element import zero_vector
 from sage.rings.infinity import Infinity
 
 from elementary_vectors import elementary_vectors
-from elementary_vectors.reductions import remove_multiples_generator
+from elementary_vectors.reductions import reduce_vectors_support
 from .utility import interval_from_bounds
 
 
@@ -326,7 +326,7 @@ def elementary_vectors_generator_trailing_nonzero(M):
     
     evs = (ev_from_support(I + [n - 1]) for I in Combinations(n - 1, m))
     evs = (v for v in evs if v)
-    evs = remove_multiples_generator(evs)
+    evs = reduce_vectors_support(evs, generator=True)
 
     return evs
 

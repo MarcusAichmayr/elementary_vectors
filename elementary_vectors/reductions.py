@@ -164,17 +164,20 @@ def reduce_vector(element, equalities=None, cancel_factor=True):
     return element
 
 
-def reduce_vectors_support(vectors):
+def reduce_vectors_support(vectors, generator=False):
     r"""
-    Return a sublist of vectors where each vector has distinct support.
+    Return a ist of vectors where each element has distinct support.
 
     INPUT:
 
-    - ``vectors`` -- a list of vectors
+    - ``vectors`` -- an iterable of vectors
+    
+    - ``generator`` -- an optional boolean
 
     OUTPUT:
 
-    Keeps only one vector for each support.
+    Only the first element with a specific support is kept.
+    Return a generator if ``generator`` is true.
 
     EXAMPLES::
 
@@ -185,28 +188,18 @@ def reduce_vectors_support(vectors):
         sage: reduce_vectors_support([zero_vector(5)])
         [(0, 0, 0, 0, 0)]
     """
-    vector_dict = {}
-    for element in vectors:
-        support = tuple(element.support())
-        if support not in vector_dict.keys():
-            vector_dict[support] = element
-    return list(vector_dict.values())
+    def reduce_vectors_support_generator(vectors):
+        r"""Return a generator of vectors where elements with same support are removed."""
+        checked_supports = set()
+        for element in vectors:
+            support = frozenset(element.support())
+            if support not in checked_supports:
+                checked_supports.add(support)
+                yield element
 
-
-def remove_multiples_generator(vectors):
-    r"""
-    Return a generator of ``vectors`` where multiples are removed.
-
-    INPUT:
-
-    - ``vectors`` -- a list of vectors
-    """
-    checked_supports = set()
-    for element in vectors:
-        support = frozenset(element.support())
-        if support not in checked_supports:
-            checked_supports.add(support)
-            yield element
+    if generator:
+        return reduce_vectors_support_generator(vectors)
+    return list(reduce_vectors_support_generator(vectors))
 
 
 def remove_zero_vectors(vectors):
