@@ -63,7 +63,11 @@ def simplify_using_equalities(value, equalities):
 
 def reduce_factor(iterable):
     r"""
-    Cancel a common factor of each entry of this vector. Also works for lists.
+    Cancel a common factor of each entry.
+    
+    INPUT:
+    
+    - ``iterable`` -- a vector or a list
 
     EXAMPLES::
 
@@ -131,7 +135,7 @@ def reduce_vector_using_equalities(iterable, equalities):
 
 def reduce_vector(element, equalities=None, cancel_factor=True):
     r"""
-    Reduces this vector.
+    Reduce this vector by canceling common factors and applying equalities to variables.
 
     INPUT:
 
@@ -182,7 +186,7 @@ def reduce_vectors_support(vectors, generator=False):
     EXAMPLES::
 
         sage: from elementary_vectors.reductions import reduce_vectors_support
-        sage: l = [vector([1,3,2]), vector([0,0,1]), vector([2,2,0]), vector([0,0,-5])]
+        sage: l = [vector([1, 3, 2]), vector([0, 0, 1]), vector([2, 2, 0]), vector([0, 0, -5])]
         sage: reduce_vectors_support(l)
         [(1, 3, 2), (0, 0, 1), (2, 2, 0)]
         sage: reduce_vectors_support([zero_vector(5)])

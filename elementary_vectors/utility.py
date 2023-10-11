@@ -39,9 +39,8 @@ def kernel_vector_support_given(M, indices):
         sage: kernel_vector_support_given(M, [0, 3])
         (0, 0, 0, 1)
     """
-    M_I = M.matrix_from_columns(indices)
     try:
-        subvector_list = list(M_I.right_kernel_matrix()[0])
+        subvector_list = list(M.matrix_from_columns(indices).right_kernel_matrix()[0])
     except IndexError as exc:
         raise ValueError("Right kernel restricted to column ``indices`` is empty.") from exc
     for k in range(M.ncols()):
