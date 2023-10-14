@@ -15,7 +15,7 @@ from elementary_vectors import elementary_vectors
 
 def exists_orthogonal_vector(v, intervals):
     r"""
-    Check whether an orthogonal vector exists that lies in the specified intervals.
+    Check whether an orthogonal vector exists with components in given intervals.
 
     INPUT:
 
@@ -26,7 +26,7 @@ def exists_orthogonal_vector(v, intervals):
     OUTPUT:
 
     Return whether there exists a vector ``z``
-    such that the scalar product of ``z`` and ``v`` is zero
+    such that ``v`` and ``z`` are orthogonal
     and each component of ``z`` lies in the respective interval of the list ``intervals``.
     Raises a ``ValueError`` if the lengths of ``v`` and ``intervals`` are different.
 
@@ -83,32 +83,28 @@ def exists_orthogonal_vector(v, intervals):
 
     lower_bound = 0
     upper_bound = 0
-    lower_bound_zero = True
-    upper_bound_zero = True
+    lower_bound_attainable = True
+    upper_bound_attainable = True
 
     for entry, interval in zip(v, intervals):
         if interval.is_empty():
             return False
-        if entry == 0:
+        if not entry:
             continue
-        if entry > 0:
-            lower_bound += entry * interval.inf()
-            upper_bound += entry * interval.sup()
-            lower_bound_zero &= interval.inf() in interval
-            upper_bound_zero &= interval.sup() in interval
-        else:
-            lower_bound += entry * interval.sup()
-            upper_bound += entry * interval.inf()
-            lower_bound_zero &= interval.sup() in interval
-            upper_bound_zero &= interval.inf() in interval
+        bound1 = interval.inf() if entry > 0 else interval.sup()
+        bound2 = interval.sup() if entry > 0 else interval.inf()
+        lower_bound += entry * bound1
+        upper_bound += entry * bound2
+        lower_bound_attainable &= bound1 in interval
+        upper_bound_attainable &= bound2 in interval
 
     if lower_bound > 0:
         return False
     if upper_bound < 0:
         return False
-    if lower_bound == 0 and not lower_bound_zero:
+    if lower_bound == 0 and not lower_bound_attainable:
         return False
-    if upper_bound == 0 and not upper_bound_zero:
+    if upper_bound == 0 and not upper_bound_attainable:
         return False
     return True
 
@@ -142,7 +138,7 @@ def exists_vector(data, intervals, certify=False):
     The underlying algorithm is based on Minty's Lemma. (see [Min74]_)
 
     .. [Min74] Minty, G. J.:
-       „A `from scratch` proof of a theorem of Rockafellar and Fulkerson“.
+       "A `from scratch` proof of a theorem of Rockafellar and Fulkerson".
        In: Mathematical Programming 7 (1974), pp. 368-375.
 
     EXAMPLES::
@@ -217,11 +213,7 @@ def exists_vector(data, intervals, certify=False):
         raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` are different!")
     if any(interval.is_empty() for interval in intervals):
         return False
-    if isinstance(data, list):
-        evs = data
-    else:
-        evs = elementary_vectors(data, generator=True)
-
+    evs = data if isinstance(data, list) else elementary_vectors(data, generator=True)
     for v in evs:
         if not exists_orthogonal_vector(v, intervals):
             return v if certify else False

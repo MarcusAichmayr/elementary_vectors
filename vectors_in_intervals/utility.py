@@ -93,8 +93,8 @@ def random_interval(ring=QQ, allow_infinity=True, allow_open=True, allow_empty=F
         if randint(0, 5) == 0:
             upper_bound = Infinity
     if allow_open:
-        lower_bound_closed = True if randint(0, 1) == 0 else False
-        upper_bound_closed = True if randint(0, 1) == 0 else False
+        lower_bound_closed = randint(0, 1) == 0
+        upper_bound_closed = randint(0, 1) == 0
     else:
         lower_bound_closed = True
         upper_bound_closed = True

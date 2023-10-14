@@ -306,7 +306,7 @@ def construct_orthogonal_vector(v, intervals):
 
     Return a (rational) vector ``z`` such that the scalar product of ``z`` and ``v`` is zero
     and each component of ``z`` lies in the respective interval of the list ``intervals``.
-    If no such vector exists, raises a ``ValueError`` instead.
+    If no such vector exists, raise a ``ValueError`` instead.
 
     .. SEEALSO::
 
