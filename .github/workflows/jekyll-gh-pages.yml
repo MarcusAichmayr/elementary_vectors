@@ -33,7 +33,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Install SageMath
-        run: sudo apt install sagemath
+        run: sudo apt-get update && sudo apt install sagemath
       - name: Install package
         run: make install
       - name: Run doctests
