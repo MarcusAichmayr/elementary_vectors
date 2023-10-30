@@ -1,8 +1,6 @@
 r"""
 Computing with oriented matroids.
 
-This module is about computation with oriented matroids.
-
 EXAMPLES::
 
     sage: from sign_vectors.oriented_matroids import *

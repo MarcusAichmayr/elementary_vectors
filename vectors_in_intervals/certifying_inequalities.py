@@ -1,5 +1,5 @@
 r"""
-Certifying solvability of linear inequality systems using elementary vectors
+Certifying solvability of linear inequality systems using elementary vectors.
 
 Given is a system of linear inequalities.
 We are interested whether the system has a solution.
@@ -31,7 +31,7 @@ To demonstrate this, consider the following example::
     True
 
 However, to certify existence of a solution, we need to consider the alternative system.
-This system can be described by two matrices ``M1``, ``M2`` and two lists of intervals ``I1``, ``I2``::
+This system can be described by two matrices and two lists of intervals::
 
     sage: M1 = matrix_inhomogeneous1_alternative(A, B, b, c)
     sage: I1 = intervals_inhomogeneous1_alternative(A, B, b, c)
@@ -161,17 +161,17 @@ def matrix_homogeneous(A, B, C):
 
 
 def b_to_intervals(b):
-    r"""Converts the right hand side of ``A x <= b`` to intervals"""
+    r"""Converts the right hand side of ``A x <= b`` to intervals."""
     return [interval_from_bounds(-Infinity, bi) for bi in b]
 
 
 def c_to_intervals(c):
-    r"""Converts the right hand side of ``B x < c`` to intervals"""
+    r"""Converts the right hand side of ``B x < c`` to intervals."""
     return [interval_from_bounds(-Infinity, ci, False, False) for ci in c]
 
 
 def bc_to_intervals(b, c):
-    r"""Converts both right hand sides of ``A x <= b, B x < c`` to intervals"""
+    r"""Converts both right hand sides of ``A x <= b, B x < c`` to intervals."""
     return b_to_intervals(b) + c_to_intervals(c)
 
 
@@ -224,7 +224,7 @@ def exists_orthogonal_vector_inhomogeneous(v, b, c):
             )
             if scalarproduct < 0:
                 return True
-            if scalarproduct <= 0 and any(v[k] != 0 for k in range(m1, m1 + m2)):
+            if scalarproduct <= 0 and any(v[k] for k in range(m1, m1 + m2)):
                 return True
         return False
     return not condition(v) and not condition(-v)
@@ -285,7 +285,7 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict):
 
 def elementary_vectors_generator_trailing_nonzero(M):
     r"""
-    Return generator of elementary vectors that are non-zero at last component
+    Return generator of elementary vectors that are non-zero at last component.
     
     INPUT:
     
@@ -296,7 +296,7 @@ def elementary_vectors_generator_trailing_nonzero(M):
         :func:`elementary_vectors.functions.elementary_vectors`
     """
     try:
-        ind = M.pivot_rows()  # does not work for polynomial matrices
+        ind = M.pivot_rows()
         M = M.matrix_from_rows(ind)
     except (ArithmeticError, NotImplementedError):
         warnings.warn('Could not determine rank of matrix. Expect wrong result!')
@@ -305,17 +305,17 @@ def elementary_vectors_generator_trailing_nonzero(M):
     minors = {}
     ring = M.base_ring()
 
-    def ev_from_support(I):
+    def ev_from_support(indices):
         r"""
-        Return the elementary vector corresponding to ``I``.
+        Return the elementary vector corresponding to ``indices``.
 
         INPUT:
 
-        - ``I`` -- a list of indices
+        - ``indices`` -- a list of indices
         """
         v = zero_vector(ring, n)
-        for pos, k in enumerate(I):
-            Ik = tuple(i for i in I if i != k)
+        for pos, k in enumerate(indices):
+            Ik = tuple(i for i in indices if i != k)
             try:
                 minor = minors[Ik]
             except KeyError:
@@ -323,8 +323,8 @@ def elementary_vectors_generator_trailing_nonzero(M):
                 minor = minors[Ik]
             v[k] = (-1)**pos * minor
         return v
-    
-    evs = (ev_from_support(I + [n - 1]) for I in Combinations(n - 1, m))
+
+    evs = (ev_from_support(indices + [n - 1]) for indices in Combinations(n - 1, m))
     evs = (v for v in evs if v)
     evs = reduce_vectors_support(evs, generator=True)
 
@@ -333,7 +333,7 @@ def elementary_vectors_generator_trailing_nonzero(M):
 
 def matrix_inhomogeneous1_alternative(A, B, b, c):
     r"""
-    Matrix of first alternative system for ``A x <= b, B x < c``
+    Matrix of first alternative system for ``A x <= b, B x < c``.
     
     Returns a matrix.
     """
@@ -351,7 +351,7 @@ def matrix_inhomogeneous1_alternative(A, B, b, c):
 
 def matrix_inhomogeneous2_alternative(A, B, b, c):
     r"""
-    Matrix of second alternative system for ``A x <= b, B x < c``
+    Matrix of second alternative system for ``A x <= b, B x < c``.
     
     Returns a matrix.
     """
@@ -370,7 +370,7 @@ def matrix_inhomogeneous2_alternative(A, B, b, c):
 
 def matrix_homogeneous_alternative(A, B, C):
     r"""
-    Alternative system matrix for ``A x > 0, B x >= 0, C x = 0``
+    Alternative system matrix for ``A x > 0, B x >= 0, C x = 0``.
     
     Returns a matrix.
     
@@ -395,41 +395,39 @@ def intervals_inhomogeneous1_alternative(A, B, b=None, c=None):
     r"""
     Intervals of first alternative system for ``A x <= b, B x < c``
     
-    Returns a list of intervals.
+    Return a list of intervals.
     """
     m_A, n = A.dimensions()
     m_B = B.nrows()
 
-    I = (
+    return (
         n * [interval_from_bounds(0, 0)] +
         (m_A + m_B) * [interval_from_bounds(0, 1)] +
         [interval_from_bounds(0, 1, False, True)]
     )
-    return I
 
 
 def intervals_inhomogeneous2_alternative(A, B, b=None, c=None):
     r"""
-    Intervals of second alternative system for ``A x <= b, B x < c``
+    Intervals of second alternative system for ``A x <= b, B x < c``.
     
-    Returns a list of intervals.
+    Return a list of intervals.
     """
     m_A, n = A.dimensions()
     m_B = B.nrows()
 
-    I = (
+    return (
         n * [interval_from_bounds(0, 0)] +
         (m_A + m_B + 1) * [interval_from_bounds(0, 1)] +
         [interval_from_bounds(0, 1, False, True)]
     )
-    return I
 
 
 def intervals_homogeneous_alternative(A, B, C=None):
     r"""
-    Alternative system intervals for ``A x > 0, B x >= 0, C x = 0``
+    Alternative system intervals for ``A x > 0, B x >= 0, C x = 0``.
     
-    Returns a list of intervals.
+    Return a list of intervals.
 
     .. SEEALSO::
     
@@ -438,17 +436,16 @@ def intervals_homogeneous_alternative(A, B, C=None):
     m_A, n = A.dimensions()
     m_B = B.nrows()
 
-    I = (
+    return (
         n * [interval_from_bounds(0, 0)] +
         (m_A + m_B) * [interval_from_bounds(0, 1)] +
         [interval_from_bounds(0, 1, False, True)]
     )
-    return I
 
 
 def certify_inhomogeneous(A, B, b, c):
     r"""
-    Return whether the system ``A x <= b, B x < c`` has a solution and certifies it.
+    Return whether the system ``A x <= b, B x < c`` has a solution and certify it.
     
     INPUT:
     
@@ -464,14 +461,14 @@ def certify_inhomogeneous(A, B, b, c):
     A tuple of a boolean and a list of vectors certifying the result.
     """
     M = matrix.block([[A], [B]])
-    
+
     n = A.ncols()
     m_A = A.nrows()
     m_B = B.nrows()
 
     M1 = matrix_inhomogeneous1_alternative(A, B, b, c)
     M2 = matrix_inhomogeneous2_alternative(A, B, b, c)
-    
+
     evs = elementary_vectors(M.T, generator=True)
     evs_alt1 = elementary_vectors_generator_trailing_nonzero(M1.T)
     evs_alt2 = elementary_vectors_generator_trailing_nonzero(M2.T)
@@ -479,7 +476,7 @@ def certify_inhomogeneous(A, B, b, c):
     evs_end_reached = False
     evs_alt1_end_reached = False
     evs_alt2_end_reached = False
-    
+
     v1_found = False
     v2_found = False
     while True:
@@ -522,7 +519,7 @@ def certify_inhomogeneous(A, B, b, c):
 
 def certify_homogeneous(A, B, C):
     r"""
-    Return whether the system ``A x < 0, B x <= 0, C x = 0`` has a solution and certifies it.
+    Return whether the system ``A x < 0, B x <= 0, C x = 0`` has a solution and certify it.
     
     INPUT:
     
@@ -538,7 +535,7 @@ def certify_homogeneous(A, B, C):
     m_A, n = A.dimensions()
     m_B = B.nrows()
     M = matrix.block([[A.T, B.T, C.T]])
-    
+
     M_alt = matrix_homogeneous_alternative(A, B, C)
 
     evs = elementary_vectors(M, generator=True)

@@ -1,4 +1,9 @@
-"""Constructing vectors with components in intervals."""
+"""
+Constructing vectors with components in intervals.
+
+The core function of this module is :func:`~construct_vector`.
+Most other functions here are auxiliary function but can be used for special cases.
+"""
 
 #############################################################################
 #  Copyright (C) 2023                                                       #
@@ -101,36 +106,37 @@ def multiple_in_intervals_candidates(v, intervals):
     upper_bound_closed = False
 
     for entry, interval in zip(v, intervals):
-        if entry == 0:
-            if not 0 in interval:
-                return RealSet()
-        else:
-            val_inf = interval.inf() / entry
-            val_sup = interval.sup() / entry
-            if entry > 0:
-                if val_inf > a_inf:
-                    a_inf = val_inf
-                    lower_bound_closed = interval.inf() in interval
-                elif val_inf == a_inf:
-                    lower_bound_closed = interval.inf() in interval and lower_bound_closed
-                if val_sup < a_sup:
-                    a_sup = val_sup
-                    upper_bound_closed = interval.sup() in interval
-                elif val_sup == a_sup:
-                    upper_bound_closed = interval.sup() in interval and upper_bound_closed
-            else: # entry < 0
-                if val_sup > a_inf:
-                    a_inf = val_sup
-                    lower_bound_closed = interval.sup() in interval
-                elif val_sup == a_inf:
-                    lower_bound_closed = interval.sup() in interval and lower_bound_closed
-                if val_inf < a_sup:
-                    a_sup = val_inf
-                    upper_bound_closed = interval.inf() in interval
-                elif val_inf == a_sup:
-                    upper_bound_closed = interval.inf() in interval and upper_bound_closed
-            if a_inf > a_sup:
-                return RealSet()
+        if not entry:
+            if 0 in interval:
+                continue
+            return RealSet()
+
+        val_inf = interval.inf() / entry
+        val_sup = interval.sup() / entry
+        if entry > 0:
+            if val_inf > a_inf:
+                a_inf = val_inf
+                lower_bound_closed = interval.inf() in interval
+            elif val_inf == a_inf:
+                lower_bound_closed = interval.inf() in interval and lower_bound_closed
+            if val_sup < a_sup:
+                a_sup = val_sup
+                upper_bound_closed = interval.sup() in interval
+            elif val_sup == a_sup:
+                upper_bound_closed = interval.sup() in interval and upper_bound_closed
+        else: # entry < 0
+            if val_sup > a_inf:
+                a_inf = val_sup
+                lower_bound_closed = interval.sup() in interval
+            elif val_sup == a_inf:
+                lower_bound_closed = interval.sup() in interval and lower_bound_closed
+            if val_inf < a_sup:
+                a_sup = val_inf
+                upper_bound_closed = interval.inf() in interval
+            elif val_inf == a_sup:
+                upper_bound_closed = interval.inf() in interval and upper_bound_closed
+        if a_inf > a_sup:
+            return RealSet()
 
     return interval_from_bounds(a_inf, a_sup, lower_bound_closed, upper_bound_closed)
 
@@ -339,7 +345,7 @@ def construct_orthogonal_vector(v, intervals):
         sage: construct_orthogonal_vector(v, I)
         (1/2, 2, -1/2)
 
-    We can even consider unbounded intervals::
+    We can also work with unbounded intervals::
 
         sage: I = intervals_from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
         sage: I
@@ -362,15 +368,21 @@ def construct_orthogonal_vector(v, intervals):
             z_min.append(simplest_element_in_interval(interval))
             z_max.append(simplest_element_in_interval(interval))
             continue
-        lower_bound_closed = (interval.inf() + (0 if interval.inf() in interval else eps)) if interval.inf() != -Infinity else -lam
-        upper_bound_closed = (interval.sup() + (0 if interval.sup() in interval else -eps)) if interval.sup() != Infinity else lam
+        if interval.inf() == -Infinity:
+            lower_element = -lam
+        else:
+            lower_element = interval.inf() if interval.inf() in interval else interval.inf() + eps
+        if interval.sup() == Infinity:
+            upper_element = lam
+        else:
+            upper_element = interval.sup() if interval.sup() in interval else interval.sup() - eps
 
         if entry > 0:
-            z_min.append(lower_bound_closed)
-            z_max.append(upper_bound_closed)
+            z_min.append(lower_element)
+            z_max.append(upper_element)
         else:
-            z_min.append(upper_bound_closed)
-            z_max.append(lower_bound_closed)
+            z_min.append(upper_element)
+            z_max.append(lower_element)
 
     z_min = vector(z_min)
     z_max = vector(z_max)
@@ -381,25 +393,25 @@ def construct_orthogonal_vector(v, intervals):
     for entry, interval in zip(v, intervals):
         if entry == 0:
             continue
-        if interval.inf() == -Infinity and interval.sup() == Infinity:  # (-oo, oo)
+        if interval.inf() == -Infinity and interval.sup() == Infinity: # (-oo, oo)
             lam_candidates.append(0)
         elif interval.inf() == -Infinity:
-            if interval.sup() in interval:  # (-oo, b]
+            if interval.sup() in interval: # (-oo, b]
                 lam_candidates.append(-interval.sup())
-            else:  # (-oo, b)
+            else: # (-oo, b)
                 lam_candidates.append(1 - interval.sup())
                 eps_candidates.append(1)
         elif interval.sup() == Infinity:
-            if interval.inf() in interval:  # [a, oo)
+            if interval.inf() in interval: # [a, oo)
                 lam_candidates.append(interval.inf())
-            else:  # (a, oo)
+            else: # (a, oo)
                 lam_candidates.append(1 + interval.inf())
                 eps_candidates.append(1)
         elif not interval.is_closed():
-            if interval.sup() in interval or interval.inf() in interval:  # [a, b) or (a, b]
+            if interval.sup() in interval or interval.inf() in interval: # [a, b) or (a, b]
                 eps_candidates.append(interval.sup() - interval.inf())
-            else:  # (a, b)
-                eps_candidates.append((interval.sup() - interval.inf())/2)
+            else: # (a, b)
+                eps_candidates.append((interval.sup() - interval.inf()) / 2)
 
     if eps_candidates:
         for product in [z_min * v, z_max * v]:
@@ -420,7 +432,7 @@ def construct_orthogonal_vector(v, intervals):
 
     if lam_candidates:
         for product in [z_min * v, z_max * v]:
-            if product == 0:
+            if not product:
                 continue
             try:
                 lam_candidates.append(solve(product, lam, solution_dict=True)[0][lam])
@@ -438,9 +450,9 @@ def construct_orthogonal_vector(v, intervals):
 
     product_min = v * z_min
     product_max = v * z_max
-    if product_min == 0:
+    if not product_min:
         return z_min
-    if product_max == 0:
+    if not product_max:
         return z_max
 
     return (product_max * z_min - product_min * z_max) / (product_max - product_min)
@@ -547,7 +559,7 @@ def construct_vector(M, intervals, evs=None):
             for row in M.rows():
                 if row:
                     return multiple_in_intervals(row, intervals)
-        if rank == 0:
+        if not rank:
             return zero_vector(M.base_ring(), M.ncols())
 
         def coefficient(k):

@@ -58,7 +58,7 @@ Next, we consider open intervals::
     sage: construct_orthogonal_vector(v, I)
     (1/2, 2, -1/2)
 
-We can even consider unbounded intervals::
+We can also work with unbounded intervals::
 
     sage: I = intervals_from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
     sage: I

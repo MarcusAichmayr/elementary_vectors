@@ -25,10 +25,8 @@ def exists_orthogonal_vector(v, intervals):
 
     OUTPUT:
 
-    Return whether there exists a vector ``z``
-    such that ``v`` and ``z`` are orthogonal
-    and each component of ``z`` lies in the respective interval of the list ``intervals``.
-    Raises a ``ValueError`` if the lengths of ``v`` and ``intervals`` are different.
+    Return whether there exists an orthogonal vector to ``v``
+    such that the components of this vector lie in ``intervals``.
 
     EXAMPLES:
 
@@ -55,7 +53,7 @@ def exists_orthogonal_vector(v, intervals):
         sage: exists_orthogonal_vector(v, I)
         True
 
-    We can even consider unbounded intervals::
+    We can also work with unbounded intervals::
 
         sage: I = intervals_from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
         sage: I
@@ -124,21 +122,21 @@ def exists_vector(data, intervals, certify=False):
 
     OUTPUT:
 
-    Return whether there exists a vector in a vector space
+    Return whether there exists a vector in a given vector space
     such that the components lie in specified intervals using elementary vectors.
 
-    - If ``data`` is a matrix, check if a vector in the row space of this matrix lies in the intervals.
+    - If ``data`` is a matrix, check if a vector in the row space lies in the intervals.
 
-    - If ``data`` is a list of elementary vectors, check if a vector exists orthogonal to those elementary vectors.
+    - If ``data`` is a list of elementary vectors, check if a vector exists orthogonal to those.
 
-    - If ``certify`` is true and no vector exists, an elementary vector certifying non-existence is returned.
+    - If ``certify`` is true and no vector exists, an elementary vector is returned as certificate.
 
     ALGORITHM:
 
     The underlying algorithm is based on Minty's Lemma. (see [Min74]_)
 
     .. [Min74] Minty, G. J.:
-       "A `from scratch` proof of a theorem of Rockafellar and Fulkerson".
+       "A 'from scratch' proof of a theorem of Rockafellar and Fulkerson".
        In: Mathematical Programming 7 (1974), pp. 368-375.
 
     EXAMPLES::
