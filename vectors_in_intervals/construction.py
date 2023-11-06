@@ -223,7 +223,7 @@ def vector_from_sign_vector(sv, data):
         sage: vector_from_sign_vector(sign_vector("+0-0"), M)
         Traceback (most recent call last):
         ...
-        ValueError: There is no solution.
+        ValueError: Cannot find vector corresponding to given sign vector.
         sage: vector_from_sign_vector(zero_sign_vector(4), [])
         (0, 0, 0, 0)
     """
@@ -249,7 +249,7 @@ def vector_from_sign_vector(sv, data):
             if sign_vector(result) == sv:
                 return result
 
-    raise ValueError("There is no solution.")
+    raise ValueError("Cannot find vector corresponding to given sign vector.")
 
 
 def sign_vectors_in_intervals(intervals, generator=False):

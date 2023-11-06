@@ -74,10 +74,10 @@ def exists_orthogonal_vector(v, intervals):
         sage: exists_orthogonal_vector(v, I)
         Traceback (most recent call last):
         ...
-        ValueError: Lengths of ``v`` and ``intervals`` are different!
+        ValueError: Lengths of vector and intervals do not match.
     """
     if len(v) != len(intervals):
-        raise ValueError("Lengths of ``v`` and ``intervals`` are different!")
+        raise ValueError("Lengths of vector and intervals do not match.")
 
     lower_bound = 0
     upper_bound = 0
@@ -205,10 +205,10 @@ def exists_vector(data, intervals, certify=False):
         sage: exists_vector(M, I)
         Traceback (most recent call last):
         ...
-        ValueError: Number of columns of matrix ``data`` and length of ``intervals`` are different!
+        ValueError: Number of columns of matrix ``data`` and length of ``intervals`` do not match.
     """
     if hasattr(data, "ncols") and data.ncols() != len(intervals):
-        raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` are different!")
+        raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` do not match.")
     if any(interval.is_empty() for interval in intervals):
         return False
     evs = data if isinstance(data, list) else elementary_vectors(data, generator=True)
