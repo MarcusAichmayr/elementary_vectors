@@ -15,6 +15,7 @@ Most other functions here are auxiliary function but can be used for special cas
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from sage.categories.sets_cat import EmptySetError
 from sage.calculus.var import var
 from sage.matrix.constructor import matrix
 from sage.misc.mrange import cartesian_product_iterator
@@ -168,8 +169,15 @@ def multiple_in_intervals(v, intervals):
         sage: v = vector([1, 5, -2, 0])
         sage: multiple_in_intervals(v, I)
         (1/9, 5/9, -2/9, 0)
+        sage: multiple_in_intervals(zero_vector(4), I)
+        Traceback (most recent call last):
+        ...
+        ValueError: There is no multiple in given intervals.
     """
-    return simplest_element_in_interval(multiple_in_intervals_candidates(v, intervals)) * v
+    try:
+        return simplest_element_in_interval(multiple_in_intervals_candidates(v, intervals)) * v
+    except EmptySetError as exc:
+        raise ValueError("There is no multiple in given intervals.") from exc
 
 
 def vector_from_sign_vector(sv, data):
