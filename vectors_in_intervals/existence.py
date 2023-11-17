@@ -79,10 +79,10 @@ def exists_orthogonal_vector(v, intervals):
     if len(v) != len(intervals):
         raise ValueError("Lengths of vector and intervals do not match.")
 
-    lower_bound = 0
-    upper_bound = 0
-    lower_bound_attainable = True
-    upper_bound_attainable = True
+    lower_product = 0
+    upper_product = 0
+    lower_product_attainable = True
+    upper_product_attainable = True
 
     for entry, interval in zip(v, intervals):
         if interval.is_empty():
@@ -91,18 +91,18 @@ def exists_orthogonal_vector(v, intervals):
             continue
         bound1 = interval.inf() if entry > 0 else interval.sup()
         bound2 = interval.sup() if entry > 0 else interval.inf()
-        lower_bound += entry * bound1
-        upper_bound += entry * bound2
-        lower_bound_attainable &= bound1 in interval
-        upper_bound_attainable &= bound2 in interval
+        lower_product += entry * bound1
+        upper_product += entry * bound2
+        lower_product_attainable &= bound1 in interval
+        upper_product_attainable &= bound2 in interval
 
-    if lower_bound > 0:
+    if lower_product > 0:
         return False
-    if upper_bound < 0:
+    if upper_product < 0:
         return False
-    if lower_bound == 0 and not lower_bound_attainable:
+    if lower_product == 0 and not lower_product_attainable:
         return False
-    if upper_bound == 0 and not upper_bound_attainable:
+    if upper_product == 0 and not upper_product_attainable:
         return False
     return True
 
