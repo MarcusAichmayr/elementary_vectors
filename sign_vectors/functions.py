@@ -44,7 +44,7 @@ def closure(iterable, separate=False):
 
     We consider a list consisting of only one sign vector::
 
-        sage: from sign_vectors import sign_vector, closure
+        sage: from sign_vectors import *
         sage: W = [sign_vector("+-0")]
         sage: W
         [(+-0)]

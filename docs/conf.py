@@ -28,7 +28,7 @@ copyright = u'2023, Marcus Aichmayr'
 author = u'Marcus Aichmayr'
 
 # The short X.Y version
-version = u''
+version = u'1.0'
 # The full version, including alpha/beta/rc tags
 release = u'1.0'
 

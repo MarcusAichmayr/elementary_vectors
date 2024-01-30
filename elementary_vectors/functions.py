@@ -50,7 +50,7 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=F
 
     EXAMPLES::
 
-        sage: from elementary_vectors import elementary_vectors
+        sage: from elementary_vectors import *
         sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]]); M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
