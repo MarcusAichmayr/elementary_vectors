@@ -118,7 +118,7 @@ Finally, we consider unbounded intervals::
 """
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
+#  Copyright (C) 2024                                                       #
 #                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
