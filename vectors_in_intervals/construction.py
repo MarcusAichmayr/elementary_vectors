@@ -554,7 +554,7 @@ def construct_vector(M, intervals, evs=None):
     if not exists_vector(evs if evs else M, intervals):
         raise ValueError("There is no solution.")
 
-    def rec(M, intervals):
+    def recursive_construct_vector(M, intervals):
         r"""Recursive call."""
         length = M.ncols()
         rank = M.rank()
@@ -575,7 +575,7 @@ def construct_vector(M, intervals, evs=None):
             # projection to k-th component
             M_bar = M.delete_columns([k])
             intervals_bar = intervals[:k] + intervals[k + 1:]
-            xk_bar = rec(M_bar, intervals_bar)
+            xk_bar = recursive_construct_vector(M_bar, intervals_bar)
             if hasattr(xk_bar, "simplify_full"):
                 xk_bar = xk_bar.simplify_full()
 
@@ -596,4 +596,4 @@ def construct_vector(M, intervals, evs=None):
         v = sum(a * x_k for a, x_k in zip(weights, x) if a > 0) / sum(a for a in weights if a > 0)
         return v.simplify_full() if hasattr(v, "simplify_full") else v
 
-    return rec(M, intervals)
+    return recursive_construct_vector(M, intervals)
