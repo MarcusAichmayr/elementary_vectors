@@ -1,5 +1,5 @@
 """
-Constructing vectors with components in intervals.
+Constructing vectors with components in intervals
 
 The core function of this module is :func:`~construct_vector`.
 Most other functions here are auxiliary function but can be used for special cases.

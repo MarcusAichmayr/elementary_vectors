@@ -1,4 +1,4 @@
-"""Existence of vectors with components in intervals."""
+"""Existence of vectors with components in intervals"""
 
 #############################################################################
 #  Copyright (C) 2024                                                       #

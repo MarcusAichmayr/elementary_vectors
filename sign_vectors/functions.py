@@ -1,4 +1,4 @@
-r"""Functions for working with oriented matroids."""
+r"""Functions for working with oriented matroids"""
 
 #############################################################################
 #  Copyright (C) 2024                                                       #

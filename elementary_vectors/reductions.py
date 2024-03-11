@@ -1,4 +1,4 @@
-r"""Reducing and simplifying lists of vectors."""
+r"""Reducing and simplifying lists of vectors"""
 
 #############################################################################
 #  Copyright (C) 2024                                                       #

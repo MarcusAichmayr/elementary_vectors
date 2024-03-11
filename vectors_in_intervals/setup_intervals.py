@@ -1,4 +1,4 @@
-"""Setting up lists of intervals."""
+"""Setting up lists of intervals"""
 
 #############################################################################
 #  Copyright (C) 2024                                                       #

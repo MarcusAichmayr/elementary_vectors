@@ -1,12 +1,11 @@
 r"""
-Finding vectors with components in intervals.
+Finding vectors with components in intervals
+============================================
 
-With this module, we can check whether there is a vector in a subspace such that
+We check whether there is a vector in a subspace such that
 the components lie in given intervals.
 
 There is also an algorithmic approach to construct such a vector.
-
-EXAMPLES:
 
 First, we load the functions from the package::
 

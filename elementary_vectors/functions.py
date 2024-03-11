@@ -1,4 +1,4 @@
-r"""Computing elementary vectors."""
+r"""Computing elementary vectors"""
 
 #############################################################################
 #  Copyright (C) 2024                                                       #

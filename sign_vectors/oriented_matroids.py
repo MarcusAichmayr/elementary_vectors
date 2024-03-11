@@ -1,9 +1,6 @@
 r"""
-Computing with oriented matroids.
-
-EXAMPLES::
-
-    sage: from sign_vectors.oriented_matroids import *
+Oriented matroids
+=================
 
 We define some matrix::
 
@@ -11,14 +8,21 @@ We define some matrix::
     sage: A
     [ 2 -1 -1]
 
+Cocircuits
+~~~~~~~~~~
+
 Now, we compute the cocircuits of the oriented matroid corresponding to the kernel
 of the matrix ``A``.
 (Cocircuits are minimal non-zero elements of an oriented matroid
 with respect to the conformal relation.)::
 
+    sage: from sign_vectors.oriented_matroids import *
     sage: ccA = cocircuits_from_matrix(A)
     sage: ccA
     {(0-+), (+0+), (--0), (-0-), (0+-), (++0)}
+
+Covectors
+~~~~~~~~~
 
 We can also use the cocircuits to compute all covectors of the corresponding
 oriented matroid::
@@ -37,6 +41,9 @@ oriented matroid::
      (++-),
      (--+),
      (++0)}
+
+Topes
+~~~~~
 
 Next, we compute the topes using the cocircuits.
 (Topes are the covectors that are maximal with respect to the conformal relation)::
@@ -79,6 +86,9 @@ There are some further commands to work with oriented matroids::
      (++0)}
     sage: cocircuits_from_topes(tA)
     {(0-+), (+0+), (--0), (-0-), (0+-), (++0)}
+
+Face enumeration
+~~~~~~~~~~~~~~~~
 
 Next, we compute all covectors separated by their rank::
 

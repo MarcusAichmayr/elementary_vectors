@@ -1,5 +1,6 @@
 r"""
-Certifying solvability of linear inequality systems using elementary vectors.
+Certifying solvability of linear inequality systems using elementary vectors
+============================================================================
 
 Given is a system of linear inequalities.
 We are interested whether the system has a solution.
@@ -11,11 +12,12 @@ Many of the results are derived from theorems in [Ben00]_.
     Motzkin's transposition theorem, and the related theorems of Farkas, Gordan and Stiemke.
     2000.
 
-This module offers functions for linear inequality systems given in the form
-``A x <= b, B x < c`` with matrices ``A``, ``B`` and vectors ``b``, ``c``
-and ``A x > 0, B x >= 0, C x = 0`` with matrices ``A``, ``B``, ``C``.
+Inhomogeneous systems
+~~~~~~~~~~~~~~~~~~~~~
 
-We are interested whether the system  has a solution ``x``.
+We deal with linear inequality systems given in the form
+:math:`A x \leq b, B x < c` with matrices :math:`A`, :math:`B` and vectors :math:`b`, :math:`c`.
+We are interested whether the system  has a solution :math:`x`.
 This can be checked using :func:`vectors_in_intervals.existence.exists_vector`.
 If no solution exists, this function can be used to certify the result.
 
@@ -86,9 +88,12 @@ We consider another example::
     sage: certify_inhomogeneous(A, B, b, c)
     (False, [(0, 1, 1)])
     
+Homogeneous systems
+~~~~~~~~~~~~~~~~~~~
+
 There is also a homogeneous version of Motzkin's transposition theorem.
-Here, we have three matrices ``A``, ``B`` and ``C`` and deals with the system
-``A x > 0, B x >= 0, C x = 0``::
+Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deals with the system
+:math:`A x > 0, B x \geq 0, C x = 0`::
 
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
