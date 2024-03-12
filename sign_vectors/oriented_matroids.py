@@ -13,7 +13,7 @@ Cocircuits
 
 Now, we compute the cocircuits of the oriented matroid corresponding to the kernel
 of the matrix ``A``.
-(Cocircuits are minimal non-zero elements of an oriented matroid
+(Cocircuits are minimal nonzero elements of an oriented matroid
 with respect to the conformal relation.)::
 
     sage: from sign_vectors.oriented_matroids import *

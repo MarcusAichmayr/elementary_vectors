@@ -290,7 +290,7 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict):
 
 def elementary_vectors_generator_trailing_nonzero(M):
     r"""
-    Return generator of elementary vectors that are non-zero at last component.
+    Return generator of elementary vectors that are nonzero at last component.
     
     INPUT:
     

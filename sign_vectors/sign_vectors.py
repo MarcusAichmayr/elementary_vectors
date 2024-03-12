@@ -765,7 +765,7 @@ class SignVector(SageObject):
 
     def support(self):
         r"""
-        Return a list of indices where the sign vector is non-zero.
+        Return a list of indices where the sign vector is nonzero.
 
         EXAMPLES::
 
@@ -1294,7 +1294,7 @@ def sign_vector_from_support(support, psupport, length):
 
     - ``psupport`` -- a list
 
-    - ``length`` -- a non-negative integer
+    - ``length`` -- a nonnegative integer
 
     OUTPUT:
     a sign vector

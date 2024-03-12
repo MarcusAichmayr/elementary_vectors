@@ -153,7 +153,7 @@ def parallel_classes(iterable, positive_only=False):
     Returns a partition of ``[0, ..., n - 1]`` into parallel classes.
 
     If ``positive_only`` is true, returns a partition of ``[0, ..., n - 1]`` into positive parallel classes,
-    that is, the ratios of the corresponding classes are non-negative.
+    that is, the ratios of the corresponding classes are nonnegative.
 
     .. NOTE::
 
