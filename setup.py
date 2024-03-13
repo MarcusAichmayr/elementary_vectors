@@ -12,7 +12,7 @@ setup(
     long_description = readfile("README.md"),
     long_description_content_type = "text/markdown",
     url = 'https://github.com/MarcusAichmayr/elementary_vectors',
-    author = 'Marcus Aichmayr',
+    author = 'Marcus S. Aichmayr',
     author_email = 'aichmayr@mathematik.uni-kassel.de',
     license='GPLv3',
     classifiers = [
