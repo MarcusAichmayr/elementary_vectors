@@ -1,7 +1,7 @@
 Documentation of elementary_vectors
 ===================================
 
-To install this package for SageMath, visit the `repository on GitHub <https://github.com/MarcusAichmayr/elementary_vectors>`_.
+To install this SageMath package, visit the `repository on GitHub <https://github.com/MarcusAichmayr/elementary_vectors>`_.
 
 .. rubric:: Elementary vectors
 
