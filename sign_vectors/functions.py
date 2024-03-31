@@ -177,11 +177,12 @@ def contraction(iterable, indices, keep_components=False):
     if not iterable:
         return iterable
     if keep_components:
+
         def vec(iterable):
             return iterable
     else:
         vec = exclude_indices(iterable, indices)
-    
+
     return set(vec(X) for X in iterable if not any(e in indices for e in X.support()))
 
 
@@ -223,6 +224,11 @@ def deletion(iterable, indices):
     return set(exclude_indices(iterable, indices)(X) for X in iterable)
 
 
-def plot_sign_vectors(iterable, vertex_size=600, figsize=10, aspect_ratio=4/8):
+def plot_sign_vectors(iterable, vertex_size=600, figsize=10, aspect_ratio=4 / 8):
     r"""Plot the Hasse Diagram of sign vectors using the conformal relation."""
-    Poset((iterable, lambda X, Y: X.conforms(Y))).plot(vertex_size=vertex_size, element_color='white', cover_style='-', vertex_shape='+').show(figsize=figsize, aspect_ratio=aspect_ratio)
+    Poset((iterable, lambda X, Y: X.conforms(Y))).plot(
+        vertex_size=vertex_size,
+        element_color="white",
+        cover_style="-",
+        vertex_shape="+",
+    ).show(figsize=figsize, aspect_ratio=aspect_ratio)

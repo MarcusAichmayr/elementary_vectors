@@ -40,7 +40,7 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=F
 
     - If ``remove_multiples`` is true, the output will be reduced such that
       all elementary vectors have distinct support.
-    
+
     - If ``generator`` is true, the output will be a generator object instead of a list.
 
     .. SEEALSO::
@@ -123,11 +123,20 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=F
     """
     if isinstance(data, list):
         if dimensions is None:
-            raise TypeError("When computing elementary vectors from a list of " +
-                            "maximal minors, the dimensions of the corresponding " +
-                            "matrix are needed.")
-        return elementary_vectors_from_minors(data, dimensions=dimensions, remove_multiples=remove_multiples, generator=generator)
-    return elementary_vectors_from_matrix(data, remove_multiples=remove_multiples, generator=generator)
+            raise TypeError(
+                "When computing elementary vectors from a list of "
+                + "maximal minors, the dimensions of the corresponding "
+                + "matrix are needed."
+            )
+        return elementary_vectors_from_minors(
+            data,
+            dimensions=dimensions,
+            remove_multiples=remove_multiples,
+            generator=generator,
+        )
+    return elementary_vectors_from_matrix(
+        data, remove_multiples=remove_multiples, generator=generator
+    )
 
 
 def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
@@ -148,7 +157,7 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
 
     - If ``remove_multiples`` is true, the output will be reduced such that
       all elementary vectors have distinct support.
-    
+
     - If ``generator`` is true, the output will be a generator object instead of a list.
 
     .. SEEALSO::
@@ -172,9 +181,9 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
          (0, -4, 2, 2, 0)]
     """
     try:
-        M = M.matrix_from_rows(M.pivot_rows()) # does not work for polynomial matrices
+        M = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
     except (ArithmeticError, NotImplementedError):
-        warnings.warn('Could not determine rank of matrix. Expect wrong result!')
+        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
 
     rank, length = M.dimensions()
     minors = {}
@@ -190,7 +199,7 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
             except KeyError:
                 minors[indices_minor] = M.matrix_from_columns(indices_minor).det()
                 minor = minors[indices_minor]
-            element[k] = (-1)**pos * minor
+            element[k] = (-1) ** pos * minor
         return element
 
     evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))
@@ -203,7 +212,9 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
     return list(evs)
 
 
-def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multiples=True, generator=False):
+def elementary_vectors_from_minors(
+    minors, dimensions, ring=None, remove_multiples=True, generator=False
+):
     r"""
     Compute elementary vectors determined by given maximal minors of a matrix.
 
@@ -227,7 +238,7 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
 
     - If ``remove_multiples`` is true, the output will be reduced such that
       all elementary vectors have distinct support.
-    
+
     - If ``generator`` is true, the output will be a generator object instead of a list.
 
     .. SEEALSO::
@@ -264,7 +275,7 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
         for pos, k in enumerate(indices):
             indices_minor = tuple(i for i in indices if i != k)
             minor = minors_dict[indices_minor]
-            element[k] = (-1)**pos * minor
+            element[k] = (-1) ** pos * minor
         return element
 
     evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))

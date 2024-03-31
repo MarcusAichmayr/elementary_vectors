@@ -160,6 +160,7 @@ length_error = ValueError("Elements have different length.")
 
 class Sign(SageObject):
     r"""Auxiliary object for sign vectors."""
+
     def __init__(self, value):
         if isinstance(value, Sign):
             self.__positive = value.__positive
@@ -225,7 +226,9 @@ class Sign(SageObject):
         if expr == 0:
             return 0
 
-        warnings.warn('Cannot determine sign of symbolic expression, using 0 for sign vector instead.')
+        warnings.warn(
+            "Cannot determine sign of symbolic expression, using 0 for sign vector instead."
+        )
         return 0
 
     def _repr_(self):
@@ -310,11 +313,11 @@ class Sign(SageObject):
             if self.is_positive():
                 return other
             return -other
-        return self*Sign(other)
+        return self * Sign(other)
 
     def __rmul__(self, other):
         r"""Right multiplication with a scalar."""
-        return self*other
+        return self * other
 
     def __neg__(self):
         r"""Return this sign multiplied by ``-1``."""
@@ -351,7 +354,10 @@ class Sign(SageObject):
             False
         """
         if isinstance(other, Sign):
-            return self.__positive == other.__positive and self.__negative == other.__negative
+            return (
+                self.__positive == other.__positive
+                and self.__negative == other.__negative
+            )
         if other == 0:
             return self.is_zero()
         return False
@@ -454,6 +460,7 @@ class Sign(SageObject):
 
 class SignVector(SageObject):
     r"""A sign vector."""
+
     __slots__ = ("_support", "_positive_support", "_length")
 
     def __init__(self, support, psupport, length):
@@ -490,11 +497,16 @@ class SignVector(SageObject):
         self._length = length
 
     def _repr_(self):
-        return "(" + "".join(
-            "+" if e in self._positive_support else
-            ("-" if e in self._support else "0")
-            for e in range(self.length())
-        ) + ")"
+        return (
+            "("
+            + "".join(
+                "+"
+                if e in self._positive_support
+                else ("-" if e in self._support else "0")
+                for e in range(self.length())
+            )
+            + ")"
+        )
 
     def __hash__(self):
         r"""Return the hash value of this sign vector."""
@@ -573,16 +585,13 @@ class SignVector(SageObject):
 
         support = left._support.union(right._support)
         psupport = {
-            e for e in support
+            e
+            for e in support
             if (e in left._positive_support)
             or (e in right._positive_support and not e in left._support)
         }
 
-        return SignVector(
-            support,
-            psupport,
-            left.length()
-        )
+        return SignVector(support, psupport, left.length())
 
     def compose_harmonious(left, right):
         r"""
@@ -621,7 +630,7 @@ class SignVector(SageObject):
         return SignVector(
             left._support.union(right._support),
             left._positive_support.union(right._positive_support),
-            left.length()
+            left.length(),
         )
 
     def __and__(left, right):
@@ -684,7 +693,7 @@ class SignVector(SageObject):
             sage: X*1
             (-+00+)
         """
-        return self*value
+        return self * value
 
     def __neg__(self):
         r"""
@@ -698,11 +707,7 @@ class SignVector(SageObject):
             sage: -X
             (0-+)
         """
-        return SignVector(
-            self._support,
-            self._negative_support(),
-            self.length()
-        )
+        return SignVector(self._support, self._negative_support(), self.length())
 
     def __pos__(self):
         r"""
@@ -717,11 +722,7 @@ class SignVector(SageObject):
             sage: +X
             (0+-)
         """
-        return SignVector(
-            self._support,
-            self._positive_support,
-            self.length()
-        )
+        return SignVector(self._support, self._positive_support, self.length())
 
     def __getitem__(self, e):
         r"""
@@ -868,7 +869,8 @@ class SignVector(SageObject):
         if self.length() != other.length():
             raise length_error
         return [
-            e for e in self._support.intersection(other._support)
+            e
+            for e in self._support.intersection(other._support)
             if (e in self._positive_support) ^ (e in other._positive_support)
         ]
 
@@ -1038,7 +1040,10 @@ class SignVector(SageObject):
         if isinstance(other, SignVector):
             if self.length() != other.length():
                 raise length_error
-            return self._support == other._support and self._positive_support == other._positive_support
+            return (
+                self._support == other._support
+                and self._positive_support == other._positive_support
+            )
         elif other == 0:
             return not self._support
         else:
@@ -1173,7 +1178,7 @@ class SignVector(SageObject):
             True
             sage: zero_sign_vector(2) > 0
             False
-       """
+        """
         return left != right and left >= right
 
     def is_orthogonal_to(self, other):
@@ -1201,7 +1206,7 @@ class SignVector(SageObject):
             True
             sage: X.is_orthogonal_to(sign_vector('00++0'))
             True
-         """
+        """
         if self.length() != other.length():
             raise length_error
         if self._support.isdisjoint(other._support):
@@ -1269,7 +1274,7 @@ def sign_vector(iterable):
         return sign_vector_from_support(
             {pos for pos, t in enumerate(iterable) if t in ["+", "-"]},
             {pos for pos, t in enumerate(iterable) if t == "+"},
-            len(iterable)
+            len(iterable),
         )
     support = set()
     psupport = set()

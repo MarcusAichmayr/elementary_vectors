@@ -16,7 +16,9 @@ from sage.rings.rational_field import QQ
 from .utility import interval_from_bounds, random_interval
 
 
-def intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed=True, upper_bounds_closed=True):
+def intervals_from_bounds(
+    lower_bounds, upper_bounds, lower_bounds_closed=True, upper_bounds_closed=True
+):
     r"""
     Construct a list of intervals from lists of bounds.
 
@@ -96,31 +98,42 @@ def intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed=True, 
     """
     length = len(lower_bounds)
     if len(upper_bounds) != length:
-        raise ValueError('``upper_bounds`` should be a list of length ' + str(length) + '.')
+        raise ValueError(
+            "``upper_bounds`` should be a list of length " + str(length) + "."
+        )
 
     if lower_bounds_closed is True:
         lower_bounds_closed = [True] * length
     elif lower_bounds_closed is False:
         lower_bounds_closed = [False] * length
     elif len(lower_bounds_closed) != length:
-        raise ValueError('``lower_bounds_closed`` should be a list of length ' + str(length) + '.')
+        raise ValueError(
+            "``lower_bounds_closed`` should be a list of length " + str(length) + "."
+        )
 
     if upper_bounds_closed is True:
         upper_bounds_closed = [True] * length
     elif upper_bounds_closed is False:
         upper_bounds_closed = [False] * length
     elif len(upper_bounds_closed) != length:
-        raise ValueError('``upper_bounds_closed`` should be a list of length ' + str(length) + '.')
+        raise ValueError(
+            "``upper_bounds_closed`` should be a list of length " + str(length) + "."
+        )
 
-    return [interval_from_bounds(*bounds) for bounds in zip(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)]
+    return [
+        interval_from_bounds(*bounds)
+        for bounds in zip(
+            lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed
+        )
+    ]
 
 
 def is_vector_in_intervals(v, intervals):
     r"""
     Check if a vector lies in a list of intervals.
-    
+
     EXAMPLES::
-    
+
         sage: from vectors_in_intervals import *
         sage: v = vector([5, 0, -10])
         sage: intervals = intervals_from_bounds([0, 0, -oo], [oo, 0, 0])
@@ -132,7 +145,9 @@ def is_vector_in_intervals(v, intervals):
     return all(entry in interval for entry, interval in zip(v, intervals))
 
 
-def random_intervals(length, ring=QQ, allow_infinity=True, allow_open=True, allow_empty=False):
+def random_intervals(
+    length, ring=QQ, allow_infinity=True, allow_open=True, allow_empty=False
+):
     r"""
     Generate a list of random intervals.
 
@@ -142,7 +157,15 @@ def random_intervals(length, ring=QQ, allow_infinity=True, allow_open=True, allo
         sage: random_intervals(5) # random
         [(-oo, -4), [1, 2], (0, 1], (-oo, 1/2], (0, oo)]
     """
-    return [random_interval(ring=ring, allow_infinity=allow_infinity, allow_open=allow_open, allow_empty=allow_empty) for _ in range(length)]
+    return [
+        random_interval(
+            ring=ring,
+            allow_infinity=allow_infinity,
+            allow_open=allow_open,
+            allow_empty=allow_empty,
+        )
+        for _ in range(length)
+    ]
 
 
 def intervals_from_sign_vector(sv):
@@ -156,7 +179,14 @@ def intervals_from_sign_vector(sv):
         sage: intervals_from_sign_vector(sign_vector("++0-"))
         [(0, +oo), (0, +oo), {0}, (-oo, 0)]
     """
-    lower_bounds = (0 if element > 0 else (-Infinity if element < 0 else 0) for element in sv)
-    upper_bounds = (Infinity if element > 0 else (0 if element < 0 else 0) for element in sv)
+    lower_bounds = (
+        0 if element > 0 else (-Infinity if element < 0 else 0) for element in sv
+    )
+    upper_bounds = (
+        Infinity if element > 0 else (0 if element < 0 else 0) for element in sv
+    )
     closed = [element == 0 for element in sv]
-    return [interval_from_bounds(*bounds) for bounds in zip(lower_bounds, upper_bounds, closed, closed)]
+    return [
+        interval_from_bounds(*bounds)
+        for bounds in zip(lower_bounds, upper_bounds, closed, closed)
+    ]

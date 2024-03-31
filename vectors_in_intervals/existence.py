@@ -117,7 +117,7 @@ def exists_vector(data, intervals, certify=False):
                   elementary vectors of length ``n``
 
     - ``intervals`` -- a list of ``n`` intervals
-    
+
     - ``certify`` -- a boolean (default: ``False``)
 
     OUTPUT:
@@ -164,7 +164,7 @@ def exists_vector(data, intervals, certify=False):
 
     Since no vector exists, there is an elementary vector certifying this.
     To find one, we pass ``certify=True``::
-    
+
         sage: exists_vector(M, I, certify=True)
         (1, -1, 0)
 
@@ -208,7 +208,9 @@ def exists_vector(data, intervals, certify=False):
         ValueError: Number of columns of matrix ``data`` and length of ``intervals`` do not match.
     """
     if hasattr(data, "ncols") and data.ncols() != len(intervals):
-        raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` do not match.")
+        raise ValueError(
+            "Number of columns of matrix ``data`` and length of ``intervals`` do not match."
+        )
     if any(interval.is_empty() for interval in intervals):
         return False
     evs = data if isinstance(data, list) else elementary_vectors(data, generator=True)

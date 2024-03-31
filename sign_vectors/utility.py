@@ -37,7 +37,7 @@ def loops(iterable):
         [1, 3]
     """
     if not iterable:
-        raise ValueError('Iterable is empty.')
+        raise ValueError("Iterable is empty.")
     for _ in iterable:
         length = _.length()
         break
@@ -193,15 +193,17 @@ def parallel_classes(iterable, positive_only=False):
         [[0, 4], [1], [2], [3]]
     """
     if not iterable:
-        raise ValueError('Iterable is empty.')
+        raise ValueError("Iterable is empty.")
     output = []
     indices_to_check = list(range(iterable[0].length()))
 
     if positive_only:
+
         def is_par(iterable, component1, component2):
             value = is_parallel(iterable, component1, component2, return_ratio=True)
             return value[1] > 0 if value[0] else False
     else:
+
         def is_par(iterable, component1, component2):
             return is_parallel(iterable, component1, component2)
 
@@ -356,7 +358,7 @@ def adjacent(element1, element2, iterable):
 def exclude_indices(vectors, indices):
     r"""
     Return a function that returns a sign vector or vector with entries not in given indices.
-    
+
     INPUT:
 
     - ``vectors`` -- a list of sign vectors or vectors
@@ -379,16 +381,19 @@ def exclude_indices(vectors, indices):
         (1, 3)
     """
     if not vectors:
-        raise ValueError('List is empty.')
+        raise ValueError("List is empty.")
     length = len(list(vectors[0]))
     other_indices = [e for e in range(length) if not e in indices]
 
     if isinstance(vectors[0], SignVector):
+
         def vec(iterable):
             return sign_vector(iterable.list_from_positions(other_indices))
     else:
+
         def vec(iterable):
             iterable = vector(iterable.list_from_positions(other_indices))
             iterable.set_immutable()
             return iterable
+
     return vec

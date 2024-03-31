@@ -19,7 +19,7 @@ from sage.symbolic.ring import SR
 def simplify_using_equalities(value, equalities):
     r"""
     Simplifies an expression using a list of equalities.
-    
+
     .. NOTE::
 
         Only equalities are considered. Other expressions (e.g. inequalities) are ignored.
@@ -64,9 +64,9 @@ def simplify_using_equalities(value, equalities):
 def reduce_factor(iterable):
     r"""
     Cancel a common factor of each entry.
-    
+
     INPUT:
-    
+
     - ``iterable`` -- a vector or a list
 
     EXAMPLES::
@@ -129,7 +129,13 @@ def reduce_factor(iterable):
 def reduce_vector_using_equalities(iterable, equalities):
     r"""Use a list of equalities ``equalities`` to simplify expressions in a vector ``iterable``."""
     if equalities:
-        return vector(iterable.base_ring(), (simplify_using_equalities(entry, equalities=equalities) for entry in iterable))
+        return vector(
+            iterable.base_ring(),
+            (
+                simplify_using_equalities(entry, equalities=equalities)
+                for entry in iterable
+            ),
+        )
     return iterable
 
 
@@ -175,7 +181,7 @@ def reduce_vectors_support(vectors, generator=False):
     INPUT:
 
     - ``vectors`` -- an iterable of vectors
-    
+
     - ``generator`` -- an optional boolean
 
     OUTPUT:
@@ -192,6 +198,7 @@ def reduce_vectors_support(vectors, generator=False):
         sage: reduce_vectors_support([zero_vector(5)])
         [(0, 0, 0, 0, 0)]
     """
+
     def reduce_vectors_support_generator(vectors):
         r"""Return a generator of vectors where elements with same support are removed."""
         checked_supports = set()
@@ -221,7 +228,13 @@ def remove_zero_vectors(vectors):
     return [v for v in vectors if v]
 
 
-def reduce_vectors(vectors, equalities=None, cancel_factors=False, reduce_support=True, remove_zeros=True):
+def reduce_vectors(
+    vectors,
+    equalities=None,
+    cancel_factors=False,
+    reduce_support=True,
+    remove_zeros=True,
+):
     r"""
     Reduces this list of vectors.
 
@@ -255,7 +268,10 @@ def reduce_vectors(vectors, equalities=None, cancel_factors=False, reduce_suppor
         sage: reduce_vectors(l, equalities=assumptions(), reduce_support=False, remove_zeros=False, cancel_factors=True)
         [(0, 0, 0), (0, 0, 0), (2, 3, 0)]
     """
-    vectors = [reduce_vector(v, equalities=equalities, cancel_factor=cancel_factors) for v in vectors]
+    vectors = [
+        reduce_vector(v, equalities=equalities, cancel_factor=cancel_factors)
+        for v in vectors
+    ]
     if remove_zeros:
         vectors = remove_zero_vectors(vectors)
     if reduce_support:

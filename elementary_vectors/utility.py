@@ -42,7 +42,9 @@ def kernel_vector_support_given(M, indices):
     try:
         subvector_list = list(M.matrix_from_columns(indices).right_kernel_matrix()[0])
     except IndexError as exc:
-        raise ValueError("Right kernel restricted to column ``indices`` is empty.") from exc
+        raise ValueError(
+            "Right kernel restricted to column ``indices`` is empty."
+        ) from exc
     for k in range(M.ncols()):
         if not k in indices:
             subvector_list.insert(k, 0)
@@ -72,9 +74,9 @@ def conformal_elimination(vector1, vector2, indices=None):
 
         If ``indices`` is not given, the whole list of separating elements
         will be considered instead. (default)
-    
+
     EXAMPLES::
-    
+
         sage: from elementary_vectors.utility import conformal_elimination
         sage: x = vector([1, 0, 2])
         sage: y = vector([-1, 1, 1])
@@ -84,13 +86,15 @@ def conformal_elimination(vector1, vector2, indices=None):
     if indices is None:
         indices = []
     if vector1.length() != vector2.length():
-        raise ValueError('Vectors have different length.')
+        raise ValueError("Vectors have different length.")
     separating_elements = sign_vector(vector1).separating_elements(sign_vector(vector2))
     if not separating_elements:
-        raise ValueError('List of separating elements is empty.')
+        raise ValueError("List of separating elements is empty.")
     if not indices:
         indices = separating_elements
     elif not all(s in separating_elements for s in indices):
-        raise ValueError('indices is not a subset of separating_elements.')
-    lam = max(vector1[e] / vector2[e] for e in indices)  # lam < 0 since e in separating_elements
+        raise ValueError("indices is not a subset of separating_elements.")
+    lam = max(
+        vector1[e] / vector2[e] for e in indices
+    )  # lam < 0 since e in separating_elements
     return vector1 - lam * vector2

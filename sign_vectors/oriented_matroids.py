@@ -138,6 +138,7 @@ def cocircuits_from_elementary_vectors(evs):
         sage: cocircuits_from_elementary_vectors([zero_vector(5)])
         set()
     """
+
     def both_signs(evs):
         for v in evs:
             if v:
@@ -196,7 +197,9 @@ def cocircuits_from_minors(m, dim):
 
     - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``m``
     """
-    return cocircuits_from_elementary_vectors(elementary_vectors(m, dim, generator=True))
+    return cocircuits_from_elementary_vectors(
+        elementary_vectors(m, dim, generator=True)
+    )
 
 
 def covectors_from_cocircuits(cocircuits):
@@ -247,7 +250,7 @@ def covectors_from_cocircuits(cocircuits):
          (++0)}
     """
     if not cocircuits:
-        raise ValueError('List of cocircuits is empty.')
+        raise ValueError("List of cocircuits is empty.")
     for _ in cocircuits:
         length = _.length()
         break
@@ -308,7 +311,7 @@ def topes_from_cocircuits(cocircuits):
         {(+-+), (---), (-+-), (+++), (--+), (++-)}
     """
     if not cocircuits:
-        raise ValueError('List is empty.')
+        raise ValueError("List is empty.")
     for _ in cocircuits:
         length = _.length()
         break
@@ -361,7 +364,7 @@ def lower_faces(covectors):
         :func:`~covectors_from_topes`
     """
     if not covectors:
-        raise ValueError('List is empty.')
+        raise ValueError("List is empty.")
     for _ in covectors:
         length = _.length()
         break
@@ -372,8 +375,16 @@ def lower_faces(covectors):
             for parallel_class in p_classes:
                 for i in parallel_class:
                     if covector[i]:
-                        if covector.reverse_signs_in(parallel_class) in covectors_with_same_support:
-                            output.add(sign_vector(0 if i in parallel_class else covector[i] for i in range(length)))
+                        if (
+                            covector.reverse_signs_in(parallel_class)
+                            in covectors_with_same_support
+                        ):
+                            output.add(
+                                sign_vector(
+                                    0 if i in parallel_class else covector[i]
+                                    for i in range(length)
+                                )
+                            )
                         break
     return output
 
@@ -420,7 +431,7 @@ def face_enumeration(covectors):
          {(+-+), (---), (-+-), (--+), (++-), (+++)}]
     """
     if not covectors:
-        raise ValueError('List is empty.')
+        raise ValueError("List is empty.")
     faces = [set(covectors)]
 
     while len(faces[0]) > 1:
@@ -642,12 +653,14 @@ def covectors_from_matrix(M, kernel=True, algorithm=None, separate=False):
     """
     if algorithm is None:
         if separate:
-            algorithm = 'face_enumeration'
+            algorithm = "face_enumeration"
         else:
             cocircuits = cocircuits_from_matrix(M, kernel=kernel)
             if cocircuits:
                 return covectors_from_cocircuits(cocircuits)
             return {zero_sign_vector(M.ncols())}
-    if algorithm in ['face_enumeration', 'fe']:
-        return covectors_from_topes(topes_from_matrix(M, kernel=kernel), separate=separate)
+    if algorithm in ["face_enumeration", "fe"]:
+        return covectors_from_topes(
+            topes_from_matrix(M, kernel=kernel), separate=separate
+        )
     raise ValueError(f"no algorithm '{algorithm}'")
