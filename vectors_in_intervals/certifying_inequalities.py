@@ -152,6 +152,7 @@ from sage.rings.infinity import Infinity
 
 from elementary_vectors import elementary_vectors
 from elementary_vectors.reductions import reduce_vectors_support
+from elementary_vectors.utility import elementary_vector_from_indices
 from .utility import interval_from_bounds
 
 
@@ -297,35 +298,17 @@ def elementary_vectors_generator_trailing_nonzero(M):
         :func:`elementary_vectors.functions.elementary_vectors`
     """
     try:
-        ind = M.pivot_rows()
-        M = M.matrix_from_rows(ind)
+        M = M.matrix_from_rows(M.pivot_rows())
     except (ArithmeticError, NotImplementedError):
         warnings.warn("Could not determine rank of matrix. Expect wrong result!")
 
-    m, n = M.dimensions()
+    rank, length = M.dimensions()
     minors = {}
-    ring = M.base_ring()
 
-    def ev_from_support(indices):
-        r"""
-        Return the elementary vector corresponding to ``indices``.
-
-        INPUT:
-
-        - ``indices`` -- a list of indices
-        """
-        v = zero_vector(ring, n)
-        for pos, k in enumerate(indices):
-            Ik = tuple(i for i in indices if i != k)
-            try:
-                minor = minors[Ik]
-            except KeyError:
-                minors[Ik] = M.matrix_from_columns(Ik).det()
-                minor = minors[Ik]
-            v[k] = (-1) ** pos * minor
-        return v
-
-    evs = (ev_from_support(indices + [n - 1]) for indices in Combinations(n - 1, m))
+    evs = (
+        elementary_vector_from_indices(indices + [length - 1], minors, M)
+        for indices in Combinations(length - 1, rank)
+    )
     evs = (v for v in evs if v)
     evs = reduce_vectors_support(evs, generator=True)
 
@@ -410,11 +393,11 @@ def intervals_inhomogeneous1_alternative(A, B, b=None, c=None):
 
     Return a list of intervals.
     """
-    m_A, n = A.dimensions()
+    m_A, length = A.dimensions()
     m_B = B.nrows()
 
     return (
-        n * [interval_from_bounds(0, 0)]
+        length * [interval_from_bounds(0, 0)]
         + (m_A + m_B) * [interval_from_bounds(0, 1)]
         + [interval_from_bounds(0, 1, False, True)]
     )
@@ -426,11 +409,11 @@ def intervals_inhomogeneous2_alternative(A, B, b=None, c=None):
 
     Return a list of intervals.
     """
-    m_A, n = A.dimensions()
+    m_A, length = A.dimensions()
     m_B = B.nrows()
 
     return (
-        n * [interval_from_bounds(0, 0)]
+        length * [interval_from_bounds(0, 0)]
         + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
         + [interval_from_bounds(0, 1, False, True)]
     )
@@ -446,11 +429,11 @@ def intervals_homogeneous_alternative(A, B, C=None):
 
         :func:`~matrix_homogeneous_alternative`
     """
-    m_A, n = A.dimensions()
+    m_A, length = A.dimensions()
     m_B = B.nrows()
 
     return (
-        n * [interval_from_bounds(0, 0)]
+        length * [interval_from_bounds(0, 0)]
         + (m_A + m_B) * [interval_from_bounds(0, 1)]
         + [interval_from_bounds(0, 1, False, True)]
     )
@@ -475,7 +458,7 @@ def certify_inhomogeneous(A, B, b, c):
     """
     M = matrix.block([[A], [B]])
 
-    n = A.ncols()
+    length = A.ncols()
     m_A = A.nrows()
     m_B = B.nrows()
 
@@ -505,7 +488,7 @@ def certify_inhomogeneous(A, B, b, c):
             try:
                 v1 = next(evs_alt1)
                 if not exists_orthogonal_vector_homogeneous(
-                    v1, [n + m_A + m_B], range(n, n + m_A + m_B)
+                    v1, [length + m_A + m_B], range(length, length + m_A + m_B)
                 ):
                     if v2_found:
                         return True, [v1, v2]
@@ -517,7 +500,7 @@ def certify_inhomogeneous(A, B, b, c):
             try:
                 v2 = next(evs_alt2)
                 if not exists_orthogonal_vector_homogeneous(
-                    v2, [n + m_A + m_B + 1], range(n, n + m_A + m_B + 1)
+                    v2, [length + m_A + m_B + 1], range(length, length + m_A + m_B + 1)
                 ):
                     if v1_found:
                         return True, [v1, v2]
@@ -541,7 +524,7 @@ def certify_homogeneous(A, B, C):
     OUTPUT:
     A tuple of a boolean and a list of vectors certifying the result.
     """
-    m_A, n = A.dimensions()
+    m_A, length = A.dimensions()
     m_B = B.nrows()
     M = matrix.block([[A.T, B.T, C.T]])
 
@@ -567,7 +550,7 @@ def certify_homogeneous(A, B, C):
             try:
                 v = next(evs_alt)
                 if not exists_orthogonal_vector_homogeneous(
-                    v, [n + m_A + m_B], range(n, n + m_A + m_B)
+                    v, [length + m_A + m_B], range(length, length + m_A + m_B)
                 ):
                     return True, v
             except StopIteration:

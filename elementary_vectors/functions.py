@@ -12,8 +12,8 @@ r"""Computing elementary vectors"""
 
 import warnings
 from sage.combinat.combination import Combinations
-from sage.modules.free_module_element import zero_vector
 
+from .utility import elementary_vector_from_indices
 from .reductions import reduce_vectors_support
 
 
@@ -187,22 +187,10 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
 
     rank, length = M.dimensions()
     minors = {}
-    ring = M.base_ring()
-
-    def ev_from_support(indices):
-        r"""Return the elementary vector with support in a given list of indices."""
-        element = zero_vector(ring, length)
-        for pos, k in enumerate(indices):
-            indices_minor = tuple(i for i in indices if i != k)
-            try:
-                minor = minors[indices_minor]
-            except KeyError:
-                minors[indices_minor] = M.matrix_from_columns(indices_minor).det()
-                minor = minors[indices_minor]
-            element[k] = (-1) ** pos * minor
-        return element
-
-    evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))
+    evs = (
+        elementary_vector_from_indices(indices, minors, M)
+        for indices in Combinations(length, rank + 1)
+    )
     evs = (v for v in evs if v)
     if remove_multiples:
         evs = reduce_vectors_support(evs, generator=True)
@@ -269,16 +257,7 @@ def elementary_vectors_from_minors(
     for k, indices in enumerate(Combinations(length, rank)):
         minors_dict[tuple(indices)] = minors[k]
 
-    def ev_from_support(indices):
-        r"""Return the elementary vector with support in a given list of indices."""
-        element = zero_vector(ring, length)
-        for pos, k in enumerate(indices):
-            indices_minor = tuple(i for i in indices if i != k)
-            minor = minors_dict[indices_minor]
-            element[k] = (-1) ** pos * minor
-        return element
-
-    evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))
+    evs = (elementary_vector_from_indices(indices, minors_dict, length=length, ring=ring) for indices in Combinations(length, rank + 1))
     evs = (v for v in evs if v)
     if remove_multiples:
         evs = reduce_vectors_support(evs, generator=True)

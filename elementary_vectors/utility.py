@@ -10,9 +10,59 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from sage.modules.free_module_element import vector
+from sage.modules.free_module_element import vector, zero_vector
 
 from sign_vectors import sign_vector
+
+
+def elementary_vector_from_indices(
+    indices: list, minors: dict, M=None, length=None, ring=None
+):
+    r"""
+    Return an elementary vector with support in a given list of indices.
+
+    INPUT:
+
+    - ``indices`` -- a list of indices
+
+    - ``minors`` -- a dictionary
+
+    - ``M`` -- an optional matrix
+
+    - ``length`` -- an optional integer for the length of the elementary vector
+
+    - ``ring`` -- an optional ring
+
+    If ``M`` is not specified, ``length`` and ``ring`` need to be.
+
+    OUTPUT:
+    Compute an elementary vector from a dictionary of minors.
+    """
+    if M is not None:
+        ring = M.base_ring()
+        length = M.ncols()
+    if not length:
+        raise ValueError("No length given. Either specify a matrix or give a length.")
+    if not ring:
+        for minor in minors:
+            break
+        ring = minor.base_ring()
+
+    element = zero_vector(ring, length)
+    for pos, k in enumerate(indices):
+        indices_minor = tuple(i for i in indices if i != k)
+        try:
+            minor = minors[indices_minor]
+        except KeyError:
+            try:
+                minors[indices_minor] = M.matrix_from_columns(indices_minor).det()
+                minor = minors[indices_minor]
+            except AttributeError as exc:
+                raise ValueError(
+                    f"Minor corresponding to {indices_minor} is not available and no matrix is given to compute it."
+                ) from exc
+        element[k] = (-1) ** pos * minor
+    return element
 
 
 def kernel_vector_support_given(M, indices):
