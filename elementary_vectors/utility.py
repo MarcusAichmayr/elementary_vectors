@@ -16,7 +16,7 @@ from sign_vectors import sign_vector
 
 
 def elementary_vector_from_indices(
-    indices: list, minors: dict, M=None, length=None, ring=None
+    indices: list[int], minors: dict, M=None, length: int = None, ring=None
 ):
     r"""
     Return an elementary vector with support in a given list of indices.
@@ -101,7 +101,7 @@ def kernel_vector_support_given(M, indices):
     return vector(subvector_list)
 
 
-def conformal_elimination(vector1, vector2, indices=None):
+def conformal_elimination(vector1, vector2, indices: list[int] = None):
     r"""
     Apply conformal elimination to two real vectors to find a new vector.
 

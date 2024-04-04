@@ -22,8 +22,8 @@ from sage.sets.real_set import RealSet
 
 
 def interval_from_bounds(
-    lower_bound, upper_bound, lower_closed=True, upper_closed=True
-):
+    lower_bound, upper_bound, lower_closed: bool = True, upper_closed: bool = True
+) -> RealSet:
     r"""
     Construct an intervals.
 
@@ -85,7 +85,12 @@ def interval_from_bounds(
     return interval
 
 
-def random_interval(ring=QQ, allow_infinity=True, allow_open=True, allow_empty=False):
+def random_interval(
+    ring=QQ,
+    allow_infinity: bool = True,
+    allow_open: bool = True,
+    allow_empty: bool = False,
+) -> RealSet:
     r"""Generate a random interval."""
     lower_bound = ring.random_element()
     upper_bound = ring.random_element()
@@ -108,7 +113,7 @@ def random_interval(ring=QQ, allow_infinity=True, allow_open=True, allow_empty=F
     return interval
 
 
-def simplest_element_in_interval(interval):
+def simplest_element_in_interval(interval: RealSet):
     r"""
     Return the simplest rational element in an interval.
 
@@ -200,7 +205,7 @@ def simplest_element_in_interval(interval):
     return simplest_rational_in_interval(interval)
 
 
-def simplest_rational_in_interval(interval):
+def simplest_rational_in_interval(interval: RealSet):
     r"""
     Find the rational with smallest denominator in a given interval.
 
@@ -241,7 +246,7 @@ def simplest_rational_in_interval(interval):
             cfl = sb_child(cfl, left=True)
 
 
-def sb_child(cfl, left):
+def sb_child(cfl: list, left: bool):
     r"""
     Return a child of an element in the Stern-Brocot tree.
 

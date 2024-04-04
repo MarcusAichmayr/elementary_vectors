@@ -16,7 +16,7 @@ from sage.modules.free_module_element import vector
 from sage.symbolic.ring import SR
 
 
-def simplify_using_equalities(value, equalities):
+def simplify_using_equalities(value, equalities: list):
     r"""
     Simplifies an expression using a list of equalities.
 
@@ -126,7 +126,7 @@ def reduce_factor(iterable):
         return iterable
 
 
-def reduce_vector_using_equalities(iterable, equalities):
+def reduce_vector_using_equalities(iterable, equalities: list):
     r"""Use a list of equalities ``equalities`` to simplify expressions in a vector ``iterable``."""
     if equalities:
         return vector(
@@ -139,7 +139,7 @@ def reduce_vector_using_equalities(iterable, equalities):
     return iterable
 
 
-def reduce_vector(element, equalities=None, cancel_factor=True):
+def reduce_vector(element, equalities: list = None, cancel_factor: bool = True):
     r"""
     Reduce this vector by canceling common factors and applying equalities to variables.
 
@@ -174,7 +174,7 @@ def reduce_vector(element, equalities=None, cancel_factor=True):
     return element
 
 
-def reduce_vectors_support(vectors, generator=False):
+def reduce_vectors_support(vectors, generator: bool = False):
     r"""
     Return a ist of vectors where each element has distinct support.
 
@@ -230,10 +230,10 @@ def remove_zero_vectors(vectors):
 
 def reduce_vectors(
     vectors,
-    equalities=None,
-    cancel_factors=False,
-    reduce_support=True,
-    remove_zeros=True,
+    equalities: list = None,
+    cancel_factors: bool = False,
+    reduce_support: bool = True,
+    remove_zeros: bool = True,
 ):
     r"""
     Reduces this list of vectors.

@@ -148,7 +148,7 @@ def cocircuits_from_elementary_vectors(evs):
     return set(both_signs(evs))
 
 
-def cocircuits_from_matrix(M, kernel=True):
+def cocircuits_from_matrix(M, kernel: bool = True):
     r"""
     Compute a set of cocircuits determined by the matrix ``M``.
 
@@ -187,7 +187,7 @@ def cocircuits_from_matrix(M, kernel=True):
     return cocircuits_from_elementary_vectors(elementary_vectors(M))
 
 
-def cocircuits_from_minors(m, dim):
+def cocircuits_from_minors(m, dim: tuple[int, int]):
     r"""
     Compute a set of cocircuits determined by the maximal minors of some matrix.
 
@@ -439,7 +439,7 @@ def face_enumeration(covectors):
     return faces
 
 
-def topes_from_matrix(M, kernel=True):
+def topes_from_matrix(M, kernel: bool = True):
     r"""
     Return the topes of the oriented matroid corresponding to the matrix ``M``.
 
@@ -481,7 +481,7 @@ def topes_from_matrix(M, kernel=True):
     return {zero_sign_vector(M.ncols())}
 
 
-def covectors_from_topes(topes, separate=False):
+def covectors_from_topes(topes, separate: bool = False):
     r"""
     Compute all covectors from the topes.
 
@@ -571,7 +571,7 @@ def cocircuits_from_topes(topes):
     return face_enumeration(topes)[1]
 
 
-def covectors_from_matrix(M, kernel=True, algorithm=None, separate=False):
+def covectors_from_matrix(M, kernel: bool = True, algorithm: str = None, separate: bool = False):
     r"""
     Return the covectors of the oriented matroid corresponding to the matrix ``M``.
 

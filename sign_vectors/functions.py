@@ -17,7 +17,7 @@ from sign_vectors import sign_vector, zero_sign_vector
 from .utility import exclude_indices
 
 
-def closure(iterable, separate=False):
+def closure(iterable, separate: bool = False):
     r"""
     Compute the closure of given sign vectors.
 
@@ -113,7 +113,7 @@ def closure(iterable, separate=False):
     return output if separate else set().union(*output)
 
 
-def contraction(iterable, indices, keep_components=False):
+def contraction(iterable, indices: list[int], keep_components: bool = False):
     r"""
     Return all sign vectors or vectors that are zero on given components.
 
@@ -186,7 +186,7 @@ def contraction(iterable, indices, keep_components=False):
     return set(vec(X) for X in iterable if not any(e in indices for e in X.support()))
 
 
-def deletion(iterable, indices):
+def deletion(iterable, indices: list[int]):
     r"""
     Remove given components from an iterable of sign vectors or vectors.
 

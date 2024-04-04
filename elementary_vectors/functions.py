@@ -17,7 +17,12 @@ from .utility import elementary_vector_from_indices
 from .reductions import reduce_vectors_support
 
 
-def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=False):
+def elementary_vectors(
+    data,
+    dimensions: tuple[int, int] = None,
+    remove_multiples: bool = True,
+    generator: bool = False,
+):
     r"""
     Compute elementary vectors of a subspace determined by a matrix or a list of maximal minors.
 
@@ -139,7 +144,9 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=F
     )
 
 
-def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
+def elementary_vectors_from_matrix(
+    M, remove_multiples: bool = True, generator: bool = False
+):
     r"""
     Compute elementary vectors of a subspace determined by the matrix ``M``.
 
@@ -201,7 +208,11 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
 
 
 def elementary_vectors_from_minors(
-    minors, dimensions, ring=None, remove_multiples=True, generator=False
+    minors: list,
+    dimensions: tuple[int, int],
+    ring=None,
+    remove_multiples: bool = True,
+    generator: bool = False,
 ):
     r"""
     Compute elementary vectors determined by given maximal minors of a matrix.
@@ -257,7 +268,10 @@ def elementary_vectors_from_minors(
     for k, indices in enumerate(Combinations(length, rank)):
         minors_dict[tuple(indices)] = minors[k]
 
-    evs = (elementary_vector_from_indices(indices, minors_dict, length=length, ring=ring) for indices in Combinations(length, rank + 1))
+    evs = (
+        elementary_vector_from_indices(indices, minors_dict, length=length, ring=ring)
+        for indices in Combinations(length, rank + 1)
+    )
     evs = (v for v in evs if v)
     if remove_multiples:
         evs = reduce_vectors_support(evs, generator=True)

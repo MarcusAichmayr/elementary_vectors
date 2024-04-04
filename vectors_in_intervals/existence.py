@@ -10,10 +10,12 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from sage.sets.real_set import RealSet
+
 from elementary_vectors import elementary_vectors
 
 
-def exists_orthogonal_vector(v, intervals):
+def exists_orthogonal_vector(v, intervals: list[RealSet]):
     r"""
     Check whether an orthogonal vector exists with components in given intervals.
 
@@ -107,7 +109,7 @@ def exists_orthogonal_vector(v, intervals):
     return True
 
 
-def exists_vector(data, intervals, certify=False):
+def exists_vector(data, intervals: list[RealSet], certify: bool = False):
     r"""
     Check whether a vector exists in a given vector space with components in given intervals.
 

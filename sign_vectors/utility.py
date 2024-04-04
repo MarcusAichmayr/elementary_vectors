@@ -45,7 +45,7 @@ def loops(iterable):
     return [e for e in range(length) if all(element[e] == 0 for element in iterable)]
 
 
-def is_parallel(iterable, component1, component2, return_ratio=False):
+def is_parallel(iterable, component1, component2, return_ratio: bool = False):
     r"""
     Determine whether two components of sign vectors or vectors are parallel.
 
@@ -138,7 +138,7 @@ def is_parallel(iterable, component1, component2, return_ratio=False):
     return True
 
 
-def parallel_classes(iterable, positive_only=False):
+def parallel_classes(iterable, positive_only: bool = False):
     r"""
     Compute the parallel classes of given sign vectors or vectors.
 
@@ -355,7 +355,7 @@ def adjacent(element1, element2, iterable):
     return not any(Z < composition for Z in iterable if not Z in [element1, element2])
 
 
-def exclude_indices(vectors, indices):
+def exclude_indices(vectors, indices: list[int]):
     r"""
     Return a function that returns a sign vector or vector with entries not in given indices.
 

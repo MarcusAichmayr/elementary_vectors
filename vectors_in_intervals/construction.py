@@ -34,7 +34,7 @@ from elementary_vectors import elementary_vectors
 from sign_vectors import sign_vector
 
 
-def simplest_vector_in_intervals(intervals):
+def simplest_vector_in_intervals(intervals: list[RealSet]):
     r"""
     Return the simplest vector with components in given intervals.
 
@@ -68,7 +68,7 @@ def simplest_vector_in_intervals(intervals):
     return vector(simplest_element_in_interval(interval) for interval in intervals)
 
 
-def multiple_in_intervals_candidates(v, intervals):
+def multiple_in_intervals_candidates(v, intervals: list[RealSet]):
     r"""
     Return the largest interval where the vector, when multiplied with elements of this interval, lies in given intervals.
 
@@ -146,7 +146,7 @@ def multiple_in_intervals_candidates(v, intervals):
     return interval_from_bounds(a_inf, a_sup, lower_bound_closed, upper_bound_closed)
 
 
-def multiple_in_intervals(v, intervals):
+def multiple_in_intervals(v, intervals: list[RealSet]):
     r"""
     Return a multiple of a vector that lies in given intervals if possible.
 
@@ -259,7 +259,7 @@ def vector_from_sign_vector(sv, data):
     raise ValueError("Cannot find vector corresponding to given sign vector.")
 
 
-def sign_vectors_in_intervals(intervals, generator=False):
+def sign_vectors_in_intervals(intervals: list[RealSet], generator: bool = False):
     r"""
     Compute all sign vectors that correspond to a vector with components in given intervals.
 
@@ -317,7 +317,7 @@ def sign_vectors_in_intervals(intervals, generator=False):
     return [sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs)]
 
 
-def construct_orthogonal_vector(v, intervals):
+def construct_orthogonal_vector(v, intervals: list[RealSet]):
     r"""
     Construct a vector, orthogonal to a given vector, with components in specified intervals.
 
@@ -485,7 +485,7 @@ def construct_orthogonal_vector(v, intervals):
     return (product_max * z_min - product_min * z_max) / (product_max - product_min)
 
 
-def construct_vector(M, intervals, evs=None):
+def construct_vector(M, intervals: list[RealSet], evs=None):
     r"""
     Construct a vector of a given vector space with components in given intervals.
 

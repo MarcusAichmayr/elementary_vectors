@@ -10,6 +10,7 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from sage.sets.real_set import RealSet
 from sage.rings.infinity import Infinity
 from sage.rings.rational_field import QQ
 
@@ -17,8 +18,11 @@ from .utility import interval_from_bounds, random_interval
 
 
 def intervals_from_bounds(
-    lower_bounds, upper_bounds, lower_bounds_closed=True, upper_bounds_closed=True
-):
+    lower_bounds: list,
+    upper_bounds: list,
+    lower_bounds_closed: bool = True,
+    upper_bounds_closed: bool = True,
+) -> list[RealSet]:
     r"""
     Construct a list of intervals from lists of bounds.
 
@@ -128,7 +132,7 @@ def intervals_from_bounds(
     ]
 
 
-def is_vector_in_intervals(v, intervals):
+def is_vector_in_intervals(v, intervals: list[RealSet]) -> bool:
     r"""
     Check if a vector lies in a list of intervals.
 
@@ -146,8 +150,12 @@ def is_vector_in_intervals(v, intervals):
 
 
 def random_intervals(
-    length, ring=QQ, allow_infinity=True, allow_open=True, allow_empty=False
-):
+    length: int,
+    ring=QQ,
+    allow_infinity: bool = True,
+    allow_open: bool = True,
+    allow_empty: bool = False,
+) -> list[RealSet]:
     r"""
     Generate a list of random intervals.
 
@@ -168,7 +176,7 @@ def random_intervals(
     ]
 
 
-def intervals_from_sign_vector(sv):
+def intervals_from_sign_vector(sv) -> list[RealSet]:
     r"""
     Return intervals that are determined by a sign vector.
 
