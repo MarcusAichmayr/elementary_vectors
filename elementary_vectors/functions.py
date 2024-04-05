@@ -12,8 +12,9 @@ r"""Computing elementary vectors"""
 
 import warnings
 from sage.combinat.combination import Combinations
+from sage.matrix.constructor import matrix
 
-from .utility import elementary_vector_from_indices
+from .utility import elementary_vector_from_indices, is_symbolic
 from .reductions import reduce_vectors_support
 
 
@@ -247,7 +248,8 @@ def elementary_vectors_from_minors(
     EXAMPLES::
 
         sage: from elementary_vectors.functions import elementary_vectors_from_minors
-        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]]); M
+        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]])
+        sage: M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
         [ 1  1  1  1  1]
@@ -277,3 +279,85 @@ def elementary_vectors_from_minors(
         evs = reduce_vectors_support(evs, generator=True)
 
     return evs if generator else list(evs)
+
+
+def kernel_matrix_using_elementary_vectors(M):
+    """
+    Division-free computation of the right kernel based on elementary vectors.
+
+    INPUT:
+
+    - ``M`` -- a matrix
+
+    OUTPUT:
+    A right kernel matrix of ``M``.
+    Also works for symbolic matrices.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors import *
+        sage: M = matrix([[1, 0, 1, -1, 0], [0, 1, 1, 1, -1]])
+        sage: M
+        [ 1  0  1 -1  0]
+        [ 0  1  1  1 -1]
+        sage: kernel_matrix_using_elementary_vectors(M)
+        [1 0 0 1 1]
+        [0 1 0 0 1]
+        [0 0 1 1 2]
+        sage: M = matrix([[1, 1, -1, -1, 0], [2, 1, -1, 0, 1], [1, 1, 1, 1, 1]])
+        sage: M
+        [ 1  1 -1 -1  0]
+        [ 2  1 -1  0  1]
+        [ 1  1  1  1  1]
+        sage: kernel_matrix_using_elementary_vectors(M)
+        [-1  0  0 -1  2]
+        [ 0 -1  1 -2  2]
+        sage: var('a')
+        a
+        sage: M = matrix([[1, 0, 1, -1, 0], [0, 1, a, 1, -1]])
+        sage: M
+        [ 1  0  1 -1  0]
+        [ 0  1  a  1 -1]
+        sage: kernel_matrix_using_elementary_vectors(M)
+        [    1     0     0     1     1]
+        [    0     1     0     0     1]
+        [    0     0     1     1 a + 1]
+
+    TESTS::
+
+        sage: kernel_matrix_using_elementary_vectors(identity_matrix(3, 3))
+        []
+        sage: _.dimensions()
+        (0, 3)
+        sage: kernel_matrix_using_elementary_vectors(matrix(0, 3))
+        [1 0 0]
+        [0 1 0]
+        [0 0 1]
+    """
+    try:
+        M = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
+    except (ArithmeticError, NotImplementedError):
+        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
+
+    rank, length = M.dimensions()
+    minors = {}
+
+    if rank == length:
+        return matrix(M.base_ring(), 0, length)
+
+    constant_minor_found = False
+    for indices_minor in Combinations(reversed(range(length)), rank):
+        indices_minor = tuple(indices_minor)
+        minors[indices_minor] = M.matrix_from_columns(indices_minor).det()
+        minor = minors[indices_minor]
+        if minor and not is_symbolic(minor):
+            constant_minor_found = True
+            break
+    if not constant_minor_found:
+        raise ValueError("Could not find a constant nonzero minor.")
+
+    return matrix(
+        elementary_vector_from_indices(indices, minors, M)
+        for indices in Combinations(length, rank + 1)
+        if set(indices_minor).issubset(indices)
+    )

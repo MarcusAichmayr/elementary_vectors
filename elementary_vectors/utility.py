@@ -101,6 +101,33 @@ def kernel_vector_support_given(M, indices):
     return vector(subvector_list)
 
 
+def is_symbolic(value):
+    r"""
+    Return whether this element is a symbolic expression.
+
+    If it belongs to the symbolic ring but doesn't contain any variables it does not count as "symbolic".
+
+    EXAMPLES::
+
+        sage: from sign_vector_conditions.utility import is_symbolic
+        sage: is_symbolic(5)
+        False
+        sage: var('a, b')
+        (a, b)
+        sage: is_symbolic(a)
+        True
+        sage: is_symbolic(-a)
+        True
+        sage: is_symbolic(b^2 - a)
+        True
+        sage: is_symbolic(SR(5))
+        False
+    """
+    if hasattr(value, "variables"):
+        return bool(value.variables())
+    return False
+
+
 def conformal_elimination(vector1, vector2, indices: list[int] = None):
     r"""
     Apply conformal elimination to two real vectors to find a new vector.
