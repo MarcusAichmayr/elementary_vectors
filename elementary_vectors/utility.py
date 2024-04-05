@@ -109,7 +109,7 @@ def is_symbolic(value):
 
     EXAMPLES::
 
-        sage: from sign_vector_conditions.utility import is_symbolic
+        sage: from elementary_vectors.utility import is_symbolic
         sage: is_symbolic(5)
         False
         sage: var('a, b')
