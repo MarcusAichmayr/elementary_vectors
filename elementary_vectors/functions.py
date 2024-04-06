@@ -293,6 +293,10 @@ def kernel_matrix_using_elementary_vectors(M):
     A right kernel matrix of ``M``.
     Also works for symbolic matrices.
 
+    .. NOTE::
+
+        A ``ValueError`` is returned if ``M`` has no constant nonzero maximal minor.
+
     EXAMPLES::
 
         sage: from elementary_vectors import *
@@ -354,10 +358,10 @@ def kernel_matrix_using_elementary_vectors(M):
             constant_minor_found = True
             break
     if not constant_minor_found:
-        raise ValueError("Could not find a constant nonzero minor.")
+        raise ValueError("Could not find a constant nonzero maximal minor.")
 
     return matrix(
-        elementary_vector_from_indices(indices, minors, M)
-        for indices in Combinations(length, rank + 1)
-        if set(indices_minor).issubset(indices)
+        elementary_vector_from_indices(set(indices_minor).union([k]), minors, M)
+        for k in range(length)
+        if k not in indices_minor
     )
