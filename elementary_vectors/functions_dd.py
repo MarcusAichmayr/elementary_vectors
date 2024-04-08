@@ -1,5 +1,5 @@
 r"""
-Double description.
+Double description
 
 EXAMPLES:
 
@@ -76,8 +76,8 @@ There, is also a convenient command that computed this list of sign vectors::
 """
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #

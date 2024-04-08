@@ -1,8 +1,8 @@
-"""Utility functions."""
+"""Utility functions"""
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #
@@ -21,7 +21,9 @@ from sage.rings.rational_field import QQ
 from sage.sets.real_set import RealSet
 
 
-def interval_from_bounds(lower_bound, upper_bound, lower_closed=True, upper_closed=True):
+def interval_from_bounds(
+    lower_bound, upper_bound, lower_closed: bool = True, upper_closed: bool = True
+) -> RealSet:
     r"""
     Construct an intervals.
 
@@ -83,7 +85,12 @@ def interval_from_bounds(lower_bound, upper_bound, lower_closed=True, upper_clos
     return interval
 
 
-def random_interval(ring=QQ, allow_infinity=True, allow_open=True, allow_empty=False):
+def random_interval(
+    ring=QQ,
+    allow_infinity: bool = True,
+    allow_open: bool = True,
+    allow_empty: bool = False,
+) -> RealSet:
     r"""Generate a random interval."""
     lower_bound = ring.random_element()
     upper_bound = ring.random_element()
@@ -98,13 +105,15 @@ def random_interval(ring=QQ, allow_infinity=True, allow_open=True, allow_empty=F
     else:
         lower_bound_closed = True
         upper_bound_closed = True
-    interval = interval_from_bounds(lower_bound, upper_bound, lower_bound_closed, upper_bound_closed)
+    interval = interval_from_bounds(
+        lower_bound, upper_bound, lower_bound_closed, upper_bound_closed
+    )
     if (not allow_empty) and interval.is_empty():
         return random_interval(ring, allow_infinity, allow_open, allow_empty)
     return interval
 
 
-def simplest_element_in_interval(interval):
+def simplest_element_in_interval(interval: RealSet):
     r"""
     Return the simplest rational element in an interval.
 
@@ -159,10 +168,13 @@ def simplest_element_in_interval(interval):
     upper_bound = interval.sup()
 
     if (
-       upper_bound - lower_bound > 1
-       or floor(lower_bound) + 1 in interval
-       or ceil(upper_bound) - 1 in interval
-       or (lower_bound == upper_bound and (isinstance(lower_bound, int) or lower_bound.is_integer()))
+        upper_bound - lower_bound > 1
+        or floor(lower_bound) + 1 in interval
+        or ceil(upper_bound) - 1 in interval
+        or (
+            lower_bound == upper_bound
+            and (isinstance(lower_bound, int) or lower_bound.is_integer())
+        )
     ):
         if 0 in interval:
             return 0
@@ -179,13 +191,21 @@ def simplest_element_in_interval(interval):
         if upper_bound == 0:
             return -1
         if upper_bound < 0:
-            return floor(upper_bound) if floor(upper_bound) in interval else floor(upper_bound) - 1
+            return (
+                floor(upper_bound)
+                if floor(upper_bound) in interval
+                else floor(upper_bound) - 1
+            )
         # lower_bound > 0
-        return ceil(lower_bound) if ceil(lower_bound) in interval else ceil(lower_bound) + 1
+        return (
+            ceil(lower_bound)
+            if ceil(lower_bound) in interval
+            else ceil(lower_bound) + 1
+        )
     return simplest_rational_in_interval(interval)
 
 
-def simplest_rational_in_interval(interval):
+def simplest_rational_in_interval(interval: RealSet):
     r"""
     Find the rational with smallest denominator in a given interval.
 
@@ -212,7 +232,10 @@ def simplest_rational_in_interval(interval):
         sage: simplest_rational_in_interval(I)
         2/3
     """
-    cfl = [floor(interval.inf()), 2] # continued fraction representation of inf(interval) + 1/2
+    cfl = [
+        floor(interval.inf()),
+        2,
+    ]  # continued fraction representation of inf(interval) + 1/2
     while True:
         value = continued_fraction(cfl).value()
         if value in interval:
@@ -223,7 +246,7 @@ def simplest_rational_in_interval(interval):
             cfl = sb_child(cfl, left=True)
 
 
-def sb_child(cfl, left):
+def sb_child(cfl: list, left: bool):
     r"""
     Return a child of an element in the Stern-Brocot tree.
 
@@ -267,15 +290,15 @@ def sb_child(cfl, left):
 def solve_left_for_roots(A, b):
     r"""
     Find a solution for ``x*A = b`` that works for matrices with roots.
-    
+
     INPUT:
-    
+
     - ``A`` -- a matrix
-    
+
     - ``b`` -- a vector
-    
+
     NOTE::
-    
+
         The built in method ``solve_left`` for matrices does not always work.
     """
     M = matrix(list(A) + [-b]).T.right_kernel_matrix()

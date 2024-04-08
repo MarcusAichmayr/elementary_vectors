@@ -1,8 +1,8 @@
-r"""Reducing and simplifying lists of vectors."""
+r"""Reducing and simplifying lists of vectors"""
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #
@@ -16,10 +16,10 @@ from sage.modules.free_module_element import vector
 from sage.symbolic.ring import SR
 
 
-def simplify_using_equalities(value, equalities):
+def simplify_using_equalities(value, equalities: list):
     r"""
     Simplifies an expression using a list of equalities.
-    
+
     .. NOTE::
 
         Only equalities are considered. Other expressions (e.g. inequalities) are ignored.
@@ -64,9 +64,9 @@ def simplify_using_equalities(value, equalities):
 def reduce_factor(iterable):
     r"""
     Cancel a common factor of each entry.
-    
+
     INPUT:
-    
+
     - ``iterable`` -- a vector or a list
 
     EXAMPLES::
@@ -126,14 +126,20 @@ def reduce_factor(iterable):
         return iterable
 
 
-def reduce_vector_using_equalities(iterable, equalities):
+def reduce_vector_using_equalities(iterable, equalities: list):
     r"""Use a list of equalities ``equalities`` to simplify expressions in a vector ``iterable``."""
     if equalities:
-        return vector(iterable.base_ring(), (simplify_using_equalities(entry, equalities=equalities) for entry in iterable))
+        return vector(
+            iterable.base_ring(),
+            (
+                simplify_using_equalities(entry, equalities=equalities)
+                for entry in iterable
+            ),
+        )
     return iterable
 
 
-def reduce_vector(element, equalities=None, cancel_factor=True):
+def reduce_vector(element, equalities: list = None, cancel_factor: bool = True):
     r"""
     Reduce this vector by canceling common factors and applying equalities to variables.
 
@@ -168,14 +174,14 @@ def reduce_vector(element, equalities=None, cancel_factor=True):
     return element
 
 
-def reduce_vectors_support(vectors, generator=False):
+def reduce_vectors_support(vectors, generator: bool = False):
     r"""
     Return a ist of vectors where each element has distinct support.
 
     INPUT:
 
     - ``vectors`` -- an iterable of vectors
-    
+
     - ``generator`` -- an optional boolean
 
     OUTPUT:
@@ -192,6 +198,7 @@ def reduce_vectors_support(vectors, generator=False):
         sage: reduce_vectors_support([zero_vector(5)])
         [(0, 0, 0, 0, 0)]
     """
+
     def reduce_vectors_support_generator(vectors):
         r"""Return a generator of vectors where elements with same support are removed."""
         checked_supports = set()
@@ -221,7 +228,13 @@ def remove_zero_vectors(vectors):
     return [v for v in vectors if v]
 
 
-def reduce_vectors(vectors, equalities=None, cancel_factors=False, reduce_support=True, remove_zeros=True):
+def reduce_vectors(
+    vectors,
+    equalities: list = None,
+    cancel_factors: bool = False,
+    reduce_support: bool = True,
+    remove_zeros: bool = True,
+):
     r"""
     Reduces this list of vectors.
 
@@ -255,7 +268,10 @@ def reduce_vectors(vectors, equalities=None, cancel_factors=False, reduce_suppor
         sage: reduce_vectors(l, equalities=assumptions(), reduce_support=False, remove_zeros=False, cancel_factors=True)
         [(0, 0, 0), (0, 0, 0), (2, 3, 0)]
     """
-    vectors = [reduce_vector(v, equalities=equalities, cancel_factor=cancel_factors) for v in vectors]
+    vectors = [
+        reduce_vector(v, equalities=equalities, cancel_factor=cancel_factors)
+        for v in vectors
+    ]
     if remove_zeros:
         vectors = remove_zero_vectors(vectors)
     if reduce_support:

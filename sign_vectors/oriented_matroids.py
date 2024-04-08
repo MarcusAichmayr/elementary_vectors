@@ -1,9 +1,6 @@
 r"""
-Computing with oriented matroids.
-
-EXAMPLES::
-
-    sage: from sign_vectors.oriented_matroids import *
+Oriented matroids
+=================
 
 We define some matrix::
 
@@ -11,14 +8,21 @@ We define some matrix::
     sage: A
     [ 2 -1 -1]
 
+Cocircuits
+~~~~~~~~~~
+
 Now, we compute the cocircuits of the oriented matroid corresponding to the kernel
 of the matrix ``A``.
-(Cocircuits are minimal non-zero elements of an oriented matroid
+(Cocircuits are minimal nonzero elements of an oriented matroid
 with respect to the conformal relation.)::
 
+    sage: from sign_vectors.oriented_matroids import *
     sage: ccA = cocircuits_from_matrix(A)
     sage: ccA
     {(0-+), (+0+), (--0), (-0-), (0+-), (++0)}
+
+Covectors
+~~~~~~~~~
 
 We can also use the cocircuits to compute all covectors of the corresponding
 oriented matroid::
@@ -37,6 +41,9 @@ oriented matroid::
      (++-),
      (--+),
      (++0)}
+
+Topes
+~~~~~
 
 Next, we compute the topes using the cocircuits.
 (Topes are the covectors that are maximal with respect to the conformal relation)::
@@ -80,6 +87,9 @@ There are some further commands to work with oriented matroids::
     sage: cocircuits_from_topes(tA)
     {(0-+), (+0+), (--0), (-0-), (0+-), (++0)}
 
+Face enumeration
+~~~~~~~~~~~~~~~~
+
 Next, we compute all covectors separated by their rank::
 
     sage: face_enumeration(tA)
@@ -99,8 +109,8 @@ dual oriented matroid::
 """
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #
@@ -128,6 +138,7 @@ def cocircuits_from_elementary_vectors(evs):
         sage: cocircuits_from_elementary_vectors([zero_vector(5)])
         set()
     """
+
     def both_signs(evs):
         for v in evs:
             if v:
@@ -137,7 +148,7 @@ def cocircuits_from_elementary_vectors(evs):
     return set(both_signs(evs))
 
 
-def cocircuits_from_matrix(M, kernel=True):
+def cocircuits_from_matrix(M, kernel: bool = True):
     r"""
     Compute a set of cocircuits determined by the matrix ``M``.
 
@@ -176,17 +187,19 @@ def cocircuits_from_matrix(M, kernel=True):
     return cocircuits_from_elementary_vectors(elementary_vectors(M))
 
 
-def cocircuits_from_minors(m, dim):
+def cocircuits_from_minors(minors: list, dim: tuple[int, int]):
     r"""
     Compute a set of cocircuits determined by the maximal minors of some matrix.
 
     INPUT:
 
-    - ``m`` -- a list of maximal minors of a matrix
+    - ``minors`` -- a list of maximal minors of a matrix
 
     - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``m``
     """
-    return cocircuits_from_elementary_vectors(elementary_vectors(m, dim, generator=True))
+    return cocircuits_from_elementary_vectors(
+        elementary_vectors(minors, dim, generator=True)
+    )
 
 
 def covectors_from_cocircuits(cocircuits):
@@ -237,7 +250,7 @@ def covectors_from_cocircuits(cocircuits):
          (++0)}
     """
     if not cocircuits:
-        raise ValueError('List of cocircuits is empty.')
+        raise ValueError("List of cocircuits is empty.")
     for _ in cocircuits:
         length = _.length()
         break
@@ -298,7 +311,7 @@ def topes_from_cocircuits(cocircuits):
         {(+-+), (---), (-+-), (+++), (--+), (++-)}
     """
     if not cocircuits:
-        raise ValueError('List is empty.')
+        raise ValueError("List is empty.")
     for _ in cocircuits:
         length = _.length()
         break
@@ -351,7 +364,7 @@ def lower_faces(covectors):
         :func:`~covectors_from_topes`
     """
     if not covectors:
-        raise ValueError('List is empty.')
+        raise ValueError("List is empty.")
     for _ in covectors:
         length = _.length()
         break
@@ -362,8 +375,16 @@ def lower_faces(covectors):
             for parallel_class in p_classes:
                 for i in parallel_class:
                     if covector[i]:
-                        if covector.reverse_signs_in(parallel_class) in covectors_with_same_support:
-                            output.add(sign_vector(0 if i in parallel_class else covector[i] for i in range(length)))
+                        if (
+                            covector.reverse_signs_in(parallel_class)
+                            in covectors_with_same_support
+                        ):
+                            output.add(
+                                sign_vector(
+                                    0 if i in parallel_class else covector[i]
+                                    for i in range(length)
+                                )
+                            )
                         break
     return output
 
@@ -410,7 +431,7 @@ def face_enumeration(covectors):
          {(+-+), (---), (-+-), (--+), (++-), (+++)}]
     """
     if not covectors:
-        raise ValueError('List is empty.')
+        raise ValueError("List is empty.")
     faces = [set(covectors)]
 
     while len(faces[0]) > 1:
@@ -418,7 +439,7 @@ def face_enumeration(covectors):
     return faces
 
 
-def topes_from_matrix(M, kernel=True):
+def topes_from_matrix(M, kernel: bool = True):
     r"""
     Return the topes of the oriented matroid corresponding to the matrix ``M``.
 
@@ -460,7 +481,7 @@ def topes_from_matrix(M, kernel=True):
     return {zero_sign_vector(M.ncols())}
 
 
-def covectors_from_topes(topes, separate=False):
+def covectors_from_topes(topes, separate: bool = False):
     r"""
     Compute all covectors from the topes.
 
@@ -550,7 +571,7 @@ def cocircuits_from_topes(topes):
     return face_enumeration(topes)[1]
 
 
-def covectors_from_matrix(M, kernel=True, algorithm=None, separate=False):
+def covectors_from_matrix(M, kernel: bool = True, algorithm: str = None, separate: bool = False):
     r"""
     Return the covectors of the oriented matroid corresponding to the matrix ``M``.
 
@@ -632,12 +653,14 @@ def covectors_from_matrix(M, kernel=True, algorithm=None, separate=False):
     """
     if algorithm is None:
         if separate:
-            algorithm = 'face_enumeration'
+            algorithm = "face_enumeration"
         else:
             cocircuits = cocircuits_from_matrix(M, kernel=kernel)
             if cocircuits:
                 return covectors_from_cocircuits(cocircuits)
             return {zero_sign_vector(M.ncols())}
-    if algorithm in ['face_enumeration', 'fe']:
-        return covectors_from_topes(topes_from_matrix(M, kernel=kernel), separate=separate)
+    if algorithm in ["face_enumeration", "fe"]:
+        return covectors_from_topes(
+            topes_from_matrix(M, kernel=kernel), separate=separate
+        )
     raise ValueError(f"no algorithm '{algorithm}'")

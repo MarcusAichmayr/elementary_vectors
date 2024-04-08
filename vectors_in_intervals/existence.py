@@ -1,8 +1,8 @@
-"""Existence of vectors with components in intervals."""
+"""Existence of vectors with components in intervals"""
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #
@@ -10,10 +10,12 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from sage.sets.real_set import RealSet
+
 from elementary_vectors import elementary_vectors
 
 
-def exists_orthogonal_vector(v, intervals):
+def exists_orthogonal_vector(v, intervals: list[RealSet]) -> bool:
     r"""
     Check whether an orthogonal vector exists with components in given intervals.
 
@@ -107,7 +109,7 @@ def exists_orthogonal_vector(v, intervals):
     return True
 
 
-def exists_vector(data, intervals, certify=False):
+def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool:
     r"""
     Check whether a vector exists in a given vector space with components in given intervals.
 
@@ -117,7 +119,7 @@ def exists_vector(data, intervals, certify=False):
                   elementary vectors of length ``n``
 
     - ``intervals`` -- a list of ``n`` intervals
-    
+
     - ``certify`` -- a boolean (default: ``False``)
 
     OUTPUT:
@@ -164,7 +166,7 @@ def exists_vector(data, intervals, certify=False):
 
     Since no vector exists, there is an elementary vector certifying this.
     To find one, we pass ``certify=True``::
-    
+
         sage: exists_vector(M, I, certify=True)
         (1, -1, 0)
 
@@ -208,7 +210,9 @@ def exists_vector(data, intervals, certify=False):
         ValueError: Number of columns of matrix ``data`` and length of ``intervals`` do not match.
     """
     if hasattr(data, "ncols") and data.ncols() != len(intervals):
-        raise ValueError("Number of columns of matrix ``data`` and length of ``intervals`` do not match.")
+        raise ValueError(
+            "Number of columns of matrix ``data`` and length of ``intervals`` do not match."
+        )
     if any(interval.is_empty() for interval in intervals):
         return False
     evs = data if isinstance(data, list) else elementary_vectors(data, generator=True)

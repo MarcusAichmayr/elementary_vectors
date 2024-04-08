@@ -1,12 +1,11 @@
 r"""
-Finding vectors with components in intervals.
+Finding vectors with components in intervals
+============================================
 
-With this module, we can check whether there is a vector in a subspace such that
+We check whether there is a vector in a subspace such that
 the components lie in given intervals.
 
 There is also an algorithmic approach to construct such a vector.
-
-EXAMPLES:
 
 First, we load the functions from the package::
 
@@ -118,8 +117,8 @@ Finally, we consider unbounded intervals::
 """
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #
@@ -129,6 +128,16 @@ Finally, we consider unbounded intervals::
 
 from __future__ import absolute_import
 
-from .setup_intervals import intervals_from_bounds, is_vector_in_intervals, random_intervals, intervals_from_sign_vector
+from .setup_intervals import (
+    intervals_from_bounds,
+    is_vector_in_intervals,
+    random_intervals,
+    intervals_from_sign_vector,
+)
 from .existence import exists_vector, exists_orthogonal_vector
-from .construction import construct_vector, construct_orthogonal_vector, vector_from_sign_vector, sign_vectors_in_intervals
+from .construction import (
+    construct_vector,
+    construct_orthogonal_vector,
+    vector_from_sign_vector,
+    sign_vectors_in_intervals,
+)

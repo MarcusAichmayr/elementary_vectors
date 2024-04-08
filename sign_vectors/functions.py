@@ -1,8 +1,8 @@
-r"""Functions for working with oriented matroids."""
+r"""Functions for working with oriented matroids"""
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #
@@ -17,7 +17,7 @@ from sign_vectors import sign_vector, zero_sign_vector
 from .utility import exclude_indices
 
 
-def closure(iterable, separate=False):
+def closure(iterable, separate: bool = False):
     r"""
     Compute the closure of given sign vectors.
 
@@ -113,7 +113,7 @@ def closure(iterable, separate=False):
     return output if separate else set().union(*output)
 
 
-def contraction(iterable, indices, keep_components=False):
+def contraction(iterable, indices: list[int], keep_components: bool = False):
     r"""
     Return all sign vectors or vectors that are zero on given components.
 
@@ -177,15 +177,16 @@ def contraction(iterable, indices, keep_components=False):
     if not iterable:
         return iterable
     if keep_components:
+
         def vec(iterable):
             return iterable
     else:
         vec = exclude_indices(iterable, indices)
-    
+
     return set(vec(X) for X in iterable if not any(e in indices for e in X.support()))
 
 
-def deletion(iterable, indices):
+def deletion(iterable, indices: list[int]):
     r"""
     Remove given components from an iterable of sign vectors or vectors.
 
@@ -223,6 +224,11 @@ def deletion(iterable, indices):
     return set(exclude_indices(iterable, indices)(X) for X in iterable)
 
 
-def plot_sign_vectors(iterable, vertex_size=600, figsize=10, aspect_ratio=4/8):
+def plot_sign_vectors(iterable, vertex_size: int = 600, figsize: int = 10, aspect_ratio = 4/8):
     r"""Plot the Hasse Diagram of sign vectors using the conformal relation."""
-    Poset((iterable, lambda X, Y: X.conforms(Y))).plot(vertex_size=vertex_size, element_color='white', cover_style='-', vertex_shape='+').show(figsize=figsize, aspect_ratio=aspect_ratio)
+    Poset((iterable, lambda X, Y: X.conforms(Y))).plot(
+        vertex_size=vertex_size,
+        element_color="white",
+        cover_style="-",
+        vertex_shape="+",
+    ).show(figsize=figsize, aspect_ratio=aspect_ratio)

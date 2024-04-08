@@ -1,8 +1,8 @@
-"""Utility functions and other useful functions for working with oriented matroids."""
+"""Utility functions and other useful functions for working with oriented matroids"""
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #
@@ -14,7 +14,7 @@ from sage.modules.free_module_element import vector
 from sign_vectors import SignVector, sign_vector
 
 
-def loops(iterable):
+def loops(iterable) -> list[int]:
     r"""
     Compute the loops of sign vectors or vectors.
 
@@ -37,7 +37,7 @@ def loops(iterable):
         [1, 3]
     """
     if not iterable:
-        raise ValueError('Iterable is empty.')
+        raise ValueError("Iterable is empty.")
     for _ in iterable:
         length = _.length()
         break
@@ -45,7 +45,7 @@ def loops(iterable):
     return [e for e in range(length) if all(element[e] == 0 for element in iterable)]
 
 
-def is_parallel(iterable, component1, component2, return_ratio=False):
+def is_parallel(iterable, component1, component2, return_ratio: bool = False):
     r"""
     Determine whether two components of sign vectors or vectors are parallel.
 
@@ -138,7 +138,7 @@ def is_parallel(iterable, component1, component2, return_ratio=False):
     return True
 
 
-def parallel_classes(iterable, positive_only=False):
+def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
     r"""
     Compute the parallel classes of given sign vectors or vectors.
 
@@ -153,7 +153,7 @@ def parallel_classes(iterable, positive_only=False):
     Returns a partition of ``[0, ..., n - 1]`` into parallel classes.
 
     If ``positive_only`` is true, returns a partition of ``[0, ..., n - 1]`` into positive parallel classes,
-    that is, the ratios of the corresponding classes are non-negative.
+    that is, the ratios of the corresponding classes are nonnegative.
 
     .. NOTE::
 
@@ -193,15 +193,17 @@ def parallel_classes(iterable, positive_only=False):
         [[0, 4], [1], [2], [3]]
     """
     if not iterable:
-        raise ValueError('Iterable is empty.')
+        raise ValueError("Iterable is empty.")
     output = []
     indices_to_check = list(range(iterable[0].length()))
 
     if positive_only:
+
         def is_par(iterable, component1, component2):
             value = is_parallel(iterable, component1, component2, return_ratio=True)
             return value[1] > 0 if value[0] else False
     else:
+
         def is_par(iterable, component1, component2):
             return is_parallel(iterable, component1, component2)
 
@@ -216,7 +218,7 @@ def parallel_classes(iterable, positive_only=False):
     return output
 
 
-def positive_parallel_classes(iterable):
+def positive_parallel_classes(iterable) -> list[list[int]]:
     r"""
     Compute the positive parallel classes of given sign vectors or vectors.
 
@@ -255,7 +257,7 @@ def positive_parallel_classes(iterable):
     return parallel_classes(iterable, positive_only=True)
 
 
-def classes_same_support(iterable):
+def classes_same_support(iterable) -> list:
     r"""
     Compute the classes with same support of given sign vectors or vectors.
 
@@ -285,7 +287,7 @@ def classes_same_support(iterable):
     return list(output.values())
 
 
-def adjacent(element1, element2, iterable):
+def adjacent(element1, element2, iterable) -> bool:
     r"""
     Return whether two sign vectors are adjacent over given sign vectors.
 
@@ -353,10 +355,10 @@ def adjacent(element1, element2, iterable):
     return not any(Z < composition for Z in iterable if not Z in [element1, element2])
 
 
-def exclude_indices(vectors, indices):
+def exclude_indices(vectors, indices: list[int]):
     r"""
     Return a function that returns a sign vector or vector with entries not in given indices.
-    
+
     INPUT:
 
     - ``vectors`` -- a list of sign vectors or vectors
@@ -379,16 +381,19 @@ def exclude_indices(vectors, indices):
         (1, 3)
     """
     if not vectors:
-        raise ValueError('List is empty.')
+        raise ValueError("List is empty.")
     length = len(list(vectors[0]))
     other_indices = [e for e in range(length) if not e in indices]
 
     if isinstance(vectors[0], SignVector):
+
         def vec(iterable):
             return sign_vector(iterable.list_from_positions(other_indices))
     else:
+
         def vec(iterable):
             iterable = vector(iterable.list_from_positions(other_indices))
             iterable.set_immutable()
             return iterable
+
     return vec

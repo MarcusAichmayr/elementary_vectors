@@ -1,13 +1,13 @@
 """
-Constructing vectors with components in intervals.
+Constructing vectors with components in intervals
 
 The core function of this module is :func:`~construct_vector`.
 Most other functions here are auxiliary function but can be used for special cases.
 """
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #
@@ -25,12 +25,16 @@ from sage.sets.real_set import RealSet
 from sage.symbolic.relation import solve
 
 from .existence import exists_orthogonal_vector, exists_vector
-from .utility import simplest_element_in_interval, interval_from_bounds, solve_left_for_roots
+from .utility import (
+    simplest_element_in_interval,
+    interval_from_bounds,
+    solve_left_for_roots,
+)
 from elementary_vectors import elementary_vectors
 from sign_vectors import sign_vector
 
 
-def simplest_vector_in_intervals(intervals):
+def simplest_vector_in_intervals(intervals: list[RealSet]):
     r"""
     Return the simplest vector with components in given intervals.
 
@@ -64,7 +68,7 @@ def simplest_vector_in_intervals(intervals):
     return vector(simplest_element_in_interval(interval) for interval in intervals)
 
 
-def multiple_in_intervals_candidates(v, intervals):
+def multiple_in_intervals_candidates(v, intervals: list[RealSet]):
     r"""
     Return the largest interval where the vector, when multiplied with elements of this interval, lies in given intervals.
 
@@ -125,7 +129,7 @@ def multiple_in_intervals_candidates(v, intervals):
                 upper_bound_closed = interval.sup() in interval
             elif val_sup == a_sup:
                 upper_bound_closed = interval.sup() in interval and upper_bound_closed
-        else: # entry < 0
+        else:  # entry < 0
             if val_sup > a_inf:
                 a_inf = val_sup
                 lower_bound_closed = interval.sup() in interval
@@ -142,7 +146,7 @@ def multiple_in_intervals_candidates(v, intervals):
     return interval_from_bounds(a_inf, a_sup, lower_bound_closed, upper_bound_closed)
 
 
-def multiple_in_intervals(v, intervals):
+def multiple_in_intervals(v, intervals: list[RealSet]):
     r"""
     Return a multiple of a vector that lies in given intervals if possible.
 
@@ -175,7 +179,10 @@ def multiple_in_intervals(v, intervals):
         ValueError: There is no multiple in given intervals.
     """
     try:
-        return simplest_element_in_interval(multiple_in_intervals_candidates(v, intervals)) * v
+        return (
+            simplest_element_in_interval(multiple_in_intervals_candidates(v, intervals))
+            * v
+        )
     except EmptySetError as exc:
         raise ValueError("There is no multiple in given intervals.") from exc
 
@@ -187,10 +194,10 @@ def vector_from_sign_vector(sv, data):
     INPUT:
 
     - ``sv`` -- a sign vector of length ``n``
-    
+
     - ``data`` -- either a real matrix with ``n`` columns or a list of
                 elementary vectors of length ``n``
-    
+
     OUTPUT:
     Return a conformal sum of elementary vectors that lies in the given subspace.
 
@@ -252,7 +259,7 @@ def vector_from_sign_vector(sv, data):
     raise ValueError("Cannot find vector corresponding to given sign vector.")
 
 
-def sign_vectors_in_intervals(intervals, generator=False):
+def sign_vectors_in_intervals(intervals: list[RealSet], generator: bool = False):
     r"""
     Compute all sign vectors that correspond to a vector with components in given intervals.
 
@@ -287,8 +294,10 @@ def sign_vectors_in_intervals(intervals, generator=False):
     list_of_signs = []
     if not intervals:
         if generator:
+
             def empty():
                 yield from ()
+
             return empty()
         return []
     for interval in intervals:
@@ -302,11 +311,13 @@ def sign_vectors_in_intervals(intervals, generator=False):
         list_of_signs.append(available_signs)
 
     if generator:
-        return (sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs))
+        return (
+            sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs)
+        )
     return [sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs)]
 
 
-def construct_orthogonal_vector(v, intervals):
+def construct_orthogonal_vector(v, intervals: list[RealSet]):
     r"""
     Construct a vector, orthogonal to a given vector, with components in specified intervals.
 
@@ -368,8 +379,8 @@ def construct_orthogonal_vector(v, intervals):
     # construct z_min and z_max
     z_min = []
     z_max = []
-    var('eps')
-    var('lam')
+    var("eps")
+    var("lam")
 
     for entry, interval in zip(v, intervals):
         if entry == 0:
@@ -379,11 +390,15 @@ def construct_orthogonal_vector(v, intervals):
         if interval.inf() == -Infinity:
             lower_element = -lam
         else:
-            lower_element = interval.inf() if interval.inf() in interval else interval.inf() + eps
+            lower_element = (
+                interval.inf() if interval.inf() in interval else interval.inf() + eps
+            )
         if interval.sup() == Infinity:
             upper_element = lam
         else:
-            upper_element = interval.sup() if interval.sup() in interval else interval.sup() - eps
+            upper_element = (
+                interval.sup() if interval.sup() in interval else interval.sup() - eps
+            )
 
         if entry > 0:
             z_min.append(lower_element)
@@ -401,31 +416,35 @@ def construct_orthogonal_vector(v, intervals):
     for entry, interval in zip(v, intervals):
         if entry == 0:
             continue
-        if interval.inf() == -Infinity and interval.sup() == Infinity: # (-oo, oo)
+        if interval.inf() == -Infinity and interval.sup() == Infinity:  # (-oo, oo)
             lam_candidates.append(0)
         elif interval.inf() == -Infinity:
-            if interval.sup() in interval: # (-oo, b]
+            if interval.sup() in interval:  # (-oo, b]
                 lam_candidates.append(-interval.sup())
-            else: # (-oo, b)
+            else:  # (-oo, b)
                 lam_candidates.append(1 - interval.sup())
                 eps_candidates.append(1)
         elif interval.sup() == Infinity:
-            if interval.inf() in interval: # [a, oo)
+            if interval.inf() in interval:  # [a, oo)
                 lam_candidates.append(interval.inf())
-            else: # (a, oo)
+            else:  # (a, oo)
                 lam_candidates.append(1 + interval.inf())
                 eps_candidates.append(1)
         elif not interval.is_closed():
-            if interval.sup() in interval or interval.inf() in interval: # [a, b) or (a, b]
+            if (
+                interval.sup() in interval or interval.inf() in interval
+            ):  # [a, b) or (a, b]
                 eps_candidates.append(interval.sup() - interval.inf())
-            else: # (a, b)
+            else:  # (a, b)
                 eps_candidates.append((interval.sup() - interval.inf()) / 2)
 
     if eps_candidates:
         for product in [z_min * v, z_max * v]:
             try:
                 if eps in product.variables() and lam not in product.variables():
-                    eps_candidates.append(solve(product, eps, solution_dict=True)[0][eps])
+                    eps_candidates.append(
+                        solve(product, eps, solution_dict=True)[0][eps]
+                    )
             except AttributeError:
                 pass
         eps_min = min(eps_candidates)
@@ -466,7 +485,7 @@ def construct_orthogonal_vector(v, intervals):
     return (product_max * z_min - product_min * z_max) / (product_max - product_min)
 
 
-def construct_vector(M, intervals, evs=None):
+def construct_vector(M, intervals: list[RealSet], evs=None):
     r"""
     Construct a vector of a given vector space with components in given intervals.
 
@@ -525,7 +544,7 @@ def construct_vector(M, intervals, evs=None):
         [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
         sage: construct_vector(M, I)
         (2, 5, 7, 5)
-    
+
     TESTS:
 
     This example shows the case ``rank == 1``::
@@ -539,9 +558,9 @@ def construct_vector(M, intervals, evs=None):
         ....: )
         sage: construct_vector(M, I)
         (-1/4, -1/4, 0, -1/4, 1/4, 0)
-    
+
     Other special cases::
-    
+
         sage: M = zero_matrix(QQ, 1, 3)
         sage: I = intervals_from_bounds([-1, -1, -1], [1, 1, 1], False, True)
         sage: construct_vector(M, I)
@@ -554,7 +573,7 @@ def construct_vector(M, intervals, evs=None):
     if not exists_vector(evs if evs else M, intervals):
         raise ValueError("There is no solution.")
 
-    def rec(M, intervals):
+    def recursive_construct_vector(M, intervals):
         r"""Recursive call."""
         length = M.ncols()
         rank = M.rank()
@@ -562,7 +581,9 @@ def construct_vector(M, intervals, evs=None):
             return simplest_vector_in_intervals(intervals)
         if rank == length - 1:
             # The kernel of ``M`` has one dimension.
-            return construct_orthogonal_vector(M.right_kernel_matrix().row(0), intervals)
+            return construct_orthogonal_vector(
+                M.right_kernel_matrix().row(0), intervals
+            )
         if rank == 1:
             for row in M.rows():
                 if row:
@@ -574,8 +595,8 @@ def construct_vector(M, intervals, evs=None):
             r"""Construct the ``k``-th component recursively"""
             # projection to k-th component
             M_bar = M.delete_columns([k])
-            intervals_bar = intervals[:k] + intervals[k + 1:]
-            xk_bar = rec(M_bar, intervals_bar)
+            intervals_bar = intervals[:k] + intervals[k + 1 :]
+            xk_bar = recursive_construct_vector(M_bar, intervals_bar)
             if hasattr(xk_bar, "simplify_full"):
                 xk_bar = xk_bar.simplify_full()
 
@@ -593,7 +614,9 @@ def construct_vector(M, intervals, evs=None):
         A = matrix([xk - x[0] for xk in x[1:]])
         weights = list(A.T.right_kernel_matrix().row(0))
         weights = [-sum(weights)] + weights
-        v = sum(a * x_k for a, x_k in zip(weights, x) if a > 0) / sum(a for a in weights if a > 0)
+        v = sum(a * x_k for a, x_k in zip(weights, x) if a > 0) / sum(
+            a for a in weights if a > 0
+        )
         return v.simplify_full() if hasattr(v, "simplify_full") else v
 
-    return rec(M, intervals)
+    return recursive_construct_vector(M, intervals)

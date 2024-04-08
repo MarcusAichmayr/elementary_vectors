@@ -1,8 +1,8 @@
-r"""Computing elementary vectors."""
+r"""Computing elementary vectors"""
 
 #############################################################################
-#  Copyright (C) 2023                                                       #
-#                Marcus Aichmayr (aichmayr@mathematik.uni-kassel.de)        #
+#  Copyright (C) 2024                                                       #
+#          Marcus S. Aichmayr (aichmayr@mathematik.uni-kassel.de)           #
 #                                                                           #
 #  Distributed under the terms of the GNU General Public License (GPL)      #
 #  either version 3, or (at your option) any later version                  #
@@ -12,12 +12,18 @@ r"""Computing elementary vectors."""
 
 import warnings
 from sage.combinat.combination import Combinations
-from sage.modules.free_module_element import zero_vector
+from sage.matrix.constructor import matrix
 
+from .utility import elementary_vector_from_indices, is_symbolic
 from .reductions import reduce_vectors_support
 
 
-def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=False):
+def elementary_vectors(
+    data,
+    dimensions: tuple[int, int] = None,
+    remove_multiples: bool = True,
+    generator: bool = False,
+):
     r"""
     Compute elementary vectors of a subspace determined by a matrix or a list of maximal minors.
 
@@ -40,7 +46,7 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=F
 
     - If ``remove_multiples`` is true, the output will be reduced such that
       all elementary vectors have distinct support.
-    
+
     - If ``generator`` is true, the output will be a generator object instead of a list.
 
     .. SEEALSO::
@@ -123,14 +129,25 @@ def elementary_vectors(data, dimensions=None, remove_multiples=True, generator=F
     """
     if isinstance(data, list):
         if dimensions is None:
-            raise TypeError("When computing elementary vectors from a list of " +
-                            "maximal minors, the dimensions of the corresponding " +
-                            "matrix are needed.")
-        return elementary_vectors_from_minors(data, dimensions=dimensions, remove_multiples=remove_multiples, generator=generator)
-    return elementary_vectors_from_matrix(data, remove_multiples=remove_multiples, generator=generator)
+            raise TypeError(
+                "When computing elementary vectors from a list of "
+                + "maximal minors, the dimensions of the corresponding "
+                + "matrix are needed."
+            )
+        return elementary_vectors_from_minors(
+            data,
+            dimensions=dimensions,
+            remove_multiples=remove_multiples,
+            generator=generator,
+        )
+    return elementary_vectors_from_matrix(
+        data, remove_multiples=remove_multiples, generator=generator
+    )
 
 
-def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
+def elementary_vectors_from_matrix(
+    M, remove_multiples: bool = True, generator: bool = False
+):
     r"""
     Compute elementary vectors of a subspace determined by the matrix ``M``.
 
@@ -148,7 +165,7 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
 
     - If ``remove_multiples`` is true, the output will be reduced such that
       all elementary vectors have distinct support.
-    
+
     - If ``generator`` is true, the output will be a generator object instead of a list.
 
     .. SEEALSO::
@@ -172,28 +189,16 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
          (0, -4, 2, 2, 0)]
     """
     try:
-        M = M.matrix_from_rows(M.pivot_rows()) # does not work for polynomial matrices
+        M = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
     except (ArithmeticError, NotImplementedError):
-        warnings.warn('Could not determine rank of matrix. Expect wrong result!')
+        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
 
     rank, length = M.dimensions()
     minors = {}
-    ring = M.base_ring()
-
-    def ev_from_support(indices):
-        r"""Return the elementary vector with support in a given list of indices."""
-        element = zero_vector(ring, length)
-        for pos, k in enumerate(indices):
-            indices_minor = tuple(i for i in indices if i != k)
-            try:
-                minor = minors[indices_minor]
-            except KeyError:
-                minors[indices_minor] = M.matrix_from_columns(indices_minor).det()
-                minor = minors[indices_minor]
-            element[k] = (-1)**pos * minor
-        return element
-
-    evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))
+    evs = (
+        elementary_vector_from_indices(indices, minors, M)
+        for indices in Combinations(length, rank + 1)
+    )
     evs = (v for v in evs if v)
     if remove_multiples:
         evs = reduce_vectors_support(evs, generator=True)
@@ -203,7 +208,13 @@ def elementary_vectors_from_matrix(M, remove_multiples=True, generator=False):
     return list(evs)
 
 
-def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multiples=True, generator=False):
+def elementary_vectors_from_minors(
+    minors: list,
+    dimensions: tuple[int, int],
+    ring=None,
+    remove_multiples: bool = True,
+    generator: bool = False,
+):
     r"""
     Compute elementary vectors determined by given maximal minors of a matrix.
 
@@ -227,7 +238,7 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
 
     - If ``remove_multiples`` is true, the output will be reduced such that
       all elementary vectors have distinct support.
-    
+
     - If ``generator`` is true, the output will be a generator object instead of a list.
 
     .. SEEALSO::
@@ -237,7 +248,8 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
     EXAMPLES::
 
         sage: from elementary_vectors.functions import elementary_vectors_from_minors
-        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]]); M
+        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]])
+        sage: M
         [ 0  0  1 -1  0]
         [ 2  0  0  0  2]
         [ 1  1  1  1  1]
@@ -258,18 +270,98 @@ def elementary_vectors_from_minors(minors, dimensions, ring=None, remove_multipl
     for k, indices in enumerate(Combinations(length, rank)):
         minors_dict[tuple(indices)] = minors[k]
 
-    def ev_from_support(indices):
-        r"""Return the elementary vector with support in a given list of indices."""
-        element = zero_vector(ring, length)
-        for pos, k in enumerate(indices):
-            indices_minor = tuple(i for i in indices if i != k)
-            minor = minors_dict[indices_minor]
-            element[k] = (-1)**pos * minor
-        return element
-
-    evs = (ev_from_support(indices) for indices in Combinations(length, rank + 1))
+    evs = (
+        elementary_vector_from_indices(indices, minors_dict, length=length, ring=ring)
+        for indices in Combinations(length, rank + 1)
+    )
     evs = (v for v in evs if v)
     if remove_multiples:
         evs = reduce_vectors_support(evs, generator=True)
 
     return evs if generator else list(evs)
+
+
+def kernel_matrix_using_elementary_vectors(M):
+    """
+    Division-free computation of the right kernel based on elementary vectors.
+
+    INPUT:
+
+    - ``M`` -- a matrix
+
+    OUTPUT:
+    A right kernel matrix of ``M``.
+    Also works for symbolic matrices.
+
+    .. NOTE::
+
+        A ``ValueError`` is returned if ``M`` has no constant nonzero maximal minor.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors import *
+        sage: M = matrix([[1, 0, 1, -1, 0], [0, 1, 1, 1, -1]])
+        sage: M
+        [ 1  0  1 -1  0]
+        [ 0  1  1  1 -1]
+        sage: kernel_matrix_using_elementary_vectors(M)
+        [1 0 0 1 1]
+        [0 1 0 0 1]
+        [0 0 1 1 2]
+        sage: M = matrix([[1, 1, -1, -1, 0], [2, 1, -1, 0, 1], [1, 1, 1, 1, 1]])
+        sage: M
+        [ 1  1 -1 -1  0]
+        [ 2  1 -1  0  1]
+        [ 1  1  1  1  1]
+        sage: kernel_matrix_using_elementary_vectors(M)
+        [-1  0  0 -1  2]
+        [ 0 -1  1 -2  2]
+        sage: var('a')
+        a
+        sage: M = matrix([[1, 0, 1, -1, 0], [0, 1, a, 1, -1]])
+        sage: M
+        [ 1  0  1 -1  0]
+        [ 0  1  a  1 -1]
+        sage: kernel_matrix_using_elementary_vectors(M)
+        [    1     0     0     1     1]
+        [    0     1     0     0     1]
+        [    0     0     1     1 a + 1]
+
+    TESTS::
+
+        sage: kernel_matrix_using_elementary_vectors(identity_matrix(3, 3))
+        []
+        sage: _.dimensions()
+        (0, 3)
+        sage: kernel_matrix_using_elementary_vectors(matrix(0, 3))
+        [1 0 0]
+        [0 1 0]
+        [0 0 1]
+    """
+    try:
+        M = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
+    except (ArithmeticError, NotImplementedError):
+        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
+
+    rank, length = M.dimensions()
+    minors = {}
+
+    if rank == length:
+        return matrix(M.base_ring(), 0, length)
+
+    constant_minor_found = False
+    for indices_minor in Combinations(reversed(range(length)), rank):
+        indices_minor = tuple(indices_minor)
+        minors[indices_minor] = M.matrix_from_columns(indices_minor).det()
+        minor = minors[indices_minor]
+        if minor and not is_symbolic(minor):
+            constant_minor_found = True
+            break
+    if not constant_minor_found:
+        raise ValueError("Could not find a constant nonzero maximal minor.")
+
+    return matrix(
+        elementary_vector_from_indices(set(indices_minor).union([k]), minors, M)
+        for k in range(length)
+        if k not in indices_minor
+    )
