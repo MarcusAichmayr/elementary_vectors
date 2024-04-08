@@ -147,8 +147,8 @@ We consider another example::
 import warnings
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
-from sage.modules.free_module_element import zero_vector
 from sage.rings.infinity import Infinity
+from sage.sets.real_set import RealSet
 
 from elementary_vectors import elementary_vectors
 from elementary_vectors.reductions import reduce_vectors_support
@@ -166,22 +166,22 @@ def matrix_homogeneous(A, B, C):
     return matrix.block([[A], [B], [C]])
 
 
-def b_to_intervals(b):
+def b_to_intervals(b) -> list[RealSet]:
     r"""Converts the right hand side of ``A x <= b`` to intervals."""
     return [interval_from_bounds(-Infinity, bi) for bi in b]
 
 
-def c_to_intervals(c):
+def c_to_intervals(c) -> list[RealSet]:
     r"""Converts the right hand side of ``B x < c`` to intervals."""
     return [interval_from_bounds(-Infinity, ci, False, False) for ci in c]
 
 
-def bc_to_intervals(b, c):
+def bc_to_intervals(b, c) -> list[RealSet]:
     r"""Converts both right hand sides of ``A x <= b, B x < c`` to intervals."""
     return b_to_intervals(b) + c_to_intervals(c)
 
 
-def intervals_homogeneous(A, B, C):
+def intervals_homogeneous(A, B, C) -> list[RealSet]:
     r"""Compute the intervals corresponding to ``A x > 0, B x >= 0, C x = 0``."""
     return (
         A.nrows() * [interval_from_bounds(0, Infinity, False, False)]
@@ -190,7 +190,7 @@ def intervals_homogeneous(A, B, C):
     )
 
 
-def exists_orthogonal_vector_inhomogeneous(v, b, c):
+def exists_orthogonal_vector_inhomogeneous(v, b, c) -> bool:
     r"""
     Return whether there exists an orthogonal vector ``z = (z_1, z_2)`` to ``v`` satisfying ``z_1 <= b, z_2 < c``.
 
@@ -236,7 +236,7 @@ def exists_orthogonal_vector_inhomogeneous(v, b, c):
     return not condition(v) and not condition(-v)
 
 
-def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict):
+def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict) -> bool:
     r"""
     Return whether there exists an orthogonal vector to ``v`` lying by homogeneous intervals.
 

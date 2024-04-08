@@ -187,18 +187,18 @@ def cocircuits_from_matrix(M, kernel: bool = True):
     return cocircuits_from_elementary_vectors(elementary_vectors(M))
 
 
-def cocircuits_from_minors(m, dim: tuple[int, int]):
+def cocircuits_from_minors(minors: list, dim: tuple[int, int]):
     r"""
     Compute a set of cocircuits determined by the maximal minors of some matrix.
 
     INPUT:
 
-    - ``m`` -- a list of maximal minors of a matrix
+    - ``minors`` -- a list of maximal minors of a matrix
 
     - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``m``
     """
     return cocircuits_from_elementary_vectors(
-        elementary_vectors(m, dim, generator=True)
+        elementary_vectors(minors, dim, generator=True)
     )
 
 

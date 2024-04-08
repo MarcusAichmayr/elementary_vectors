@@ -14,7 +14,7 @@ from sage.modules.free_module_element import vector
 from sign_vectors import SignVector, sign_vector
 
 
-def loops(iterable):
+def loops(iterable) -> list[int]:
     r"""
     Compute the loops of sign vectors or vectors.
 
@@ -138,7 +138,7 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
     return True
 
 
-def parallel_classes(iterable, positive_only: bool = False):
+def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
     r"""
     Compute the parallel classes of given sign vectors or vectors.
 
@@ -218,7 +218,7 @@ def parallel_classes(iterable, positive_only: bool = False):
     return output
 
 
-def positive_parallel_classes(iterable):
+def positive_parallel_classes(iterable) -> list[list[int]]:
     r"""
     Compute the positive parallel classes of given sign vectors or vectors.
 
@@ -257,7 +257,7 @@ def positive_parallel_classes(iterable):
     return parallel_classes(iterable, positive_only=True)
 
 
-def classes_same_support(iterable):
+def classes_same_support(iterable) -> list:
     r"""
     Compute the classes with same support of given sign vectors or vectors.
 
@@ -287,7 +287,7 @@ def classes_same_support(iterable):
     return list(output.values())
 
 
-def adjacent(element1, element2, iterable):
+def adjacent(element1, element2, iterable) -> bool:
     r"""
     Return whether two sign vectors are adjacent over given sign vectors.
 

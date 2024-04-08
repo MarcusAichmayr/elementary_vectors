@@ -161,7 +161,7 @@ length_error = ValueError("Elements have different length.")
 class Sign(SageObject):
     r"""Auxiliary object for sign vectors."""
 
-    def __init__(self, value):
+    def __init__(self, value) -> None:
         if isinstance(value, Sign):
             self.__positive = value.__positive
             self.__negative = value.__negative
@@ -179,7 +179,7 @@ class Sign(SageObject):
             self.__negative = False
 
     @staticmethod
-    def sign_sym(value):
+    def sign_sym(value) -> int:
         r"""
         Return appropriate sign of symbolic expression.
 
@@ -231,7 +231,7 @@ class Sign(SageObject):
         )
         return 0
 
-    def _repr_(self):
+    def _repr_(self) -> str:
         r"""A sign is represented by ``+``, ``-`` or ``0``."""
         if self.__positive:
             return "+"
@@ -247,15 +247,15 @@ class Sign(SageObject):
             return 1
         return 0
 
-    def is_positive(self):
+    def is_positive(self) -> bool:
         r"""Return whether this sign is ``+``."""
         return self.__positive
 
-    def is_negative(self):
+    def is_negative(self) -> bool:
         r"""Return whether this sign is ``-``."""
         return self.__negative
 
-    def is_zero(self):
+    def is_zero(self) -> bool:
         r"""Return whether this sign is ``0``."""
         return (not self.__positive) and (not self.__negative)
 
@@ -341,7 +341,7 @@ class Sign(SageObject):
         """
         return self.to_integer() // other.to_integer()
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         r"""
         Return whether this sign is equal to ``other``.
 
@@ -362,7 +362,7 @@ class Sign(SageObject):
             return self.is_zero()
         return False
 
-    def __le__(left, right):
+    def __le__(left, right) -> bool:
         r"""
         Return whether this sign is less or equal to ``right``.
 
@@ -388,7 +388,7 @@ class Sign(SageObject):
             return not left.is_positive()
         return False
 
-    def __lt__(left, right):
+    def __lt__(left, right) -> bool:
         r"""
         Return whether this sign is less than ``right``.
 
@@ -421,7 +421,7 @@ class Sign(SageObject):
             return left.is_negative()
         raise TypeError("unsupported operand")
 
-    def __ge__(left, right):
+    def __ge__(left, right) -> bool:
         r"""
         Return whether this sign is greater or equal to ``right``.
 
@@ -435,7 +435,7 @@ class Sign(SageObject):
             return not left.is_negative()
         raise TypeError("unsupported operand")
 
-    def __gt__(left, right):
+    def __gt__(left, right) -> bool:
         r"""
         Return whether this sign vector is greater than ``right``.
 
@@ -463,7 +463,7 @@ class SignVector(SageObject):
 
     __slots__ = ("_support", "_positive_support", "_length")
 
-    def __init__(self, support, psupport, length):
+    def __init__(self, support, psupport, length) -> None:
         r"""
         Create a sign vector object.
 
@@ -496,7 +496,7 @@ class SignVector(SageObject):
         self._positive_support = frozenset(psupport)
         self._length = length
 
-    def _repr_(self):
+    def _repr_(self) -> str:
         return (
             "("
             + "".join(
@@ -512,11 +512,11 @@ class SignVector(SageObject):
         r"""Return the hash value of this sign vector."""
         return hash((self._length, self._support, self._positive_support))
 
-    def _negative_support(self):
+    def _negative_support(self) -> set[int]:
         r"""Return the set corresponding to the negative support."""
         return self._support.symmetric_difference(self._positive_support)
 
-    def length(self):
+    def length(self) -> int:
         r"""
         Return the length of the sign vector.
 
@@ -530,7 +530,7 @@ class SignVector(SageObject):
         """
         return self._length
 
-    def __len__(self):
+    def __len__(self) -> int:
         r"""
         Return the length of this sign vector.
 
@@ -764,7 +764,7 @@ class SignVector(SageObject):
             return 1 if e in self._positive_support else -1
         return 0
 
-    def support(self):
+    def support(self) -> list[int]:
         r"""
         Return a list of indices where the sign vector is nonzero.
 
@@ -779,7 +779,7 @@ class SignVector(SageObject):
         """
         return list(self._support)
 
-    def zero_support(self):
+    def zero_support(self) -> list[int]:
         r"""
         Return a list of indices where the sign vector is zero.
 
@@ -794,7 +794,7 @@ class SignVector(SageObject):
         """
         return [e for e in range(self.length()) if not e in self._support]
 
-    def positive_support(self):
+    def positive_support(self) -> list[int]:
         r"""
         Return a list of indices where the sign vector is positive.
 
@@ -809,7 +809,7 @@ class SignVector(SageObject):
         """
         return list(self._positive_support)
 
-    def negative_support(self):
+    def negative_support(self) -> list[int]:
         r"""
         Return a list of indices where the sign vector is negative.
 
@@ -824,7 +824,7 @@ class SignVector(SageObject):
         """
         return list(self._negative_support())
 
-    def list_from_positions(self, S):
+    def list_from_positions(self, S) -> list[int]:
         r"""
         Return a list of components that are in the list of indices ``S``.
 
@@ -839,11 +839,11 @@ class SignVector(SageObject):
         """
         return [self[e] for e in S]
 
-    def is_vector(self):
+    def is_vector(self) -> bool:
         r"""Return ``False`` since sign vectors are not vectors."""
         return False
 
-    def separating_elements(self, other):
+    def separating_elements(self, other) -> list[int]:
         r"""
         Compute the list of separating elements of two sign vectors.
 
@@ -874,7 +874,7 @@ class SignVector(SageObject):
             if (e in self._positive_support) ^ (e in other._positive_support)
         ]
 
-    def is_harmonious(self, other):
+    def is_harmonious(self, other) -> bool:
         r"""
         Check whether these two sign vectors are harmonious.
 
@@ -920,7 +920,7 @@ class SignVector(SageObject):
             for e in self._support.intersection(other._support)
         )
 
-    def disjoint_support(self, other):
+    def disjoint_support(self, other) -> bool:
         r"""
         Return whether these two sign vectors have disjoint support.
 
@@ -982,7 +982,7 @@ class SignVector(SageObject):
                     psupport.add(e)
         return SignVector(support, psupport, self.length())
 
-    def conforms(left, right):
+    def conforms(left, right) -> bool:
         r"""
         Conformal relation of two sign vectors.
 
@@ -1016,7 +1016,7 @@ class SignVector(SageObject):
 
         return left._support.issubset(right._support) and left.is_harmonious(right)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         r"""
         Return whether this sign vector is equal to ``other``.
 
@@ -1044,12 +1044,11 @@ class SignVector(SageObject):
                 self._support == other._support
                 and self._positive_support == other._positive_support
             )
-        elif other == 0:
+        if other == 0:
             return not self._support
-        else:
-            return False
+        return False
 
-    def __le__(left, right):
+    def __le__(left, right) -> bool:
         r"""
         Return whether this sign vector is less or equal to ``right``.
 
@@ -1084,7 +1083,7 @@ class SignVector(SageObject):
             return all(a <= 0 for a in left)
         return False
 
-    def __lt__(left, right):
+    def __lt__(left, right) -> bool:
         r"""
         Return whether this sign vector is less than ``right``.
 
@@ -1115,7 +1114,7 @@ class SignVector(SageObject):
         """
         return left != right and left <= right
 
-    def __ge__(left, right):
+    def __ge__(left, right) -> bool:
         r"""
         Return whether this sign vector is greater or equal to ``right``.
 
@@ -1150,7 +1149,7 @@ class SignVector(SageObject):
             return all(a >= 0 for a in left)
         return False
 
-    def __gt__(left, right):
+    def __gt__(left, right) -> bool:
         r"""
         Return whether this sign vector is greater than ``right``.
 
@@ -1181,7 +1180,7 @@ class SignVector(SageObject):
         """
         return left != right and left >= right
 
-    def is_orthogonal_to(self, other):
+    def is_orthogonal_to(self, other) -> bool:
         r"""
         Return whether two sign vectors are orthogonal.
 
@@ -1289,7 +1288,7 @@ def sign_vector(iterable):
     return SignVector(support, psupport, length)
 
 
-def sign_vector_from_support(support, psupport, length):
+def sign_vector_from_support(support, psupport, length: int):
     r"""
     Return a sign vector that is given by lists representing support and positive support.
 
@@ -1318,7 +1317,7 @@ def sign_vector_from_support(support, psupport, length):
     return SignVector(support, psupport, length)
 
 
-def zero_sign_vector(length):
+def zero_sign_vector(length: int):
     r"""
     Return the zero sign vector of a given length.
 
@@ -1335,7 +1334,7 @@ def zero_sign_vector(length):
     return SignVector(set(), set(), length)
 
 
-def random_sign_vector(length):
+def random_sign_vector(length: int):
     r"""
     Return a random sign vector of a given length.
 
