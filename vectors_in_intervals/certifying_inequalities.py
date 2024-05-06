@@ -151,8 +151,7 @@ from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
 
 from elementary_vectors import elementary_vectors
-from elementary_vectors.reductions import reduce_vectors_support
-from elementary_vectors.utility import elementary_vector_from_indices
+from elementary_vectors.utility import elementary_vector_from_indices_prevent_multiples
 from .utility import interval_from_bounds
 
 
@@ -306,11 +305,10 @@ def elementary_vectors_generator_trailing_nonzero(M):
     minors = {}
 
     evs = (
-        elementary_vector_from_indices(indices + [length - 1], minors, M)
+        elementary_vector_from_indices_prevent_multiples(indices + [length - 1], minors, M)
         for indices in Combinations(length - 1, rank)
     )
     evs = (v for v in evs if v)
-    evs = reduce_vectors_support(evs, generator=True)
 
     return evs
 
@@ -355,8 +353,8 @@ def matrix_inhomogeneous2_alternative(A, B, b, c):
             [
                 matrix(1, -b),
                 matrix(1, -c),
-            ],  # number of rows is relevant for 0-dim vectors
-            [zero_matrix(1, m_A), ones_matrix(1, m_B)],
+            ],
+            [zero_matrix(1, m_A), ones_matrix(1, m_B)],  # number of rows is relevant for 0-dimensional vectors
         ]
     )
     return M

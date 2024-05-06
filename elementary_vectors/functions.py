@@ -14,14 +14,13 @@ import warnings
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix
 
-from .utility import elementary_vector_from_indices, is_symbolic
+from .utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples, is_symbolic
 from .reductions import reduce_vectors_support
 
 
 def elementary_vectors(
     data,
     dimensions: tuple[int, int] = None,
-    remove_multiples: bool = True,
     generator: bool = False,
 ):
     r"""
@@ -34,8 +33,6 @@ def elementary_vectors(
     - ``dimensions`` -- Not needed if ``data`` is a matrix.
                  Otherwise, this is a list of dimensions of the matrix
                  corresponding to the list of maximal minors ``data``.
-
-    - ``remove_multiples`` -- a boolean (default: ``True``)
 
     - ``generator`` -- a boolean (default: ``False``)
 
@@ -137,16 +134,13 @@ def elementary_vectors(
         return elementary_vectors_from_minors(
             data,
             dimensions=dimensions,
-            remove_multiples=remove_multiples,
             generator=generator,
         )
-    return elementary_vectors_from_matrix(
-        data, remove_multiples=remove_multiples, generator=generator
-    )
+    return elementary_vectors_from_matrix(data, generator=generator)
 
 
 def elementary_vectors_from_matrix(
-    M, remove_multiples: bool = True, generator: bool = False
+    M, generator: bool = False
 ):
     r"""
     Compute elementary vectors of a subspace determined by the matrix ``M``.
@@ -181,12 +175,6 @@ def elementary_vectors_from_matrix(
         [ 1  1  1  1  1]
         sage: elementary_vectors_from_matrix(M)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
-        sage: elementary_vectors_from_matrix(M, remove_multiples=False)
-        [(0, 4, -2, -2, 0),
-         (2, 0, 0, 0, -2),
-         (-2, 0, 0, 0, 2),
-         (-4, 0, 0, 0, 4),
-         (0, -4, 2, 2, 0)]
     """
     try:
         M = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
@@ -196,12 +184,10 @@ def elementary_vectors_from_matrix(
     rank, length = M.dimensions()
     minors = {}
     evs = (
-        elementary_vector_from_indices(indices, minors, M)
+        elementary_vector_from_indices_prevent_multiples(indices, minors, M)
         for indices in Combinations(length, rank + 1)
     )
     evs = (v for v in evs if v)
-    if remove_multiples:
-        evs = reduce_vectors_support(evs, generator=True)
 
     if generator:
         return evs
@@ -212,7 +198,6 @@ def elementary_vectors_from_minors(
     minors: list,
     dimensions: tuple[int, int],
     ring=None,
-    remove_multiples: bool = True,
     generator: bool = False,
 ):
     r"""
@@ -226,8 +211,6 @@ def elementary_vectors_from_minors(
 
     - ``ring`` -- the ring in which the elementary vectors should live
                   by default, this is determined from ``minors``
-
-    - ``remove_multiples`` -- a boolean (default: ``True``)
 
     - ``generator`` -- a boolean (default: ``False``)
 
@@ -271,12 +254,10 @@ def elementary_vectors_from_minors(
         minors_dict[tuple(indices)] = minors[k]
 
     evs = (
-        elementary_vector_from_indices(indices, minors_dict, length=length, ring=ring)
+        elementary_vector_from_indices_prevent_multiples(indices, minors_dict, length=length, ring=ring)
         for indices in Combinations(length, rank + 1)
     )
     evs = (v for v in evs if v)
-    if remove_multiples:
-        evs = reduce_vectors_support(evs, generator=True)
 
     return evs if generator else list(evs)
 
