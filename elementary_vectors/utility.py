@@ -65,6 +65,76 @@ def elementary_vector_from_indices(
     return element
 
 
+def elementary_vector_from_indices_prevent_multiples(
+    indices: list[int], minors: dict, M=None, length: int = None, ring=None
+):
+    r"""
+    Return an elementary vector with support in a given list of indices.
+
+    INPUT:
+
+    - ``indices`` -- a list of indices
+
+    - ``minors`` -- a dictionary
+
+    - ``M`` -- an optional matrix
+
+    - ``length`` -- an optional integer for the length of the elementary vector
+
+    - ``ring`` -- an optional ring
+
+    If ``M`` is not specified, ``length`` and ``ring`` need to be.
+
+    OUTPUT:
+    Compute an elementary vector from a dictionary of minors.
+    Keeps track of zero minors to detect if a multiple is computed.
+    In this case, ``None`` is returned instead.
+    """
+    if M is not None:
+        ring = M.base_ring()
+        length = M.ncols()
+    if not length:
+        raise ValueError("No length given. Either specify a matrix or give a length.")
+    if not ring:
+        for minor in minors:
+            break
+        ring = minor.base_ring()
+
+    element = zero_vector(ring, length)
+    marked_minors = []
+    zero_reencountered = False
+    nonzero_encountered = False
+    for pos, k in enumerate(indices):
+        indices_minor = tuple(i for i in indices if i != k)
+        try:
+            minor = minors[indices_minor]
+            if minor is None:
+                zero_reencountered = True
+                continue
+        except KeyError:
+            try:
+                minors[indices_minor] = M.matrix_from_columns(indices_minor).det()
+                minor = minors[indices_minor]
+            except AttributeError as exc:
+                raise ValueError(
+                    f"Minor corresponding to {indices_minor} is not available and no matrix is given to compute it."
+                ) from exc
+        if minor == 0:
+            if nonzero_encountered:
+                minors[indices_minor] = None
+            else:
+                marked_minors.append(indices_minor)
+        elif minor != 0:
+            nonzero_encountered = True
+            if not zero_reencountered:
+                element[k] = (-1) ** pos * minor
+    if nonzero_encountered:
+        for indices_minor in marked_minors:
+            minors[indices_minor] = None
+        if not zero_reencountered:
+            return element
+
+
 def kernel_vector_support_given(M, indices):
     r"""
     Return a right kernel vector such that the support is a subset of given indices.

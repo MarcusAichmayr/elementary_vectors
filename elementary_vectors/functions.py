@@ -14,7 +14,7 @@ import warnings
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix
 
-from .utility import elementary_vector_from_indices, is_symbolic
+from .utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples, is_symbolic
 from .reductions import reduce_vectors_support
 
 
@@ -140,13 +140,11 @@ def elementary_vectors(
             remove_multiples=remove_multiples,
             generator=generator,
         )
-    return elementary_vectors_from_matrix(
-        data, remove_multiples=remove_multiples, generator=generator
-    )
+    return elementary_vectors_from_matrix(data, generator=generator)
 
 
 def elementary_vectors_from_matrix(
-    M, remove_multiples: bool = True, generator: bool = False
+    M, generator: bool = False
 ):
     r"""
     Compute elementary vectors of a subspace determined by the matrix ``M``.
@@ -181,12 +179,6 @@ def elementary_vectors_from_matrix(
         [ 1  1  1  1  1]
         sage: elementary_vectors_from_matrix(M)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
-        sage: elementary_vectors_from_matrix(M, remove_multiples=False)
-        [(0, 4, -2, -2, 0),
-         (2, 0, 0, 0, -2),
-         (-2, 0, 0, 0, 2),
-         (-4, 0, 0, 0, 4),
-         (0, -4, 2, 2, 0)]
     """
     try:
         M = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
@@ -196,12 +188,10 @@ def elementary_vectors_from_matrix(
     rank, length = M.dimensions()
     minors = {}
     evs = (
-        elementary_vector_from_indices(indices, minors, M)
+        elementary_vector_from_indices_prevent_multiples(indices, minors, M)
         for indices in Combinations(length, rank + 1)
     )
     evs = (v for v in evs if v)
-    if remove_multiples:
-        evs = reduce_vectors_support(evs, generator=True)
 
     if generator:
         return evs
