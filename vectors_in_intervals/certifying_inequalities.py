@@ -556,8 +556,59 @@ def certify_homogeneous(A, B, C) -> tuple:
                 evs_alt_end_reached = True
 
 
-class SystemHomogeneous(SageObject):
+class HomogeneousSystem(SageObject):
     r"""
+
+    EXAMPLES::
+
+        sage: from vectors_in_intervals import *
+        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: A = matrix([[1, 2], [0, 1]])
+        sage: B = matrix([[2, 3]])
+        sage: C = matrix([[-1, 0]])
+        sage: S = HomogeneousSystem(A, B, C)
+        sage: S.matrix
+        [ 1  2]
+        [ 0  1]
+        [-----]
+        [ 2  3]
+        [-----]
+        [-1  0]
+        sage: S.intervals
+        [(0, +oo), (0, +oo), [0, +oo), {0}]
+        sage: exists_vector(S.matrix.T, S.intervals)
+        True
+
+    The certify the result, we consider the alternative system
+    which consists of a single matrix and intervals::
+
+        sage: S.matrix_alternative
+        [ 1  0| 2|-1]
+        [ 2  1| 3| 0]
+        [-----+--+--]
+        [ 1  0| 0| 0]
+        [ 0  1| 0| 0]
+        [-----+--+--]
+        [ 0  0| 1| 0]
+        [-----+--+--]
+        [ 1  1| 0| 0]
+        sage: S.intervals_alternative
+        [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
+        sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative)
+        False
+        sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative, certify=True)
+        (0, 1, -1, 0, -3, -1)
+        sage: S.certify()
+        (True, (0, 1, -1, 0, -3, -1))
+
+    We consider another example::
+
+        sage: A = matrix([[1, 0], [0, 1]])
+        sage: B = matrix([[2, -3]])
+        sage: C = matrix([[-1, -1]])
+        sage: S = HomogeneousSystem(A, B, C)
+        sage: S.certify()
+        (False, (1, 1, 0, 1))
     """
 
     def __init__(self, A, B, C) -> None:
@@ -574,7 +625,6 @@ class SystemHomogeneous(SageObject):
             + m_B * [interval_from_bounds(0, Infinity)]
             + m_C * [interval_from_bounds(0, 0)]
         )
-
         self.matrix_alternative = matrix.block(
             [
                 [A.T, B.T, C.T],
@@ -618,3 +668,182 @@ class SystemHomogeneous(SageObject):
                         return True, v
                 except StopIteration:
                     evs_alt_end_reached = True
+
+
+class InhomogeneousSystem(SageObject):
+    r"""
+
+    EXAMPLES::
+
+        sage: from vectors_in_intervals import *
+        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: A = matrix([[1, 2], [0, 1]])
+        sage: B = matrix([[2, 3]])
+        sage: b = vector([1, -1])
+        sage: c = vector([2])
+        sage: S = InhomogeneousSystem(A, B, b, c)
+        sage: S.matrix
+        [1 2]
+        [0 1]
+        [---]
+        [2 3]
+        sage: S.intervals
+        [(-oo, 1], (-oo, -1], (-oo, 2)]
+        sage: exists_vector(S.matrix.T, S.intervals)
+        True
+
+    However, to certify existence of a solution, we need to consider the alternative system.
+    This system can be described by two matrices and two lists of intervals::
+
+        sage: S.matrix_alternative1
+        [ 1  0| 2]
+        [ 2  1| 3]
+        [-----+--]
+        [ 1  0| 0]
+        [ 0  1| 0]
+        [-----+--]
+        [ 0  0| 1]
+        [-----+--]
+        [-1  1|-2]
+        sage: S.intervals_alternative1
+        [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
+        sage: S.matrix_alternative2
+        [ 1  0| 2]
+        [ 2  1| 3]
+        [-----+--]
+        [ 1  0| 0]
+        [ 0  1| 0]
+        [-----+--]
+        [ 0  0| 1]
+        [-----+--]
+        [-1  1|-2]
+        [-----+--]
+        [ 0  0| 1]
+        sage: S.intervals_alternative2
+        [{0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
+        sage: exists_vector(S.matrix_alternative1.T, S.intervals_alternative1)
+        False
+        sage: exists_vector(S.matrix_alternative2.T, S.intervals_alternative2)
+        False
+        sage: exists_vector(S.matrix_alternative1.T, S.intervals_alternative1, certify=True)
+        (5, -2, 1, 0, 0, 2)
+        sage: exists_vector(S.matrix_alternative2.T, S.intervals_alternative2, certify=True)
+        (-1, 0, 1, 0, 0, 0, 2)
+
+    The package offers a single function that certifies existence of a solution::
+
+        sage: S.certify()
+        (True, [(5, -2, 1, 0, 0, 2), (-1, 0, 1, 0, 0, 0, 2)])
+
+    We consider another example::
+
+        sage: A = matrix([[1, 0], [1, 1]])
+        sage: B = matrix([[-1, -1]])
+        sage: b = vector([1, 0])
+        sage: c = vector([0])
+        sage: S = InhomogeneousSystem(A, B, b, c)
+        sage: S.certify()
+        (False, [(0, 1, 1)])
+    """
+
+    def __init__(self, A, B, b, c) -> None:
+        self.A = A
+        self.B = B
+        self.b = b
+        self.c = c
+        self.matrix = matrix.block([[A], [B]])
+        self.intervals = (
+            [interval_from_bounds(-Infinity, bi) for bi in b]
+            + [interval_from_bounds(-Infinity, ci, False, False) for ci in c]
+        )
+        m_A = A.nrows()
+        m_B = B.nrows()
+        length = A.ncols()
+
+        self.matrix_alternative1 = matrix.block(
+            [
+                [A.T, B.T],
+                [identity_matrix(m_A), zero_matrix(m_A, m_B)],
+                [zero_matrix(m_B, m_A), identity_matrix(m_B)],
+                [
+                    matrix(1, -b),
+                    matrix(1, -c),
+                ],  # number of rows is relevant for 0-dim vectors
+            ]
+        )
+        self.matrix_alternative2 = matrix.block(
+            [
+                [A.T, B.T],
+                [identity_matrix(m_A), zero_matrix(m_A, m_B)],
+                [zero_matrix(m_B, m_A), identity_matrix(m_B)],
+                [
+                    matrix(1, -b),
+                    matrix(1, -c),
+                ],  # number of rows is relevant for 0-dim vectors
+                [zero_matrix(1, m_A), ones_matrix(1, m_B)],
+            ]
+        )
+        self.intervals_alternative1 = (
+            length * [interval_from_bounds(0, 0)]
+            + (m_A + m_B) * [interval_from_bounds(0, 1)]
+            + [interval_from_bounds(0, 1, False, True)]
+        )
+        self.intervals_alternative2 = (
+            length * [interval_from_bounds(0, 0)]
+            + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
+            + [interval_from_bounds(0, 1, False, True)]
+        )
+
+    def certify(self) -> tuple:
+        r"""
+        Return whether the system ``A x <= b, B x < c`` has a solution and certify it.
+
+        OUTPUT:
+        A tuple of a boolean and a list of vectors certifying the result.
+        """
+        length = self.A.ncols()
+        m_A = self.A.nrows()
+        m_B = self.B.nrows()
+
+        evs = elementary_vectors(self.matrix.T, generator=True)
+        evs_alt1 = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative1.T)
+        evs_alt2 = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative2.T)
+
+        evs_end_reached = False
+        evs_alt1_end_reached = False
+        evs_alt2_end_reached = False
+
+        v1_found = False
+        v2_found = False
+        while True:
+            if not evs_end_reached:
+                try:
+                    v = next(evs)
+                    if not exists_orthogonal_vector_inhomogeneous(v, self.b, self.c):
+                        return False, [v]
+                except StopIteration:
+                    evs_end_reached = True
+
+            if not evs_alt1_end_reached and not v1_found:
+                try:
+                    v1 = next(evs_alt1)
+                    if not exists_orthogonal_vector_homogeneous(
+                        v1, [length + m_A + m_B], range(length, length + m_A + m_B)
+                    ):
+                        if v2_found:
+                            return True, [v1, v2]
+                        v1_found = True
+                except StopIteration:
+                    evs_alt1_end_reached = True
+
+            if not evs_alt2_end_reached and not v2_found:
+                try:
+                    v2 = next(evs_alt2)
+                    if not exists_orthogonal_vector_homogeneous(
+                        v2, [length + m_A + m_B + 1], range(length, length + m_A + m_B + 1)
+                    ):
+                        if v1_found:
+                            return True, [v1, v2]
+                        v2_found = True
+                except StopIteration:
+                    evs_alt2_end_reached = True
