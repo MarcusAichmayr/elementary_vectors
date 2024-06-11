@@ -897,7 +897,7 @@ class InhomogeneousSystem(SageObject):
         )
 
         evs = elementary_vectors(self.matrix.T, generator=True)
-        evs_alt = elementary_vectors(self.matrix_alternative.T, generator=True)
+        evs_alt = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative.T)
 
         evs_end_reached = False
         evs_alt_end_reached = False
