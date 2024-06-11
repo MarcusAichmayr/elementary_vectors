@@ -654,7 +654,7 @@ class HomogeneousSystem(SageObject):
             + (m_A + m_B) * [interval_from_bounds(0, 1)]
             + [interval_from_bounds(0, 1, False, True)]
         )
-    
+
     def certify(self) -> tuple:
         r"""
         Return whether this system has a solution and certify it.
@@ -821,6 +821,19 @@ class InhomogeneousSystem(SageObject):
         OUTPUT:
         A tuple of a boolean and a list of vectors certifying the result.
         """
+        return self.certify_using_single_system()
+
+    def certify_using_two_systems(self) -> tuple:
+        r"""
+        Return whether the system has a solution and certify it.
+
+        .. NOTE::
+
+            This implementation uses two systems for the alternative.
+
+        OUTPUT:
+        A tuple of a boolean and a list of vectors certifying the result.
+        """
         length = self.A.ncols()
         m_A = self.A.nrows()
         m_B = self.B.nrows()
@@ -872,7 +885,9 @@ class InhomogeneousSystem(SageObject):
         r"""
         Return whether this system has a solution and certify it.
 
-        For certifying the alternative, a single homogenized system is used.
+        .. NOTE::
+
+            This implementation uses one system for the alternative.
 
         OUTPUT:
         A tuple of a boolean and a list of vectors certifying the result.
