@@ -149,6 +149,7 @@ from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
+from sage.structure.sage_object import SageObject
 
 from elementary_vectors import elementary_vectors
 from elementary_vectors.utility import elementary_vector_from_indices_prevent_multiples
@@ -437,7 +438,7 @@ def intervals_homogeneous_alternative(A, B, C=None):
     )
 
 
-def certify_inhomogeneous(A, B, b, c):
+def certify_inhomogeneous(A, B, b, c) -> tuple:
     r"""
     Return whether the system ``A x <= b, B x < c`` has a solution and certify it.
 
@@ -507,7 +508,7 @@ def certify_inhomogeneous(A, B, b, c):
                 evs_alt2_end_reached = True
 
 
-def certify_homogeneous(A, B, C):
+def certify_homogeneous(A, B, C) -> tuple:
     r"""
     Return whether the system ``A x < 0, B x <= 0, C x = 0`` has a solution and certify it.
 
@@ -553,3 +554,67 @@ def certify_homogeneous(A, B, C):
                     return True, v
             except StopIteration:
                 evs_alt_end_reached = True
+
+
+class SystemHomogeneous(SageObject):
+    r"""
+    """
+
+    def __init__(self, A, B, C) -> None:
+        self.A = A
+        self.B = B
+        self.C = C
+        self.matrix = matrix.block([[A], [B], [C]])
+        m_A = A.nrows()
+        m_B = B.nrows()
+        m_C = C.nrows()
+        length = A.ncols()
+        self.intervals = (
+            m_A * [interval_from_bounds(0, Infinity, False, False)]
+            + m_B * [interval_from_bounds(0, Infinity)]
+            + m_C * [interval_from_bounds(0, 0)]
+        )
+
+        self.matrix_alternative = matrix.block(
+            [
+                [A.T, B.T, C.T],
+                [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, m_C)],
+                [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, m_C)],
+                [ones_matrix(1, m_A), zero_matrix(1, m_B), zero_matrix(1, m_C)],
+            ]
+        )
+        self.intervals_alternative = (
+            length * [interval_from_bounds(0, 0)]
+            + (m_A + m_B) * [interval_from_bounds(0, 1)]
+            + [interval_from_bounds(0, 1, False, True)]
+        )
+    
+    def certify(self) -> tuple:
+        m_A, length = self.A.dimensions()
+        m_B = self.B.nrows()
+
+        evs = elementary_vectors(self.matrix.T, generator=True)
+        evs_alt = elementary_vectors(self.matrix_alternative.T, generator=True)
+
+        evs_end_reached = False
+        evs_alt_end_reached = False
+        while True:
+            if not evs_end_reached:
+                try:
+                    v = next(evs)
+                    if not exists_orthogonal_vector_homogeneous(
+                        v, range(m_A), range(m_A, m_A + m_B)
+                    ):
+                        return False, v
+                except StopIteration:
+                    evs_end_reached = True
+
+            if not evs_alt_end_reached:
+                try:
+                    v = next(evs_alt)
+                    if not exists_orthogonal_vector_homogeneous(
+                        v, [length + m_A + m_B], range(length, length + m_A + m_B)
+                    ):
+                        return True, v
+                except StopIteration:
+                    evs_alt_end_reached = True
