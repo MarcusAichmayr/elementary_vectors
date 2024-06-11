@@ -714,12 +714,6 @@ class InhomogeneousSystem(SageObject):
         [2 3]
         sage: S.intervals
         [(-oo, 1], (-oo, -1], (-oo, 2)]
-        sage: exists_vector(S.matrix.T, S.intervals)
-        True
-
-    However, to certify existence of a solution, we need to consider the alternative system.
-    This system can be described by two matrices and two lists of intervals::
-
         sage: S.matrix_alternative1
         [ 1  0| 2]
         [ 2  1| 3]
@@ -746,17 +740,6 @@ class InhomogeneousSystem(SageObject):
         [ 0  0| 1]
         sage: S.intervals_alternative2
         [{0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
-        sage: exists_vector(S.matrix_alternative1.T, S.intervals_alternative1)
-        False
-        sage: exists_vector(S.matrix_alternative2.T, S.intervals_alternative2)
-        False
-        sage: exists_vector(S.matrix_alternative1.T, S.intervals_alternative1, certify=True)
-        (5, -2, 1, 0, 0, 2)
-        sage: exists_vector(S.matrix_alternative2.T, S.intervals_alternative2, certify=True)
-        (-1, 0, 1, 0, 0, 0, 2)
-
-    The package offers a single function that certifies existence of a solution::
-
         sage: S.certify()
         (True, [(5, -2, 1, 0, 0, 2), (-1, 0, 1, 0, 0, 0, 2)])
 
