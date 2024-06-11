@@ -171,6 +171,7 @@ from sage.sets.real_set import RealSet
 from sage.structure.sage_object import SageObject
 
 from elementary_vectors import elementary_vectors
+from vectors_in_intervals import exists_orthogonal_vector # TODO remove
 from elementary_vectors.utility import elementary_vector_from_indices_prevent_multiples
 from .utility import interval_from_bounds
 
@@ -866,3 +867,55 @@ class InhomogeneousSystem(SageObject):
                         v2_found = True
                 except StopIteration:
                     evs_alt2_end_reached = True
+
+    def certify_using_single_system(self) -> tuple:
+        r"""
+        Return whether this system has a solution and certify it.
+
+        For certifying the alternative, a single homogenized system is used.
+
+        OUTPUT:
+        A tuple of a boolean and a list of vectors certifying the result.
+        """
+        m_A, length = self.A.dimensions()
+        m_B = self.B.nrows()
+
+        self.matrix_alternative = matrix.block(
+            [
+                [self.A.T, self.B.T, zero_matrix(length, 1)],
+                [matrix(1, -self.b), matrix(1, -self.c), matrix([[-1]])],
+                [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, 1)],
+                [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, 1)],
+                [zero_matrix(1, m_A), zero_matrix(1, m_B), matrix([[1]])],
+                [zero_matrix(1, m_A), ones_matrix(1, m_B), matrix([[1]])],
+            ]
+        )
+        self.intervals_alternative = (
+            (length + 1) * [interval_from_bounds(0, 0)]
+            + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
+            + [interval_from_bounds(0, 1, False, True)]
+        )
+
+        evs = elementary_vectors(self.matrix.T, generator=True)
+        evs_alt = elementary_vectors(self.matrix_alternative.T, generator=True)
+
+        evs_end_reached = False
+        evs_alt_end_reached = False
+        while True:
+            if not evs_end_reached:
+                try:
+                    v = next(evs)
+                    if not exists_orthogonal_vector_inhomogeneous(v, self.b, self.c):
+                        return False, [v]
+                except StopIteration:
+                    evs_end_reached = True
+
+            if not evs_alt_end_reached:
+                try:
+                    v = next(evs_alt)
+                    if not exists_orthogonal_vector_homogeneous(
+                        v, [-1], range(length + 1, length + m_A + m_B + 2)
+                    ):
+                        return True, v
+                except StopIteration:
+                    evs_alt_end_reached = True
