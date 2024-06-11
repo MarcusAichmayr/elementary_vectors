@@ -12,6 +12,65 @@ Many of the results are derived from theorems in [Ben00]_.
     Motzkin's transposition theorem, and the related theorems of Farkas, Gordan and Stiemke.
     2000.
 
+Homogeneous systems
+~~~~~~~~~~~~~~~~~~~
+
+There is also a homogeneous version of Motzkin's transposition theorem.
+Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deals with the system
+:math:`A x > 0, B x \geq 0, C x = 0`::
+
+    sage: from vectors_in_intervals import *
+    sage: from vectors_in_intervals.certifying_inequalities import *
+    sage: A = matrix([[1, 2], [0, 1]])
+    sage: B = matrix([[2, 3]])
+    sage: C = matrix([[-1, 0]])
+    sage: S = HomogeneousSystem(A, B, C)
+    sage: S.matrix
+    [ 1  2]
+    [ 0  1]
+    [-----]
+    [ 2  3]
+    [-----]
+    [-1  0]
+    sage: S.intervals
+    [(0, +oo), (0, +oo), [0, +oo), {0}]
+    sage: exists_vector(S.matrix.T, S.intervals)
+    True
+
+The certify the result, we consider the alternative system
+which consists of a single matrix and intervals::
+
+    sage: S.matrix_alternative
+    [ 1  0| 2|-1]
+    [ 2  1| 3| 0]
+    [-----+--+--]
+    [ 1  0| 0| 0]
+    [ 0  1| 0| 0]
+    [-----+--+--]
+    [ 0  0| 1| 0]
+    [-----+--+--]
+    [ 1  1| 0| 0]
+    sage: S.intervals_alternative
+    [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
+    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative)
+    False
+    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative, certify=True)
+    (0, 1, -1, 0, -3, -1)
+
+There is a single command for certification::
+
+    sage: S.certify()
+    (True, (0, 1, -1, 0, -3, -1))
+
+We consider another example::
+
+    sage: A = matrix([[1, 0], [0, 1]])
+    sage: B = matrix([[2, -3]])
+    sage: C = matrix([[-1, -1]])
+    sage: S = HomogeneousSystem(A, B, C)
+    sage: S.certify()
+    (False, (1, 1, 0, 1))
+
 Inhomogeneous systems
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -92,63 +151,6 @@ We consider another example::
     sage: S = InhomogeneousSystem(A, B, b, c)
     sage: S.certify()
     (False, [(0, 1, 1)])
-
-Homogeneous systems
-~~~~~~~~~~~~~~~~~~~
-
-There is also a homogeneous version of Motzkin's transposition theorem.
-Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deals with the system
-:math:`A x > 0, B x \geq 0, C x = 0`::
-
-    sage: from vectors_in_intervals.certifying_inequalities import *
-    sage: A = matrix([[1, 2], [0, 1]])
-    sage: B = matrix([[2, 3]])
-    sage: C = matrix([[-1, 0]])
-    sage: S = HomogeneousSystem(A, B, C)
-    sage: S.matrix
-    [ 1  2]
-    [ 0  1]
-    [-----]
-    [ 2  3]
-    [-----]
-    [-1  0]
-    sage: S.intervals
-    [(0, +oo), (0, +oo), [0, +oo), {0}]
-    sage: exists_vector(S.matrix.T, S.intervals)
-
-The certify the result, we consider the alternative system
-which consists of a single matrix and intervals::
-
-    sage: S.matrix_alternative
-    [ 1  0| 2|-1]
-    [ 2  1| 3| 0]
-    [-----+--+--]
-    [ 1  0| 0| 0]
-    [ 0  1| 0| 0]
-    [-----+--+--]
-    [ 0  0| 1| 0]
-    [-----+--+--]
-    [ 1  1| 0| 0]
-    sage: S.intervals_alternative
-    [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative)
-    False
-    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative, certify=True)
-    (0, 1, -1, 0, -3, -1)
-
-There is a single command for certification::
-
-    sage: S.certify()
-    (True, (0, 1, -1, 0, -3, -1))
-
-We consider another example::
-
-    sage: A = matrix([[1, 0], [0, 1]])
-    sage: B = matrix([[2, -3]])
-    sage: C = matrix([[-1, -1]])
-    sage: S = HomogeneousSystem(A, B, C)
-    sage: S.certify()
-    (False, (1, 1, 0, 1))
 """
 
 #############################################################################
