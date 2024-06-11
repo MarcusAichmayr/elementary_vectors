@@ -506,7 +506,7 @@ def certify_inhomogeneous(A, B, b, c) -> tuple:
             try:
                 v1 = next(evs_alt1)
                 if not exists_orthogonal_vector_homogeneous(
-                    v1, [length + m_A + m_B], range(length, length + m_A + m_B)
+                    v1, [-1], range(length, length + m_A + m_B)
                 ):
                     if v2_found:
                         return True, [v1, v2]
@@ -518,7 +518,7 @@ def certify_inhomogeneous(A, B, b, c) -> tuple:
             try:
                 v2 = next(evs_alt2)
                 if not exists_orthogonal_vector_homogeneous(
-                    v2, [length + m_A + m_B + 1], range(length, length + m_A + m_B + 1)
+                    v2, [-1], range(length, length + m_A + m_B + 1)
                 ):
                     if v1_found:
                         return True, [v1, v2]
@@ -568,7 +568,7 @@ def certify_homogeneous(A, B, C) -> tuple:
             try:
                 v = next(evs_alt)
                 if not exists_orthogonal_vector_homogeneous(
-                    v, [length + m_A + m_B], range(length, length + m_A + m_B)
+                    v, [-1], range(length, length + m_A + m_B)
                 ):
                     return True, v
             except StopIteration:
@@ -685,7 +685,7 @@ class HomogeneousSystem(SageObject):
                 try:
                     v = next(evs_alt)
                     if not exists_orthogonal_vector_homogeneous(
-                        v, [length + m_A + m_B], range(length, length + m_A + m_B)
+                        v, [-1], range(length, length + m_A + m_B)
                     ):
                         return True, v
                 except StopIteration:
@@ -847,7 +847,7 @@ class InhomogeneousSystem(SageObject):
                 try:
                     v1 = next(evs_alt1)
                     if not exists_orthogonal_vector_homogeneous(
-                        v1, [length + m_A + m_B], range(length, length + m_A + m_B)
+                        v1, [-1], range(length, length + m_A + m_B)
                     ):
                         if v2_found:
                             return True, [v1, v2]
@@ -859,7 +859,7 @@ class InhomogeneousSystem(SageObject):
                 try:
                     v2 = next(evs_alt2)
                     if not exists_orthogonal_vector_homogeneous(
-                        v2, [length + m_A + m_B + 1], range(length, length + m_A + m_B + 1)
+                        v2, [-1], range(length, length + m_A + m_B + 1)
                     ):
                         if v1_found:
                             return True, [v1, v2]
