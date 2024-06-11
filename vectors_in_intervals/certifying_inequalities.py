@@ -29,15 +29,21 @@ To demonstrate this, consider the following example::
     sage: B = matrix([[2, 3]])
     sage: b = vector([1, -1])
     sage: c = vector([2])
-    sage: exists_vector(matrix_inhomogeneous(A, B).T, bc_to_intervals(b, c))
+    sage: S = InhomogeneousSystem(A, B, b, c)
+    sage: S.matrix
+    [1 2]
+    [0 1]
+    [---]
+    [2 3]
+    sage: S.intervals
+    [(-oo, 1], (-oo, -1], (-oo, 2)]
+    sage: exists_vector(S.matrix.T, S.intervals)
     True
 
 However, to certify existence of a solution, we need to consider the alternative system.
 This system can be described by two matrices and two lists of intervals::
 
-    sage: M1 = matrix_inhomogeneous1_alternative(A, B, b, c)
-    sage: I1 = intervals_inhomogeneous1_alternative(A, B, b, c)
-    sage: M1
+    sage: S.matrix_alternative1
     [ 1  0| 2]
     [ 2  1| 3]
     [-----+--]
@@ -47,11 +53,9 @@ This system can be described by two matrices and two lists of intervals::
     [ 0  0| 1]
     [-----+--]
     [-1  1|-2]
-    sage: I1
+    sage: S.intervals_alternative1
     [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: M2 = matrix_inhomogeneous2_alternative(A, B, b, c)
-    sage: I2 = intervals_inhomogeneous2_alternative(A, B, b, c)
-    sage: M2
+    sage: S.matrix_alternative2
     [ 1  0| 2]
     [ 2  1| 3]
     [-----+--]
@@ -63,20 +67,20 @@ This system can be described by two matrices and two lists of intervals::
     [-1  1|-2]
     [-----+--]
     [ 0  0| 1]
-    sage: I2
+    sage: S.intervals_alternative2
     [{0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: exists_vector(M1.T, I1)
+    sage: exists_vector(S.matrix_alternative1.T, S.intervals_alternative1)
     False
-    sage: exists_vector(M2.T, I2)
+    sage: exists_vector(S.matrix_alternative2.T, S.intervals_alternative2)
     False
-    sage: exists_vector(M1.T, I1, certify=True)
+    sage: exists_vector(S.matrix_alternative1.T, S.intervals_alternative1, certify=True)
     (5, -2, 1, 0, 0, 2)
-    sage: exists_vector(M2.T, I2, certify=True)
+    sage: exists_vector(S.matrix_alternative2.T, S.intervals_alternative2, certify=True)
     (-1, 0, 1, 0, 0, 0, 2)
 
 The package offers a single function that certifies existence of a solution::
 
-    sage: certify_inhomogeneous(A, B, b, c)
+    sage: S.certify()
     (True, [(5, -2, 1, 0, 0, 2), (-1, 0, 1, 0, 0, 0, 2)])
 
 We consider another example::
@@ -85,7 +89,8 @@ We consider another example::
     sage: B = matrix([[-1, -1]])
     sage: b = vector([1, 0])
     sage: c = vector([0])
-    sage: certify_inhomogeneous(A, B, b, c)
+    sage: S = InhomogeneousSystem(A, B, b, c)
+    sage: S.certify()
     (False, [(0, 1, 1)])
 
 Homogeneous systems
@@ -95,18 +100,26 @@ There is also a homogeneous version of Motzkin's transposition theorem.
 Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deals with the system
 :math:`A x > 0, B x \geq 0, C x = 0`::
 
+    sage: from vectors_in_intervals.certifying_inequalities import *
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
-    sage: exists_vector(matrix_homogeneous(A, B, C).T, intervals_homogeneous(A, B, C))
-    True
+    sage: S = HomogeneousSystem(A, B, C)
+    sage: S.matrix
+    [ 1  2]
+    [ 0  1]
+    [-----]
+    [ 2  3]
+    [-----]
+    [-1  0]
+    sage: S.intervals
+    [(0, +oo), (0, +oo), [0, +oo), {0}]
+    sage: exists_vector(S.matrix.T, S.intervals)
 
 The certify the result, we consider the alternative system
 which consists of a single matrix and intervals::
 
-    sage: M = matrix_homogeneous_alternative(A, B, C)
-    sage: I = intervals_homogeneous_alternative(A, B, C)
-    sage: M
+    sage: S.matrix_alternative
     [ 1  0| 2|-1]
     [ 2  1| 3| 0]
     [-----+--+--]
@@ -116,13 +129,16 @@ which consists of a single matrix and intervals::
     [ 0  0| 1| 0]
     [-----+--+--]
     [ 1  1| 0| 0]
-    sage: I
+    sage: S.intervals_alternative
     [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: exists_vector(M.T, I)
+    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative)
     False
-    sage: exists_vector(M.T, I, certify=True)
+    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative, certify=True)
     (0, 1, -1, 0, -3, -1)
-    sage: certify_homogeneous(A, B, C)
+
+There is a single command for certification::
+
+    sage: S.certify()
     (True, (0, 1, -1, 0, -3, -1))
 
 We consider another example::
@@ -130,7 +146,8 @@ We consider another example::
     sage: A = matrix([[1, 0], [0, 1]])
     sage: B = matrix([[2, -3]])
     sage: C = matrix([[-1, -1]])
-    sage: certify_homogeneous(A, B, C)
+    sage: S = HomogeneousSystem(A, B, C)
+    sage: S.certify()
     (False, (1, 1, 0, 1))
 """
 
@@ -558,10 +575,12 @@ def certify_homogeneous(A, B, C) -> tuple:
 
 class HomogeneousSystem(SageObject):
     r"""
+    A class for setting up and certifying homogeneous linear inequality systems.
+
+    The system is given ``A x > 0``, ``B x >= 0`` and ``C x = 0`` with matrices ``A``, ``B``, ``C``.
 
     EXAMPLES::
 
-        sage: from vectors_in_intervals import *
         sage: from vectors_in_intervals.certifying_inequalities import *
         sage: A = matrix([[1, 2], [0, 1]])
         sage: B = matrix([[2, 3]])
@@ -576,12 +595,6 @@ class HomogeneousSystem(SageObject):
         [-1  0]
         sage: S.intervals
         [(0, +oo), (0, +oo), [0, +oo), {0}]
-        sage: exists_vector(S.matrix.T, S.intervals)
-        True
-
-    The certify the result, we consider the alternative system
-    which consists of a single matrix and intervals::
-
         sage: S.matrix_alternative
         [ 1  0| 2|-1]
         [ 2  1| 3| 0]
@@ -594,10 +607,6 @@ class HomogeneousSystem(SageObject):
         [ 1  1| 0| 0]
         sage: S.intervals_alternative
         [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
-        sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative)
-        False
-        sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative, certify=True)
-        (0, 1, -1, 0, -3, -1)
         sage: S.certify()
         (True, (0, 1, -1, 0, -3, -1))
 
@@ -610,8 +619,12 @@ class HomogeneousSystem(SageObject):
         sage: S.certify()
         (False, (1, 1, 0, 1))
     """
-
     def __init__(self, A, B, C) -> None:
+        r"""
+        INPUT:
+        matrices with same number of columns
+        """
+
         self.A = A
         self.B = B
         self.C = C
@@ -640,6 +653,13 @@ class HomogeneousSystem(SageObject):
         )
     
     def certify(self) -> tuple:
+        r"""
+        Return whether this system has a solution and certify it.
+
+        OUTPUT:
+        A tuple of a boolean and a list of vectors certifying the result.
+        """
+
         m_A, length = self.A.dimensions()
         m_B = self.B.nrows()
 
@@ -672,6 +692,9 @@ class HomogeneousSystem(SageObject):
 
 class InhomogeneousSystem(SageObject):
     r"""
+    A class for setting up and certifying an inhomogeneous linear inequality systems.
+
+    The system is given by ``A x <= b`` and ``B x < c`` with matrices ``A``, ``B`` and vectors ``b``, ``c``.
 
     EXAMPLES::
 
@@ -747,6 +770,17 @@ class InhomogeneousSystem(SageObject):
     """
 
     def __init__(self, A, B, b, c) -> None:
+        r"""
+        INPUT:
+
+        - ``A`` -- a ``p`` times ``n`` matrix
+
+        - ``B`` -- a ``q`` times ``n`` matrix
+
+        - ``b`` -- a ``p`` vector
+
+        - ``c`` -- a ``q`` vector
+        """
         self.A = A
         self.B = B
         self.b = b
@@ -796,7 +830,7 @@ class InhomogeneousSystem(SageObject):
 
     def certify(self) -> tuple:
         r"""
-        Return whether the system ``A x <= b, B x < c`` has a solution and certify it.
+        Return whether the system has a solution and certify it.
 
         OUTPUT:
         A tuple of a boolean and a list of vectors certifying the result.
