@@ -862,7 +862,6 @@ class InhomogeneousSystem(SageObject):
         if not hasattr(self, "_matrix_alternative_2_systems1"):
             m_A = self.A.nrows()
             m_B = self.B.nrows()
-            length = self.A.ncols()
             self._matrix_alternative_2_systems1 = matrix.block(
                 [
                     [self.A.T, self.B.T],
@@ -877,7 +876,6 @@ class InhomogeneousSystem(SageObject):
         if not hasattr(self, "_matrix_alternative_2_systems2"):
             m_A = self.A.nrows()
             m_B = self.B.nrows()
-            length = self.A.ncols()
             self._matrix_alternative_2_systems2 = matrix.block(
                 [
                     [self.A.T, self.B.T],
