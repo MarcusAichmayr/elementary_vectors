@@ -89,20 +89,20 @@ To demonstrate this, consider the following example::
     sage: b = vector([1, -1])
     sage: c = vector([2])
     sage: S = InhomogeneousSystem(A, B, b, c)
-    sage: S.matrix
+    sage: S.matrix()
     [1 2]
     [0 1]
     [---]
     [2 3]
-    sage: S.intervals
+    sage: S.intervals()
     [(-oo, 1], (-oo, -1], (-oo, 2)]
-    sage: exists_vector(S.matrix.T, S.intervals)
+    sage: exists_vector(S.matrix().T, S.intervals())
     True
 
 However, to certify existence of a solution, we need to consider the alternative system.
 This system can be described by two matrices and two lists of intervals::
 
-    sage: S.matrix_alternative
+    sage: S.matrix_alternative()
     [ 1  0| 2| 0]
     [ 2  1| 3| 0]
     [-----+--+--]
@@ -116,11 +116,11 @@ This system can be described by two matrices and two lists of intervals::
     [ 0  0| 0| 1]
     [-----+--+--]
     [ 0  0| 1| 1]
-    sage: S.intervals_alternative
+    sage: S.intervals_alternative()
     [{0}, {0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative)
+    sage: exists_vector(S.matrix_alternative().T, S.intervals_alternative())
     False
-    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative, certify=True)
+    sage: exists_vector(S.matrix_alternative().T, S.intervals_alternative(), certify=True)
     (-4, 2, -2, -2, 0, 0, 0, -2)
 
 The package offers a single function that certifies existence of a solution::
@@ -694,14 +694,14 @@ class InhomogeneousSystem(SageObject):
         sage: b = vector([1, -1])
         sage: c = vector([2])
         sage: S = InhomogeneousSystem(A, B, b, c)
-        sage: S.matrix
+        sage: S.matrix()
         [1 2]
         [0 1]
         [---]
         [2 3]
-        sage: S.intervals
+        sage: S.intervals()
         [(-oo, 1], (-oo, -1], (-oo, 2)]
-        sage: S.matrix_alternative
+        sage: S.matrix_alternative()
         [ 1  0| 2| 0]
         [ 2  1| 3| 0]
         [-----+--+--]
@@ -715,7 +715,7 @@ class InhomogeneousSystem(SageObject):
         [ 0  0| 0| 1]
         [-----+--+--]
         [ 0  0| 1| 1]
-        sage: S.intervals_alternative
+        sage: S.intervals_alternative()
         [{0}, {0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
         sage: S.certify()
         (True, (-4, 2, -2, -2, 0, 0, 0, -2))
@@ -749,30 +749,103 @@ class InhomogeneousSystem(SageObject):
         self.B = B
         self.b = b
         self.c = c
-        self.matrix = matrix.block([[A], [B]])
-        self.intervals = (
-            [interval_from_bounds(-Infinity, bi) for bi in b]
-            + [interval_from_bounds(-Infinity, ci, False, False) for ci in c]
-        )
-        m_A = A.nrows()
-        m_B = B.nrows()
-        length = A.ncols()
 
-        self.matrix_alternative = matrix.block(
-            [
-                [self.A.T, self.B.T, zero_matrix(length, 1)],
-                [matrix(1, -self.b), matrix(1, -self.c), matrix([[-1]])],
-                [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, 1)],
-                [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, 1)],
-                [zero_matrix(1, m_A), zero_matrix(1, m_B), matrix([[1]])],
-                [zero_matrix(1, m_A), ones_matrix(1, m_B), matrix([[1]])],
-            ]
-        )
-        self.intervals_alternative = (
-            (length + 1) * [interval_from_bounds(0, 0)]
-            + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
-            + [interval_from_bounds(0, 1, False, True)]
-        )
+    def matrix(self):
+        if not hasattr(self, "_matrix"):
+            self._matrix = matrix.block([[self.A], [self.B]])
+        return self._matrix
+
+    def intervals(self):
+        if not hasattr(self, "_intervals"):
+            self._intervals = (
+                [interval_from_bounds(-Infinity, bi) for bi in self.b]
+                + [interval_from_bounds(-Infinity, ci, False, False) for ci in self.c]
+            )
+        return self._intervals
+
+    def matrix_alternative(self):
+        if not hasattr(self, "_matrix_alternative"):
+            m_A = self.A.nrows()
+            m_B = self.B.nrows()
+            length = self.A.ncols()
+            self._matrix_alternative = matrix.block(
+                [
+                    [self.A.T, self.B.T, zero_matrix(length, 1)],
+                    [matrix(1, -self.b), matrix(1, -self.c), matrix([[-1]])],
+                    [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, 1)],
+                    [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, 1)],
+                    [zero_matrix(1, m_A), zero_matrix(1, m_B), matrix([[1]])],
+                    [zero_matrix(1, m_A), ones_matrix(1, m_B), matrix([[1]])],
+                ]
+            )
+        return self._matrix_alternative
+
+    def intervals_alternative(self) -> list:
+        if not hasattr(self, "_intervals_alternative"):
+            m_A = self.A.nrows()
+            m_B = self.B.nrows()
+            length = self.A.ncols()
+            self._intervals_alternative = (
+                (length + 1) * [interval_from_bounds(0, 0)]
+                + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
+                + [interval_from_bounds(0, 1, False, True)]
+            )
+        return self._intervals_alternative
+
+    def matrix_alternative_2_systems(self) -> tuple:
+        if not hasattr(self, "_matrix_alternative_2_systems1"):
+            m_A = self.A.nrows()
+            m_B = self.B.nrows()
+            length = self.A.ncols()
+            self._matrix_alternative_2_systems1 = matrix.block(
+                [
+                    [self.A.T, self.B.T],
+                    [identity_matrix(m_A), zero_matrix(m_A, m_B)],
+                    [zero_matrix(m_B, m_A), identity_matrix(m_B)],
+                    [
+                        matrix(1, -self.b),
+                        matrix(1, -self.c),
+                    ],  # number of rows is relevant for 0-dim vectors
+                ]
+            )
+        if not hasattr(self, "_matrix_alternative_2_systems2"):
+            m_A = self.A.nrows()
+            m_B = self.B.nrows()
+            length = self.A.ncols()
+            self._matrix_alternative_2_systems2 = matrix.block(
+                [
+                    [self.A.T, self.B.T],
+                    [identity_matrix(m_A), zero_matrix(m_A, m_B)],
+                    [zero_matrix(m_B, m_A), identity_matrix(m_B)],
+                    [
+                        matrix(1, -self.b),
+                        matrix(1, -self.c),
+                    ],  # number of rows is relevant for 0-dim vectors
+                    [zero_matrix(1, m_A), ones_matrix(1, m_B)],
+                ]
+            )
+        return self._matrix_alternative_2_systems1, self._matrix_alternative_2_systems2
+
+    def intervals_alternative_2_systems(self) -> tuple:
+        if not hasattr(self, "_intervals_alternative_2_systems1"):
+            m_A = self.A.nrows()
+            m_B = self.B.nrows()
+            length = self.A.ncols()
+            self._intervals_alternative_2_systems1 = (
+                length * [interval_from_bounds(0, 0)]
+                + (m_A + m_B) * [interval_from_bounds(0, 1)]
+                + [interval_from_bounds(0, 1, False, True)]
+            )
+        if not hasattr(self, "_intervals_alternative_2_systems2"):
+            m_A = self.A.nrows()
+            m_B = self.B.nrows()
+            length = self.A.ncols()
+            self._intervals_alternative_2_systems2 = (
+                length * [interval_from_bounds(0, 0)]
+                + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
+                + [interval_from_bounds(0, 1, False, True)]
+            )
+        return self._intervals_alternative_2_systems1, self._intervals_alternative_2_systems2
 
     def certify(self) -> tuple:
         r"""
@@ -797,8 +870,8 @@ class InhomogeneousSystem(SageObject):
         m_A, length = self.A.dimensions()
         m_B = self.B.nrows()
 
-        evs = elementary_vectors(self.matrix.T, generator=True)
-        evs_alt = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative.T)
+        evs = elementary_vectors(self.matrix().T, generator=True)
+        evs_alt = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative().T)
 
         evs_end_reached = False
         evs_alt_end_reached = False
@@ -836,43 +909,11 @@ class InhomogeneousSystem(SageObject):
         m_A = self.A.nrows()
         m_B = self.B.nrows()
 
-        self.matrix_alternative1 = matrix.block(
-            [
-                [self.A.T, self.B.T],
-                [identity_matrix(m_A), zero_matrix(m_A, m_B)],
-                [zero_matrix(m_B, m_A), identity_matrix(m_B)],
-                [
-                    matrix(1, -self.b),
-                    matrix(1, -self.c),
-                ],  # number of rows is relevant for 0-dim vectors
-            ]
-        )
-        self.matrix_alternative2 = matrix.block(
-            [
-                [self.A.T, self.B.T],
-                [identity_matrix(m_A), zero_matrix(m_A, m_B)],
-                [zero_matrix(m_B, m_A), identity_matrix(m_B)],
-                [
-                    matrix(1, -self.b),
-                    matrix(1, -self.c),
-                ],  # number of rows is relevant for 0-dim vectors
-                [zero_matrix(1, m_A), ones_matrix(1, m_B)],
-            ]
-        )
-        self.intervals_alternative1 = (
-            length * [interval_from_bounds(0, 0)]
-            + (m_A + m_B) * [interval_from_bounds(0, 1)]
-            + [interval_from_bounds(0, 1, False, True)]
-        )
-        self.intervals_alternative2 = (
-            length * [interval_from_bounds(0, 0)]
-            + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
-            + [interval_from_bounds(0, 1, False, True)]
-        )
+        M1, M2 = self.matrix_alternative_2_systems()
 
-        evs = elementary_vectors(self.matrix.T, generator=True)
-        evs_alt1 = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative1.T)
-        evs_alt2 = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative2.T)
+        evs = elementary_vectors(self.matrix().T, generator=True)
+        evs_alt1 = elementary_vectors_generator_trailing_nonzero(M1.T)
+        evs_alt2 = elementary_vectors_generator_trailing_nonzero(M2.T)
 
         evs_end_reached = False
         evs_alt1_end_reached = False
