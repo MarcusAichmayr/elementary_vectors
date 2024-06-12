@@ -102,45 +102,31 @@ To demonstrate this, consider the following example::
 However, to certify existence of a solution, we need to consider the alternative system.
 This system can be described by two matrices and two lists of intervals::
 
-    sage: S.matrix_alternative1
-    [ 1  0| 2]
-    [ 2  1| 3]
-    [-----+--]
-    [ 1  0| 0]
-    [ 0  1| 0]
-    [-----+--]
-    [ 0  0| 1]
-    [-----+--]
-    [-1  1|-2]
-    sage: S.intervals_alternative1
-    [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: S.matrix_alternative2
-    [ 1  0| 2]
-    [ 2  1| 3]
-    [-----+--]
-    [ 1  0| 0]
-    [ 0  1| 0]
-    [-----+--]
-    [ 0  0| 1]
-    [-----+--]
-    [-1  1|-2]
-    [-----+--]
-    [ 0  0| 1]
-    sage: S.intervals_alternative2
-    [{0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: exists_vector(S.matrix_alternative1.T, S.intervals_alternative1)
+    sage: S.matrix_alternative
+    [ 1  0| 2| 0]
+    [ 2  1| 3| 0]
+    [-----+--+--]
+    [-1  1|-2|-1]
+    [-----+--+--]
+    [ 1  0| 0| 0]
+    [ 0  1| 0| 0]
+    [-----+--+--]
+    [ 0  0| 1| 0]
+    [-----+--+--]
+    [ 0  0| 0| 1]
+    [-----+--+--]
+    [ 0  0| 1| 1]
+    sage: S.intervals_alternative
+    [{0}, {0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
+    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative)
     False
-    sage: exists_vector(S.matrix_alternative2.T, S.intervals_alternative2)
-    False
-    sage: exists_vector(S.matrix_alternative1.T, S.intervals_alternative1, certify=True)
-    (5, -2, 1, 0, 0, 2)
-    sage: exists_vector(S.matrix_alternative2.T, S.intervals_alternative2, certify=True)
-    (-1, 0, 1, 0, 0, 0, 2)
+    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative, certify=True)
+    (-4, 2, -2, -2, 0, 0, 0, -2)
 
 The package offers a single function that certifies existence of a solution::
 
     sage: S.certify()
-    (True, [(5, -2, 1, 0, 0, 2), (-1, 0, 1, 0, 0, 0, 2)])
+    (True, (-4, 2, -2, -2, 0, 0, 0, -2))
 
 We consider another example::
 
@@ -715,33 +701,25 @@ class InhomogeneousSystem(SageObject):
         [2 3]
         sage: S.intervals
         [(-oo, 1], (-oo, -1], (-oo, 2)]
-        sage: S.matrix_alternative1
-        [ 1  0| 2]
-        [ 2  1| 3]
-        [-----+--]
-        [ 1  0| 0]
-        [ 0  1| 0]
-        [-----+--]
-        [ 0  0| 1]
-        [-----+--]
-        [-1  1|-2]
-        sage: S.intervals_alternative1
-        [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
-        sage: S.matrix_alternative2
-        [ 1  0| 2]
-        [ 2  1| 3]
-        [-----+--]
-        [ 1  0| 0]
-        [ 0  1| 0]
-        [-----+--]
-        [ 0  0| 1]
-        [-----+--]
-        [-1  1|-2]
-        [-----+--]
-        [ 0  0| 1]
-        sage: S.intervals_alternative2
-        [{0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
+        sage: S.matrix_alternative
+        [ 1  0| 2| 0]
+        [ 2  1| 3| 0]
+        [-----+--+--]
+        [-1  1|-2|-1]
+        [-----+--+--]
+        [ 1  0| 0| 0]
+        [ 0  1| 0| 0]
+        [-----+--+--]
+        [ 0  0| 1| 0]
+        [-----+--+--]
+        [ 0  0| 0| 1]
+        [-----+--+--]
+        [ 0  0| 1| 1]
+        sage: S.intervals_alternative
+        [{0}, {0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
         sage: S.certify()
+        (True, (-4, 2, -2, -2, 0, 0, 0, -2))
+        sage: S.certify_using_two_systems()
         (True, [(5, -2, 1, 0, 0, 2), (-1, 0, 1, 0, 0, 0, 2)])
 
     We consider another example::
@@ -780,36 +758,18 @@ class InhomogeneousSystem(SageObject):
         m_B = B.nrows()
         length = A.ncols()
 
-        self.matrix_alternative1 = matrix.block(
+        self.matrix_alternative = matrix.block(
             [
-                [A.T, B.T],
-                [identity_matrix(m_A), zero_matrix(m_A, m_B)],
-                [zero_matrix(m_B, m_A), identity_matrix(m_B)],
-                [
-                    matrix(1, -b),
-                    matrix(1, -c),
-                ],  # number of rows is relevant for 0-dim vectors
+                [self.A.T, self.B.T, zero_matrix(length, 1)],
+                [matrix(1, -self.b), matrix(1, -self.c), matrix([[-1]])],
+                [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, 1)],
+                [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, 1)],
+                [zero_matrix(1, m_A), zero_matrix(1, m_B), matrix([[1]])],
+                [zero_matrix(1, m_A), ones_matrix(1, m_B), matrix([[1]])],
             ]
         )
-        self.matrix_alternative2 = matrix.block(
-            [
-                [A.T, B.T],
-                [identity_matrix(m_A), zero_matrix(m_A, m_B)],
-                [zero_matrix(m_B, m_A), identity_matrix(m_B)],
-                [
-                    matrix(1, -b),
-                    matrix(1, -c),
-                ],  # number of rows is relevant for 0-dim vectors
-                [zero_matrix(1, m_A), ones_matrix(1, m_B)],
-            ]
-        )
-        self.intervals_alternative1 = (
-            length * [interval_from_bounds(0, 0)]
-            + (m_A + m_B) * [interval_from_bounds(0, 1)]
-            + [interval_from_bounds(0, 1, False, True)]
-        )
-        self.intervals_alternative2 = (
-            length * [interval_from_bounds(0, 0)]
+        self.intervals_alternative = (
+            (length + 1) * [interval_from_bounds(0, 0)]
             + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
             + [interval_from_bounds(0, 1, False, True)]
         )
@@ -822,6 +782,44 @@ class InhomogeneousSystem(SageObject):
         A tuple of a boolean and a list of vectors certifying the result.
         """
         return self.certify_using_single_system()
+
+    def certify_using_single_system(self) -> tuple:
+        r"""
+        Return whether this system has a solution and certify it.
+
+        .. NOTE::
+
+            This implementation uses one system for the alternative.
+
+        OUTPUT:
+        A tuple of a boolean and a list of vectors certifying the result.
+        """
+        m_A, length = self.A.dimensions()
+        m_B = self.B.nrows()
+
+        evs = elementary_vectors(self.matrix.T, generator=True)
+        evs_alt = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative.T)
+
+        evs_end_reached = False
+        evs_alt_end_reached = False
+        while True:
+            if not evs_end_reached:
+                try:
+                    v = next(evs)
+                    if not exists_orthogonal_vector_inhomogeneous(v, self.b, self.c):
+                        return False, [v]
+                except StopIteration:
+                    evs_end_reached = True
+
+            if not evs_alt_end_reached:
+                try:
+                    v = next(evs_alt)
+                    if not exists_orthogonal_vector_homogeneous(
+                        v, [-1], range(length + 1, length + m_A + m_B + 2)
+                    ):
+                        return True, v
+                except StopIteration:
+                    evs_alt_end_reached = True
 
     def certify_using_two_systems(self) -> tuple:
         r"""
@@ -837,6 +835,40 @@ class InhomogeneousSystem(SageObject):
         length = self.A.ncols()
         m_A = self.A.nrows()
         m_B = self.B.nrows()
+
+        self.matrix_alternative1 = matrix.block(
+            [
+                [self.A.T, self.B.T],
+                [identity_matrix(m_A), zero_matrix(m_A, m_B)],
+                [zero_matrix(m_B, m_A), identity_matrix(m_B)],
+                [
+                    matrix(1, -self.b),
+                    matrix(1, -self.c),
+                ],  # number of rows is relevant for 0-dim vectors
+            ]
+        )
+        self.matrix_alternative2 = matrix.block(
+            [
+                [self.A.T, self.B.T],
+                [identity_matrix(m_A), zero_matrix(m_A, m_B)],
+                [zero_matrix(m_B, m_A), identity_matrix(m_B)],
+                [
+                    matrix(1, -self.b),
+                    matrix(1, -self.c),
+                ],  # number of rows is relevant for 0-dim vectors
+                [zero_matrix(1, m_A), ones_matrix(1, m_B)],
+            ]
+        )
+        self.intervals_alternative1 = (
+            length * [interval_from_bounds(0, 0)]
+            + (m_A + m_B) * [interval_from_bounds(0, 1)]
+            + [interval_from_bounds(0, 1, False, True)]
+        )
+        self.intervals_alternative2 = (
+            length * [interval_from_bounds(0, 0)]
+            + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
+            + [interval_from_bounds(0, 1, False, True)]
+        )
 
         evs = elementary_vectors(self.matrix.T, generator=True)
         evs_alt1 = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative1.T)
@@ -880,57 +912,3 @@ class InhomogeneousSystem(SageObject):
                         v2_found = True
                 except StopIteration:
                     evs_alt2_end_reached = True
-
-    def certify_using_single_system(self) -> tuple:
-        r"""
-        Return whether this system has a solution and certify it.
-
-        .. NOTE::
-
-            This implementation uses one system for the alternative.
-
-        OUTPUT:
-        A tuple of a boolean and a list of vectors certifying the result.
-        """
-        m_A, length = self.A.dimensions()
-        m_B = self.B.nrows()
-
-        self.matrix_alternative = matrix.block(
-            [
-                [self.A.T, self.B.T, zero_matrix(length, 1)],
-                [matrix(1, -self.b), matrix(1, -self.c), matrix([[-1]])],
-                [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, 1)],
-                [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, 1)],
-                [zero_matrix(1, m_A), zero_matrix(1, m_B), matrix([[1]])],
-                [zero_matrix(1, m_A), ones_matrix(1, m_B), matrix([[1]])],
-            ]
-        )
-        self.intervals_alternative = (
-            (length + 1) * [interval_from_bounds(0, 0)]
-            + (m_A + m_B + 1) * [interval_from_bounds(0, 1)]
-            + [interval_from_bounds(0, 1, False, True)]
-        )
-
-        evs = elementary_vectors(self.matrix.T, generator=True)
-        evs_alt = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative.T)
-
-        evs_end_reached = False
-        evs_alt_end_reached = False
-        while True:
-            if not evs_end_reached:
-                try:
-                    v = next(evs)
-                    if not exists_orthogonal_vector_inhomogeneous(v, self.b, self.c):
-                        return False, [v]
-                except StopIteration:
-                    evs_end_reached = True
-
-            if not evs_alt_end_reached:
-                try:
-                    v = next(evs_alt)
-                    if not exists_orthogonal_vector_homogeneous(
-                        v, [-1], range(length + 1, length + m_A + m_B + 2)
-                    ):
-                        return True, v
-                except StopIteration:
-                    evs_alt_end_reached = True
