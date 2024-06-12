@@ -152,6 +152,7 @@ We consider another example::
 import warnings
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
+from sage.parallel.decorate import parallel
 from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
 from sage.structure.sage_object import SageObject
@@ -559,6 +560,72 @@ def certify_homogeneous(A, B, C) -> tuple:
                     return True, v
             except StopIteration:
                 evs_alt_end_reached = True
+
+
+def certify_homogeneous_random_parallel(A, B, C, number_parallel=4):
+    r"""
+    Return whether the system ``A x < 0, B x <= 0, C x = 0`` has a solution and certify it.
+
+    INPUT:
+
+    - ``A`` -- a matrix
+
+    - ``B`` -- a matrix
+
+    - ``C`` -- a matrix
+
+    - ``number_parallel`` -- number of parallel processes
+
+    OUTPUT:
+    A tuple of a boolean and a list of vectors certifying the result.
+    """
+    m_A, n = A.dimensions()
+    m_B = B.nrows()
+    M = matrix.block([[A.T, B.T, C.T]])
+    M_alt = matrix_homogeneous_alternative(A, B, C)
+
+    evs = random_elementary_vectors_function(M)
+    evs_alt = random_elementary_vectors_function(M_alt.T)
+
+    results = []
+
+    @parallel("reference")
+    def check_random_ev():
+        if results:
+            return
+        try:
+            v = evs()
+        except ValueError:
+            return
+        if not exists_orthogonal_vector_homogeneous(
+            v,
+            range(m_A),
+            range(m_A, m_A + m_B)
+        ):
+            results.append((False, v))
+
+    @parallel("reference")
+    def check_random_ev_alt():
+        if results:
+            return
+        try:
+            v = evs_alt()
+        except ValueError:
+            return
+        if not exists_orthogonal_vector_homogeneous(
+            v,
+            [n + m_A + m_B],
+            range(n, n + m_A + m_B)
+        ):
+            results.append((True, v))
+
+    while not results:
+        for _ in check_random_ev([()] * number_parallel):
+            pass
+        for _ in check_random_ev_alt([()] * number_parallel):
+            pass
+
+    return results[0]
 
 
 class HomogeneousSystem(SageObject):
