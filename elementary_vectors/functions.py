@@ -15,7 +15,6 @@ from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix
 
 from .utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples, is_symbolic
-from .reductions import reduce_vectors_support
 
 
 def elementary_vectors(
