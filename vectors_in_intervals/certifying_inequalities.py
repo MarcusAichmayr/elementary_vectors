@@ -628,6 +628,18 @@ def certify_homogeneous_random_parallel(A, B, C, number_parallel=4):
     return results[0]
 
 
+class LinearInequalitySystem(SageObject):
+    def __init__(self, matrices: list, ) -> None:
+        self.matrices = matrices
+    
+    def intervals(self) -> list:
+        pass
+        # use dimensions and strict, nonstrict to create intervals
+    
+    def elementary_vectors_generator(self):
+        # if there is one strict final inequality, return evs with nonzero last component
+        pass
+
 class HomogeneousSystem(SageObject):
     r"""
     A class for setting up and certifying homogeneous linear inequality systems.
@@ -829,6 +841,28 @@ class InhomogeneousSystem(SageObject):
             )
         return self._intervals
 
+    def matrix_homogenized(self):
+        if not hasattr(self, "_matrix_homogenized"):
+            length = self.A.ncols()
+            m_A = self.A.nrows()
+            m_B = self.B.nrows()
+            self._matrix_homogenized = matrix.block([
+                [self.A, matrix(m_A, -self.b)],
+                [self.B, matrix(m_B, -self.c)],
+                [zero_matrix(1, length), matrix([[-1]])]
+            ])
+        return self._matrix_homogenized
+
+    def intervals_homogenized(self):
+        if not hasattr(self, "_intervals_homogenized"):
+            m_A = self.A.nrows()
+            m_B = self.B.nrows()
+            self._intervals_homogenized = (
+                m_A * [interval_from_bounds(0, 1)]
+                + (m_B + 1) * [interval_from_bounds(0, 1, False, True)]
+            )
+        return self._intervals_homogenized
+
     def matrix_alternative(self):
         if not hasattr(self, "_matrix_alternative"):
             m_A = self.A.nrows()
@@ -926,7 +960,7 @@ class InhomogeneousSystem(SageObject):
 
         .. NOTE::
 
-            This implementation uses one system for the alternative.
+            This implementation uses one system for the second alternative.
 
         OUTPUT:
         A tuple of a boolean and a list of vectors certifying the result.
@@ -958,13 +992,54 @@ class InhomogeneousSystem(SageObject):
                 except StopIteration:
                     evs_alt_end_reached = True
 
+    def certify_using_homogenized_system(self) -> tuple:
+        r"""
+        Return whether this system has a solution and certify it.
+
+        .. NOTE::
+
+            A homogenized system is used for the first alternative.
+
+        OUTPUT:
+        A tuple of a boolean and a list of vectors certifying the result.
+        """
+        m_A, length = self.A.dimensions()
+        m_B = self.B.nrows()
+        self.matrix_homogenized()
+
+        evs = elementary_vectors(self._matrix_homogenized.T, generator=True)
+        evs_alt = elementary_vectors_generator_trailing_nonzero(self.matrix_alternative().T)
+
+        evs_end_reached = False
+        evs_alt_end_reached = False
+        while True:
+            if not evs_end_reached:
+                try:
+                    v = next(evs)
+                    if not exists_orthogonal_vector_homogeneous(
+                        v, range(m_A, m_A + m_B + 1), range(m_A + m_B + 1)
+                    ):
+                        return False, v
+                except StopIteration:
+                    evs_end_reached = True
+
+            if not evs_alt_end_reached:
+                try:
+                    v = next(evs_alt)
+                    if not exists_orthogonal_vector_homogeneous(
+                        v, [-1], range(length + 1, length + m_A + m_B + 2)
+                    ):
+                        return True, v
+                except StopIteration:
+                    evs_alt_end_reached = True
+
     def certify_using_two_systems(self) -> tuple:
         r"""
         Return whether the system has a solution and certify it.
 
         .. NOTE::
 
-            This implementation uses two systems for the alternative.
+            This implementation uses two systems for the second alternative.
 
         OUTPUT:
         A tuple of a boolean and a list of vectors certifying the result.
