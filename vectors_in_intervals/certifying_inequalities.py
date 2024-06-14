@@ -628,18 +628,6 @@ def certify_homogeneous_random_parallel(A, B, C, number_parallel=4):
     return results[0]
 
 
-class LinearInequalitySystem(SageObject):
-    def __init__(self, matrices: list, ) -> None:
-        self.matrices = matrices
-    
-    def intervals(self) -> list:
-        pass
-        # use dimensions and strict, nonstrict to create intervals
-    
-    def elementary_vectors_generator(self):
-        # if there is one strict final inequality, return evs with nonzero last component
-        pass
-
 class HomogeneousSystem(SageObject):
     r"""
     A class for setting up and certifying homogeneous linear inequality systems.
