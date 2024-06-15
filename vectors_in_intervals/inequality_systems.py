@@ -154,7 +154,7 @@ from sage.sets.real_set import RealSet
 from sage.structure.sage_object import SageObject
 
 from elementary_vectors import elementary_vectors
-from elementary_vectors.utility import elementary_vector_from_indices_prevent_multiples
+from elementary_vectors.utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples
 from vectors_in_intervals import exists_orthogonal_vector
 from .utility import interval_from_bounds
 
@@ -254,6 +254,68 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict) -> b
     )
 
 
+class CombinationsIncluding:
+    r"""
+    Combinatorical object of all combinations that include given elements
+    """
+    def __init__(self, mset, k, elements):
+        self.combinations = Combinations(set(range(mset)) - set(elements), k - len(elements))
+        self.elements = elements
+
+    def random_element(self) -> list:
+        return sorted(self.elements + self.combinations.random_element())
+
+    def generator(self, reverse=False):
+        if reverse:
+            for comb in reversed(self.combinations):
+                yield sorted(self.elements + comb)
+        else:
+            for comb in self.combinations:
+                yield sorted(self.elements + comb)
+
+
+def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=False):
+    r"""
+    Return generator of elementary vectors with nonzero first component.
+
+    INPUT:
+
+    - ``M`` -- a matrix
+
+    .. SEEALSO::
+
+        :func:`elementary_vectors.functions.elementary_vectors`
+    """
+    try:
+        M = M.matrix_from_rows(M.pivot_rows())
+    except (ArithmeticError, NotImplementedError):
+        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
+
+    if fixed_elements is None:
+        fixed_elements = []
+
+    rank, length = M.dimensions()
+    minors = {}
+
+    combinations = CombinationsIncluding(length, rank + 1, fixed_elements)
+
+    if random:
+        while True:
+            v = elementary_vector_from_indices(
+                combinations.random_element(),
+                minors,
+                M
+            )
+            if v:
+                yield v
+
+    for indices in combinations.generator(reverse=reverse):
+        v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
+        if v:
+            yield v
+
+
+# TODO remove
 def elementary_vectors_leading_nonzero_generator(M):
     r"""
     Return generator of elementary vectors with nonzero first component.
@@ -274,13 +336,10 @@ def elementary_vectors_leading_nonzero_generator(M):
     rank, length = M.dimensions()
     minors = {}
 
-    evs = (
-        elementary_vector_from_indices_prevent_multiples([0] + indices, minors, M)
-        for indices in reversed(Combinations(range(1, length), rank))
-    )
-    evs = (v for v in evs if v)
-
-    return evs
+    for indices in CombinationsIncluding(length, rank + 1, [0]).generator(reverse=True):
+        v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
+        if v:
+            yield v
 
 
 class LinearInequalitySystem(SageObject):
@@ -302,6 +361,9 @@ class LinearInequalitySystem(SageObject):
 
     def elementary_vectors_generator(self):
         return elementary_vectors(self.matrix.T, generator=True)
+
+    def random_elementary_vectors(self):
+        return elementary_vectors_generator(self.M.T, random=True)
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector(v, self.intervals)
@@ -328,8 +390,14 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def elementary_vectors_generator(self):
         if len(self.strict) == 1:
+            # TODO use new implementation but test first what is faster
             return elementary_vectors_leading_nonzero_generator(self.matrix.T)
         return super().elementary_vectors_generator()
+
+    def random_elementary_vectors(self):
+        if len(self.strict) == 1:
+            return elementary_vectors_generator(self.M.T, self.strict, random=True)
+        return super().random_elementary_vectors()
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector_homogeneous(v, self.strict, self.nonstrict)
