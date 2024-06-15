@@ -294,6 +294,9 @@ class LinearInequalitySystem(SageObject):
         self.intervals = intervals
         self.elementary_vectors = None
 
+    def _repr_(self) -> str:
+        return str(self.matrix) + " x in " + str(self.get_intervals())
+
     def set_elementary_vectors(self):
         self.elementary_vectors = self.elementary_vectors_generator()
 
@@ -351,7 +354,14 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
 
 class Alternatives(SageObject):
+    r"""
+    An abstract class for certifying linear inequality systems
+    """
     __slots__ = "one", "two"
+
+    def _repr_(self) -> str:
+        return f"Either\n{self.one}\nor\n{self.two}"
+
     def certify(self) -> tuple:
         r"""
         Return whether the first alternative has a solution.
