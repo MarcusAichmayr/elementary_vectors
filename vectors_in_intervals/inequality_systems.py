@@ -151,7 +151,6 @@ We consider another example::
 #############################################################################
 
 import warnings
-from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.parallel.decorate import parallel
 from sage.rings.infinity import Infinity
@@ -161,8 +160,7 @@ from sage.structure.sage_object import SageObject
 from elementary_vectors import elementary_vectors
 from elementary_vectors.utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples
 from vectors_in_intervals import exists_orthogonal_vector
-from .utility import interval_from_bounds
-
+from .utility import interval_from_bounds, CombinationsIncluding
 
 def exists_orthogonal_vector_inhomogeneous(v, b, c) -> bool:
     r"""
@@ -259,22 +257,6 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict) -> b
     )
 
 
-class CombinationsIncluding:
-    r"""
-    Combinatorical object of all combinations that include given elements
-    """
-    def __init__(self, mset, k, elements):
-        self.combinations = Combinations(set(range(mset)) - set(elements), k - len(elements))
-        self.elements = elements
-
-    def random_element(self) -> list:
-        return sorted(list(self.elements) + self.combinations.random_element())
-
-    def generator(self, reverse=False):
-        for comb in (reversed(self.combinations) if reverse else self.combinations):
-            yield sorted(list(self.elements) + comb)
-
-
 def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=False):
     r"""
     Return generator of elementary vectors with nonzero first component.
@@ -282,6 +264,12 @@ def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=F
     INPUT:
 
     - ``M`` -- a matrix
+
+    - ``fixed_elements`` -- a list of indices where a minor should be used
+
+    - ``reverse`` -- reverse the order of elements
+
+    - ``random`` -- randomly generate elements (repetition can occur)
 
     .. SEEALSO::
 

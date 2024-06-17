@@ -11,6 +11,7 @@
 #############################################################################
 
 from sage.categories.sets_cat import EmptySetError
+from sage.combinat.combination import Combinations
 from sage.functions.other import floor, ceil
 from sage.matrix.constructor import matrix
 from sage.misc.prandom import randint
@@ -304,3 +305,28 @@ def solve_left_for_roots(A, b):
     M = matrix(list(A) + [-b]).T.right_kernel_matrix()
     x = matrix(M.column(-1)).solve_right(vector([1]))
     return (x * M)[:-1]
+
+
+class CombinationsIncluding:
+    r"""
+    Combinatorical object of all combinations that include given elements
+
+    EXAMPLES:
+
+    We generate all subsets of ``range(4)`` with ``2`` elements that include the element ``2``::
+
+        sage: from vectors_in_intervals.utility import CombinationsIncluding
+        sage: C = CombinationsIncluding(4, 2, [2])
+        sage: list(C.generator())
+        [[0, 2], [1, 2], [2, 3]]
+    """
+    def __init__(self, mset, k, elements):
+        self.combinations = Combinations(set(range(mset)) - set(elements), k - len(elements))
+        self.elements = elements
+
+    def random_element(self) -> list:
+        return sorted(list(self.elements) + self.combinations.random_element())
+
+    def generator(self, reverse=False):
+        for comb in (reversed(self.combinations) if reverse else self.combinations):
+            yield sorted(list(self.elements) + comb)
