@@ -271,12 +271,8 @@ class CombinationsIncluding:
         return sorted(list(self.elements) + self.combinations.random_element())
 
     def generator(self, reverse=False):
-        if reverse:
-            for comb in reversed(self.combinations):
-                yield sorted(self.elements + comb)
-        else:
-            for comb in self.combinations:
-                yield sorted(self.elements + comb)
+        for comb in (reversed(self.combinations) if reverse else self.combinations):
+            yield sorted(list(self.elements) + comb)
 
 
 def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=False):
@@ -315,33 +311,6 @@ def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=F
                 yield v
 
     for indices in combinations.generator(reverse=reverse):
-        v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
-        if v:
-            yield v
-
-
-# TODO remove
-def elementary_vectors_leading_nonzero_generator(M):
-    r"""
-    Return generator of elementary vectors with nonzero first component.
-
-    INPUT:
-
-    - ``M`` -- a matrix
-
-    .. SEEALSO::
-
-        :func:`elementary_vectors.functions.elementary_vectors`
-    """
-    try:
-        M = M.matrix_from_rows(M.pivot_rows())
-    except (ArithmeticError, NotImplementedError):
-        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
-
-    rank, length = M.dimensions()
-    minors = {}
-
-    for indices in CombinationsIncluding(length, rank + 1, [0]).generator(reverse=True):
         v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
         if v:
             yield v
@@ -394,10 +363,12 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def elementary_vectors_generator(self, random=False):
         if len(self.strict) == 1:
-            if random:
-                return elementary_vectors_generator(self.matrix.T, self.strict, random=True)
-            # TODO use new implementation but test first what is faster
-            return elementary_vectors_leading_nonzero_generator(self.matrix.T)
+            return elementary_vectors_generator(
+                self.matrix.T,
+                self.strict,
+                reverse=True, # tends to find certificates faster
+                random=random
+            )
         return super().elementary_vectors_generator(random=random)
 
     def exists_orthogonal_vector(self, v) -> bool:
