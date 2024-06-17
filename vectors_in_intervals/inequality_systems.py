@@ -263,7 +263,7 @@ class CombinationsIncluding:
         self.elements = elements
 
     def random_element(self) -> list:
-        return sorted(self.elements + self.combinations.random_element())
+        return sorted(list(self.elements) + self.combinations.random_element())
 
     def generator(self, reverse=False):
         if reverse:
@@ -356,14 +356,13 @@ class LinearInequalitySystem(SageObject):
     def _repr_(self) -> str:
         return str(self.matrix) + " x in " + str(self.get_intervals())
 
-    def set_elementary_vectors(self):
-        self.elementary_vectors = self.elementary_vectors_generator()
+    def set_elementary_vectors(self, random=False):
+        self.elementary_vectors = self.elementary_vectors_generator(random=random)
 
-    def elementary_vectors_generator(self):
+    def elementary_vectors_generator(self, random=False):
+        if random:
+            return elementary_vectors_generator(self.matrix.T, random=True)
         return elementary_vectors(self.matrix.T, generator=True)
-
-    def random_elementary_vectors(self):
-        return elementary_vectors_generator(self.M.T, random=True)
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector(v, self.intervals)
@@ -388,16 +387,13 @@ class HomogeneousSystem(LinearInequalitySystem):
             + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [interval_from_bounds(0, 0)]
         )
 
-    def elementary_vectors_generator(self):
+    def elementary_vectors_generator(self, random=False):
         if len(self.strict) == 1:
+            if random:
+                return elementary_vectors_generator(self.matrix.T, self.strict, random=True)
             # TODO use new implementation but test first what is faster
             return elementary_vectors_leading_nonzero_generator(self.matrix.T)
-        return super().elementary_vectors_generator()
-
-    def random_elementary_vectors(self):
-        if len(self.strict) == 1:
-            return elementary_vectors_generator(self.M.T, self.strict, random=True)
-        return super().random_elementary_vectors()
+        return super().elementary_vectors_generator(random=random)
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector_homogeneous(v, self.strict, self.nonstrict)
@@ -430,7 +426,7 @@ class Alternatives(SageObject):
     def _repr_(self) -> str:
         return f"Either\n{self.one}\nor\n{self.two}"
 
-    def certify(self) -> tuple:
+    def certify(self, random=False) -> tuple:
         r"""
         Return whether the first alternative has a solution.
 
@@ -439,14 +435,15 @@ class Alternatives(SageObject):
         """
         systems = [self.one, self.two]
         for system in systems:
-            system.set_elementary_vectors()
+            system.set_elementary_vectors(random=random)
         while True:
             for i, system in enumerate(systems):
                 try:
                     v = next(system.elementary_vectors)
                     if not system.exists_orthogonal_vector(v):
                         return system.result, v
-                except StopIteration:
+                except (StopIteration, ValueError):
+                    # ValueError because of empty range for random combination
                     systems.pop(i)
                     break
 
