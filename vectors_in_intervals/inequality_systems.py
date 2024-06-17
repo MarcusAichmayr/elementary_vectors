@@ -314,6 +314,7 @@ class LinearInequalitySystem(SageObject):
     A class for linear inequality systems given by a matrix and intervals
     """
     __slots__ = "result", "matrix", "intervals", "elementary_vectors"
+
     def __init__(self, result, _matrix, intervals) -> None:
         self.result = result
         self.matrix = _matrix
@@ -342,6 +343,7 @@ class HomogeneousSystem(LinearInequalitySystem):
     ``A x > 0``, ``B x >= 0``, ``C x = 0``
     """
     __slots__ = "strict", "nonstrict"
+
     def __init__(self, result, A, B, C) -> None:
         super().__init__(result, matrix.block([[A], [B], [C]]), None)
         self.strict = range(A.nrows())
@@ -388,7 +390,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
 class Alternatives(SageObject):
     r"""
-    An abstract class for certifying linear inequality systems
+    An abstract class for certifying linear inequality systems.
     """
     __slots__ = "one", "two"
 
@@ -397,7 +399,7 @@ class Alternatives(SageObject):
 
     def certify(self, random=False) -> tuple:
         r"""
-        Return whether the first alternative has a solution.
+        Certify whether the first alternative has a solution.
 
         OUTPUT:
         A boolean, a vector certifying the result, and the number of needed iterations.
@@ -420,7 +422,7 @@ class Alternatives(SageObject):
 
 class AlternativesHomogeneous(Alternatives):
     r"""
-    A class for certifying homogeneous linear inequality systems
+    A class for certifying homogeneous linear inequality systems.
     """
     def __init__(self, A, B, C):
         self.one = HomogeneousSystem(False, A, B, C)
@@ -439,10 +441,24 @@ class AlternativesHomogeneous(Alternatives):
 
 
 def inhomogeneous_alternative1(A, B, b, c) -> InhomogeneousSystem:
+    r"""
+    A standard inhomogeneous linear inequality system.
+    
+    ``A x <= b``, ``B x < c``
+    """
     return InhomogeneousSystem(False, A, B, b, c)
 
 
 def inhomogeneous_alternative1_homogenized(A, B, b, c) -> HomogeneousSystem:
+    r"""
+    Homogenization of a standard inhomogeneous linear inequality system.
+
+    ```
+    [A -b]
+    [B -c] x in [0, oo)^p x (0, oo)^(q + 1)
+    [0 -1]
+    ```
+    """
     return HomogeneousSystem(
         False,
         matrix.block([
@@ -457,6 +473,9 @@ def inhomogeneous_alternative1_homogenized(A, B, b, c) -> HomogeneousSystem:
 
 
 def inhomogeneous_alternative2(A, B, b, c) -> HomogeneousSystem:
+    r"""
+    Alternative of a standard inhomogeneous linear inequality system.
+    """
     m_A = A.nrows()
     m_B = B.nrows()
     length = A.ncols()
@@ -474,6 +493,9 @@ def inhomogeneous_alternative2(A, B, b, c) -> HomogeneousSystem:
 
 
 def inhomogeneous_alternative2_system1(A, B, b, c) -> HomogeneousSystem:
+    r"""
+    Alternative of a standard inhomogeneous linear inequality system given by two systems.
+    """
     m_A = A.nrows()
     m_B = B.nrows()
     return HomogeneousSystem(
@@ -485,6 +507,9 @@ def inhomogeneous_alternative2_system1(A, B, b, c) -> HomogeneousSystem:
 
 
 def inhomogeneous_alternative2_system2(A, B, b, c) -> HomogeneousSystem:
+    r"""
+    Alternative of a standard inhomogeneous linear inequality system given by two systems.
+    """
     m_A = A.nrows()
     m_B = B.nrows()
     return HomogeneousSystem(
@@ -500,7 +525,7 @@ def inhomogeneous_alternative2_system2(A, B, b, c) -> HomogeneousSystem:
 
 class AlternativesInhomogeneous(Alternatives):
     r"""
-    A class for certifying inhomogeneous linear inequality systems
+    A class for certifying inhomogeneous linear inequality systems.
     """
     def __init__(self, A, B, b, c):
         self.one = inhomogeneous_alternative1(A, B, b, c)
@@ -509,7 +534,9 @@ class AlternativesInhomogeneous(Alternatives):
 
 class AlternativesInhomogeneousHomogenized(Alternatives):
     r"""
-    A class for certifying inhomogeneous linear inequality systems
+    A class for certifying inhomogeneous linear inequality systems.
+
+    A homogenized system is used for the first alternative
     """
     def __init__(self, A, B, b, c):
         self.one = inhomogeneous_alternative1_homogenized(A, B, b, c)
