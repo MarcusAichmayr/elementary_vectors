@@ -59,7 +59,7 @@ which consists of a single matrix and intervals::
 There is a single command for certification::
 
     sage: S.certify()
-    (True, (-1, -1, 0, -3, 0, 1))
+    (True, (-1, -1, 0, -3, 0, 1), 2)
 
 We consider another example::
 
@@ -68,7 +68,12 @@ We consider another example::
     sage: C = matrix([[-1, -1]])
     sage: S = AlternativesHomogeneous(A, B, C)
     sage: S.certify()
-    (False, (1, 1, 0, 1))
+    (False, (1, 1, 0, 1), 2)
+
+In some cases, it is faster to randomly generate elementary vectors to certify::
+
+    sage: S.certify(random=True) # random
+    (False, (0, -5, -1, -2), 2)
 
 Inhomogeneous systems
 ~~~~~~~~~~~~~~~~~~~~~
@@ -122,7 +127,7 @@ This system can be described by two matrices and two lists of intervals::
 The package offers a single function that certifies existence of a solution::
 
     sage: S.certify()
-    (True, (2, 2, 0, 0, 0, 4, -2, 2))
+    (True, (2, 2, 0, 0, 0, 4, -2, 2), 12)
 
 We consider another example::
 
@@ -132,7 +137,7 @@ We consider another example::
     sage: c = vector([0])
     sage: S = AlternativesInhomogeneous(A, B, b, c)
     sage: S.certify()
-    (False, (0, 1, 1))
+    (False, (0, 1, 1), 1)
 """
 
 #############################################################################
@@ -431,17 +436,19 @@ class Alternatives(SageObject):
         Return whether the first alternative has a solution.
 
         OUTPUT:
-        A boolean and a vector certifying the result.
+        A boolean, a vector certifying the result, and the number of needed iterations.
         """
         systems = [self.one, self.two]
+        needed_iterations = 0
         for system in systems:
             system.set_elementary_vectors(random=random)
         while True:
+            needed_iterations += 1
             for i, system in enumerate(systems):
                 try:
                     v = next(system.elementary_vectors)
                     if not system.exists_orthogonal_vector(v):
-                        return system.result, v
+                        return system.result, v, needed_iterations
                 except (StopIteration, ValueError):
                     # ValueError because of empty range for random combination
                     systems.pop(i)
