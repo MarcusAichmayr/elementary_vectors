@@ -163,6 +163,57 @@ from elementary_vectors.utility import elementary_vector_from_indices, elementar
 from vectors_in_intervals import exists_orthogonal_vector
 from .utility import interval_from_bounds, CombinationsIncluding
 
+
+def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=False):
+    r"""
+    Return generator of elementary vectors with nonzero first component.
+
+    INPUT:
+
+    - ``M`` -- a matrix
+
+    - ``fixed_elements`` -- a list of indices where a minor should be used
+
+    - ``reverse`` -- reverse the order of elements
+
+    - ``random`` -- randomly generate elements (repetition can occur)
+
+    .. SEEALSO::
+
+        :func:`elementary_vectors.functions.elementary_vectors`
+    """
+    try:
+        M = M.matrix_from_rows(M.pivot_rows())
+    except (ArithmeticError, NotImplementedError):
+        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
+
+    rank, length = M.dimensions()
+    minors = {}
+
+    if fixed_elements is None:
+        combinations = Combinations(length, rank + 1)
+    else:
+        combinations = CombinationsIncluding(length, rank + 1, fixed_elements)
+
+    if random:
+        try:
+            while True:
+                v = elementary_vector_from_indices(
+                    combinations.random_element(),
+                    minors,
+                    M
+                )
+                if v:
+                    yield v
+        except ValueError as exc:
+            raise StopIteration("Kernel of matrix is empty. Could not generate elementary vectors.") from exc
+
+    for indices in combinations.generator(reverse=reverse):
+        v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
+        if v:
+            yield v
+
+
 def exists_orthogonal_vector_inhomogeneous(v, b, c) -> bool:
     r"""
     Return whether there exists an orthogonal vector ``z = (z_1, z_2)`` to ``v`` satisfying ``z_1 <= b, z_2 < c``.
@@ -256,56 +307,6 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict) -> b
             )
         )
     )
-
-
-def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=False):
-    r"""
-    Return generator of elementary vectors with nonzero first component.
-
-    INPUT:
-
-    - ``M`` -- a matrix
-
-    - ``fixed_elements`` -- a list of indices where a minor should be used
-
-    - ``reverse`` -- reverse the order of elements
-
-    - ``random`` -- randomly generate elements (repetition can occur)
-
-    .. SEEALSO::
-
-        :func:`elementary_vectors.functions.elementary_vectors`
-    """
-    try:
-        M = M.matrix_from_rows(M.pivot_rows())
-    except (ArithmeticError, NotImplementedError):
-        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
-
-    rank, length = M.dimensions()
-    minors = {}
-
-    if fixed_elements is None:
-        combinations = Combinations(length, rank + 1)
-    else:
-        combinations = CombinationsIncluding(length, rank + 1, fixed_elements)
-
-    if random:
-        try:
-            while True:
-                v = elementary_vector_from_indices(
-                    combinations.random_element(),
-                    minors,
-                    M
-                )
-                if v:
-                    yield v
-        except ValueError as exc:
-            raise StopIteration("Kernel of matrix is empty. Could not generate elementary vectors.") from exc
-
-    for indices in combinations.generator(reverse=reverse):
-        v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
-        if v:
-            yield v
 
 
 class LinearInequalitySystem(SageObject):
