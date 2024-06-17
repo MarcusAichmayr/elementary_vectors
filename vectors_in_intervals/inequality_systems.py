@@ -151,6 +151,7 @@ We consider another example::
 #############################################################################
 
 import warnings
+from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.parallel.decorate import parallel
 from sage.rings.infinity import Infinity
@@ -280,23 +281,26 @@ def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=F
     except (ArithmeticError, NotImplementedError):
         warnings.warn("Could not determine rank of matrix. Expect wrong result!")
 
-    if fixed_elements is None:
-        fixed_elements = []
-
     rank, length = M.dimensions()
     minors = {}
 
-    combinations = CombinationsIncluding(length, rank + 1, fixed_elements)
+    if fixed_elements is None:
+        combinations = Combinations(length, rank + 1)
+    else:
+        combinations = CombinationsIncluding(length, rank + 1, fixed_elements)
 
     if random:
-        while True:
-            v = elementary_vector_from_indices(
-                combinations.random_element(),
-                minors,
-                M
-            )
-            if v:
-                yield v
+        try:
+            while True:
+                v = elementary_vector_from_indices(
+                    combinations.random_element(),
+                    minors,
+                    M
+                )
+                if v:
+                    yield v
+        except ValueError as exc:
+            raise StopIteration("Kernel of matrix is empty. Could not generate elementary vectors.") from exc
 
     for indices in combinations.generator(reverse=reverse):
         v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
@@ -408,8 +412,7 @@ class Alternatives(SageObject):
                     v = next(system.elementary_vectors)
                     if not system.exists_orthogonal_vector(v):
                         return system.result, v, needed_iterations
-                except (StopIteration, ValueError):
-                    # ValueError because of empty range for random combination
+                except StopIteration:
                     systems.pop(i)
                     break
 
