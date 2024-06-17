@@ -129,6 +129,16 @@ The package offers a single function that certifies existence of a solution::
     sage: S.certify()
     (True, (2, 2, 0, 0, 0, 4, -2, 2), 12)
 
+The alternatives for the inhomogeneous case can be formulated differently.
+The resulting systems yield different certificates::
+
+    sage: S = AlternativesInhomogeneousHomogenized(A, B, b, c)
+    sage: S.certify()
+    (True, (2, 2, 0, 0, 0, 4, -2, 2), 12)
+    sage: S = AlternativesInhomogeneousDoubleSystem(A, B, b, c)
+    sage: S.certify()
+    (True, [(-2, 0, -1, 0, 0, 1, 0), (-2, -1, 0, 0, -5, 2)], 5)
+
 We consider another example::
 
     sage: A = matrix([[1, 0], [1, 1]])
@@ -136,6 +146,12 @@ We consider another example::
     sage: b = vector([1, 0])
     sage: c = vector([0])
     sage: S = AlternativesInhomogeneous(A, B, b, c)
+    sage: S.certify()
+    (False, (0, 1, 1), 1)
+    sage: S = AlternativesInhomogeneousHomogenized(A, B, b, c)
+    sage: S.certify()
+    (False, (0, 1, 0, 1), 1)
+    sage: S = AlternativesInhomogeneousDoubleSystem(A, B, b, c)
     sage: S.certify()
     (False, (0, 1, 1), 1)
 """
@@ -151,6 +167,7 @@ We consider another example::
 #############################################################################
 
 import warnings
+from copy import copy
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.parallel.decorate import parallel
@@ -514,10 +531,10 @@ def inhomogeneous_alternative2_system2(A, B, b, c) -> HomogeneousSystem:
     m_B = B.nrows()
     return HomogeneousSystem(
         True,
-        [zero_matrix(1, m_A), ones_matrix(1, m_B)],
+        matrix.block([[zero_matrix(1, m_A), ones_matrix(1, m_B)]]),
         matrix.block([
-            [-b.row(), -c.row()],
-            identity_matrix(m_A + m_B),
+            [matrix.block([[-b.row(), -c.row()]])],
+            [identity_matrix(m_A + m_B)],
         ]),
         matrix.block([[A.T, B.T]])
     )
@@ -541,3 +558,44 @@ class AlternativesInhomogeneousHomogenized(Alternatives):
     def __init__(self, A, B, b, c):
         self.one = inhomogeneous_alternative1_homogenized(A, B, b, c)
         self.two = inhomogeneous_alternative2(A, B, b, c)
+
+
+class AlternativesInhomogeneousDoubleSystem(Alternatives):
+    r"""
+    A class for certifying inhomogeneous linear inequality systems.
+
+    Two systems are used for the second alternative
+    """
+    def __init__(self, A, B, b, c):
+        self.one = inhomogeneous_alternative1(A, B, b, c)
+        self.two = inhomogeneous_alternative2_system1(A, B, b, c)
+        self.three = inhomogeneous_alternative2_system2(A, B, b, c)
+
+    def certify(self, random=False) -> tuple:
+        r"""
+        Certify whether the first alternative has a solution.
+
+        OUTPUT:
+        A boolean, vectors certifying the result, and the number of needed iterations.
+        """
+        systems = {0: self.one, 1: self.two, 2: self.three}
+        needed_iterations = 0
+        for system in systems.values():
+            system.set_elementary_vectors(random=random)
+
+        certificates = {}
+        while True:
+            needed_iterations += 1
+            for i, system in copy(systems).items():
+                try:
+                    v = next(system.elementary_vectors)
+                    if not system.exists_orthogonal_vector(v):
+                        if i == 0:
+                            return system.result, v, needed_iterations
+                        certificates[i] = v
+                        if len(certificates) == 2:
+                            return system.result, list(certificates.values()), needed_iterations
+                        systems.pop(i)
+                except StopIteration:
+                    systems.pop(i)
+                    break
