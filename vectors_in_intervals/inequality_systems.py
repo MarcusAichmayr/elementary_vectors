@@ -167,6 +167,7 @@ We consider another example::
 #############################################################################
 
 import warnings
+from collections.abc import Generator
 from copy import copy
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
@@ -180,7 +181,7 @@ from vectors_in_intervals import exists_orthogonal_vector
 from .utility import interval_from_bounds, CombinationsIncluding
 
 
-def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=False):
+def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=False) -> Generator:
     r"""
     Return generator of elementary vectors with nonzero first component.
 

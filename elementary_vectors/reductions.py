@@ -11,6 +11,8 @@ r"""Reducing and simplifying lists of vectors"""
 #############################################################################
 
 import operator
+from collections.abc import Generator
+
 from sage.arith.misc import gcd
 from sage.modules.free_module_element import vector
 from sage.symbolic.ring import SR
@@ -199,7 +201,7 @@ def reduce_vectors_support(vectors, generator: bool = False):
         [(0, 0, 0, 0, 0)]
     """
 
-    def reduce_vectors_support_generator(vectors):
+    def reduce_vectors_support_generator(vectors) -> Generator:
         r"""Return a generator of vectors where elements with same support are removed."""
         checked_supports = set()
         for element in vectors:
@@ -213,7 +215,7 @@ def reduce_vectors_support(vectors, generator: bool = False):
     return list(reduce_vectors_support_generator(vectors))
 
 
-def remove_zero_vectors(vectors):
+def remove_zero_vectors(vectors) -> list:
     r"""
     Remove all zero vectors from this list.
 
@@ -234,7 +236,7 @@ def reduce_vectors(
     cancel_factors: bool = False,
     reduce_support: bool = True,
     remove_zeros: bool = True,
-):
+) -> list:
     r"""
     Reduces this list of vectors.
 
