@@ -20,7 +20,7 @@ Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deals with t
 :math:`A x > 0, B x \geq 0, C x = 0`::
 
     sage: from vectors_in_intervals import *
-    sage: from vectors_in_intervals.certifying_inequalities import *
+    sage: from vectors_in_intervals.certifying_inequalities_old import *
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
@@ -83,7 +83,7 @@ If no solution exists, this function can be used to certify the result.
 To demonstrate this, consider the following example::
 
     sage: from vectors_in_intervals import *
-    sage: from vectors_in_intervals.certifying_inequalities import *
+    sage: from vectors_in_intervals.certifying_inequalities_old import *
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: b = vector([1, -1])
@@ -214,7 +214,7 @@ def exists_orthogonal_vector_inhomogeneous(v, b, c) -> bool:
 
     TESTS::
 
-        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: from vectors_in_intervals.certifying_inequalities_old import *
         sage: from vectors_in_intervals import *
         sage: A = matrix([[1, 2], [0, 1], [2, 0]])
         sage: B = matrix([[2, 3], [0, 2]])
@@ -266,7 +266,7 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict) -> b
 
     TESTS::
 
-        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: from vectors_in_intervals.certifying_inequalities_old import *
         sage: from vectors_in_intervals import *
         sage: A = matrix([[1, 2], [0, 1]])
         sage: B = matrix([[2, 3], [0, -1]])
@@ -636,7 +636,7 @@ class HomogeneousSystem(SageObject):
 
     EXAMPLES::
 
-        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: from vectors_in_intervals.certifying_inequalities_old import *
         sage: A = matrix([[1, 2], [0, 1]])
         sage: B = matrix([[2, 3]])
         sage: C = matrix([[-1, 0]])
@@ -754,7 +754,7 @@ class InhomogeneousSystem(SageObject):
     EXAMPLES::
 
         sage: from vectors_in_intervals import *
-        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: from vectors_in_intervals.certifying_inequalities_old import *
         sage: A = matrix([[1, 2], [0, 1]])
         sage: B = matrix([[2, 3]])
         sage: b = vector([1, -1])
