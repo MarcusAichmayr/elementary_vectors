@@ -175,7 +175,6 @@ from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
 from sage.structure.sage_object import SageObject
 
-from elementary_vectors import elementary_vectors
 from elementary_vectors.utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples
 from vectors_in_intervals import exists_orthogonal_vector
 from .utility import interval_from_bounds, CombinationsIncluding
