@@ -320,7 +320,7 @@ class CombinationsIncluding:
         sage: list(C.generator())
         [[0, 2], [1, 2], [2, 3]]
     """
-    def __init__(self, mset, k, elements):
+    def __init__(self, mset, k, elements=None):
         self.combinations = Combinations(set(range(mset)) - set(elements), k - len(elements))
         self.elements = elements
 
