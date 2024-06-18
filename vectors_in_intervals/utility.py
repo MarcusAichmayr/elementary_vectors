@@ -10,6 +10,8 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from collections.abc import Generator
+
 from sage.categories.sets_cat import EmptySetError
 from sage.combinat.combination import Combinations
 from sage.functions.other import floor, ceil
@@ -317,16 +319,25 @@ class CombinationsIncluding:
 
         sage: from vectors_in_intervals.utility import CombinationsIncluding
         sage: C = CombinationsIncluding(4, 2, [2])
-        sage: list(C.generator())
+        sage: list(C)
         [[0, 2], [1, 2], [2, 3]]
+        sage: list(reversed(C))
+        [[2, 3], [1, 2], [0, 2]]
     """
     def __init__(self, mset, k, elements=None):
         self.combinations = Combinations(set(range(mset)) - set(elements), k - len(elements))
-        self.elements = elements
+        if elements is None:
+            self.elements = []
+        else:
+            self.elements = elements
+
+    def __iter__(self) -> Generator[list]:
+        for comb in self.combinations:
+            yield sorted(list(self.elements) + comb)
+    
+    def __reversed__(self) -> Generator[list]:
+        for comb in reversed(self.combinations):
+            yield sorted(list(self.elements) + comb)
 
     def random_element(self) -> list:
         return sorted(list(self.elements) + self.combinations.random_element())
-
-    def generator(self, reverse=False):
-        for comb in (reversed(self.combinations) if reverse else self.combinations):
-            yield sorted(list(self.elements) + comb)

@@ -225,7 +225,7 @@ def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=F
         except ValueError as exc:
             raise StopIteration("Kernel of matrix is empty. Could not generate elementary vectors.") from exc
 
-    for indices in combinations.generator(reverse=reverse):
+    for indices in (reversed(combinations) if reverse else combinations):
         v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
         if v:
             yield v
