@@ -68,7 +68,7 @@ We consider another example::
     sage: C = matrix([[-1, -1]])
     sage: S = AlternativesHomogeneous(A, B, C)
     sage: S.certify()
-    (False, (1, 1, 0, 1), 2)
+    (False, (0, -5, -1, -2), 1)
 
 In some cases, it is faster to randomly generate elementary vectors to certify::
 
@@ -341,13 +341,11 @@ class LinearInequalitySystem(SageObject):
     def _repr_(self) -> str:
         return str(self.matrix) + " x in " + str(self.get_intervals())
 
-    def set_elementary_vectors(self, random=False):
-        self.elementary_vectors = self.elementary_vectors_generator(random=random)
+    def set_elementary_vectors(self, reverse=False, random=False):
+        self.elementary_vectors = self.elementary_vectors_generator(reverse=reverse, random=random)
 
-    def elementary_vectors_generator(self, random=False):
-        if random:
-            return elementary_vectors_generator(self.matrix.T, random=True)
-        return elementary_vectors(self.matrix.T, generator=True)
+    def elementary_vectors_generator(self, reverse=False, random=False):
+        return elementary_vectors_generator(self.matrix.T, reverse=reverse, random=random)
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector(v, self.intervals)
@@ -373,15 +371,15 @@ class HomogeneousSystem(LinearInequalitySystem):
             + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [interval_from_bounds(0, 0)]
         )
 
-    def elementary_vectors_generator(self, random=False):
+    def elementary_vectors_generator(self, reverse=False, random=False):
         if len(self.strict) == 1:
             return elementary_vectors_generator(
                 self.matrix.T,
                 self.strict,
-                reverse=True, # tends to find certificates faster
+                reverse=reverse,
                 random=random
             )
-        return super().elementary_vectors_generator(random=random)
+        return super().elementary_vectors_generator(reverse=reverse, random=random)
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector_homogeneous(v, self.strict, self.nonstrict)
@@ -414,9 +412,13 @@ class Alternatives(SageObject):
     def _repr_(self) -> str:
         return f"Either\n{self.one}\nor\n{self.two}"
 
-    def certify(self, random=False) -> tuple:
+    def certify(self, reverse=True, random=False) -> tuple:
         r"""
         Certify whether the first alternative has a solution.
+
+        - ``reverse`` -- reverses the order of elementary vectors
+
+        - ``random`` -- randomizes computed elementary vectors (repetition possible)
 
         OUTPUT:
         A boolean, a vector certifying the result, and the number of needed iterations.
@@ -424,7 +426,7 @@ class Alternatives(SageObject):
         systems = [self.one, self.two]
         needed_iterations = 0
         for system in systems:
-            system.set_elementary_vectors(random=random)
+            system.set_elementary_vectors(reverse=reverse, random=random)
         while True:
             needed_iterations += 1
             for i, system in enumerate(systems):
@@ -571,7 +573,7 @@ class AlternativesInhomogeneousDoubleSystem(Alternatives):
         self.two = inhomogeneous_alternative2_system1(A, B, b, c)
         self.three = inhomogeneous_alternative2_system2(A, B, b, c)
 
-    def certify(self, random=False) -> tuple:
+    def certify(self, reverse=True, random=False) -> tuple:
         r"""
         Certify whether the first alternative has a solution.
 
@@ -581,7 +583,7 @@ class AlternativesInhomogeneousDoubleSystem(Alternatives):
         systems = {0: self.one, 1: self.two, 2: self.three}
         needed_iterations = 0
         for system in systems.values():
-            system.set_elementary_vectors(random=random)
+            system.set_elementary_vectors(reverse=reverse, random=random)
 
         certificates = {}
         while True:
