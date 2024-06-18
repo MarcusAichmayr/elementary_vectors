@@ -126,7 +126,7 @@ This system can be described by two matrices and two lists of intervals::
 The package offers a single function that certifies existence of a solution::
 
     sage: S.certify()
-    (True, (-4, 2, -2, -2, 0, 0, 0, -2))
+    (True, (-4, 2, -2, -2, 0, 0, 0, -2), 1)
 
 We consider another example::
 
@@ -136,7 +136,7 @@ We consider another example::
     sage: c = vector([0])
     sage: S = InhomogeneousSystem(A, B, b, c)
     sage: S.certify()
-    (False, [(0, 1, 1)])
+    (False, (0, 1, 1), 1)
 """
 
 #############################################################################
@@ -784,7 +784,7 @@ class InhomogeneousSystem(SageObject):
         sage: S.intervals_alternative()
         [{0}, {0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
         sage: S.certify()
-        (True, (-4, 2, -2, -2, 0, 0, 0, -2))
+        (True, (-4, 2, -2, -2, 0, 0, 0, -2), 1)
         sage: S.certify_using_two_systems()
         (True, [(5, -2, 1, 0, 0, 2), (-1, 0, 1, 0, 0, 0, 2)])
 
@@ -796,7 +796,7 @@ class InhomogeneousSystem(SageObject):
         sage: c = vector([0])
         sage: S = InhomogeneousSystem(A, B, b, c)
         sage: S.certify()
-        (False, [(0, 1, 1)])
+        (False, (0, 1, 1), 1)
     """
 
     def __init__(self, A, B, b, c) -> None:
@@ -961,12 +961,14 @@ class InhomogeneousSystem(SageObject):
 
         evs_end_reached = False
         evs_alt_end_reached = False
+        needed_iterations = 0
         while True:
+            needed_iterations += 1
             if not evs_end_reached:
                 try:
                     v = next(evs)
                     if not exists_orthogonal_vector_inhomogeneous(v, self.b, self.c):
-                        return False, [v]
+                        return False, v, needed_iterations
                 except StopIteration:
                     evs_end_reached = True
 
@@ -976,7 +978,7 @@ class InhomogeneousSystem(SageObject):
                     if not exists_orthogonal_vector_homogeneous(
                         v, [-1], range(length + 1, length + m_A + m_B + 2)
                     ):
-                        return True, v
+                        return True, v, needed_iterations
                 except StopIteration:
                     evs_alt_end_reached = True
 
@@ -1000,14 +1002,16 @@ class InhomogeneousSystem(SageObject):
 
         evs_end_reached = False
         evs_alt_end_reached = False
+        needed_iterations = 0
         while True:
+            needed_iterations += 1
             if not evs_end_reached:
                 try:
                     v = next(evs)
                     if not exists_orthogonal_vector_homogeneous(
                         v, range(m_A, m_A + m_B + 1), range(m_A + m_B + 1)
                     ):
-                        return False, v
+                        return False, v, needed_iterations
                 except StopIteration:
                     evs_end_reached = True
 
@@ -1017,7 +1021,7 @@ class InhomogeneousSystem(SageObject):
                     if not exists_orthogonal_vector_homogeneous(
                         v, [-1], range(length + 1, length + m_A + m_B + 2)
                     ):
-                        return True, v
+                        return True, v, needed_iterations
                 except StopIteration:
                     evs_alt_end_reached = True
 
