@@ -214,8 +214,8 @@ def exists_orthogonal_vector_inhomogeneous(v, b, c) -> bool:
 
     TESTS::
 
-        sage: from vectors_in_intervals.certifying_inequalities_old import *
         sage: from vectors_in_intervals import *
+        sage: from vectors_in_intervals.certifying_inequalities_old import *
         sage: A = matrix([[1, 2], [0, 1], [2, 0]])
         sage: B = matrix([[2, 3], [0, 2]])
         sage: b = vector([1, -1, 2])

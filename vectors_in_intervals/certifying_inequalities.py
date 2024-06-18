@@ -20,7 +20,7 @@ Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deals with t
 :math:`A x > 0, B x \geq 0, C x = 0`::
 
     sage: from vectors_in_intervals import *
-    sage: from vectors_in_intervals.inequality_systems import *
+    sage: from vectors_in_intervals.certifying_inequalities import *
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
@@ -249,13 +249,14 @@ def exists_orthogonal_vector_inhomogeneous(v, b, c) -> bool:
 
     TESTS::
 
-        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: from elementary_vectors import *
         sage: from vectors_in_intervals import *
+        sage: from vectors_in_intervals.certifying_inequalities import *
         sage: A = matrix([[1, 2], [0, 1], [2, 0]])
         sage: B = matrix([[2, 3], [0, 2]])
         sage: b = vector([1, -1, 2])
         sage: c = vector([2, 3])
-        sage: I = bc_to_intervals(b, c)
+        sage: I = [interval_from_bounds(-Infinity, bi) for bi in b] + [interval_from_bounds(-Infinity, ci, False, False) for ci in c]
         sage: M = matrix.block([[A.T, B.T]])
         sage: for v in elementary_vectors(M, generator=True):
         ....:     assert(exists_orthogonal_vector(v, I) == exists_orthogonal_vector_inhomogeneous(v, b, c))
@@ -301,13 +302,18 @@ def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict) -> b
 
     TESTS::
 
-        sage: from vectors_in_intervals.certifying_inequalities import *
+        sage: from elementary_vectors import *
         sage: from vectors_in_intervals import *
+        sage: from vectors_in_intervals.certifying_inequalities import *
         sage: A = matrix([[1, 2], [0, 1]])
         sage: B = matrix([[2, 3], [0, -1]])
         sage: C = matrix([[-1, 0], [1, 1]])
         sage: M = matrix.block([[A.T, B.T, C.T]])
-        sage: I = intervals_homogeneous(A, B, C)
+        sage: I = (
+        ....:     2 * [interval_from_bounds(0, Infinity, False, False)]
+        ....:     + 2 * [interval_from_bounds(0, Infinity)]
+        ....:     + 2 * [interval_from_bounds(0, 0)]
+        ....: )
         sage: for v in elementary_vectors(M, generator=True):
         ....:     assert(exists_orthogonal_vector(v, I) == exists_orthogonal_vector_homogeneous(v, range(A.nrows()), range(A.nrows(), A.nrows() + B.nrows())))
     """
