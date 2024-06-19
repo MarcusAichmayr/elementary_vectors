@@ -129,13 +129,10 @@ The package offers a single function that certifies existence of a solution::
     sage: S.certify()
     (True, (2, 2, 0, 0, 0, 4, -2, 2), 12)
 
-The alternatives for the inhomogeneous case can be formulated differently.
+The alternatives for the inhomogeneous case can be formulated using two systems.
 The resulting systems yield different certificates::
 
-    sage: S = AlternativesInhomogeneousHomogenized(A, B, b, c)
-    sage: S.certify()
-    (True, (2, 2, 0, 0, 0, 4, -2, 2), 12)
-    sage: S = AlternativesInhomogeneousDoubleSystem(A, B, b, c)
+    sage: S = AlternativesInhomogeneous(A, B, b, c, two_double_system=True)
     sage: S.certify()
     (True, [(-2, 0, -1, 0, 0, 1, 0), (-2, -1, 0, 0, -5, 2)], 5)
 
@@ -148,12 +145,12 @@ We consider another example::
     sage: S = AlternativesInhomogeneous(A, B, b, c)
     sage: S.certify()
     (False, (0, 1, 1), 1)
-    sage: S = AlternativesInhomogeneousHomogenized(A, B, b, c)
+
+We can homogenized the first alternative yielding a different system::
+
+    sage: S = AlternativesInhomogeneous(A, B, b, c, one_homogenized=True)
     sage: S.certify()
     (False, (0, 1, 0, 1), 1)
-    sage: S = AlternativesInhomogeneousDoubleSystem(A, B, b, c)
-    sage: S.certify()
-    (False, (0, 1, 1), 1)
 """
 
 #############################################################################
@@ -448,6 +445,8 @@ class Alternatives(SageObject):
 class AlternativesHomogeneous(Alternatives):
     r"""
     A class for certifying homogeneous linear inequality systems.
+
+    ``A x > 0``, ``B x >= 0``, ``C x = 0``
     """
     def __init__(self, A, B, C):
         self.one = HomogeneousSystem(False, A, B, C)
@@ -551,33 +550,27 @@ def inhomogeneous_alternative2_system2(A, B, b, c) -> HomogeneousSystem:
 class AlternativesInhomogeneous(Alternatives):
     r"""
     A class for certifying inhomogeneous linear inequality systems.
+
+    ``A x <= b``, ``B x < c``
+
+    INPUT:
+
+    - To use a homogenized representation of the first alternative,
+    pass ``one_homogenized=True``.
+    - To use two systems for the second alternative instead of a homogenized system,
+    pass ``two_double_system=True``.
     """
-    def __init__(self, A, B, b, c):
-        self.one = inhomogeneous_alternative1(A, B, b, c)
-        self.two = inhomogeneous_alternative2(A, B, b, c)
-
-
-class AlternativesInhomogeneousHomogenized(Alternatives):
-    r"""
-    A class for certifying inhomogeneous linear inequality systems.
-
-    A homogenized system is used for the first alternative
-    """
-    def __init__(self, A, B, b, c):
-        self.one = inhomogeneous_alternative1_homogenized(A, B, b, c)
-        self.two = inhomogeneous_alternative2(A, B, b, c)
-
-
-class AlternativesInhomogeneousDoubleSystem(Alternatives):
-    r"""
-    A class for certifying inhomogeneous linear inequality systems.
-
-    Two systems are used for the second alternative
-    """
-    def __init__(self, A, B, b, c):
-        self.one = inhomogeneous_alternative1(A, B, b, c)
-        self.two = inhomogeneous_alternative2_system1(A, B, b, c)
-        self.three = inhomogeneous_alternative2_system2(A, B, b, c)
+    def __init__(self, A, B, b, c, one_homogenized=False, two_double_system=False):
+        if one_homogenized:
+            self.one = inhomogeneous_alternative1_homogenized(A, B, b, c)
+        else:
+            self.one = inhomogeneous_alternative1(A, B, b, c)
+        
+        if two_double_system:
+            self.two = inhomogeneous_alternative2_system1(A, B, b, c)
+            self.three = inhomogeneous_alternative2_system2(A, B, b, c)
+        else:
+            self.two = inhomogeneous_alternative2(A, B, b, c)
 
     def certify(self, reverse=True, random=False) -> tuple:
         r"""
@@ -586,6 +579,9 @@ class AlternativesInhomogeneousDoubleSystem(Alternatives):
         OUTPUT:
         A boolean, vectors certifying the result, and the number of needed iterations.
         """
+        if not hasattr(self, "three"):
+            return super().certify()
+
         systems = {0: self.one, 1: self.two, 2: self.three}
         needed_iterations = 0
         for system in systems.values():
