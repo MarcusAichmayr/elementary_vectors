@@ -486,11 +486,11 @@ def inhomogeneous_alternative1_homogenized(A, B, b, c) -> HomogeneousSystem:
     r"""
     Homogenization of a standard inhomogeneous linear inequality system.
 
-    ```
-    [A -b]
-    [B -c] x in [0, oo)^p x (0, oo)^(q + 1)
-    [0 -1]
-    ```
+    The system has this form::
+
+        [A -b]
+        [B -c] x in [0, oo)^p x (0, oo)^(q + 1)
+        [0 -1]
     """
     return HomogeneousSystem(
         False,
@@ -564,10 +564,9 @@ class AlternativesInhomogeneous(Alternatives):
 
     INPUT:
 
-    - To use a homogenized representation of the first alternative,
-    pass ``one_homogenized=True``.
-    - To use two systems for the second alternative instead of a homogenized system,
-    pass ``two_double_system=True``.
+    - To use a homogenized representation of the first alternative, pass ``one_homogenized=True``.
+
+    - To use two systems for the second alternative instead of a homogenized system, pass ``two_double_system=True``.
     """
     def __init__(self, A, B, b, c, one_homogenized=False, two_double_system=False):
         if one_homogenized:
