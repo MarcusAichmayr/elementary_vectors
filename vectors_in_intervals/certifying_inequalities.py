@@ -368,11 +368,16 @@ class HomogeneousSystem(LinearInequalitySystem):
         self.nonstrict = range(A.nrows(), A.nrows() + B.nrows())
 
     def get_intervals(self) -> list:
-        return (
-            len(self.strict) * [interval_from_bounds(0, Infinity, False, False)]
-            + len(self.nonstrict) * [interval_from_bounds(0, Infinity)]
-            + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [interval_from_bounds(0, 0)]
-        )
+        return [
+            interval_from_bounds(0, Infinity, False, False)
+            if i in self.strict else
+            (
+                interval_from_bounds(0, Infinity)
+                if i in self.nonstrict else
+                interval_from_bounds(0, 0)
+            )
+            for i in range(self.matrix.nrows())
+        ]
 
     def elementary_vectors_generator(self, reverse=False, random=False):
         if len(self.strict) == 1:
