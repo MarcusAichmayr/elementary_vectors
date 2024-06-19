@@ -480,12 +480,14 @@ def certify_inhomogeneous(A, B, b, c) -> tuple:
 
     v1_found = False
     v2_found = False
+    needed_iterations = 0
     while True:
+        needed_iterations += 1
         if not evs_end_reached:
             try:
                 v = next(evs)
                 if not exists_orthogonal_vector_inhomogeneous(v, b, c):
-                    return False, [v]
+                    return False, [v], needed_iterations
             except StopIteration:
                 evs_end_reached = True
 
@@ -496,7 +498,7 @@ def certify_inhomogeneous(A, B, b, c) -> tuple:
                     v1, [-1], range(length, length + m_A + m_B)
                 ):
                     if v2_found:
-                        return True, [v1, v2]
+                        return True, [v1, v2], needed_iterations
                     v1_found = True
             except StopIteration:
                 evs_alt1_end_reached = True
@@ -540,14 +542,16 @@ def certify_homogeneous(A, B, C) -> tuple:
 
     evs_end_reached = False
     evs_alt_end_reached = False
+    needed_iterations = 0
     while True:
+        needed_iterations += 1
         if not evs_end_reached:
             try:
                 v = next(evs)
                 if not exists_orthogonal_vector_homogeneous(
                     v, range(m_A), range(m_A, m_A + m_B)
                 ):
-                    return False, v
+                    return False, v, needed_iterations
             except StopIteration:
                 evs_end_reached = True
 
@@ -557,7 +561,7 @@ def certify_homogeneous(A, B, C) -> tuple:
                 if not exists_orthogonal_vector_homogeneous(
                     v, [-1], range(length, length + m_A + m_B)
                 ):
-                    return True, v
+                    return True, v, needed_iterations
             except StopIteration:
                 evs_alt_end_reached = True
 
@@ -723,14 +727,16 @@ class HomogeneousSystem(SageObject):
 
         evs_end_reached = False
         evs_alt_end_reached = False
+        needed_iterations = 0
         while True:
+            needed_iterations += 1
             if not evs_end_reached:
                 try:
                     v = next(evs)
                     if not exists_orthogonal_vector_homogeneous(
                         v, range(m_A), range(m_A, m_A + m_B)
                     ):
-                        return False, v
+                        return False, v, needed_iterations
                 except StopIteration:
                     evs_end_reached = True
 
@@ -740,7 +746,7 @@ class HomogeneousSystem(SageObject):
                     if not exists_orthogonal_vector_homogeneous(
                         v, [-1], range(length, length + m_A + m_B)
                     ):
-                        return True, v
+                        return True, v, needed_iterations
                 except StopIteration:
                     evs_alt_end_reached = True
 
@@ -1052,12 +1058,14 @@ class InhomogeneousSystem(SageObject):
 
         v1_found = False
         v2_found = False
+        needed_iterations = 0
         while True:
+            needed_iterations += 1
             if not evs_end_reached:
                 try:
                     v = next(evs)
                     if not exists_orthogonal_vector_inhomogeneous(v, self.b, self.c):
-                        return False, [v]
+                        return False, v, needed_iterations
                 except StopIteration:
                     evs_end_reached = True
 
@@ -1068,7 +1076,7 @@ class InhomogeneousSystem(SageObject):
                         v1, [-1], range(length, length + m_A + m_B)
                     ):
                         if v2_found:
-                            return True, [v1, v2]
+                            return True, [v1, v2], needed_iterations
                         v1_found = True
                 except StopIteration:
                     evs_alt1_end_reached = True
