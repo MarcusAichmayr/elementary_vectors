@@ -367,6 +367,10 @@ class HomogeneousSystem(LinearInequalitySystem):
         self.strict = range(A.nrows())
         self.nonstrict = range(A.nrows(), A.nrows() + B.nrows())
 
+        # super().__init__(result, matrix.block([[C], [B], [A]]), None)
+        # self.strict = range(C.nrows() + B.nrows(), C.nrows() + B.nrows() + A.nrows())
+        # self.nonstrict = range(C.nrows(), C.nrows() + B.nrows())
+
     def get_intervals(self) -> list:
         return [
             interval_from_bounds(0, Infinity, False, False)
