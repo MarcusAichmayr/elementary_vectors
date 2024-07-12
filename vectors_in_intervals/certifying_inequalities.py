@@ -20,7 +20,6 @@ Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deals with t
 :math:`A x > 0, B x \geq 0, C x = 0`::
 
     sage: from vectors_in_intervals import *
-    sage: from vectors_in_intervals.certifying_inequalities import *
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
@@ -87,7 +86,6 @@ If no solution exists, this function can be used to certify the result.
 To demonstrate this, consider the following example::
 
     sage: from vectors_in_intervals import *
-    sage: from vectors_in_intervals.certifying_inequalities import *
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: b = vector([1, -1])
