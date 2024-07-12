@@ -60,7 +60,7 @@ which consists of a single matrix and intervals::
 There is a single command for certification::
 
     sage: S.certify()
-    (True, (0, 1, -1, 0, -3, -1))
+    (True, (0, 1, -1, 0, -3, -1), 3)
 
 We consider another example::
 
@@ -69,7 +69,7 @@ We consider another example::
     sage: C = matrix([[-1, -1]])
     sage: S = HomogeneousSystem(A, B, C)
     sage: S.certify()
-    (False, (1, 1, 0, 1))
+    (False, (1, 1, 0, 1), 2)
 
 Inhomogeneous systems
 ~~~~~~~~~~~~~~~~~~~~~
@@ -667,7 +667,7 @@ class HomogeneousSystem(SageObject):
         sage: S.intervals_alternative
         [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
         sage: S.certify()
-        (True, (0, 1, -1, 0, -3, -1))
+        (True, (0, 1, -1, 0, -3, -1), 3)
 
     We consider another example::
 
@@ -676,7 +676,7 @@ class HomogeneousSystem(SageObject):
         sage: C = matrix([[-1, -1]])
         sage: S = HomogeneousSystem(A, B, C)
         sage: S.certify()
-        (False, (1, 1, 0, 1))
+        (False, (1, 1, 0, 1), 2)
     """
     def __init__(self, A, B, C) -> None:
         r"""
