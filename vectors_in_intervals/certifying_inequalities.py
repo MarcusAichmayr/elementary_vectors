@@ -673,7 +673,7 @@ class AlternativesInhomogeneous(Alternatives):
                     break
 
 
-def alternatives_general(M, I):
+def alternatives_general(M, I, one_homogenized=False, two_double_system=False):
     r"""
     Return a system of alternatives for general linear inequality systems.
 
@@ -682,6 +682,10 @@ def alternatives_general(M, I):
     - ``M`` -- a matrix with m rows
 
     - ``I`` -- a list of m intervals
+
+    - To use a homogenized representation of the first alternative, pass ``one_homogenized=True``.
+
+    - To use two systems for the second alternative instead of a homogenized system, pass ``two_double_system=True``.
 
     OUTPUT:
     The resulting system lets us certify whether ``M x in I`` has a solution.
@@ -706,9 +710,12 @@ def alternatives_general(M, I):
             else:
                 B_list.append(Mi)
                 c_list.append(Ii.sup())
+
     return AlternativesInhomogeneous(
         matrix(len(A_list), M.ncols(), A_list),
         matrix(len(B_list), M.ncols(), B_list),
         vector(b_list),
-        vector(c_list)
+        vector(c_list),
+        one_homogenized=one_homogenized,
+        two_double_system=two_double_system
     )
