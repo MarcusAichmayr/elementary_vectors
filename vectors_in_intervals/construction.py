@@ -510,7 +510,7 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
     EXAMPLES::
 
         sage: from vectors_in_intervals import *
-        sage: M = matrix([1, 1, 0])
+        sage: M = matrix([[1], [1], [0]])
         sage: lower_bounds = [2, 5, -1]
         sage: upper_bounds = [5, 6, 1]
 
@@ -542,7 +542,7 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
         sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
         sage: I
         [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
-        sage: construct_vector(M, I)
+        sage: construct_vector(M.T, I)
         (2, 5, 7, 5)
 
     TESTS:
@@ -556,21 +556,21 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
         ....:     [False, True, True, True, False, True],
         ....:     [False, True, False, False, False, True]
         ....: )
-        sage: construct_vector(M, I)
+        sage: construct_vector(M.T, I)
         (-1/4, -1/4, 0, -1/4, 1/4, 0)
 
     Other special cases::
 
-        sage: M = zero_matrix(QQ, 1, 3)
+        sage: M = zero_matrix(QQ, 3, 1)
         sage: I = intervals_from_bounds([-1, -1, -1], [1, 1, 1], False, True)
         sage: construct_vector(M, I)
         (0, 0, 0)
-        sage: M = matrix([[0, 0], [1, 1]])
+        sage: M = matrix([[0, 1], [0, 1]])
         sage: I = intervals_from_bounds([0, 0], [1, 1], False, True)
         sage: construct_vector(M, I)
         (1, 1)
     """
-    if not exists_vector(evs if evs else M.T, intervals):
+    if not exists_vector(evs if evs else M, intervals):
         raise ValueError("There is no solution.")
 
     def recursive_construct_vector(M, intervals):
@@ -619,4 +619,4 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
         )
         return v.simplify_full() if hasattr(v, "simplify_full") else v
 
-    return recursive_construct_vector(M, intervals)
+    return recursive_construct_vector(M.T, intervals)

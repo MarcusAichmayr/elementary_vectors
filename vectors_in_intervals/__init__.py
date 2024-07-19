@@ -85,7 +85,7 @@ First, we consider closed intervals::
     [[2, 5], [5, 6], [-1, 1]]
     sage: exists_vector(M, I)
     True
-    sage: construct_vector(M.T, I)
+    sage: construct_vector(M, I)
     (5, 5, 0)
 
 Next, we take open intervals. This time, there is no solution::
@@ -95,7 +95,7 @@ Next, we take open intervals. This time, there is no solution::
     [(2, 5), (5, 6), (-1, 1)]
     sage: exists_vector(M, I)
     False
-    sage: construct_vector(M.T, I)
+    sage: construct_vector(M, I)
     Traceback (most recent call last):
     ...
     ValueError: There is no solution.
@@ -112,7 +112,7 @@ Finally, we consider unbounded intervals::
     [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
     sage: exists_vector(M, I)
     True
-    sage: construct_vector(M.T, I)
+    sage: construct_vector(M, I)
     (2, 5, 7, 5)
 """
 
