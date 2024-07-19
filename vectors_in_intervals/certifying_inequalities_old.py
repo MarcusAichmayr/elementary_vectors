@@ -34,7 +34,7 @@ Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deals with t
     [-1  0]
     sage: S.intervals
     [(0, +oo), (0, +oo), [0, +oo), {0}]
-    sage: exists_vector(S.matrix.T, S.intervals)
+    sage: exists_vector(S.matrix, S.intervals)
     True
 
 The certify the result, we consider the alternative system
@@ -52,9 +52,9 @@ which consists of a single matrix and intervals::
     [ 1  1| 0| 0]
     sage: S.intervals_alternative
     [{0}, {0}, [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative)
+    sage: exists_vector(S.matrix_alternative, S.intervals_alternative)
     False
-    sage: exists_vector(S.matrix_alternative.T, S.intervals_alternative, certify=True)
+    sage: exists_vector(S.matrix_alternative, S.intervals_alternative, certify=True)
     (0, 1, -1, 0, -3, -1)
 
 There is a single command for certification::
@@ -96,7 +96,7 @@ To demonstrate this, consider the following example::
     [2 3]
     sage: S.intervals()
     [(-oo, 1], (-oo, -1], (-oo, 2)]
-    sage: exists_vector(S.matrix().T, S.intervals())
+    sage: exists_vector(S.matrix(), S.intervals())
     True
 
 However, to certify existence of a solution, we need to consider the alternative system.
@@ -118,9 +118,9 @@ This system can be described by two matrices and two lists of intervals::
     [ 0  0| 1| 1]
     sage: S.intervals_alternative()
     [{0}, {0}, {0}, [0, 1], [0, 1], [0, 1], [0, 1], (0, 1]]
-    sage: exists_vector(S.matrix_alternative().T, S.intervals_alternative())
+    sage: exists_vector(S.matrix_alternative(), S.intervals_alternative())
     False
-    sage: exists_vector(S.matrix_alternative().T, S.intervals_alternative(), certify=True)
+    sage: exists_vector(S.matrix_alternative(), S.intervals_alternative(), certify=True)
     (-4, 2, -2, -2, 0, 0, 0, -2)
 
 The package offers a single function that certifies existence of a solution::

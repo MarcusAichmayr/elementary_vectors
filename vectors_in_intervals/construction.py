@@ -491,9 +491,9 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
 
     INPUT:
 
-    - ``M`` -- a matrix with ``n`` columns
+    - ``M`` -- a matrix with ``m`` columns
 
-    - ``intervals`` -- a list of ``n`` intervals
+    - ``intervals`` -- a list of ``m`` intervals
 
     - ``evs`` -- an optional iterable of elementary vectors
 
@@ -570,7 +570,7 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
         sage: construct_vector(M, I)
         (1, 1)
     """
-    if not exists_vector(evs if evs else M, intervals):
+    if not exists_vector(evs if evs else M.T, intervals):
         raise ValueError("There is no solution.")
 
     def recursive_construct_vector(M, intervals):

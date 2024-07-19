@@ -62,7 +62,7 @@ We can also work with unbounded intervals::
     sage: I = intervals_from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
     sage: I
     [(0, +oo), (1, 2], (-oo, -2)]
-    sage: v = vector([-1,1,-1])
+    sage: v = vector([-1, 1, -1])
     sage: exists_orthogonal_vector(v, I)
     True
     sage: construct_orthogonal_vector(v, I)
@@ -74,7 +74,7 @@ Given a matrix ``M`` and a list of intervals,
 we want to examine whether there exists a vector in the row space of ``M``,
 such that the components lie in the given intervals::
 
-    sage: M = matrix([1, 1, 0])
+    sage: M = matrix([[1], [1], [0]])
     sage: lower_bounds = [2, 5, -1]
     sage: upper_bounds = [5, 6, 1]
 
@@ -85,7 +85,7 @@ First, we consider closed intervals::
     [[2, 5], [5, 6], [-1, 1]]
     sage: exists_vector(M, I)
     True
-    sage: construct_vector(M, I)
+    sage: construct_vector(M.T, I)
     (5, 5, 0)
 
 Next, we take open intervals. This time, there is no solution::
@@ -95,14 +95,14 @@ Next, we take open intervals. This time, there is no solution::
     [(2, 5), (5, 6), (-1, 1)]
     sage: exists_vector(M, I)
     False
-    sage: construct_vector(M, I)
+    sage: construct_vector(M.T, I)
     Traceback (most recent call last):
     ...
     ValueError: There is no solution.
 
 Finally, we consider unbounded intervals::
 
-    sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
+    sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
     sage: lower_bounds = [2, 5, 0, -oo]
     sage: upper_bounds = [5, oo, 8, 5]
     sage: lower_bounds_closed = [True, True, False, False]
@@ -112,7 +112,7 @@ Finally, we consider unbounded intervals::
     [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
     sage: exists_vector(M, I)
     True
-    sage: construct_vector(M, I)
+    sage: construct_vector(M.T, I)
     (2, 5, 7, 5)
 """
 

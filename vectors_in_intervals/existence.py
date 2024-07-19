@@ -111,21 +111,18 @@ def exists_orthogonal_vector(v, intervals: list[RealSet]) -> bool:
 
 def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool:
     r"""
-    Check whether a vector exists in a given vector space with components in given intervals.
+    Check whether the system ``M x in I`` has a solution.
 
     INPUT:
 
-    - ``data`` -- either a real matrix with ``n`` columns or a list of
-                  elementary vectors of length ``n``
+    - ``data`` -- either a matrix ``M`` with ``m`` rows or a list of
+                  elementary vectors (in the kernel of ``M``) of length ``m``
 
-    - ``intervals`` -- a list of ``n`` intervals
+    - ``intervals`` -- a list of ``m`` intervals ``I``
 
     - ``certify`` -- a boolean (default: ``False``)
 
     OUTPUT:
-
-    Return whether there exists a vector in a given vector space
-    such that the components lie in specified intervals using elementary vectors.
 
     - If ``data`` is a matrix, check if a vector in the row space lies in the intervals.
 
@@ -144,7 +141,7 @@ def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool
     EXAMPLES::
 
         sage: from vectors_in_intervals import *
-        sage: M = matrix([1, 1, 0])
+        sage: M = matrix([[1], [1], [0]])
         sage: lower_bounds = [2, 5, -1]
         sage: upper_bounds = [5, 6, 1]
 
@@ -182,7 +179,7 @@ def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool
 
     Finally, we consider unbounded intervals::
 
-        sage: M = matrix([[1, 0, 1, 0], [0, 1, 1, 1]])
+        sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
         sage: lower_bounds = [2, 5, 0, -oo]
         sage: upper_bounds = [5, oo, 8, 5]
         sage: lower_bounds_closed = [True, True, False, False]
@@ -200,22 +197,22 @@ def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool
         [(0, 1], {}]
         sage: exists_vector([], I)
         False
-        sage: M = random_matrix(QQ, 0, 2)
+        sage: M = random_matrix(QQ, 2, 0)
         sage: exists_vector(M, I)
         False
-        sage: M = random_matrix(QQ, 0, 1)
+        sage: M = random_matrix(QQ, 1, 0)
         sage: exists_vector(M, I)
         Traceback (most recent call last):
         ...
-        ValueError: Number of columns of matrix ``data`` and length of ``intervals`` do not match.
+        ValueError: Number of rows of matrix ``data`` and length of ``intervals`` do not match.
     """
-    if hasattr(data, "ncols") and data.ncols() != len(intervals):
+    if hasattr(data, "nrows") and data.nrows() != len(intervals):
         raise ValueError(
-            "Number of columns of matrix ``data`` and length of ``intervals`` do not match."
+            "Number of rows of matrix ``data`` and length of ``intervals`` do not match."
         )
     if any(interval.is_empty() for interval in intervals):
         return False
-    evs = data if isinstance(data, list) else elementary_vectors(data, generator=True)
+    evs = data if isinstance(data, list) else elementary_vectors(data.T, generator=True)
     for v in evs:
         if not exists_orthogonal_vector(v, intervals):
             return v if certify else False
