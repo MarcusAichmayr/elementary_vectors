@@ -149,6 +149,67 @@ We can homogenized the first alternative yielding a different system::
     sage: S = AlternativesInhomogeneous(A, B, b, c, one_homogenized=True)
     sage: S.certify()
     (False, (0, 1, 0, 1), 1)
+
+General systems
+~~~~~~~~~~~~~~~
+
+By translating systems of the form ``M x in I`` into inhomogeneous systems,
+we can certify general systems::
+
+    sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
+    sage: M
+    [1 0]
+    [0 1]
+    [1 1]
+    [0 1]
+    sage: lower_bounds = [2, 5, 0, -oo]
+    sage: upper_bounds = [5, oo, 8, 5]
+    sage: lower_bounds_closed = [True, True, False, False]
+    sage: upper_bounds_closed = [False, False, False, True]
+    sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+    sage: I
+    [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
+    sage: exists_vector(M, I) # no certificate
+    True
+    sage: S = alternatives_general(M, I)
+    sage: S.one.matrix
+    [-1  0]
+    [ 0 -1]
+    [ 0  1]
+    [-----]
+    [ 1  0]
+    [-1 -1]
+    [ 1  1]
+    sage: S.one.get_intervals()
+    [(-oo, -2], (-oo, -5], (-oo, 5], (-oo, 5), (-oo, 0), (-oo, 8)]
+    sage: S.two.matrix
+    [ 0  0  0  1  1  1  1]
+    [--------------------]
+    [ 1  0  0  0  0  0  0]
+    [ 0  1  0  0  0  0  0]
+    [ 0  0  1  0  0  0  0]
+    [ 0  0  0  1  0  0  0]
+    [ 0  0  0  0  1  0  0]
+    [ 0  0  0  0  0  1  0]
+    [ 0  0  0  0  0  0  1]
+    [--------------------]
+    [-1  0  0  1 -1  1  0]
+    [ 0 -1  1  0 -1  1  0]
+    [ 2  5 -5 -5  0 -8 -1]
+    sage: S.two.get_intervals()
+    [(0, +oo),
+     [0, +oo),
+     [0, +oo),
+     [0, +oo),
+     [0, +oo),
+     [0, +oo),
+     [0, +oo),
+     [0, +oo),
+     {0},
+     {0},
+     {0}]
+    sage: S.certify()
+    (True, (1, 0, 0, 0, 2, 6, 0, 0, 2, 5, 1), 3)
 """
 
 #############################################################################
@@ -166,6 +227,7 @@ from collections.abc import Generator
 from copy import copy
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
+from sage.modules.free_module_element import vector
 from sage.parallel.decorate import parallel
 from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
@@ -609,3 +671,44 @@ class AlternativesInhomogeneous(Alternatives):
                 except StopIteration:
                     systems.pop(i)
                     break
+
+
+def alternatives_general(M, I):
+    r"""
+    Return a system of alternatives for general linear inequality systems.
+
+    INPUT:
+
+    - ``M`` -- a matrix with m rows
+
+    - ``I`` -- a list of m intervals
+
+    OUTPUT:
+    The resulting system lets us certify whether ``M x in I`` has a solution.
+    """
+    A_list = []
+    B_list = []
+    b_list = []
+    c_list = []
+
+    for Mi, Ii in zip(M, I):
+        if Ii.inf() != -Infinity:
+            if Ii.inf() in Ii:
+                A_list.append(-Mi)
+                b_list.append(-Ii.inf())
+            else:
+                B_list.append(-Mi)
+                c_list.append(-Ii.inf())
+        if Ii.sup() != Infinity:
+            if Ii.sup() in Ii:
+                A_list.append(Mi)
+                b_list.append(Ii.sup())
+            else:
+                B_list.append(Mi)
+                c_list.append(Ii.sup())
+    return AlternativesInhomogeneous(
+        matrix(len(A_list), M.ncols(), A_list),
+        matrix(len(B_list), M.ncols(), B_list),
+        vector(b_list),
+        vector(c_list)
+    )
