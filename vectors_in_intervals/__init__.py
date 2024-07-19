@@ -135,7 +135,7 @@ from .setup_intervals import (
     intervals_from_sign_vector,
 )
 from .existence import exists_vector, exists_orthogonal_vector
-from .certifying_inequalities import AlternativesHomogeneous, AlternativesInhomogeneous, alternatives_general
+from .certifying_inequalities import AlternativesHomogeneous, AlternativesInhomogeneous, AlternativesGeneral
 from .construction import (
     construct_vector,
     construct_orthogonal_vector,

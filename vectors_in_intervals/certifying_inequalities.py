@@ -167,21 +167,16 @@ we can certify general systems::
     sage: lower_bounds_closed = [True, True, False, False]
     sage: upper_bounds_closed = [False, False, False, True]
     sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
-    sage: I
-    [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
     sage: exists_vector(M, I) # no certificate
     True
-    sage: S = alternatives_general(M, I)
+    sage: S = AlternativesGeneral(M, I)
     sage: S.one.matrix
-    [-1  0]
-    [ 0 -1]
-    [ 0  1]
-    [-----]
-    [ 1  0]
-    [-1 -1]
-    [ 1  1]
+    [1 0]
+    [0 1]
+    [1 1]
+    [0 1]
     sage: S.one.get_intervals()
-    [(-oo, -2], (-oo, -5], (-oo, 5], (-oo, 5), (-oo, 0), (-oo, 8)]
+    [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
     sage: S.two.matrix
     [ 0  0  0  1  1  1  1]
     [--------------------]
@@ -197,17 +192,7 @@ we can certify general systems::
     [ 0 -1  1  0 -1  1  0]
     [ 2  5 -5 -5  0 -8 -1]
     sage: S.two.get_intervals()
-    [(0, +oo),
-     [0, +oo),
-     [0, +oo),
-     [0, +oo),
-     [0, +oo),
-     [0, +oo),
-     [0, +oo),
-     [0, +oo),
-     {0},
-     {0},
-     {0}]
+    [(0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), {0}, {0}, {0}]
     sage: S.certify()
     (True, (1, 0, 0, 0, 2, 6, 0, 0, 2, 5, 1), 3)
 """
@@ -621,6 +606,52 @@ def inhomogeneous_alternative2_system2(A, B, b, c) -> HomogeneousSystem:
     )
 
 
+def general_to_inhomogeneous(M, I) -> tuple:
+    r"""
+    Translate a general system into an inhomogeneous system.
+
+    INPUT:
+
+    - ``M`` -- a matrix with m rows
+
+    - ``I`` -- a list of m intervals
+
+    - To use a homogenized representation of the first alternative, pass ``one_homogenized=True``.
+
+    - To use two systems for the second alternative instead of a homogenized system, pass ``two_double_system=True``.
+
+    OUTPUT:
+    Matrices ``A``, ``B`` and vectors ``b``, ``c`` describing the equivalent system ``A x <= b``, ``B x < c``.
+    """
+    A_list = []
+    B_list = []
+    b_list = []
+    c_list = []
+
+    for Mi, Ii in zip(M, I):
+        if Ii.inf() != -Infinity:
+            if Ii.inf() in Ii:
+                A_list.append(-Mi)
+                b_list.append(-Ii.inf())
+            else:
+                B_list.append(-Mi)
+                c_list.append(-Ii.inf())
+        if Ii.sup() != Infinity:
+            if Ii.sup() in Ii:
+                A_list.append(Mi)
+                b_list.append(Ii.sup())
+            else:
+                B_list.append(Mi)
+                c_list.append(Ii.sup())
+
+    return (
+        matrix(len(A_list), M.ncols(), A_list),
+        matrix(len(B_list), M.ncols(), B_list),
+        vector(b_list),
+        vector(c_list)
+    )
+
+
 class AlternativesInhomogeneous(Alternatives):
     r"""
     A class for certifying inhomogeneous linear inequality systems.
@@ -678,49 +709,8 @@ class AlternativesInhomogeneous(Alternatives):
                     break
 
 
-def alternatives_general(M, I, one_homogenized=False, two_double_system=False):
-    r"""
-    Return a system of alternatives for general linear inequality systems.
-
-    INPUT:
-
-    - ``M`` -- a matrix with m rows
-
-    - ``I`` -- a list of m intervals
-
-    - To use a homogenized representation of the first alternative, pass ``one_homogenized=True``.
-
-    - To use two systems for the second alternative instead of a homogenized system, pass ``two_double_system=True``.
-
-    OUTPUT:
-    The resulting system lets us certify whether ``M x in I`` has a solution.
-    """
-    A_list = []
-    B_list = []
-    b_list = []
-    c_list = []
-
-    for Mi, Ii in zip(M, I):
-        if Ii.inf() != -Infinity:
-            if Ii.inf() in Ii:
-                A_list.append(-Mi)
-                b_list.append(-Ii.inf())
-            else:
-                B_list.append(-Mi)
-                c_list.append(-Ii.inf())
-        if Ii.sup() != Infinity:
-            if Ii.sup() in Ii:
-                A_list.append(Mi)
-                b_list.append(Ii.sup())
-            else:
-                B_list.append(Mi)
-                c_list.append(Ii.sup())
-
-    return AlternativesInhomogeneous(
-        matrix(len(A_list), M.ncols(), A_list),
-        matrix(len(B_list), M.ncols(), B_list),
-        vector(b_list),
-        vector(c_list),
-        one_homogenized=one_homogenized,
-        two_double_system=two_double_system
-    )
+class AlternativesGeneral(Alternatives):
+    r"""Alternatives for a general system ``M x in I``."""
+    def __init__(self, M, I):
+        self.one = LinearInequalitySystem(False, M, I)
+        self.two = inhomogeneous_alternative2(*general_to_inhomogeneous(M, I))
