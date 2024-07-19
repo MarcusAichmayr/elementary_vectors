@@ -404,6 +404,9 @@ class LinearInequalitySystem(SageObject):
     def _repr_(self) -> str:
         return str(self.matrix) + " x in " + str(self.get_intervals())
 
+    def get_intervals(self):
+        return self.intervals
+
     def set_elementary_vectors(self, reverse=False, random=False):
         self.elementary_vectors = self.elementary_vectors_generator(reverse=reverse, random=random)
 
@@ -432,7 +435,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         # self.nonstrict = range(C.nrows(), C.nrows() + B.nrows())
 
     def get_intervals(self) -> list:
-        return [
+        self.intervals = [
             interval_from_bounds(0, Infinity, False, False)
             if i in self.strict else
             (
@@ -442,6 +445,7 @@ class HomogeneousSystem(LinearInequalitySystem):
             )
             for i in range(self.matrix.nrows())
         ]
+        return self.intervals
 
     def elementary_vectors_generator(self, reverse=False, random=False):
         if len(self.strict) == 1:
@@ -469,7 +473,8 @@ class InhomogeneousSystem(LinearInequalitySystem):
         self.c = c
 
     def get_intervals(self) -> list:
-        return [interval_from_bounds(-Infinity, bi) for bi in self.b] + [interval_from_bounds(-Infinity, ci, False, False) for ci in self.c]
+        self.intervals = [interval_from_bounds(-Infinity, bi) for bi in self.b] + [interval_from_bounds(-Infinity, ci, False, False) for ci in self.c]
+        return self.intervals
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector_inhomogeneous(v, self.b, self.c)
