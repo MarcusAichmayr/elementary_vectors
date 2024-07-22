@@ -28,7 +28,6 @@ To install this SageMath package, visit the `repository on GitHub <https://githu
 .. autosummary::
     :toctree: generated
 
-    vectors_in_intervals
     vectors_in_intervals.setup_intervals
     vectors_in_intervals.existence
     vectors_in_intervals.construction
