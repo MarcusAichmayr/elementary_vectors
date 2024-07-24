@@ -1,10 +1,8 @@
-# Sign vectors
+# Elementary vectors
 
 ## Description
 
-a Sage package to work with elementary vectors, sign vectors and oriented matroids
-
-This package is still in development. Please inform me if something doesn't work as expected.
+a SageMath package to work with elementary vectors, linear inequality systems, sign vectors and oriented matroids
 
 ## License
 
@@ -15,7 +13,7 @@ LICENSE file), either version 3 or (at your option) any later version
 
 ## Requirements
 
-Sage 9.0 or later is recommended. Some features should work with older versions.
+Sage 9.0 or later is recommended.
 
 ## Installation
 

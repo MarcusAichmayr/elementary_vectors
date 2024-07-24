@@ -1,6 +1,7 @@
 __pycache__/
 *.egg-info/
 build/
+dist/
 generated/
 
 .vscode/
