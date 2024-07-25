@@ -264,8 +264,8 @@ def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=F
                 )
                 if v:
                     yield v
-        except ValueError as exc:
-            raise StopIteration("Kernel of matrix is empty. Could not generate elementary vectors.") from exc
+        except ValueError: # no elementary vectors
+            return
 
     for indices in (reversed(combinations) if reverse else combinations):
         v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
@@ -663,6 +663,18 @@ class AlternativesInhomogeneous(Alternatives):
     - To use a homogenized representation of the first alternative, pass ``one_homogenized=True``.
 
     - To use two systems for the second alternative instead of a homogenized system, pass ``two_double_system=True``.
+
+    TESTS::
+
+        sage: A = matrix([[1]])
+        sage: B = matrix(0, 1)
+        sage: b = vector([1])
+        sage: c = vector([])
+        sage: S = AlternativesInhomogeneous(A, B, b, c)
+        sage: S.certify()
+        (True, (-1, 0, 0, -1, -1), 2)
+        sage: S.certify(random=True)[0]
+        True
     """
     def __init__(self, A, B, b, c, one_homogenized=False, two_double_system=False):
         if one_homogenized:
