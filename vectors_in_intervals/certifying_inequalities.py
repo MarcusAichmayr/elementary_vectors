@@ -606,7 +606,7 @@ def inhomogeneous_alternative2_system2(A, B, b, c) -> HomogeneousSystem:
     )
 
 
-def general_to_inhomogeneous(M, I) -> tuple:
+def inhomogeneous_from_general(M, I) -> tuple:
     r"""
     Translate a general system into an inhomogeneous system.
 
@@ -652,7 +652,7 @@ def general_to_inhomogeneous(M, I) -> tuple:
     )
 
 
-def inhomogeneous_to_homogeneous(A, B, b, c) -> tuple:
+def homogeneous_from_inhomogeneous(A, B, b, c) -> tuple:
     r"""
     Convert an inhomogeneous system to a homogeneous system.
 
@@ -666,7 +666,7 @@ def inhomogeneous_to_homogeneous(A, B, b, c) -> tuple:
     )
 
 
-def general_to_homogeneous(M, I) -> tuple:
+def homogeneous_from_general(M, I) -> tuple:
     r"""
     Convert a general system to a homogeneous system.
 
@@ -679,7 +679,7 @@ def general_to_homogeneous(M, I) -> tuple:
     OUTPUT:
     Matrices ``A``, ``B``, ``C`` describing the homogeneous system.
     """
-    return inhomogeneous_to_homogeneous(*general_to_inhomogeneous(M, I))
+    return homogeneous_from_inhomogeneous(*inhomogeneous_from_general(M, I))
 
 
 class AlternativesInhomogeneous(Alternatives):
@@ -756,4 +756,4 @@ class AlternativesGeneral(Alternatives):
     r"""Alternatives for a general system ``M x in I``."""
     def __init__(self, M, I):
         self.one = LinearInequalitySystem(False, M, I)
-        self.two = inhomogeneous_alternative2(*general_to_inhomogeneous(M, I))
+        self.two = inhomogeneous_alternative2(*inhomogeneous_from_general(M, I))

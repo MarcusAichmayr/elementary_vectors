@@ -1,5 +1,4 @@
 from vectors_in_intervals import *
-from vectors_in_intervals.certifying_inequalities import *
 from numpy import argmin
 length_m = 4
 length_n = 5
@@ -30,8 +29,8 @@ for i in range(100):
     M = random_matrix(ring, length_m, length_n)
     I = random_intervals(length_m, ring=ring)
     S0 = AlternativesGeneral(M, I)
-    S1 = AlternativesInhomogeneous(*general_to_inhomogeneous(M, I))
-    S2 = AlternativesHomogeneous(*inhomogeneous_to_homogeneous(*general_to_inhomogeneous(M, I)))
+    S1 = AlternativesInhomogeneous(*inhomogeneous_from_general(M, I))
+    S2 = AlternativesHomogeneous(*homogeneous_from_general(M, I))
 
     results = [
         S0.certify(),

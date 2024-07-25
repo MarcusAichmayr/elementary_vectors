@@ -19,7 +19,14 @@ from .setup_intervals import (
     intervals_from_sign_vector,
 )
 from .existence import exists_vector, exists_orthogonal_vector
-from .certifying_inequalities import AlternativesHomogeneous, AlternativesInhomogeneous, AlternativesGeneral
+from .certifying_inequalities import (
+    AlternativesHomogeneous,
+    AlternativesInhomogeneous,
+    AlternativesGeneral,
+    homogeneous_from_general,
+    inhomogeneous_from_general,
+    homogeneous_from_inhomogeneous,
+)
 from .construction import (
     construct_vector,
     construct_orthogonal_vector,
