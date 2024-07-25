@@ -666,6 +666,22 @@ def inhomogeneous_to_homogeneous(A, B, b, c) -> tuple:
     )
 
 
+def general_to_homogeneous(M, I) -> tuple:
+    r"""
+    Convert a general system to a homogeneous system.
+
+    INPUT:
+
+    - ``M`` -- a matrix with m rows
+
+    - ``I`` -- a list of m intervals
+
+    OUTPUT:
+    Matrices ``A``, ``B``, ``C`` describing the homogeneous system.
+    """
+    return inhomogeneous_to_homogeneous(*general_to_inhomogeneous(M, I))
+
+
 class AlternativesInhomogeneous(Alternatives):
     r"""
     A class for certifying inhomogeneous linear inequality systems.

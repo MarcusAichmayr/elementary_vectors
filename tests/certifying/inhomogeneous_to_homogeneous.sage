@@ -1,8 +1,8 @@
+from vectors_in_intervals import *
 from vectors_in_intervals.certifying_inequalities import *
 from numpy import argmin
-m_A = 6
-m_B = 6
-length = 5
+length_m = 4
+length_n = 5
 ring = ZZ
 
 fmt = "{:10.8f}"
@@ -18,18 +18,20 @@ print(
             "s1",
             "rev1",
             "rand1",
+            "s2",
+            "rev2",
+            "rand2",
         ]
     ],
     sep="; "
 )
 
 for i in range(100):
-    A = random_matrix(ring, m_A, length)
-    B = random_matrix(ring, m_B, length)
-    b = random_vector(ring, m_A)
-    c = random_vector(ring, m_B)
-    S0 = AlternativesInhomogeneous(A, B, b, c)
-    S1 = AlternativesHomogeneous(*inhomogeneous_to_homogeneous(A, B, b, c))
+    M = random_matrix(ring, length_m, length_n)
+    I = random_intervals(length_m, ring=ring)
+    S0 = AlternativesGeneral(M, I)
+    S1 = AlternativesInhomogeneous(*general_to_inhomogeneous(M, I))
+    S2 = AlternativesHomogeneous(*inhomogeneous_to_homogeneous(*general_to_inhomogeneous(M, I)))
 
     results = [
         S0.certify(),
@@ -38,6 +40,9 @@ for i in range(100):
         S1.certify(),
         S1.certify(reverse=False),
         S1.certify(random=True),
+        S2.certify(),
+        S2.certify(reverse=False),
+        S2.certify(random=True),
     ]
 
     if all(r[0] for r in results) != any(r[0] for r in results):
