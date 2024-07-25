@@ -652,6 +652,20 @@ def general_to_inhomogeneous(M, I) -> tuple:
     )
 
 
+def inhomogeneous_to_homogeneous(A, B, b, c) -> tuple:
+    r"""
+    Convert an inhomogeneous system to a homogeneous system.
+
+    OUTPUT:
+    Matrices ``A``, ``B``, ``C`` describing the homogeneous system.
+    """
+    return (
+        matrix.block([[B, matrix(len(c), 1, -c)], [zero_matrix(1, A.ncols()), matrix([[-1]])]]),
+        matrix.block([[A, matrix(len(b), 1, -b)]]),
+        matrix(0, A.ncols() + 1)
+    )
+
+
 class AlternativesInhomogeneous(Alternatives):
     r"""
     A class for certifying inhomogeneous linear inequality systems.
@@ -666,6 +680,7 @@ class AlternativesInhomogeneous(Alternatives):
 
     TESTS::
 
+        sage: from vectors_in_intervals import *
         sage: A = matrix([[1]])
         sage: B = matrix(0, 1)
         sage: b = vector([1])
