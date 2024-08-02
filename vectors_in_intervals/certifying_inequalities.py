@@ -74,6 +74,11 @@ In some cases, it is faster to randomly generate elementary vectors to certify::
     sage: S.certify(random=True) # random
     (False, (0, -5, -1, -2), 2)
 
+Parallel computation is also supported::
+
+    sage: S.certify(number_parallel=4) # random
+    (False, (0, -5, -1, -2), 2)
+
 Inhomogeneous systems
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -474,13 +479,15 @@ class Alternatives(SageObject):
     def _repr_(self) -> str:
         return f"Either\n{self.one}\nor\n{self.two}"
 
-    def certify(self, reverse=True, random=False) -> tuple:
+    def certify(self, reverse=True, random=False, number_parallel=1) -> tuple:
         r"""
         Certify whether the first alternative has a solution.
 
         - ``reverse`` -- reverses the order of elementary vectors
 
         - ``random`` -- randomizes computed elementary vectors (repetition possible)
+
+        - ``number_parallel`` -- number of parallel computations
 
         OUTPUT:
         A boolean, a vector certifying the result, and the number of needed iterations.
@@ -489,16 +496,37 @@ class Alternatives(SageObject):
         needed_iterations = 0
         for system in systems:
             system.set_elementary_vectors(reverse=reverse, random=random)
-        while True:
-            needed_iterations += 1
-            for i, system in enumerate(systems):
-                try:
-                    v = next(system.elementary_vectors)
-                    if not system.exists_orthogonal_vector(v):
-                        return system.result, v, needed_iterations
-                except StopIteration:
-                    systems.pop(i)
-                    break
+
+        if number_parallel <= 1:
+            while True:
+                needed_iterations += 1
+                for i, system in enumerate(systems):
+                    try:
+                        v = next(system.elementary_vectors)
+                        if not system.exists_orthogonal_vector(v):
+                            return system.result, v, needed_iterations
+                    except StopIteration:
+                        systems.pop(i)
+                        break
+
+        results = []
+
+        @parallel("reference")
+        def check_random_ev(system):
+            if results:
+                return
+            try:
+                v = next(system.elementary_vectors)
+            except StopIteration:
+                return
+            if not system.exists_orthogonal_vector(v):
+                results.append((system.result, v, -1))
+
+        while not results:
+            for _ in check_random_ev([*systems] * number_parallel):
+                pass
+
+        return results[0]
 
 
 class AlternativesHomogeneous(Alternatives):
@@ -719,7 +747,7 @@ class AlternativesInhomogeneous(Alternatives):
         else:
             self.two = inhomogeneous_alternative2(A, B, b, c)
 
-    def certify(self, reverse=True, random=False) -> tuple:
+    def certify(self, reverse=True, random=False, number_parallel=1) -> tuple:
         r"""
         Certify whether the first alternative has a solution.
 
@@ -727,7 +755,10 @@ class AlternativesInhomogeneous(Alternatives):
         A boolean, vectors certifying the result, and the number of needed iterations.
         """
         if not hasattr(self, "three"):
-            return super().certify()
+            return super().certify(reverse=reverse, random=random, number_parallel=number_parallel)
+
+        if number_parallel > 1:
+            raise NotImplementedError("Parallel certification for 2-system alternative not implemented.")
 
         systems = {0: self.one, 1: self.two, 2: self.three}
         needed_iterations = 0
