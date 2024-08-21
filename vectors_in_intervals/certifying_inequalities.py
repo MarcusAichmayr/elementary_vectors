@@ -60,6 +60,11 @@ There is a single command for certification::
     sage: S.certify()
     (True, (-1, -1, 0, -3, 0, 1), 2)
 
+We can also use elementary vectors to construct a solution::
+
+    sage: S.one.solve()
+    (0, 1)
+
 We consider another example::
 
     sage: A = matrix([[1, 0], [0, 1]])
@@ -78,6 +83,11 @@ Parallel computation is also supported::
 
     sage: S.certify(number_parallel=4) # random
     (False, (0, -5, -1, -2), 2)
+
+A solution for the second system is::
+
+    sage: S.two.solve()
+    (1, 1, 0, 1)
 
 Inhomogeneous systems
 ~~~~~~~~~~~~~~~~~~~~~
@@ -139,6 +149,11 @@ The resulting systems yield different certificates::
     sage: S.certify()
     (True, [(-2, 0, -1, 0, 0, 1, 0), (-2, -1, 0, 0, -5, 2)], 5)
 
+A solution is::
+
+    sage: S.one.solve()
+    (2, -1)
+
 We consider another example::
 
     sage: A = matrix([[1, 0], [1, 1]])
@@ -155,6 +170,11 @@ We can homogenized the first alternative yielding a different system::
     sage: S.certify()
     (False, (0, 1, 0, 1), 1)
 
+A solution is::
+
+    sage: S.two.solve()
+    (0, 1, 1, 0)
+
 General systems
 ~~~~~~~~~~~~~~~
 
@@ -162,11 +182,6 @@ By translating systems of the form ``M x in I`` into inhomogeneous systems,
 we can certify general systems::
 
     sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
-    sage: M
-    [1 0]
-    [0 1]
-    [1 1]
-    [0 1]
     sage: lower_bounds = [2, 5, 0, -oo]
     sage: upper_bounds = [5, oo, 8, 5]
     sage: lower_bounds_closed = [True, True, False, False]
@@ -200,6 +215,11 @@ we can certify general systems::
     [(0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), {0}, {0}, {0}]
     sage: S.certify()
     (True, (1, 0, 0, 0, 2, 6, 0, 0, 2, 5, 1), 3)
+
+We compute a solution using elementary vectors::
+
+    sage: S.one.solve()
+    (2, 5)
 """
 
 #############################################################################
@@ -217,13 +237,15 @@ from collections.abc import Generator
 from copy import copy
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
-from sage.modules.free_module_element import vector
+from sage.modules.free_module_element import vector, zero_vector
 from sage.parallel.decorate import parallel
 from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
 from sage.structure.sage_object import SageObject
 
+from elementary_vectors import elementary_vectors
 from elementary_vectors.utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples
+from sign_vectors import sign_vector
 from vectors_in_intervals import exists_orthogonal_vector
 from .utility import interval_from_bounds, CombinationsIncluding
 
@@ -406,6 +428,14 @@ class LinearInequalitySystem(SageObject):
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector(v, self.intervals)
 
+    def to_homogeneous(self):
+        return HomogeneousSystem(True, *homogeneous_from_general(self.matrix, self.intervals))
+
+    def solve(self):
+        homogeneous = self.to_homogeneous()
+        solution = homogeneous.solve()
+        return solution[:-1] / solution[-1]
+
 
 class HomogeneousSystem(LinearInequalitySystem):
     r"""
@@ -450,6 +480,35 @@ class HomogeneousSystem(LinearInequalitySystem):
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector_homogeneous(v, self.strict, self.nonstrict)
 
+    def to_homogeneous(self):
+        return self
+
+    def solve(self):
+        r"""
+        Compute a solution if existent.
+
+        This approach sums up positive elementary vectors in the row space.
+        """
+        sv_lower = sign_vector(
+            len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
+        )
+        sv_upper = sign_vector(
+            (len(self.strict) + len(self.nonstrict)) * [1]
+            + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
+        )
+
+        result = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
+
+        for v in elementary_vectors(self.matrix.T.right_kernel_matrix(), generator=True):
+            for w in [v, -v]:
+                if sign_vector(w) <= sv_upper:
+                    result += w
+                    if sign_vector(result) >= sv_lower:
+                        return self.matrix.solve_right(result)
+                    break
+
+        raise ValueError("No solution exists.")
+
 
 class InhomogeneousSystem(LinearInequalitySystem):
     r"""
@@ -468,6 +527,14 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector_inhomogeneous(v, self.b, self.c)
+
+    def to_homogeneous(self):
+        return HomogeneousSystem(True, *homogeneous_from_inhomogeneous(
+            self.matrix.submatrix(0, 0, len(self.b)),
+            self.matrix.submatrix(len(self.b), 0, len(self.c)),
+            self.b,
+            self.c
+        ))
 
 
 class Alternatives(SageObject):
