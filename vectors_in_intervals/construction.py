@@ -247,14 +247,12 @@ def vector_from_sign_vector(sv, data):
     if sign_vector(result) == sv:
         return result
     for v in evs:
-        if sign_vector(v) <= sv:
-            result += v
-            if sign_vector(result) == sv:
-                return result
-        elif sign_vector(-v) <= sv:
-            result -= v
-            if sign_vector(result) == sv:
-                return result
+        for w in [v, -v]:
+            if sign_vector(w) <= sv:
+                result += w
+                if sign_vector(result) == sv:
+                    return result
+                break
 
     raise ValueError("Cannot find vector corresponding to given sign vector.")
 
