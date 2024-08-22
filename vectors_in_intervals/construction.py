@@ -15,6 +15,8 @@ Most other functions here are auxiliary function but can be used for special cas
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from collections.abc import Generator
+
 from sage.categories.sets_cat import EmptySetError
 from sage.calculus.var import var
 from sage.matrix.constructor import matrix
@@ -23,7 +25,6 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
 from sage.symbolic.relation import solve
-
 from .existence import exists_orthogonal_vector, exists_vector
 from .utility import (
     simplest_element_in_interval,
@@ -187,16 +188,16 @@ def multiple_in_intervals(v, intervals: list[RealSet]):
         raise ValueError("There is no multiple in given intervals.") from exc
 
 
-def vector_from_sign_vector(sv, data):
+def vector_from_sign_vector(data, sv):
     r"""
     Find a vector in the row space of a matrix that has given signs.
 
     INPUT:
 
-    - ``sv`` -- a sign vector of length ``n``
-
     - ``data`` -- either a real matrix with ``n`` columns or a list of
                 elementary vectors of length ``n``
+
+    - ``sv`` -- a sign vector of length ``n``
 
     OUTPUT:
     Return a conformal sum of elementary vectors that lies in the given subspace.
@@ -214,47 +215,66 @@ def vector_from_sign_vector(sv, data):
         sage: from elementary_vectors import *
         sage: from sign_vectors import *
         sage: M = matrix([[1, 0, 2, 0], [0, 1, 1, 0], [0, 0, 0, 1]])
-        sage: vector_from_sign_vector(zero_sign_vector(4), M)
+        sage: vector_from_sign_vector(M, zero_sign_vector(4))
         (0, 0, 0, 0)
-        sage: vector_from_sign_vector(sign_vector("+-+0"), M)
+        sage: vector_from_sign_vector(M, sign_vector("+-+0"))
         (2, -2, 2, 0)
-        sage: vector_from_sign_vector(sign_vector("+0+0"), M)
+        sage: vector_from_sign_vector(M, sign_vector("+0+0"))
         (1, 0, 2, 0)
-        sage: vector_from_sign_vector(sign_vector("+-0+"), M)
+        sage: vector_from_sign_vector(M, sign_vector("+-0+"))
         (1, -2, 0, 2)
-        sage: vector_from_sign_vector(sign_vector("+-0+"), M)
+        sage: vector_from_sign_vector(M, sign_vector("+-0+"))
         (1, -2, 0, 2)
         sage: evs = elementary_vectors(M.right_kernel_matrix())
-        sage: vector_from_sign_vector(sign_vector("+-0+"), evs)
+        sage: vector_from_sign_vector(evs, sign_vector("+-0+"))
         (1, -2, 0, 2)
-        sage: vector_from_sign_vector(sign_vector("+0-0"), M)
+        sage: vector_from_sign_vector(M, sign_vector("+0-0"))
         Traceback (most recent call last):
         ...
         ValueError: Cannot find vector corresponding to given sign vector.
-        sage: vector_from_sign_vector(zero_sign_vector(4), [])
+        sage: vector_from_sign_vector([], zero_sign_vector(4))
         (0, 0, 0, 0)
+    """
+    try:
+        return vector_between_sign_vectors(data, sv, sv)
+    except ValueError as exc:
+        raise ValueError("Cannot find vector corresponding to given sign vector.") from exc
+
+
+def vector_between_sign_vectors(data, lower, upper):
+    r"""
+    Find a vector in the row space of a matrix that has given signs.
+
+    The resulting vector ``v`` satisfies ``lower <= sign(v) <= upper``.
+
+    .. SEEALSO::
+
+        :func:`~vector_from_sign_vector`
     """
     if isinstance(data, list):
         evs = data
         try:
             result = data[0].parent().zero_vector()
         except IndexError:
-            result = zero_vector(sv.length())
+            result = zero_vector(lower.length())
+    elif isinstance(data, Generator):
+        evs = data
+        result = zero_vector(lower.length())
     else:
         evs = elementary_vectors(data.right_kernel_matrix(), generator=True)
-        result = zero_vector(data.base_ring(), sv.length())
+        result = zero_vector(data.base_ring(), lower.length())
 
-    if sign_vector(result) == sv:
+    if sign_vector(result) >= lower:
         return result
     for v in evs:
         for w in [v, -v]:
-            if sign_vector(w) <= sv:
+            if sign_vector(w) <= upper:
                 result += w
-                if sign_vector(result) == sv:
+                if sign_vector(result) >= lower:
                     return result
                 break
 
-    raise ValueError("Cannot find vector corresponding to given sign vector.")
+    raise ValueError("Cannot find vector corresponding to given sign vectors.")
 
 
 def sign_vectors_in_intervals(intervals: list[RealSet], generator: bool = False):
