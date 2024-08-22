@@ -407,10 +407,10 @@ class LinearInequalitySystem(SageObject):
     """
     __slots__ = "result", "matrix", "intervals", "elementary_vectors"
 
-    def __init__(self, result, _matrix, intervals) -> None:
-        self.result = result
+    def __init__(self, _matrix, intervals, result=None) -> None:
         self.matrix = _matrix
         self.intervals = intervals
+        self.result = result
         self.elementary_vectors = None
 
     def _repr_(self) -> str:
@@ -429,7 +429,7 @@ class LinearInequalitySystem(SageObject):
         return exists_orthogonal_vector(v, self.intervals)
 
     def to_homogeneous(self):
-        return HomogeneousSystem(True, *homogeneous_from_general(self.matrix, self.intervals))
+        return HomogeneousSystem(*homogeneous_from_general(self.matrix, self.intervals), result=self.result)
 
     def solve(self):
         homogeneous = self.to_homogeneous()
@@ -445,8 +445,8 @@ class HomogeneousSystem(LinearInequalitySystem):
     """
     __slots__ = "strict", "nonstrict"
 
-    def __init__(self, result, A, B, C) -> None:
-        super().__init__(result, matrix.block([[A], [B], [C]]), None)
+    def __init__(self, A, B, C, result=None) -> None:
+        super().__init__(matrix.block([[A], [B], [C]]), None, result=result)
         self.strict = range(A.nrows())
         self.nonstrict = range(A.nrows(), A.nrows() + B.nrows())
 
@@ -516,8 +516,8 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
     ``A x <= b``, ``B x <= c``
     """
-    def __init__(self, result, A, B, b, c) -> None:
-        super().__init__(result, matrix.block([[A], [B]]), None)
+    def __init__(self, A, B, b, c, result=None) -> None:
+        super().__init__(matrix.block([[A], [B]]), None, result=result)
         self.b = b
         self.c = c
 
@@ -529,12 +529,15 @@ class InhomogeneousSystem(LinearInequalitySystem):
         return exists_orthogonal_vector_inhomogeneous(v, self.b, self.c)
 
     def to_homogeneous(self):
-        return HomogeneousSystem(True, *homogeneous_from_inhomogeneous(
-            self.matrix.submatrix(0, 0, len(self.b)),
-            self.matrix.submatrix(len(self.b), 0, len(self.c)),
-            self.b,
-            self.c
-        ))
+        return HomogeneousSystem(
+            *homogeneous_from_inhomogeneous(
+                self.matrix.submatrix(0, 0, len(self.b)),
+                self.matrix.submatrix(len(self.b), 0, len(self.c)),
+                self.b,
+                self.c
+            ),
+            result=self.result
+        )
 
 
 class Alternatives(SageObject):
@@ -603,18 +606,18 @@ class AlternativesHomogeneous(Alternatives):
     ``A x > 0``, ``B x >= 0``, ``C x = 0``
     """
     def __init__(self, A, B, C):
-        self.one = HomogeneousSystem(False, A, B, C)
+        self.one = HomogeneousSystem(A, B, C, result=False)
         m_A = A.nrows()
         m_B = B.nrows()
         m_C = C.nrows()
         self.two = HomogeneousSystem(
-            True,
             matrix.block([[ones_matrix(1, m_A), zero_matrix(1, m_B), zero_matrix(1, m_C)]]),
             matrix.block([
                 [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, m_C)],
                 [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, m_C)]
             ]),
-            matrix.block([[A.T, B.T, C.T]])
+            matrix.block([[A.T, B.T, C.T]]),
+            result=True
         )
 
 
@@ -624,7 +627,7 @@ def inhomogeneous_alternative1(A, B, b, c) -> InhomogeneousSystem:
     
     ``A x <= b``, ``B x < c``
     """
-    return InhomogeneousSystem(False, A, B, b, c)
+    return InhomogeneousSystem(A, B, b, c, result=False)
 
 
 def inhomogeneous_alternative1_homogenized(A, B, b, c) -> HomogeneousSystem:
@@ -638,7 +641,6 @@ def inhomogeneous_alternative1_homogenized(A, B, b, c) -> HomogeneousSystem:
         [0 -1]
     """
     return HomogeneousSystem(
-        False,
         matrix.block([
             [zero_matrix(1, A.ncols()), matrix([[-1]])],
             [B, -c.column()]
@@ -646,7 +648,8 @@ def inhomogeneous_alternative1_homogenized(A, B, b, c) -> HomogeneousSystem:
         matrix.block([
             [A, -b.column()],
         ]),
-        matrix(0, A.ncols() + 1)
+        matrix(0, A.ncols() + 1),
+        result=False
     )
 
 
@@ -658,7 +661,6 @@ def inhomogeneous_alternative2(A, B, b, c) -> HomogeneousSystem:
     m_B = B.nrows()
     length = A.ncols()
     return HomogeneousSystem(
-        True,
         matrix.block([
             [zero_matrix(1, m_A), ones_matrix(1, m_B + 1)]
         ]),
@@ -666,7 +668,8 @@ def inhomogeneous_alternative2(A, B, b, c) -> HomogeneousSystem:
         matrix.block([
             [A.T, B.T, zero_matrix(length, 1)],
             [-b.row(), -c.row(), matrix([[-1]])]
-        ])
+        ]),
+        result=True
     )
 
 
@@ -677,10 +680,10 @@ def inhomogeneous_alternative2_system1(A, B, b, c) -> HomogeneousSystem:
     m_A = A.nrows()
     m_B = B.nrows()
     return HomogeneousSystem(
-        True,
         matrix.block([[-b.row(), -c.row()]]),
         identity_matrix(m_A + m_B),
-        matrix.block([[A.T, B.T]])
+        matrix.block([[A.T, B.T]]),
+        result=True
     )
 
 
@@ -691,13 +694,13 @@ def inhomogeneous_alternative2_system2(A, B, b, c) -> HomogeneousSystem:
     m_A = A.nrows()
     m_B = B.nrows()
     return HomogeneousSystem(
-        True,
         matrix.block([[zero_matrix(1, m_A), ones_matrix(1, m_B)]]),
         matrix.block([
             [matrix.block([[-b.row(), -c.row()]])],
             [identity_matrix(m_A + m_B)],
         ]),
-        matrix.block([[A.T, B.T]])
+        matrix.block([[A.T, B.T]]),
+        result=True
     )
 
 
@@ -853,5 +856,5 @@ class AlternativesInhomogeneous(Alternatives):
 class AlternativesGeneral(Alternatives):
     r"""Alternatives for a general system ``M x in I``."""
     def __init__(self, M, I):
-        self.one = LinearInequalitySystem(False, M, I)
+        self.one = LinearInequalitySystem(M, I, result=False)
         self.two = inhomogeneous_alternative2(*inhomogeneous_from_general(M, I))
