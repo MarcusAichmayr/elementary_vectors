@@ -237,16 +237,16 @@ from collections.abc import Generator
 from copy import copy
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
-from sage.modules.free_module_element import vector, zero_vector
+from sage.modules.free_module_element import vector
 from sage.parallel.decorate import parallel
 from sage.rings.infinity import Infinity
-from sage.sets.real_set import RealSet
 from sage.structure.sage_object import SageObject
 
 from elementary_vectors import elementary_vectors
 from elementary_vectors.utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples
 from sign_vectors import sign_vector
 from vectors_in_intervals import exists_orthogonal_vector
+from .construction import vector_between_sign_vectors
 from .utility import interval_from_bounds, CombinationsIncluding
 
 
@@ -489,25 +489,18 @@ class HomogeneousSystem(LinearInequalitySystem):
 
         This approach sums up positive elementary vectors in the row space.
         """
-        sv_lower = sign_vector(
-            len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
+        return self.matrix.solve_right(
+            vector_between_sign_vectors(
+                self.matrix.T,
+                sign_vector(
+                    len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
+                ),
+                sign_vector(
+                    (len(self.strict) + len(self.nonstrict)) * [1]
+                    + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
+                )
+            )
         )
-        sv_upper = sign_vector(
-            (len(self.strict) + len(self.nonstrict)) * [1]
-            + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
-        )
-
-        result = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
-
-        for v in elementary_vectors(self.matrix.T.right_kernel_matrix(), generator=True):
-            for w in [v, -v]:
-                if sign_vector(w) <= sv_upper:
-                    result += w
-                    if sign_vector(result) >= sv_lower:
-                        return self.matrix.solve_right(result)
-                    break
-
-        raise ValueError("No solution exists.")
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
