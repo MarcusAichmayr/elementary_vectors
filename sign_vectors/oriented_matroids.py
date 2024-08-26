@@ -182,12 +182,10 @@ def cocircuits_from_matrix(M, kernel: bool = True):
         sage: cocircuits_from_matrix(B, kernel=False)
         {(-000), (0+0+), (00+-), (00-+), (0-0-), (0--0), (+000), (0++0)}
     """
-    if not kernel:
-        M = M.right_kernel_matrix()
-    return cocircuits_from_elementary_vectors(elementary_vectors(M))
+    return cocircuits_from_elementary_vectors(elementary_vectors(M, kernel=kernel))
 
 
-def cocircuits_from_minors(minors: list, dim: tuple[int, int]):
+def cocircuits_from_minors(minors: list, dim: tuple[int, int], kernel: bool = True):
     r"""
     Compute a set of cocircuits determined by the maximal minors of some matrix.
 
@@ -198,7 +196,7 @@ def cocircuits_from_minors(minors: list, dim: tuple[int, int]):
     - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``m``
     """
     return cocircuits_from_elementary_vectors(
-        elementary_vectors(minors, dim, generator=True)
+        elementary_vectors(minors, dim, generator=True, kernel=kernel)
     )
 
 
