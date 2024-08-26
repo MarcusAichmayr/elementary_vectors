@@ -20,6 +20,7 @@ from .utility import elementary_vector_from_indices, elementary_vector_from_indi
 def elementary_vectors(
     data,
     dimensions: tuple[int, int] = None,
+    kernel: bool = True,
     generator: bool = False,
 ):
     r"""
@@ -33,12 +34,15 @@ def elementary_vectors(
                  Otherwise, this is a list of dimensions of the matrix
                  corresponding to the list of maximal minors ``data``.
 
+    - ``kernel`` -- a boolean (default: ``True``)
+
     - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
     Return a list of elementary vectors in the kernel of a matrix given by ``data``.
     The element ``data`` can be a matrix or a list of maximal minors.
     In the latter case, dimensions are also required.
+    To compute the elementary vectors in the row space, pass false for ``kernel``.
 
     - If ``remove_multiples`` is true, the output will be reduced such that
       all elementary vectors have distinct support.
@@ -59,6 +63,12 @@ def elementary_vectors(
         [ 1  1  1  1  1]
         sage: elementary_vectors(M)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
+    
+    By default, the elementary vectors in the kernel are computed.
+    To consider the row space, pass ``kernel=False``::
+
+        sage: elementary_vectors(M, kernel=False)
+        [(0, -2, -4, 0, 0), (0, -2, 0, -4, 0), (-4, 0, 0, 0, -4), (0, 0, -2, 2, 0)]
 
     We can also compute elementary vectors over a finite field::
 
@@ -133,14 +143,13 @@ def elementary_vectors(
         return elementary_vectors_from_minors(
             data,
             dimensions=dimensions,
+            kernel=kernel,
             generator=generator,
         )
-    return elementary_vectors_from_matrix(data, generator=generator)
+    return elementary_vectors_from_matrix(data, kernel=kernel, generator=generator)
 
 
-def elementary_vectors_from_matrix(
-    M, generator: bool = False
-):
+def elementary_vectors_from_matrix(M, kernel: bool = True, generator: bool = False):
     r"""
     Compute elementary vectors of a subspace determined by the matrix ``M``.
 
@@ -150,11 +159,14 @@ def elementary_vectors_from_matrix(
 
     - ``remove_multiples`` -- a boolean (default: ``True``)
 
+    - ``kernel`` -- a boolean (default: ``True``)
+
     - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
 
     Return a list of elementary vectors in the kernel of ``M``.
+    To compute the elementary vectors in the row space, pass false for ``kernel``.
 
     - If ``remove_multiples`` is true, the output will be reduced such that
       all elementary vectors have distinct support.
@@ -174,6 +186,8 @@ def elementary_vectors_from_matrix(
         [ 1  1  1  1  1]
         sage: elementary_vectors_from_matrix(M)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
+        sage: elementary_vectors_from_matrix(M, kernel=False)
+        [(0, -2, -4, 0, 0), (0, -2, 0, -4, 0), (-4, 0, 0, 0, -4), (0, 0, -2, 2, 0)]
     """
     try:
         M = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
@@ -183,8 +197,8 @@ def elementary_vectors_from_matrix(
     rank, length = M.dimensions()
     minors = {}
     evs = (
-        elementary_vector_from_indices_prevent_multiples(indices, minors, M)
-        for indices in Combinations(length, rank + 1)
+        elementary_vector_from_indices_prevent_multiples(indices, minors, M, kernel=kernel)
+        for indices in (Combinations(length, rank + 1) if kernel else Combinations(length, length - rank + 1))
     )
     evs = (v for v in evs if v)
 
@@ -197,6 +211,7 @@ def elementary_vectors_from_minors(
     minors: list,
     dimensions: tuple[int, int],
     ring=None,
+    kernel: bool = True,
     generator: bool = False,
 ):
     r"""
@@ -211,11 +226,14 @@ def elementary_vectors_from_minors(
     - ``ring`` -- the ring in which the elementary vectors should live
                   by default, this is determined from ``minors``
 
+    - ``kernel`` -- a boolean (default: ``True``)
+
     - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
     Return a list of elementary vectors in the kernel of a matrix with
     maximal minors ``minors`` and dimension ``dimensions``.
+    To compute the elementary vectors in the row space, pass false for ``kernel``.
     If ``generator`` is true, a generator of elementary vectors will be returned instead of a list.
 
     - If ``remove_multiples`` is true, the output will be reduced such that
@@ -243,6 +261,8 @@ def elementary_vectors_from_minors(
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
         sage: elementary_vectors_from_minors(m, M.dimensions(), ring=QQ)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
+        sage: elementary_vectors_from_minors(m, [3, 5], kernel=False)
+        [(0, -2, -4, 0, 0), (0, -2, 0, -4, 0), (-4, 0, 0, 0, -4), (0, 0, -2, 2, 0)]
     """
     rank, length = dimensions
     if not ring:
@@ -253,8 +273,8 @@ def elementary_vectors_from_minors(
         minors_dict[tuple(indices)] = minors[k]
 
     evs = (
-        elementary_vector_from_indices_prevent_multiples(indices, minors_dict, length=length, ring=ring)
-        for indices in Combinations(length, rank + 1)
+        elementary_vector_from_indices_prevent_multiples(indices, minors_dict, length=length, ring=ring, kernel=kernel)
+        for indices in (Combinations(length, rank + 1) if kernel else Combinations(length, length - rank + 1))
     )
     evs = (v for v in evs if v)
 

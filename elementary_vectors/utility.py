@@ -10,13 +10,14 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from sage.combinat.permutation import Permutation
 from sage.modules.free_module_element import vector, zero_vector
 
 from sign_vectors import sign_vector
 
 
 def elementary_vector_from_indices(
-    indices: list[int], minors: dict, M=None, length: int = None, ring=None
+    indices: list[int], minors: dict, M=None, length: int = None, ring=None, kernel: bool = True
 ):
     r"""
     Return an elementary vector with support in a given list of indices.
@@ -32,6 +33,8 @@ def elementary_vector_from_indices(
     - ``length`` -- an optional integer for the length of the elementary vector
 
     - ``ring`` -- an optional ring
+
+    - ``kernel`` -- a boolean (default: ``True``)
 
     If ``M`` is not specified, ``length`` and ``ring`` need to be.
 
@@ -45,12 +48,17 @@ def elementary_vector_from_indices(
         raise ValueError("No length given. Either specify a matrix or give a length.")
     if not ring:
         for minor in minors:
+            ring = minor.base_ring()
             break
-        ring = minor.base_ring()
 
     element = zero_vector(ring, length)
     for pos, k in enumerate(indices):
-        indices_minor = tuple(i for i in indices if i != k)
+        if kernel:
+            indices_minor = tuple(i for i in indices if i != k)
+        else:
+            indices_complement = tuple(i for i in indices if i != k)
+            indices_minor = tuple(i for i in range(length) if i not in indices_complement)
+
         try:
             minor = minors[indices_minor]
         except KeyError:
@@ -61,12 +69,19 @@ def elementary_vector_from_indices(
                 raise ValueError(
                     f"Minor corresponding to {indices_minor} is not available and no matrix is given to compute it."
                 ) from exc
-        element[k] = (-1) ** pos * minor
+        if kernel:
+            element[k] = (-1) ** pos * minor
+        else:
+            element[k] = (
+                (-1) ** pos
+                * Permutation(i + 1 for i in list(indices_complement) + list(indices_minor)).sign()
+                * minor
+            )
     return element
 
 
 def elementary_vector_from_indices_prevent_multiples(
-    indices: list[int], minors: dict, M=None, length: int = None, ring=None
+    indices: list[int], minors: dict, M=None, length: int = None, ring=None, kernel: bool = True
 ):
     r"""
     Return an elementary vector with support in a given list of indices.
@@ -82,6 +97,8 @@ def elementary_vector_from_indices_prevent_multiples(
     - ``length`` -- an optional integer for the length of the elementary vector
 
     - ``ring`` -- an optional ring
+
+    - ``kernel`` -- a boolean (default: ``True``)
 
     If ``M`` is not specified, ``length`` and ``ring`` need to be.
 
@@ -105,7 +122,11 @@ def elementary_vector_from_indices_prevent_multiples(
     zero_reencountered = False
     nonzero_encountered = False
     for pos, k in enumerate(indices):
-        indices_minor = tuple(i for i in indices if i != k)
+        if kernel:
+            indices_minor = tuple(i for i in indices if i != k)
+        else:
+            indices_complement = tuple(i for i in indices if i != k)
+            indices_minor = tuple(i for i in range(length) if i not in indices_complement)
         try:
             minor = minors[indices_minor]
             if minor is None:
@@ -127,7 +148,14 @@ def elementary_vector_from_indices_prevent_multiples(
         elif minor != 0:
             nonzero_encountered = True
             if not zero_reencountered:
-                element[k] = (-1) ** pos * minor
+                if kernel:
+                    element[k] = (-1) ** pos * minor
+                else:
+                    element[k] = (
+                        (-1) ** pos
+                        * Permutation(i + 1 for i in list(indices_complement) + list(indices_minor)).sign()
+                        * minor
+                    )
     if nonzero_encountered:
         for indices_minor in marked_minors:
             minors[indices_minor] = None
