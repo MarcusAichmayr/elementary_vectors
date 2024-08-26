@@ -225,7 +225,7 @@ def vector_from_sign_vector(data, sv):
         (1, -2, 0, 2)
         sage: vector_from_sign_vector(M, sign_vector("+-0+"))
         (1, -2, 0, 2)
-        sage: evs = elementary_vectors(M.right_kernel_matrix())
+        sage: evs = elementary_vectors(M, kernel=False)
         sage: vector_from_sign_vector(evs, sign_vector("+-0+"))
         (1, -2, 0, 2)
         sage: vector_from_sign_vector(M, sign_vector("+0-0"))
@@ -261,7 +261,7 @@ def vector_between_sign_vectors(data, lower, upper):
         evs = data
         result = zero_vector(lower.length())
     else:
-        evs = elementary_vectors(data.right_kernel_matrix(), generator=True)
+        evs = elementary_vectors(data, kernel=False, generator=True)
         result = zero_vector(data.base_ring(), lower.length())
 
     if sign_vector(result) >= lower:
