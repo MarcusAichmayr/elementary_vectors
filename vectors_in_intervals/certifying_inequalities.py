@@ -436,6 +436,20 @@ class LinearInequalitySystem(SageObject):
         solution = homogeneous.solve()
         return solution[:-1] / solution[-1]
 
+    def certify_nonexistence(self, reverse=False, random=False):
+        self.set_elementary_vectors(reverse=reverse, random=random)
+        for v in self.elementary_vectors:
+            if self.exists_orthogonal_vector(v):
+                return v
+        raise ValueError("A solution exists!")
+
+    def certify(self):
+        r"""Return a boolean and a certificate for solvability."""
+        try:
+            return True, self.solve()
+        except ValueError:
+            return False, self.certify_nonexistence()
+
 
 class HomogeneousSystem(LinearInequalitySystem):
     r"""
