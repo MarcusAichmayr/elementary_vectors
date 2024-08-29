@@ -65,6 +65,11 @@ We can also use elementary vectors to construct a solution::
     sage: S.one.solve()
     (0, 1)
 
+That way, we can certify solvability using only one alternative::
+
+    sage: S.one.certify()
+    (True, (0, 1))
+
 We consider another example::
 
     sage: A = matrix([[1, 0], [0, 1]])
@@ -73,6 +78,8 @@ We consider another example::
     sage: S = AlternativesHomogeneous(A, B, C)
     sage: S.certify()
     (False, (0, -5, -1, -2), 1)
+    sage: S.one.certify()
+    (False, (-2, 3, 1, 0))
 
 In some cases, it is faster to randomly generate elementary vectors to certify::
 
@@ -503,18 +510,21 @@ class HomogeneousSystem(LinearInequalitySystem):
 
         This approach sums up positive elementary vectors in the row space.
         """
-        return self.matrix.solve_right(
-            vector_between_sign_vectors(
-                self.matrix.T,
-                sign_vector(
-                    len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
-                ),
-                sign_vector(
-                    (len(self.strict) + len(self.nonstrict)) * [1]
-                    + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
+        try:
+            return self.matrix.solve_right(
+                vector_between_sign_vectors(
+                    self.matrix.T,
+                    sign_vector(
+                        len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
+                    ),
+                    sign_vector(
+                        (len(self.strict) + len(self.nonstrict)) * [1]
+                        + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
+                    )
                 )
             )
-        )
+        except ValueError as exc:
+            raise ValueError("No solution exists!") from exc
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
