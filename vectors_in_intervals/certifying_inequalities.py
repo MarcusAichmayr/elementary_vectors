@@ -188,6 +188,7 @@ General systems
 By translating systems of the form ``M x in I`` into inhomogeneous systems,
 we can certify general systems::
 
+    sage: from vectors_in_intervals import *
     sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
     sage: lower_bounds = [2, 5, 0, -oo]
     sage: upper_bounds = [5, oo, 8, 5]
@@ -767,20 +768,6 @@ def inhomogeneous_from_general(M, I) -> tuple:
     )
 
 
-def homogeneous_from_inhomogeneous(A, B, b, c) -> tuple:
-    r"""
-    Convert an inhomogeneous system to a homogeneous system.
-
-    OUTPUT:
-    Matrices ``A``, ``B``, ``C`` describing the homogeneous system.
-    """
-    return (
-        matrix.block([[B, matrix(len(c), 1, -c)], [zero_matrix(1, A.ncols()), matrix([[-1]])]]),
-        matrix.block([[A, matrix(len(b), 1, -b)]]),
-        matrix(0, A.ncols() + 1)
-    )
-
-
 def homogeneous_from_general(M, I) -> tuple:
     r"""
     Convert a general system to a homogeneous system.
@@ -793,8 +780,64 @@ def homogeneous_from_general(M, I) -> tuple:
 
     OUTPUT:
     Matrices ``A``, ``B``, ``C`` describing the homogeneous system.
+
+    EXAMPLE::
+
+        sage: from vectors_in_intervals import *
+        sage: M = matrix([[1, 0], [0, 1], [1, 1]])
+        sage: lower_bounds = [2, 5, 0]
+        sage: upper_bounds = [5, oo, 0]
+        sage: lower_bounds_closed = [True, True, True]
+        sage: upper_bounds_closed = [False, False, True]
+        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+        sage: homogeneous_from_general(M, I)
+        (
+        [ 1  0 -5]  [-1  0  2]         
+        [ 0  0 -1], [ 0 -1  5], [1 1 0]
+        )
     """
-    return homogeneous_from_inhomogeneous(*inhomogeneous_from_general(M, I))
+    A_list = []
+    B_list = []
+    C_list = []
+
+    length = M.ncols()
+
+    for Mi, Ii in zip(M, I):
+        if Ii.inf() == Ii.sup():
+            C_list.append(list(Mi) + [-Ii.inf()])
+            continue
+        if Ii.inf() != -Infinity:
+            if Ii.inf() in Ii:
+                B_list.append(list(-Mi) + [Ii.inf()])
+            else:
+                A_list.append(list(-Mi) + [Ii.inf()])
+        if Ii.sup() != Infinity:
+            if Ii.sup() in Ii:
+                B_list.append(list(Mi) + [-Ii.sup()])
+            else:
+                A_list.append(list(Mi) + [-Ii.sup()])
+
+    A_list.append([0] * length + [-1])
+
+    return (
+        matrix(len(A_list), length + 1, A_list),
+        matrix(len(B_list), length + 1, B_list),
+        matrix(len(C_list), length + 1, C_list)
+    )
+
+
+def homogeneous_from_inhomogeneous(A, B, b, c) -> tuple:
+    r"""
+    Convert an inhomogeneous system to a homogeneous system.
+
+    OUTPUT:
+    Matrices ``A``, ``B``, ``C`` describing the homogeneous system.
+    """
+    return (
+        matrix.block([[B, matrix(len(c), 1, -c)], [zero_matrix(1, A.ncols()), matrix([[-1]])]]),
+        matrix.block([[A, matrix(len(b), 1, -b)]]),
+        matrix(0, A.ncols() + 1)
+    )
 
 
 class AlternativesInhomogeneous(Alternatives):
