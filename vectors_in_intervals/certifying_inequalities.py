@@ -744,21 +744,21 @@ def inhomogeneous_from_general(M, I) -> tuple:
     b_list = []
     c_list = []
 
-    for Mi, Ii in zip(M, I):
-        if Ii.inf() != -Infinity:
-            if Ii.inf() in Ii:
-                A_list.append(-Mi)
-                b_list.append(-Ii.inf())
+    for line, interval in zip(M, I):
+        if interval.inf() != -Infinity:
+            if interval.inf() in interval:
+                A_list.append(-line)
+                b_list.append(-interval.inf())
             else:
-                B_list.append(-Mi)
-                c_list.append(-Ii.inf())
-        if Ii.sup() != Infinity:
-            if Ii.sup() in Ii:
-                A_list.append(Mi)
-                b_list.append(Ii.sup())
+                B_list.append(-line)
+                c_list.append(-interval.inf())
+        if interval.sup() != Infinity:
+            if interval.sup() in interval:
+                A_list.append(line)
+                b_list.append(interval.sup())
             else:
-                B_list.append(Mi)
-                c_list.append(Ii.sup())
+                B_list.append(line)
+                c_list.append(interval.sup())
 
     return (
         matrix(len(A_list), M.ncols(), A_list),
@@ -802,20 +802,20 @@ def homogeneous_from_general(M, I) -> tuple:
 
     length = M.ncols()
 
-    for Mi, Ii in zip(M, I):
-        if Ii.inf() == Ii.sup():
-            C_list.append(list(Mi) + [-Ii.inf()])
+    for line, interval in zip(M, I):
+        if interval.inf() == interval.sup():
+            C_list.append(list(line) + [-interval.inf()])
             continue
-        if Ii.inf() != -Infinity:
-            if Ii.inf() in Ii:
-                B_list.append(list(-Mi) + [Ii.inf()])
+        if interval.inf() != -Infinity:
+            if interval.inf() in interval:
+                B_list.append(list(-line) + [interval.inf()])
             else:
-                A_list.append(list(-Mi) + [Ii.inf()])
-        if Ii.sup() != Infinity:
-            if Ii.sup() in Ii:
-                B_list.append(list(Mi) + [-Ii.sup()])
+                A_list.append(list(-line) + [interval.inf()])
+        if interval.sup() != Infinity:
+            if interval.sup() in interval:
+                B_list.append(list(line) + [-interval.sup()])
             else:
-                A_list.append(list(Mi) + [-Ii.sup()])
+                A_list.append(list(line) + [-interval.sup()])
 
     A_list.append([0] * length + [-1])
 
