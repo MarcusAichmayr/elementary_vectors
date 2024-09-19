@@ -569,15 +569,3 @@ class EVs:
 
     def elementary_vectors(self, kernel: bool = True, prevent_multiples: bool = True) -> list:
         return list(self.elementary_vectors_generator(kernel=kernel, prevent_multiples=prevent_multiples))
-        # result = []
-        # if prevent_multiples:
-        #     self.reset_set_for_preventing_multiples(kernel=kernel)
-        # for indices in (Combinations(self.length, self.rank + 1) if kernel else Combinations(self.length, self.length - self.rank + 1)):
-        #     try:
-        #         if prevent_multiples:
-        #             result.append(self.elementary_vector_prevent_multiple(indices, kernel=kernel))
-        #         else:
-        #             result.append(self.elementary_vector(indices, kernel=kernel))
-        #     except ValueError:
-        #         pass
-        # return result
