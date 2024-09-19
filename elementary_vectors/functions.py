@@ -11,6 +11,7 @@ r"""Computing elementary vectors"""
 #############################################################################
 
 import warnings
+from collections.abc import Generator
 from sage.combinat.combination import Combinations
 from sage.combinat.permutation import Permutation
 from sage.matrix.constructor import matrix
@@ -419,9 +420,11 @@ class ElementaryVectors:
 
         self.length = self.matrix.ncols()
         self.rank = self.matrix.nrows()
+        self.ring = self.matrix.base_ring()
         self.minors = {}
         self.minors_kernel = {}
-        self.ring = self.matrix.base_ring()
+        self.combinations = Combinations(self.length, self.rank + 1)
+        self.combinations_kernel = Combinations(self.length, self.length - self.rank + 1)
 
         self.marked_minors = set()
         self.marked_minors_kernel = set()
@@ -555,10 +558,10 @@ class ElementaryVectors:
         else:
             self.marked_minors = set()
 
-    def elementary_vectors_generator(self, kernel: bool = True, prevent_multiples: bool = True) -> list:
+    def elementary_vectors_generator(self, kernel: bool = True, prevent_multiples: bool = True) -> Generator:
         if prevent_multiples:
             self.reset_set_for_preventing_multiples(kernel=kernel)
-        for indices in (Combinations(self.length, self.rank + 1) if kernel else Combinations(self.length, self.length - self.rank + 1)):
+        for indices in (self.combinations if kernel else self.combinations_kernel):
             try:
                 if prevent_multiples:
                     yield self.elementary_vector_prevent_multiple(indices, kernel=kernel)
