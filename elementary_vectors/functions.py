@@ -381,8 +381,8 @@ class ElementaryVectors:
 
         sage: from elementary_vectors.functions import ElementaryVectors
         sage: M = matrix([[1, 2, 3, 4, 5], [0, 1, 2, 2, 3]])
-        sage: m = ElementaryVectors(M)
-        sage: m.elementary_vectors()
+        sage: evs = ElementaryVectors(M)
+        sage: evs.elements()
         [(1, -2, 1, 0, 0),
          (0, -2, 0, 1, 0),
          (1, -3, 0, 0, 1),
@@ -391,7 +391,7 @@ class ElementaryVectors:
          (2, 0, 0, -3, 2),
          (0, -1, -1, 0, 1),
          (0, 0, 2, 1, -2)]
-        sage: m.elementary_vectors(prevent_multiples=False)
+        sage: evs.elements(prevent_multiples=False)
         [(1, -2, 1, 0, 0),
          (0, -2, 0, 1, 0),
          (1, -3, 0, 0, 1),
@@ -402,9 +402,9 @@ class ElementaryVectors:
          (0, -1, -1, 0, 1),
          (0, 2, 0, -1, 0),
          (0, 0, 2, 1, -2)]
-        sage: m.elementary_vectors(kernel=False)
+        sage: evs.elements(kernel=False)
         [(-3, -1, 1, -2, 0), (2, 0, -2, 0, -2), (-2, -1, 0, -2, -1), (0, 1, 2, 2, 3)]
-        sage: m.elementary_vectors(kernel=False, prevent_multiples=False)
+        sage: evs.elements(kernel=False, prevent_multiples=False)
         [(-3, -1, 1, -2, 0),
          (2, 0, -2, 0, -2),
          (-2, -1, 0, -2, -1),
@@ -429,7 +429,7 @@ class ElementaryVectors:
         self.marked_minors = set()
         self.marked_minors_kernel = set()
 
-    def minor_from_indices(self, indices, kernel: bool = True):
+    def minor(self, indices, kernel: bool = True):
         r"""
         Compute a minor given by indices
 
@@ -439,34 +439,34 @@ class ElementaryVectors:
 
             sage: from elementary_vectors.functions import ElementaryVectors
             sage: M = matrix([[1, 2, 3, 4, 5], [0, 1, 2, 2, 3]])
-            sage: m = ElementaryVectors(M)
-            sage: m.minors
+            sage: evs = ElementaryVectors(M)
+            sage: evs.minors
             {}
-            sage: m.minors_kernel
+            sage: evs.minors_kernel
             {}
-            sage: m.minor_from_indices([0, 1])
+            sage: evs.minor([0, 1])
             1
-            sage: m.minors
+            sage: evs.minors
             {(0, 1): 1}
-            sage: m.minors_kernel
+            sage: evs.minors_kernel
             {}
-            sage: m.minor_from_indices([2, 3, 4], kernel=False)
+            sage: evs.minor([2, 3, 4], kernel=False)
             1
-            sage: m.minors
+            sage: evs.minors
             {(0, 1): 1}
-            sage: m.minors_kernel
+            sage: evs.minors_kernel
             {(2, 3, 4): 1}
-            sage: m.minor_from_indices([0, 1, 3], kernel=False)
+            sage: evs.minor([0, 1, 3], kernel=False)
             1
-            sage: m.minors
+            sage: evs.minors
             {(0, 1): 1, (2, 4): -1}
-            sage: m.minors_kernel
+            sage: evs.minors_kernel
             {(0, 1, 3): 1, (2, 3, 4): 1}
-            sage: m.minor_from_indices([2, 4])
+            sage: evs.minor([2, 4])
             -1
-            sage: m.minors
+            sage: evs.minors
             {(0, 1): 1, (2, 4): -1}
-            sage: m.minors_kernel
+            sage: evs.minors_kernel
             {(0, 1, 3): 1, (2, 3, 4): 1}
         """
         indices = tuple(indices)
@@ -492,11 +492,11 @@ class ElementaryVectors:
         except KeyError:
             pass
         indices_complement = tuple(i for i in range(self.length) if i not in indices)
-        minor = self.minor_from_indices(indices_complement)
+        minor = self.minor(indices_complement)
         self.minors_kernel[indices] = Permutation(i + 1 for i in list(indices_complement) + list(indices)).sign() * minor
         return self.minors_kernel[indices]
 
-    def elementary_vector(self, indices: list, kernel: bool = True):
+    def element(self, indices: list, kernel: bool = True):
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
@@ -507,7 +507,7 @@ class ElementaryVectors:
         nonzero_detected = False
         for pos, k in enumerate(indices):
             indices_minor = tuple(i for i in indices if i != k)
-            minor = self.minor_from_indices(indices_minor, kernel=kernel)
+            minor = self.minor(indices_minor, kernel=kernel)
             if minor == 0:
                 continue
             nonzero_detected = True
@@ -516,7 +516,7 @@ class ElementaryVectors:
             return element
         raise ValueError("Indices correspond to zero vector!")
 
-    def elementary_vector_prevent_multiple(self, indices: list, kernel: bool = True):
+    def element_prevent_multiple(self, indices: list, kernel: bool = True):
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
@@ -535,7 +535,7 @@ class ElementaryVectors:
             else:
                 if indices_minor in self.marked_minors:
                     multiple_detected = True
-            minor = self.minor_from_indices(indices_minor, kernel=kernel)
+            minor = self.minor(indices_minor, kernel=kernel)
             if minor == 0:
                 zero_minors.append(indices_minor)
                 continue
@@ -558,17 +558,17 @@ class ElementaryVectors:
         else:
             self.marked_minors = set()
 
-    def elementary_vectors_generator(self, kernel: bool = True, prevent_multiples: bool = True) -> Generator:
+    def generator(self, kernel: bool = True, prevent_multiples: bool = True) -> Generator:
         if prevent_multiples:
             self.reset_set_for_preventing_multiples(kernel=kernel)
         for indices in (self.combinations if kernel else self.combinations_kernel):
             try:
                 if prevent_multiples:
-                    yield self.elementary_vector_prevent_multiple(indices, kernel=kernel)
+                    yield self.element_prevent_multiple(indices, kernel=kernel)
                 else:
-                    yield self.elementary_vector(indices, kernel=kernel)
+                    yield self.element(indices, kernel=kernel)
             except ValueError:
                 pass
 
-    def elementary_vectors(self, kernel: bool = True, prevent_multiples: bool = True) -> list:
-        return list(self.elementary_vectors_generator(kernel=kernel, prevent_multiples=prevent_multiples))
+    def elements(self, kernel: bool = True, prevent_multiples: bool = True) -> list:
+        return list(self.generator(kernel=kernel, prevent_multiples=prevent_multiples))
