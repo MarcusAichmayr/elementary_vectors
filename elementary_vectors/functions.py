@@ -369,7 +369,7 @@ def kernel_matrix_using_elementary_vectors(M):
     )
 
 
-class EVs:
+class ElementaryVectors:
     r"""
     A class used to compute elementary vectors.
     
@@ -378,9 +378,9 @@ class EVs:
 
     EXAMPLES::
 
-        sage: from elementary_vectors.functions import EVs
+        sage: from elementary_vectors.functions import ElementaryVectors
         sage: M = matrix([[1, 2, 3, 4, 5], [0, 1, 2, 2, 3]])
-        sage: m = EVs(M)
+        sage: m = ElementaryVectors(M)
         sage: m.elementary_vectors()
         [(1, -2, 1, 0, 0),
          (0, -2, 0, 1, 0),
@@ -434,9 +434,9 @@ class EVs:
 
         TESTS::
 
-            sage: from elementary_vectors.functions import EVs
+            sage: from elementary_vectors.functions import ElementaryVectors
             sage: M = matrix([[1, 2, 3, 4, 5], [0, 1, 2, 2, 3]])
-            sage: m = EVs(M)
+            sage: m = ElementaryVectors(M)
             sage: m.minors
             {}
             sage: m.minors_kernel
