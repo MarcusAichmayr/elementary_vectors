@@ -552,6 +552,11 @@ class ElementaryVectors:
             return element
         raise ValueError("Indices correspond to zero vector!")
 
+    def random_element(self, kernel: bool = True):
+        if kernel:
+            return self.element(self.combinations.random_element())
+        return self.element(self.combinations_kernel.random_element(), kernel=False)
+
     def reset_set_for_preventing_multiples(self, kernel: bool = True) -> None:
         if kernel:
             self.marked_minors = set()
