@@ -530,10 +530,10 @@ class ElementaryVectors:
         for pos, k in enumerate(indices):
             indices_minor = tuple(i for i in indices if i != k)
             if kernel:
-                if indices_minor in self.marked_minors_kernel:
+                if indices_minor in self.marked_minors:
                     multiple_detected = True
             else:
-                if indices_minor in self.marked_minors:
+                if indices_minor in self.marked_minors_kernel:
                     multiple_detected = True
             minor = self.minor(indices_minor, kernel=kernel)
             if minor == 0:
@@ -544,9 +544,9 @@ class ElementaryVectors:
         if nonzero_detected:
             for marked_minor in zero_minors:
                 if kernel:
-                    self.marked_minors_kernel.add(marked_minor)
-                else:
                     self.marked_minors.add(marked_minor)
+                else:
+                    self.marked_minors_kernel.add(marked_minor)
                 if multiple_detected:
                     raise ValueError("Multiple detected!")
             return element
@@ -554,9 +554,9 @@ class ElementaryVectors:
 
     def reset_set_for_preventing_multiples(self, kernel: bool = True) -> None:
         if kernel:
-            self.marked_minors_kernel = set()
-        else:
             self.marked_minors = set()
+        else:
+            self.marked_minors_kernel = set()
 
     def generator(self, kernel: bool = True, prevent_multiples: bool = True) -> Generator:
         if prevent_multiples:
