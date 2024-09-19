@@ -371,7 +371,7 @@ def kernel_matrix_using_elementary_vectors(M):
 
 class EVs:
     r"""
-    A classed used to compute elementary vectors.
+    A class used to compute elementary vectors.
     
     Whenever a maximal minor is computed, it is stored in a dictionary for efficient reuse.
     Supports elementary vectors in the kernel and row space.
@@ -427,32 +427,76 @@ class EVs:
         self.marked_minors_kernel = set()
 
     def minor_from_indices(self, indices, kernel: bool = True):
+        r"""
+        Compute a minor given by indices
+
+        The minor is cached for efficient reuse.
+
+        TESTS::
+
+            sage: from elementary_vectors.functions import EVs
+            sage: M = matrix([[1, 2, 3, 4, 5], [0, 1, 2, 2, 3]])
+            sage: m = EVs(M)
+            sage: m.minors
+            {}
+            sage: m.minors_kernel
+            {}
+            sage: m.minor_from_indices([0, 1])
+            1
+            sage: m.minors
+            {(0, 1): 1}
+            sage: m.minors_kernel
+            {}
+            sage: m.minor_from_indices([2, 3, 4], kernel=False)
+            1
+            sage: m.minors
+            {(0, 1): 1}
+            sage: m.minors_kernel
+            {(2, 3, 4): 1}
+            sage: m.minor_from_indices([0, 1, 3], kernel=False)
+            1
+            sage: m.minors
+            {(0, 1): 1, (2, 4): -1}
+            sage: m.minors_kernel
+            {(0, 1, 3): 1, (2, 3, 4): 1}
+            sage: m.minor_from_indices([2, 4])
+            -1
+            sage: m.minors
+            {(0, 1): 1, (2, 4): -1}
+            sage: m.minors_kernel
+            {(0, 1, 3): 1, (2, 3, 4): 1}
+        """
+        indices = tuple(indices)
         try:
             if kernel:
-                return self.minors[tuple(indices)]
-            return self.minors_kernel[tuple(indices)]
+                return self.minors[indices]
+            return self.minor_of_kernel_matrix(indices)
         except KeyError:
             pass
 
-        indices_minor = tuple(indices)
+        self.minors[indices] = self.matrix.matrix_from_columns(indices).det()
+        return self.minors[indices]
+
+    def minor_of_kernel_matrix(self, indices):
+        r"""
+        Return a minor of the kernel matrix given by indices
+
+        Caches the result for efficient reuse and uses the corresponding minor
+        """
+        indices = tuple(indices)
+        try:
+            return self.minors_kernel[indices]
+        except KeyError:
+            pass
         indices_complement = tuple(i for i in range(self.length) if i not in indices)
-
-        if not kernel:
-            indices_minor, indices_complement = indices_complement, indices_minor
-
-        minor = self.matrix.matrix_from_columns(indices_minor).det()
-
-        self.minors[indices_minor] = minor
-        self.minors_kernel[indices_complement] = Permutation(i + 1 for i in list(indices_complement) + list(indices_minor)).sign() * minor
-
-        if kernel:
-            return minor
-        return self.minors_kernel[indices_complement]
+        minor = self.minor_from_indices(indices_complement)
+        self.minors_kernel[indices] = Permutation(i + 1 for i in list(indices_complement) + list(indices)).sign() * minor
+        return self.minors_kernel[indices]
 
     def elementary_vector(self, indices: list, kernel: bool = True):
         r"""
         Compute the elementary vector corresponding to a list of indices.
-        
+
         OUTPUT:
         If ``allow_multiple`` is false, a ``ValueError`` will be raised if a zero minor is reused.
         """
@@ -472,7 +516,7 @@ class EVs:
     def elementary_vector_prevent_multiple(self, indices: list, kernel: bool = True):
         r"""
         Compute the elementary vector corresponding to a list of indices.
-        
+
         OUTPUT:
         If ``allow_multiple`` is false, a ``ValueError`` will be raised if a zero minor is reused.
         """
