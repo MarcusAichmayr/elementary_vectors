@@ -12,7 +12,9 @@ r"""Computing elementary vectors"""
 
 import warnings
 from sage.combinat.combination import Combinations
+from sage.combinat.permutation import Permutation
 from sage.matrix.constructor import matrix
+from sage.modules.free_module_element import zero_vector
 
 from .utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples, is_symbolic
 
@@ -365,3 +367,173 @@ def kernel_matrix_using_elementary_vectors(M):
         for k in range(length)
         if k not in indices_minor
     )
+
+
+class EVs:
+    r"""
+    A classed used to compute elementary vectors.
+    
+    Whenever a maximal minor is computed, it is stored in a dictionary for efficient reuse.
+    Supports elementary vectors in the kernel and row space.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.functions import EVs
+        sage: M = matrix([[1, 2, 3, 4, 5], [0, 1, 2, 2, 3]])
+        sage: m = EVs(M)
+        sage: m.elementary_vectors()
+        [(1, -2, 1, 0, 0),
+         (0, -2, 0, 1, 0),
+         (1, -3, 0, 0, 1),
+         (-2, 0, -2, 2, 0),
+         (-1, 0, -3, 0, 2),
+         (2, 0, 0, -3, 2),
+         (0, -1, -1, 0, 1),
+         (0, 0, 2, 1, -2)]
+        sage: m.elementary_vectors(prevent_multiples=False)
+        [(1, -2, 1, 0, 0),
+         (0, -2, 0, 1, 0),
+         (1, -3, 0, 0, 1),
+         (-2, 0, -2, 2, 0),
+         (-1, 0, -3, 0, 2),
+         (2, 0, 0, -3, 2),
+         (0, -2, 0, 1, 0),
+         (0, -1, -1, 0, 1),
+         (0, 2, 0, -1, 0),
+         (0, 0, 2, 1, -2)]
+        sage: m.elementary_vectors(kernel=False)
+        [(-3, -1, 1, -2, 0), (2, 0, -2, 0, -2), (-2, -1, 0, -2, -1), (0, 1, 2, 2, 3)]
+        sage: m.elementary_vectors(kernel=False, prevent_multiples=False)
+        [(-3, -1, 1, -2, 0),
+         (2, 0, -2, 0, -2),
+         (-2, -1, 0, -2, -1),
+         (1, 0, -1, 0, -1),
+         (0, 1, 2, 2, 3)]
+    """
+    def __init__(self, M) -> None:
+        try:
+            self.matrix = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
+        except (ArithmeticError, NotImplementedError):
+            self.matrix = M
+            warnings.warn("Could not determine rank of matrix. Expect wrong result!")
+
+        self.length = self.matrix.ncols()
+        self.rank = self.matrix.nrows()
+        self.minors = {}
+        self.minors_kernel = {}
+        self.ring = self.matrix.base_ring()
+
+        self.marked_minors = set()
+        self.marked_minors_kernel = set()
+
+    def minor_from_indices(self, indices, kernel: bool = True):
+        try:
+            if kernel:
+                return self.minors[tuple(indices)]
+            return self.minors_kernel[tuple(indices)]
+        except KeyError:
+            pass
+
+        indices_minor = tuple(indices)
+        indices_complement = tuple(i for i in range(self.length) if i not in indices)
+
+        if not kernel:
+            indices_minor, indices_complement = indices_complement, indices_minor
+
+        minor = self.matrix.matrix_from_columns(indices_minor).det()
+
+        self.minors[indices_minor] = minor
+        self.minors_kernel[indices_complement] = Permutation(i + 1 for i in list(indices_complement) + list(indices_minor)).sign() * minor
+
+        if kernel:
+            return minor
+        return self.minors_kernel[indices_complement]
+
+    def elementary_vector(self, indices: list, kernel: bool = True):
+        r"""
+        Compute the elementary vector corresponding to a list of indices.
+        
+        OUTPUT:
+        If ``allow_multiple`` is false, a ``ValueError`` will be raised if a zero minor is reused.
+        """
+        element = zero_vector(self.ring, self.length)
+        nonzero_detected = False
+        for pos, k in enumerate(indices):
+            indices_minor = tuple(i for i in indices if i != k)
+            minor = self.minor_from_indices(indices_minor, kernel=kernel)
+            if minor == 0:
+                continue
+            nonzero_detected = True
+            element[k] = (-1) ** pos * minor
+        if nonzero_detected:
+            return element
+        raise ValueError("Indices correspond to zero vector!")
+
+    def elementary_vector_prevent_multiple(self, indices: list, kernel: bool = True):
+        r"""
+        Compute the elementary vector corresponding to a list of indices.
+        
+        OUTPUT:
+        If ``allow_multiple`` is false, a ``ValueError`` will be raised if a zero minor is reused.
+        """
+        element = zero_vector(self.ring, self.length)
+        nonzero_detected = False
+        zero_minors = []
+        multiple_detected = False
+        for pos, k in enumerate(indices):
+            indices_minor = tuple(i for i in indices if i != k)
+            if kernel:
+                if indices_minor in self.marked_minors_kernel:
+                    multiple_detected = True
+            else:
+                if indices_minor in self.marked_minors:
+                    multiple_detected = True
+            minor = self.minor_from_indices(indices_minor, kernel=kernel)
+            if minor == 0:
+                zero_minors.append(indices_minor)
+                continue
+            nonzero_detected = True
+            element[k] = (-1) ** pos * minor
+        if nonzero_detected:
+            for marked_minor in zero_minors:
+                if kernel:
+                    self.marked_minors_kernel.add(marked_minor)
+                else:
+                    self.marked_minors.add(marked_minor)
+                if multiple_detected:
+                    raise ValueError("Multiple detected!")
+            return element
+        raise ValueError("Indices correspond to zero vector!")
+
+    def reset_set_for_preventing_multiples(self, kernel: bool = True) -> None:
+        if kernel:
+            self.marked_minors_kernel = set()
+        else:
+            self.marked_minors = set()
+
+    def elementary_vectors_generator(self, kernel: bool = True, prevent_multiples: bool = True) -> list:
+        if prevent_multiples:
+            self.reset_set_for_preventing_multiples(kernel=kernel)
+        for indices in (Combinations(self.length, self.rank + 1) if kernel else Combinations(self.length, self.length - self.rank + 1)):
+            try:
+                if prevent_multiples:
+                    yield self.elementary_vector_prevent_multiple(indices, kernel=kernel)
+                else:
+                    yield self.elementary_vector(indices, kernel=kernel)
+            except ValueError:
+                pass
+
+    def elementary_vectors(self, kernel: bool = True, prevent_multiples: bool = True) -> list:
+        return list(self.elementary_vectors_generator(kernel=kernel, prevent_multiples=prevent_multiples))
+        # result = []
+        # if prevent_multiples:
+        #     self.reset_set_for_preventing_multiples(kernel=kernel)
+        # for indices in (Combinations(self.length, self.rank + 1) if kernel else Combinations(self.length, self.length - self.rank + 1)):
+        #     try:
+        #         if prevent_multiples:
+        #             result.append(self.elementary_vector_prevent_multiple(indices, kernel=kernel))
+        #         else:
+        #             result.append(self.elementary_vector(indices, kernel=kernel))
+        #     except ValueError:
+        #         pass
+        # return result
