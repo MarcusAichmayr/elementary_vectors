@@ -240,10 +240,7 @@ We compute a solution using elementary vectors::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-import warnings
-from collections.abc import Generator
 from copy import copy
-from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.modules.free_module_element import vector
 from sage.parallel.decorate import parallel
@@ -251,7 +248,6 @@ from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
 from elementary_vectors.functions import ElementaryVectors
-from elementary_vectors.utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples
 from sign_vectors import sign_vector
 from vectors_in_intervals import exists_orthogonal_vector
 from .construction import vector_between_sign_vectors

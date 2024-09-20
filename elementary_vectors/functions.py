@@ -17,7 +17,7 @@ from sage.combinat.permutation import Permutation
 from sage.matrix.constructor import matrix
 from sage.modules.free_module_element import zero_vector
 
-from .utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples, is_symbolic
+from .utility import is_symbolic
 
 
 def elementary_vectors(M, kernel: bool = True, generator: bool = False):
