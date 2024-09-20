@@ -1,5 +1,4 @@
-import vectors_in_intervals.certifying_inequalities as new
-import vectors_in_intervals.certifying_inequalities_old as old
+from vectors_in_intervals import *
 from numpy import argmin
 m_A = 6
 m_B = 6
@@ -57,14 +56,12 @@ for i in range(100):
     A = random_matrix(ring, m_A, length)
     B = random_matrix(ring, m_B, length)
     C = random_matrix(ring, m_C, length)
-    S0 = new.AlternativesHomogeneous(A, B, C)
-    S1 = old.HomogeneousSystem(A, B, C)
+    S = AlternativesHomogeneous(A, B, C)
 
     results = [
-        S0.certify(),
-        S0.certify(reverse=False),
-        S0.certify(random=True),
-        S1.certify(),
+        S.certify(),
+        S.certify(reverse=False),
+        S.certify(random=True),
     ]
 
     if all(r[0] for r in results) != any(r[0] for r in results):

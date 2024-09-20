@@ -1,5 +1,4 @@
-import vectors_in_intervals.certifying_inequalities as new
-import vectors_in_intervals.certifying_inequalities_old as old
+from vectors_in_intervals import *
 from numpy import argmin
 m_A = 6
 m_B = 6
@@ -22,7 +21,6 @@ print(
             "s2",
             "rev2",
             "rand2",
-            "old",
         ]
     ],
     sep="; "
@@ -33,10 +31,9 @@ for i in range(100):
     B = random_matrix(ring, m_B, length)
     b = random_vector(ring, m_A)
     c = random_vector(ring, m_B)
-    S0 = new.AlternativesInhomogeneous(A, B, b, c)
-    S1 = new.AlternativesInhomogeneous(A, B, b, c, one_homogenized=True)
-    S2 = new.AlternativesInhomogeneous(A, B, b, c, two_double_system=True)
-    S3 = old.InhomogeneousSystem(A, B, b, c)
+    S0 = AlternativesInhomogeneous(A, B, b, c)
+    S1 = AlternativesInhomogeneous(A, B, b, c, one_homogenized=True)
+    S2 = AlternativesInhomogeneous(A, B, b, c, two_double_system=True)
 
     results = [
         S0.certify(),
@@ -48,7 +45,6 @@ for i in range(100):
         S2.certify(),
         S2.certify(reverse=False),
         S2.certify(random=True),
-        S3.certify(),
     ]
 
     if all(r[0] for r in results) != any(r[0] for r in results):
