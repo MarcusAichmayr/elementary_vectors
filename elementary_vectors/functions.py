@@ -381,7 +381,7 @@ class ElementaryVectors:
         except ValueError: # no elementary vectors exist or generated zero vector
             return
 
-    def reset_set_for_preventing_multiples(self, kernel: bool = True) -> None:
+    def _reset_set_for_preventing_multiples(self, kernel: bool = True) -> None:
         if kernel:
             self.marked_minors = set()
         else:
@@ -393,8 +393,9 @@ class ElementaryVectors:
         prevent_multiples: bool = True,
         reverse: bool = False
     ) -> Generator:
+        r"""Return a generator of elementary vectors"""
         if prevent_multiples:
-            self.reset_set_for_preventing_multiples(kernel=kernel)
+            self._reset_set_for_preventing_multiples(kernel=kernel)
         combinations = self.combinations if kernel else self.combinations_kernel
         if reverse:
             combinations = reversed(combinations)
@@ -408,4 +409,5 @@ class ElementaryVectors:
                 pass
 
     def elements(self, kernel: bool = True, prevent_multiples: bool = True) -> list:
+        r"""Return a list of elementary vectors"""
         return list(self.generator(kernel=kernel, prevent_multiples=prevent_multiples))
