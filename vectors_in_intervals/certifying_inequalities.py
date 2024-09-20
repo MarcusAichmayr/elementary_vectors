@@ -77,7 +77,7 @@ We consider another example::
     sage: C = matrix([[-1, -1]])
     sage: S = AlternativesHomogeneous(A, B, C)
     sage: S.certify()
-    (False, (0, -5, -1, -2), 1)
+    (False, (1, 1, 0, 1), 2)
     sage: S.one.certify()
     (False, (-2, 3, 1, 0))
 
@@ -147,7 +147,7 @@ This system can be described by two matrices and two lists of intervals::
 The package offers a single function that certifies existence of a solution::
 
     sage: S.certify()
-    (True, (2, 2, 0, 0, 0, 4, -2, 2), 12)
+    (True, (2, 2, 0, 0, 0, 4, -2, 2), 13)
 
 The alternatives for the inhomogeneous case can be formulated using two systems.
 The resulting systems yield different certificates::
@@ -250,62 +250,12 @@ from sage.parallel.decorate import parallel
 from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
-from elementary_vectors import elementary_vectors
+from elementary_vectors.functions import ElementaryVectors
 from elementary_vectors.utility import elementary_vector_from_indices, elementary_vector_from_indices_prevent_multiples
 from sign_vectors import sign_vector
 from vectors_in_intervals import exists_orthogonal_vector
 from .construction import vector_between_sign_vectors
 from .utility import interval_from_bounds, CombinationsIncluding
-
-
-def elementary_vectors_generator(M, fixed_elements=None, reverse=False, random=False) -> Generator:
-    r"""
-    Return generator of elementary vectors with nonzero first component.
-
-    INPUT:
-
-    - ``M`` -- a matrix
-
-    - ``fixed_elements`` -- a list of indices where a minor should be used
-
-    - ``reverse`` -- reverse the order of elements
-
-    - ``random`` -- randomly generate elements (repetition can occur)
-
-    .. SEEALSO::
-
-        :func:`elementary_vectors.functions.elementary_vectors`
-    """
-    try:
-        M = M.matrix_from_rows(M.pivot_rows())
-    except (ArithmeticError, NotImplementedError):
-        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
-
-    rank, length = M.dimensions()
-    minors = {}
-
-    if fixed_elements is None:
-        combinations = Combinations(length, rank + 1)
-    else:
-        combinations = CombinationsIncluding(length, rank + 1, fixed_elements)
-
-    if random:
-        try:
-            while True:
-                v = elementary_vector_from_indices(
-                    combinations.random_element(),
-                    minors,
-                    M
-                )
-                if v:
-                    yield v
-        except ValueError: # no elementary vectors
-            return
-
-    for indices in (reversed(combinations) if reverse else combinations):
-        v = elementary_vector_from_indices_prevent_multiples(indices, minors, M)
-        if v:
-            yield v
 
 
 def exists_orthogonal_vector_inhomogeneous(v, b, c) -> bool:
@@ -413,25 +363,19 @@ class LinearInequalitySystem(SageObject):
     r"""
     A class for linear inequality systems given by a matrix and intervals
     """
-    __slots__ = "result", "matrix", "intervals", "elementary_vectors"
+    __slots__ = "result", "matrix", "intervals", "evs", "elementary_vectors"
 
     def __init__(self, _matrix, intervals, result=None) -> None:
         self.matrix = _matrix
         self.intervals = intervals
         self.result = result
-        self.elementary_vectors = None
+        self.evs = ElementaryVectors(self.matrix.T)
 
     def _repr_(self) -> str:
         return str(self.matrix) + " x in " + str(self.get_intervals())
 
     def get_intervals(self):
         return self.intervals
-
-    def set_elementary_vectors(self, reverse=False, random=False):
-        self.elementary_vectors = self.elementary_vectors_generator(reverse=reverse, random=random)
-
-    def elementary_vectors_generator(self, reverse=False, random=False):
-        return elementary_vectors_generator(self.matrix.T, reverse=reverse, random=random)
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector(v, self.intervals)
@@ -445,8 +389,15 @@ class LinearInequalitySystem(SageObject):
         return solution[:-1] / solution[-1]
 
     def certify_nonexistence(self, reverse=False, random=False):
-        self.set_elementary_vectors(reverse=reverse, random=random)
-        for v in self.elementary_vectors:
+        if random:
+            def elementary_vectors_generator():
+                while True:
+                    yield self.evs.random_element()
+        else:
+            def elementary_vectors_generator():
+                return self.evs.generator()
+
+        for v in elementary_vectors_generator():
             if self.exists_orthogonal_vector(v):
                 return v
         raise ValueError("A solution exists!")
@@ -472,9 +423,8 @@ class HomogeneousSystem(LinearInequalitySystem):
         self.strict = range(A.nrows())
         self.nonstrict = range(A.nrows(), A.nrows() + B.nrows())
 
-        # super().__init__(result, matrix.block([[C], [B], [A]]), None)
-        # self.strict = range(C.nrows() + B.nrows(), C.nrows() + B.nrows() + A.nrows())
-        # self.nonstrict = range(C.nrows(), C.nrows() + B.nrows())
+        if len(self.strict) == 1:
+            self.evs.combinations = reversed(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict))
 
     def get_intervals(self) -> list:
         self.intervals = [
@@ -488,16 +438,6 @@ class HomogeneousSystem(LinearInequalitySystem):
             for i in range(self.matrix.nrows())
         ]
         return self.intervals
-
-    def elementary_vectors_generator(self, reverse=False, random=False):
-        if len(self.strict) == 1:
-            return elementary_vectors_generator(
-                self.matrix.T,
-                self.strict,
-                reverse=reverse,
-                random=random
-            )
-        return super().elementary_vectors_generator(reverse=reverse, random=random)
 
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector_homogeneous(v, self.strict, self.nonstrict)
@@ -583,7 +523,7 @@ class Alternatives(SageObject):
         systems = [self.one, self.two]
         needed_iterations = 0
         for system in systems:
-            system.set_elementary_vectors(reverse=reverse, random=random)
+            system.elementary_vectors = system.evs.generator()
 
         if number_parallel <= 1:
             while True:
@@ -893,7 +833,7 @@ class AlternativesInhomogeneous(Alternatives):
         systems = {0: self.one, 1: self.two, 2: self.three}
         needed_iterations = 0
         for system in systems.values():
-            system.set_elementary_vectors(reverse=reverse, random=random)
+            system.elementary_vectors = system.evs.generator()
 
         certificates = {}
         while True:
