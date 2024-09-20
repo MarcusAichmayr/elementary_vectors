@@ -166,33 +166,22 @@ def kernel_matrix_using_elementary_vectors(M):
         [0 1 0]
         [0 0 1]
     """
-    try:
-        M = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
-    except (ArithmeticError, NotImplementedError):
-        warnings.warn("Could not determine rank of matrix. Expect wrong result!")
-
     rank, length = M.dimensions()
-    minors = {}
 
     if rank == length:
         return matrix(M.base_ring(), 0, length)
 
+    evs = ElementaryVectors(M)
     constant_minor_found = False
-    for indices_minor in Combinations(reversed(range(length)), rank):
-        indices_minor = tuple(indices_minor)
-        minors[indices_minor] = M.matrix_from_columns(indices_minor).det()
-        minor = minors[indices_minor]
+    for indices in Combinations(reversed(range(length)), rank):
+        minor = evs.minor(indices)
         if minor and not is_symbolic(minor):
             constant_minor_found = True
             break
     if not constant_minor_found:
         raise ValueError("Could not find a constant nonzero maximal minor.")
 
-    return matrix(
-        elementary_vector_from_indices(set(indices_minor).union([k]), minors, M)
-        for k in range(length)
-        if k not in indices_minor
-    )
+    return matrix(evs.element(set(indices).union([k])) for k in range(length) if k not in indices)
 
 
 class ElementaryVectors:
