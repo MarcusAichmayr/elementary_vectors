@@ -361,7 +361,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         try:
             return self.matrix.solve_right(
                 vector_between_sign_vectors(
-                    self.matrix.T,
+                    self.evs.generator(kernel=False),
                     sign_vector(
                         len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
                     ),
