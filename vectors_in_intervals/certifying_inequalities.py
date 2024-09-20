@@ -255,107 +255,6 @@ from .construction import vector_between_sign_vectors
 from .utility import interval_from_bounds, CombinationsIncluding
 
 
-def exists_orthogonal_vector_inhomogeneous(v, b, c) -> bool:
-    r"""
-    Return whether there exists an orthogonal vector ``z = (z_1, z_2)`` to ``v`` satisfying ``z_1 <= b, z_2 < c``.
-
-    INPUT:
-
-    - ``v`` -- a vector
-
-    - ``b`` -- a vector
-
-    - ``c`` -- a vector
-
-    .. SEEALSO::
-
-        :func:`vectors_in_intervals.existence.exists_orthogonal_vector`
-
-    TESTS::
-
-        sage: from elementary_vectors import *
-        sage: from vectors_in_intervals import *
-        sage: from vectors_in_intervals.certifying_inequalities import *
-        sage: A = matrix([[1, 2], [0, 1], [2, 0]])
-        sage: B = matrix([[2, 3], [0, 2]])
-        sage: b = vector([1, -1, 2])
-        sage: c = vector([2, 3])
-        sage: I = [interval_from_bounds(-Infinity, bi) for bi in b] + [interval_from_bounds(-Infinity, ci, False, False) for ci in c]
-        sage: M = matrix.block([[A.T, B.T]])
-        sage: for v in elementary_vectors(M, generator=True):
-        ....:     assert(exists_orthogonal_vector(v, I) == exists_orthogonal_vector_inhomogeneous(v, b, c))
-    """
-    m1 = len(b)
-    m2 = len(c)
-
-    def condition(v):
-        if all(vk >= 0 for vk in v):
-            scalarproduct = sum(v[k] * b[k] for k in range(m1)) + sum(
-                v[k + m1] * c[k] for k in range(m2)
-            )
-            if scalarproduct < 0:
-                return True
-            if scalarproduct <= 0 and any(v[k] for k in range(m1, m1 + m2)):
-                return True
-        return False
-
-    return not condition(v) and not condition(-v)
-
-
-def exists_orthogonal_vector_homogeneous(v, range_strict, range_non_strict) -> bool:
-    r"""
-    Return whether there exists an orthogonal vector to ``v`` lying by homogeneous intervals.
-
-    INPUT:
-
-    - ``v`` -- a vector
-
-    - ``range_strict`` -- range of strict inequalities
-
-    - ``range_non_strict`` -- range of non-strict inequalities
-
-    OUTPUT:
-    Checks if there exists an orthogonal vector to ``v`` that lies in homogeneous intervals.
-    The intervals are ``(0, oo)`` for components in ``range_strict``,
-    ``[0, oo)`` for components in ``range_non_strict``
-    and ``{0}`` for all remaining components.
-
-    .. SEEALSO::
-
-        :func:`vectors_in_intervals.existence.exists_orthogonal_vector`
-
-    TESTS::
-
-        sage: from elementary_vectors import *
-        sage: from vectors_in_intervals import *
-        sage: from vectors_in_intervals.certifying_inequalities import *
-        sage: A = matrix([[1, 2], [0, 1]])
-        sage: B = matrix([[2, 3], [0, -1]])
-        sage: C = matrix([[-1, 0], [1, 1]])
-        sage: M = matrix.block([[A.T, B.T, C.T]])
-        sage: I = (
-        ....:     2 * [interval_from_bounds(0, Infinity, False, False)]
-        ....:     + 2 * [interval_from_bounds(0, Infinity)]
-        ....:     + 2 * [interval_from_bounds(0, 0)]
-        ....: )
-        sage: for v in elementary_vectors(M, generator=True):
-        ....:     assert(exists_orthogonal_vector(v, I) == exists_orthogonal_vector_homogeneous(v, range(A.nrows()), range(A.nrows(), A.nrows() + B.nrows())))
-    """
-    return not (
-        any(v[k] != 0 for k in range_strict)
-        and (
-            (
-                all(v[k] >= 0 for k in range_strict)
-                and all(v[k] >= 0 for k in range_non_strict)
-            )
-            or (
-                all(v[k] <= 0 for k in range_strict)
-                and all(v[k] <= 0 for k in range_non_strict)
-            )
-        )
-    )
-
-
 class LinearInequalitySystem(SageObject):
     r"""
     A class for linear inequality systems given by a matrix and intervals
@@ -436,7 +335,19 @@ class HomogeneousSystem(LinearInequalitySystem):
         return self.intervals
 
     def exists_orthogonal_vector(self, v) -> bool:
-        return exists_orthogonal_vector_homogeneous(v, self.strict, self.nonstrict)
+        return not (
+            any(v[k] != 0 for k in self.strict)
+            and (
+                (
+                    all(v[k] >= 0 for k in self.strict)
+                    and all(v[k] >= 0 for k in self.nonstrict)
+                )
+                or (
+                    all(v[k] <= 0 for k in self.strict)
+                    and all(v[k] <= 0 for k in self.nonstrict)
+                )
+            )
+        )
 
     def to_homogeneous(self):
         return self
@@ -480,7 +391,21 @@ class InhomogeneousSystem(LinearInequalitySystem):
         return self.intervals
 
     def exists_orthogonal_vector(self, v) -> bool:
-        return exists_orthogonal_vector_inhomogeneous(v, self.b, self.c)
+        len_b = len(self.b)
+        len_c = len(self.c)
+
+        def condition(v):
+            if all(vk >= 0 for vk in v):
+                scalarproduct = sum(v[k] * self.b[k] for k in range(len_b)) + sum(
+                    v[k + len_b] * self.c[k] for k in range(len_c)
+                )
+                if scalarproduct < 0:
+                    return True
+                if scalarproduct <= 0 and any(v[k] for k in range(len_b, len_b + len_c)):
+                    return True
+            return False
+
+        return not condition(v) and not condition(-v)
 
     def to_homogeneous(self):
         return HomogeneousSystem(
