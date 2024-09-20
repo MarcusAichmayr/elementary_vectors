@@ -367,9 +367,19 @@ class ElementaryVectors:
         raise ValueError("Indices correspond to zero vector!")
 
     def random_element(self, kernel: bool = True):
-        if kernel:
-            return self.element(self.combinations.random_element())
-        return self.element(self.combinations_kernel.random_element(), kernel=False)
+        r"""
+        Return a random elementary vector
+
+        .. NOTE::
+
+            If no elementary vector exists or the zero vector has been generated, ``None`` is returned.
+        """
+        try:
+            if kernel:
+                return self.element(self.combinations.random_element())
+            return self.element(self.combinations_kernel.random_element(), kernel=False)
+        except ValueError: # no elementary vectors exist or generated zero vector
+            return
 
     def reset_set_for_preventing_multiples(self, kernel: bool = True) -> None:
         if kernel:

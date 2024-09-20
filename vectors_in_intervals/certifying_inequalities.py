@@ -241,6 +241,7 @@ We compute a solution using elementary vectors::
 #############################################################################
 
 from copy import copy
+from collections.abc import Generator
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
 from sage.modules.free_module_element import vector
 from sage.parallel.decorate import parallel
@@ -376,6 +377,13 @@ class LinearInequalitySystem(SageObject):
     def exists_orthogonal_vector(self, v) -> bool:
         return exists_orthogonal_vector(v, self.intervals)
 
+    def elementary_vectors_generator(self, reverse: bool = False, random: bool = False) -> Generator:
+        if random:
+            while True:
+                yield self.evs.random_element()
+        else:
+            yield from self.evs.generator(reverse=reverse)
+
     def to_homogeneous(self):
         return HomogeneousSystem(*homogeneous_from_general(self.matrix, self.intervals), result=self.result)
 
@@ -385,15 +393,7 @@ class LinearInequalitySystem(SageObject):
         return solution[:-1] / solution[-1]
 
     def certify_nonexistence(self, reverse=False, random=False):
-        if random:
-            def elementary_vectors_generator():
-                while True:
-                    yield self.evs.random_element()
-        else:
-            def elementary_vectors_generator():
-                return self.evs.generator(reverse=reverse)
-
-        for v in elementary_vectors_generator():
+        for v in self.elementary_vectors_generator(reverse=reverse, random=random):
             if self.exists_orthogonal_vector(v):
                 return v
         raise ValueError("A solution exists!")
@@ -519,7 +519,7 @@ class Alternatives(SageObject):
         systems = [self.one, self.two]
         needed_iterations = 0
         for system in systems:
-            system.elementary_vectors = system.evs.generator(reverse=reverse)
+            system.elementary_vectors = system.elementary_vectors_generator(reverse=reverse, random=random)
 
         if number_parallel <= 1:
             while True:
@@ -527,6 +527,8 @@ class Alternatives(SageObject):
                 for i, system in enumerate(systems):
                     try:
                         v = next(system.elementary_vectors)
+                        if v is None:
+                            continue
                         if not system.exists_orthogonal_vector(v):
                             return system.result, v, needed_iterations
                     except StopIteration:
@@ -829,7 +831,7 @@ class AlternativesInhomogeneous(Alternatives):
         systems = {0: self.one, 1: self.two, 2: self.three}
         needed_iterations = 0
         for system in systems.values():
-            system.elementary_vectors = system.evs.generator(reverse=reverse)
+            system.elementary_vectors = system.elementary_vectors_generator(reverse=reverse, random=random)
 
         certificates = {}
         while True:
@@ -837,6 +839,8 @@ class AlternativesInhomogeneous(Alternatives):
             for i, system in copy(systems).items():
                 try:
                     v = next(system.elementary_vectors)
+                    if v is None:
+                        continue
                     if not system.exists_orthogonal_vector(v):
                         if i == 0:
                             return system.result, v, needed_iterations
