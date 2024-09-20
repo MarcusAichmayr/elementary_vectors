@@ -180,7 +180,7 @@ def cocircuits_from_matrix(M, kernel: bool = True):
         [ 0  1  0  2]
         [ 0  0  1 -1]
         sage: cocircuits_from_matrix(B, kernel=False)
-        {(-000), (0+0+), (00+-), (00-+), (0-0-), (0--0), (+000), (0++0)}
+        {(0+0+), (-000), (00+-), (00-+), (0-0-), (0--0), (+000), (0++0)}
     """
     return cocircuits_from_elementary_vectors(elementary_vectors(M, kernel=kernel))
 
