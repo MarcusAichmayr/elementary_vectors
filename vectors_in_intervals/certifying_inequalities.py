@@ -77,7 +77,7 @@ We consider another example::
     sage: C = matrix([[-1, -1]])
     sage: S = AlternativesHomogeneous(A, B, C)
     sage: S.certify()
-    (False, (1, 1, 0, 1), 2)
+    (False, (0, -5, -1, -2), 1)
     sage: S.one.certify()
     (False, (-2, 3, 1, 0))
 
@@ -395,7 +395,7 @@ class LinearInequalitySystem(SageObject):
                     yield self.evs.random_element()
         else:
             def elementary_vectors_generator():
-                return self.evs.generator()
+                return self.evs.generator(reverse=reverse)
 
         for v in elementary_vectors_generator():
             if self.exists_orthogonal_vector(v):
@@ -424,7 +424,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         self.nonstrict = range(A.nrows(), A.nrows() + B.nrows())
 
         if len(self.strict) == 1:
-            self.evs.combinations = reversed(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict))
+            self.evs.combinations = CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict)
 
     def get_intervals(self) -> list:
         self.intervals = [
@@ -523,7 +523,7 @@ class Alternatives(SageObject):
         systems = [self.one, self.two]
         needed_iterations = 0
         for system in systems:
-            system.elementary_vectors = system.evs.generator()
+            system.elementary_vectors = system.evs.generator(reverse=reverse)
 
         if number_parallel <= 1:
             while True:
@@ -833,7 +833,7 @@ class AlternativesInhomogeneous(Alternatives):
         systems = {0: self.one, 1: self.two, 2: self.three}
         needed_iterations = 0
         for system in systems.values():
-            system.elementary_vectors = system.evs.generator()
+            system.elementary_vectors = system.evs.generator(reverse=reverse)
 
         certificates = {}
         while True:

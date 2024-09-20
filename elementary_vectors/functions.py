@@ -377,10 +377,18 @@ class ElementaryVectors:
         else:
             self.marked_minors_kernel = set()
 
-    def generator(self, kernel: bool = True, prevent_multiples: bool = True) -> Generator:
+    def generator(
+        self,
+        kernel: bool = True,
+        prevent_multiples: bool = True,
+        reverse: bool = False
+    ) -> Generator:
         if prevent_multiples:
             self.reset_set_for_preventing_multiples(kernel=kernel)
-        for indices in (self.combinations if kernel else self.combinations_kernel):
+        combinations = self.combinations if kernel else self.combinations_kernel
+        if reverse:
+            combinations = reversed(combinations)
+        for indices in combinations:
             try:
                 if prevent_multiples:
                     yield self.element_prevent_multiple(indices, kernel=kernel)
