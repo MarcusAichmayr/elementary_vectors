@@ -296,12 +296,15 @@ class LinearInequalitySystem(SageObject):
         return str(self.matrix) + " x in " + str(self.get_intervals())
 
     def get_intervals(self):
+        r"""Return the corresponding intervals."""
         return self.intervals
 
     def exists_orthogonal_vector(self, v) -> bool:
+        r"""Check if an orthogonal vector exists in the intervals."""
         return exists_orthogonal_vector(v, self.intervals)
 
     def elementary_vectors_generator(self, reverse: bool = False, random: bool = False) -> Generator:
+        r"""Return a generator of elementary vectors."""
         if random:
             while True:
                 yield self.evs.random_element()
@@ -309,14 +312,29 @@ class LinearInequalitySystem(SageObject):
             yield from self.evs.generator(reverse=reverse)
 
     def to_homogeneous(self):
+        r"""Return the equivalent homogeneous system."""
         return HomogeneousSystem(*homogeneous_from_general(self.matrix, self.intervals), result=self.result)
 
     def solve(self):
+        r"""
+        Compute a solution for this linear inequality system.
+
+        If no solution exists, a ``ValueError`` is raised.
+        """
         homogeneous = self.to_homogeneous()
         solution = homogeneous.solve()
         return solution[:-1] / solution[-1]
 
     def certify_nonexistence(self, reverse=False, random=False):
+        r"""
+        Certifies nonexistence if no solution exists.
+
+        Otherwise, a ``ValueError`` is raised.
+
+        .. NOTE::
+
+            If a solution exists and ``random`` is set to true, this method will never finish.
+        """
         for v in self.elementary_vectors_generator(reverse=reverse, random=random):
             if not self.exists_orthogonal_vector(v):
                 return v
