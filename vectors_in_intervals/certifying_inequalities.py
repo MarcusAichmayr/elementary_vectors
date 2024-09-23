@@ -22,14 +22,18 @@ EXAMPLES::
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
     sage: S = HomogeneousSystem(A, B, C)
-    sage: S.certify()
-    (True, (0, 1))
     sage: S.solve()
     (0, 1)
     sage: S.certify_nonexistence()
     Traceback (most recent call last):
     ...
     ValueError: A solution exists!
+    sage: S.certify()
+    (True, (0, 1))
+    sage: S.certify_parallel()
+    (True, (0, 1))
+    sage: S.certify_parallel(random=True) # random
+    (True, (0, 1))
 
 Homogeneous systems
 ~~~~~~~~~~~~~~~~~~~
@@ -259,6 +263,8 @@ We compute a solution using elementary vectors::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+import concurrent.futures
+
 from copy import copy
 from collections.abc import Generator
 from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
@@ -322,6 +328,31 @@ class LinearInequalitySystem(SageObject):
             return False, self.certify_nonexistence()
         except ValueError:
             return True, self.solve()
+
+    def certify_parallel(self, random=False):
+        r"""
+        Return a boolean and a certificate for solvability.
+
+        Attempts to find a solution and certify nonexistence in parallel.
+        """
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            done, not_done = concurrent.futures.wait(
+                [
+                    executor.submit(lambda: (False, self.certify_nonexistence(random=random))),
+                    executor.submit(lambda: (True, self.solve()))
+                ],
+                return_when=concurrent.futures.FIRST_COMPLETED
+            )
+
+            try:
+                result = done.pop().result()
+                for task in not_done:
+                    task.cancel()
+
+                return result
+            except ValueError:
+                for task in not_done:
+                    return task.result()
 
 
 class HomogeneousSystem(LinearInequalitySystem):
