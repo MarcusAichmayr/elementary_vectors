@@ -298,8 +298,20 @@ class LinearInequalitySystem(SageObject):
         (True, (2, 5))
         sage: S.certify(reverse=True)
         (True, (5/2, 5))
-        sage: # S.certify_parallel() # TODO
+        sage: # S.certify_parallel() # TODO SignalError: Segmentation Fault
         (True, (2, 5))
+
+    We consider yet another system::
+
+        sage: A = matrix([[1, 0], [1, 1]])
+        sage: B = matrix([[-1, -1]])
+        sage: b = vector([1, 0])
+        sage: c = vector([0])
+        sage: S = InhomogeneousSystem(A, B, b, c)
+        sage: S.certify()
+        (False, (0, 1, 1))
+        sage: S.certify_parallel()
+        (False, (0, 1, 1))
     """
     __slots__ = "result", "matrix", "intervals", "evs", "elementary_vectors", "solvable"
 
