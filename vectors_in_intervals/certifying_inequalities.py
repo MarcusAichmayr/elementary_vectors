@@ -12,29 +12,6 @@ Many of the results are derived from theorems in [Ben00]_.
     Motzkin's transposition theorem, and the related theorems of Farkas, Gordan and Stiemke.
     2000.
 
-Linear inequality systems
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-EXAMPLES::
-
-    sage: from vectors_in_intervals import *
-    sage: A = matrix([[1, 2], [0, 1]])
-    sage: B = matrix([[2, 3]])
-    sage: C = matrix([[-1, 0]])
-    sage: S = HomogeneousSystem(A, B, C)
-    sage: S.solve()
-    (0, 1)
-    sage: S.certify_nonexistence()
-    Traceback (most recent call last):
-    ...
-    ValueError: A solution exists!
-    sage: S.certify()
-    (True, (0, 1))
-    sage: S.certify_parallel()
-    (True, (0, 1))
-    sage: S.certify_parallel(random=True) # random
-    (True, (0, 1))
-
 Homogeneous systems
 ~~~~~~~~~~~~~~~~~~~
 
@@ -283,6 +260,46 @@ from .utility import interval_from_bounds, CombinationsIncluding
 class LinearInequalitySystem(SageObject):
     r"""
     A class for linear inequality systems given by a matrix and intervals
+
+    EXAMPLES::
+
+        sage: from vectors_in_intervals import *
+        sage: A = matrix([[1, 2], [0, 1]])
+        sage: B = matrix([[2, 3]])
+        sage: C = matrix([[-1, 0]])
+        sage: S = HomogeneousSystem(A, B, C)
+        sage: S.solve()
+        (0, 1)
+        sage: S.certify_nonexistence()
+        Traceback (most recent call last):
+        ...
+        ValueError: A solution exists!
+        sage: S.certify()
+        (True, (0, 1))
+        sage: S.certify(reverse=True)
+        (True, (0, 1))
+        sage: S.certify_parallel()
+        (True, (0, 1))
+        sage: S.certify_parallel(reverse=True) # random
+        (True, (0, 1))
+        sage: S.certify_parallel(random=True) # random
+        (True, (0, 1))
+
+    We consider another system::
+
+        sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
+        sage: lower_bounds = [2, 5, 0, -oo]
+        sage: upper_bounds = [5, oo, 8, 5]
+        sage: lower_bounds_closed = [True, True, False, False]
+        sage: upper_bounds_closed = [False, False, False, True]
+        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+        sage: S = LinearInequalitySystem(M, I)
+        sage: S.certify()
+        (True, (2, 5))
+        sage: S.certify(reverse=True)
+        (True, (5/2, 5))
+        sage: # S.certify_parallel() # TODO
+        (True, (2, 5))
     """
     __slots__ = "result", "matrix", "intervals", "evs", "elementary_vectors", "solvable"
 
@@ -316,14 +333,14 @@ class LinearInequalitySystem(SageObject):
         r"""Return the equivalent homogeneous system."""
         return HomogeneousSystem(*homogeneous_from_general(self.matrix, self.intervals), result=self.result)
 
-    def solve(self):
+    def solve(self, reverse: bool = False):
         r"""
         Compute a solution for this linear inequality system.
 
         If no solution exists, a ``ValueError`` is raised.
         """
         homogeneous = self.to_homogeneous()
-        solution = homogeneous.solve()
+        solution = homogeneous.solve(reverse=reverse)
         return solution[:-1] / solution[-1]
 
     def certify_nonexistence(self, reverse: bool = False, random: bool = False):
@@ -345,14 +362,14 @@ class LinearInequalitySystem(SageObject):
         self.solvable = True
         raise ValueError("A solution exists!")
 
-    def certify(self):
+    def certify(self, reverse: bool = False):
         r"""Return a boolean and a certificate for solvability."""
         try:
-            return False, self.certify_nonexistence()
+            return False, self.certify_nonexistence(reverse=reverse)
         except ValueError:
-            return True, self.solve()
+            return True, self.solve(reverse=reverse)
 
-    def certify_parallel(self, random: bool = False):
+    def certify_parallel(self, reverse: bool = False, random: bool = False):
         r"""
         Return a boolean and a certificate for solvability.
 
@@ -361,8 +378,8 @@ class LinearInequalitySystem(SageObject):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             done, not_done = concurrent.futures.wait(
                 [
-                    executor.submit(lambda: (False, self.certify_nonexistence(random=random))),
-                    executor.submit(lambda: (True, self.solve()))
+                    executor.submit(lambda: (False, self.certify_nonexistence(reverse=not reverse, random=random))),
+                    executor.submit(lambda: (True, self.solve(reverse=reverse)))
                 ],
                 return_when=concurrent.futures.FIRST_COMPLETED
             )
@@ -425,7 +442,7 @@ class HomogeneousSystem(LinearInequalitySystem):
     def to_homogeneous(self):
         return self
 
-    def solve(self):
+    def solve(self, reverse: bool = False):
         r"""
         Compute a solution if existent.
 
@@ -434,7 +451,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         try:
             result = self.matrix.solve_right(
                 vector_between_sign_vectors(
-                    self.evs.generator(kernel=False),
+                    self.evs.generator(kernel=False, reverse=reverse),
                     sign_vector(
                         len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
                     ),
