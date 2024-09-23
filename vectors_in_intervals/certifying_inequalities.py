@@ -284,13 +284,14 @@ class LinearInequalitySystem(SageObject):
     r"""
     A class for linear inequality systems given by a matrix and intervals
     """
-    __slots__ = "result", "matrix", "intervals", "evs", "elementary_vectors"
+    __slots__ = "result", "matrix", "intervals", "evs", "elementary_vectors", "solvable"
 
     def __init__(self, _matrix, intervals, result=None) -> None:
         self.matrix = _matrix
         self.intervals = intervals
         self.result = result
         self.evs = ElementaryVectors(self.matrix.T)
+        self.solvable = None
 
     def _repr_(self) -> str:
         return str(self.matrix) + " x in " + str(self.get_intervals())
@@ -336,8 +337,12 @@ class LinearInequalitySystem(SageObject):
             If a solution exists and ``random`` is set to true, this method will never finish.
         """
         for v in self.elementary_vectors_generator(reverse=reverse, random=random):
+            if self.solvable:
+                break
             if not self.exists_orthogonal_vector(v):
+                self.solvable = False
                 return v
+        self.solvable = True
         raise ValueError("A solution exists!")
 
     def certify(self):
@@ -427,7 +432,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         This approach sums up positive elementary vectors in the row space.
         """
         try:
-            return self.matrix.solve_right(
+            result = self.matrix.solve_right(
                 vector_between_sign_vectors(
                     self.evs.generator(kernel=False),
                     sign_vector(
@@ -439,7 +444,10 @@ class HomogeneousSystem(LinearInequalitySystem):
                     )
                 )
             )
+            self.solvable = True
+            return result
         except ValueError as exc:
+            self.solvable = False
             raise ValueError("No solution exists!") from exc
 
 
