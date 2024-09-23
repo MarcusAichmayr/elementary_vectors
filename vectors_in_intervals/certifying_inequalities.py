@@ -12,6 +12,25 @@ Many of the results are derived from theorems in [Ben00]_.
     Motzkin's transposition theorem, and the related theorems of Farkas, Gordan and Stiemke.
     2000.
 
+Linear inequality systems
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+EXAMPLES::
+
+    sage: from vectors_in_intervals import *
+    sage: A = matrix([[1, 2], [0, 1]])
+    sage: B = matrix([[2, 3]])
+    sage: C = matrix([[-1, 0]])
+    sage: S = HomogeneousSystem(A, B, C)
+    sage: S.certify()
+    (True, (0, 1))
+    sage: S.solve()
+    (0, 1)
+    sage: S.certify_nonexistence()
+    Traceback (most recent call last):
+    ...
+    ValueError: A solution exists!
+
 Homogeneous systems
 ~~~~~~~~~~~~~~~~~~~
 
@@ -79,7 +98,7 @@ We consider another example::
     sage: S.certify()
     (False, (0, -5, -1, -2), 1)
     sage: S.one.certify()
-    (False, (-2, 3, 1, 0))
+    (False, (1, 1, 0, 1))
 
 In some cases, it is faster to randomly generate elementary vectors to certify::
 
@@ -293,7 +312,7 @@ class LinearInequalitySystem(SageObject):
 
     def certify_nonexistence(self, reverse=False, random=False):
         for v in self.elementary_vectors_generator(reverse=reverse, random=random):
-            if self.exists_orthogonal_vector(v):
+            if not self.exists_orthogonal_vector(v):
                 return v
         raise ValueError("A solution exists!")
 
