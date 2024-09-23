@@ -25,14 +25,16 @@ from .construction import (
     vector_from_sign_vector,
     sign_vectors_in_intervals,
 )
-from .certifying_inequalities import (
+from .linear_inequality_systems import (
     LinearInequalitySystem,
     InhomogeneousSystem,
     HomogeneousSystem,
-    AlternativesGeneral,
-    AlternativesInhomogeneous,
-    AlternativesHomogeneous,
     homogeneous_from_general,
     inhomogeneous_from_general,
     homogeneous_from_inhomogeneous,
+)
+from .certifying_inequalities import (
+    AlternativesGeneral,
+    AlternativesInhomogeneous,
+    AlternativesHomogeneous,
 )
