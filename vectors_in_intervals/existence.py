@@ -213,7 +213,7 @@ def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool
         )
     if any(interval.is_empty() for interval in intervals):
         return False
-    evs = data if isinstance(data, list) or isinstance(data, Generator) else elementary_vectors(data.T, generator=True)
+    evs = data if isinstance(data, (Generator, list)) else elementary_vectors(data.T, generator=True)
     for v in evs:
         if not exists_orthogonal_vector(v, intervals):
             return v if certify else False
