@@ -319,9 +319,9 @@ class LinearInequalitySystem(SageObject):
     def certify(self):
         r"""Return a boolean and a certificate for solvability."""
         try:
-            return True, self.solve()
-        except ValueError:
             return False, self.certify_nonexistence()
+        except ValueError:
+            return True, self.solve()
 
 
 class HomogeneousSystem(LinearInequalitySystem):
