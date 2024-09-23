@@ -325,7 +325,7 @@ class LinearInequalitySystem(SageObject):
         solution = homogeneous.solve()
         return solution[:-1] / solution[-1]
 
-    def certify_nonexistence(self, reverse=False, random=False):
+    def certify_nonexistence(self, reverse: bool = False, random: bool = False):
         r"""
         Certifies nonexistence if no solution exists.
 
@@ -347,7 +347,7 @@ class LinearInequalitySystem(SageObject):
         except ValueError:
             return True, self.solve()
 
-    def certify_parallel(self, random=False):
+    def certify_parallel(self, random: bool = False):
         r"""
         Return a boolean and a certificate for solvability.
 
@@ -496,7 +496,7 @@ class Alternatives(SageObject):
     def _repr_(self) -> str:
         return f"Either\n{self.one}\nor\n{self.two}"
 
-    def certify(self, reverse=True, random=False, number_parallel=1) -> tuple:
+    def certify(self, reverse: bool = True, random: bool = False, number_parallel: int = 1) -> tuple:
         r"""
         Certify whether the first alternative has a solution.
 
@@ -808,7 +808,7 @@ class AlternativesInhomogeneous(Alternatives):
         else:
             self.two = inhomogeneous_alternative2(A, B, b, c)
 
-    def certify(self, reverse=True, random=False, number_parallel=1) -> tuple:
+    def certify(self, reverse: bool = True, random: bool = False, number_parallel: int = 1) -> tuple:
         r"""
         Certify whether the first alternative has a solution.
 
