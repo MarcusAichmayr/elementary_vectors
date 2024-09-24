@@ -120,7 +120,6 @@ dual oriented matroid::
 
 from collections.abc import Generator
 
-from elementary_vectors import elementary_vectors
 from elementary_vectors.functions import ElementaryVectors
 from sign_vectors import Sign, SignVector, sign_vector, zero_sign_vector
 
@@ -163,30 +162,6 @@ class Cocircuits(ElementaryVectors):
         return set(self.generator(kernel=kernel, prevent_multiples=prevent_multiples))
 
 
-def cocircuits_from_elementary_vectors(evs):
-    r"""
-    Compute a set of cocircuits determined by the elementary vectors.
-
-    INPUT:
-
-    - ``evs`` -- an iterable of elementary vectors
-
-    TESTS::
-
-        sage: from sign_vectors.oriented_matroids import *
-        sage: cocircuits_from_elementary_vectors([zero_vector(5)])
-        set()
-    """
-
-    def both_signs(evs):
-        for v in evs:
-            if v:
-                yield sign_vector(v)
-                yield sign_vector(-v)
-
-    return set(both_signs(evs))
-
-
 def cocircuits_from_matrix(M, kernel: bool = True):
     r"""
     Compute a set of cocircuits determined by the matrix ``M``.
@@ -222,21 +197,6 @@ def cocircuits_from_matrix(M, kernel: bool = True):
         {(0+0+), (-000), (00+-), (00-+), (0-0-), (0--0), (+000), (0++0)}
     """
     return Cocircuits(M).elements(kernel=kernel)
-
-
-def cocircuits_from_minors(minors: list, dim: tuple[int, int], kernel: bool = True):
-    r"""
-    Compute a set of cocircuits determined by the maximal minors of some matrix.
-
-    INPUT:
-
-    - ``minors`` -- a list of maximal minors of a matrix
-
-    - ``dim`` -- a tuple of the dimensions of the matrix corresponding to ``m``
-    """
-    return cocircuits_from_elementary_vectors(
-        elementary_vectors(minors, dim, generator=True, kernel=kernel)
-    )
 
 
 def covectors_from_cocircuits(cocircuits):
@@ -303,17 +263,6 @@ def covectors_from_cocircuits(cocircuits):
                 covectors.add(composition)
                 covectors_new.add(composition)
     return covectors
-
-
-def covectors_from_elementary_vectors(evs):
-    r"""
-    Compute the covectors of an oriented matroid using elementary vectors.
-
-    INPUT:
-
-    - ``evs`` -- elementary vectors
-    """
-    return covectors_from_cocircuits(cocircuits_from_elementary_vectors(evs))
 
 
 def topes_from_cocircuits(cocircuits):
