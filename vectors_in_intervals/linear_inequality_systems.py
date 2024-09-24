@@ -11,6 +11,8 @@ EXAMPLES::
     sage: S = HomogeneousSystem(A, B, C)
     sage: S.solve()
     (0, 1)
+    sage: S.certify_existence()
+    (2, 1, 3, 0)
     sage: S.certify_nonexistence()
     Traceback (most recent call last):
     ...
@@ -35,6 +37,10 @@ We consider another system::
     sage: upper_bounds_closed = [False, False, False, True]
     sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
     sage: S = LinearInequalitySystem(M, I)
+    sage: S.solve()
+    (2, 5)
+    sage: S.certify_existence()
+    (3, 7, 1, 1, 0, 0, 0)
     sage: S.certify()
     (True, (2, 5))
     sage: S.certify(reverse=True)
@@ -118,19 +124,9 @@ class LinearInequalitySystem(SageObject):
         r"""Return the equivalent homogeneous system."""
         return HomogeneousSystem(*homogeneous_from_general(self.matrix, self.intervals), result=self.result)
 
-    def solve(self, reverse: bool = False, random: bool = False):
-        r"""
-        Compute a solution for this linear inequality system.
-
-        If no solution exists, a ``ValueError`` is raised.
-        """
-        homogeneous = self.to_homogeneous()
-        solution = homogeneous.solve(reverse=reverse, random=random)
-        return solution[:-1] / solution[-1]
-
     def certify_nonexistence(self, reverse: bool = False, random: bool = False):
         r"""
-        Certifies nonexistence if no solution exists.
+        Certify nonexistence of solutions.
 
         Otherwise, a ``ValueError`` is raised.
 
@@ -146,6 +142,27 @@ class LinearInequalitySystem(SageObject):
                 return v
         self.solvable = True
         raise ValueError("A solution exists!")
+
+    def certify_existence(self, reverse: bool = False, random: bool = False):
+        r"""
+        Certify existence of a solution if one exists.
+
+        Otherwise, a ``ValueError`` is raised.
+
+        .. NOTE::
+
+            If a solution exists and ``random`` is set to true, this method will never finish.
+        """
+        return self.to_homogeneous().certify_existence(reverse=reverse, random=random)
+
+    def solve(self, reverse: bool = False, random: bool = False):
+        r"""
+        Compute a solution for this linear inequality system.
+
+        If no solution exists, a ``ValueError`` is raised.
+        """
+        solution = self.to_homogeneous().solve(reverse=reverse, random=random)
+        return solution[:-1] / solution[-1]
 
     def certify(self, reverse: bool = False):
         r"""Return a boolean and a certificate for solvability."""
@@ -272,16 +289,7 @@ class HomogeneousSystem(LinearInequalitySystem):
     def to_homogeneous(self):
         return self
 
-    def solve(self, reverse: bool = False, random: bool = False):
-        r"""
-        Compute a solution if existent.
-
-        This approach sums up positive elementary vectors in the row space.
-
-        .. NOTE::
-
-            If no solution exists, and ``random`` is true, this method will never finish.
-        """
+    def certify_existence(self, reverse: bool = False, random: bool = False):
         lower = sign_vector(
             len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
         )
@@ -301,11 +309,23 @@ class HomogeneousSystem(LinearInequalitySystem):
                     result += w
                     if sign_vector(result) >= lower:
                         self.solvable = True
-                        return self.matrix.solve_right(result)
+                        return result
                     break
 
         self.solvable = False
         raise ValueError("No solution exists!")
+
+    def solve(self, reverse: bool = False, random: bool = False):
+        r"""
+        Compute a solution if existent.
+
+        This approach sums up positive elementary vectors in the row space.
+
+        .. NOTE::
+
+            If no solution exists, and ``random`` is true, this method will never finish.
+        """
+        return self.matrix.solve_right(self.certify_existence(reverse=reverse, random=random))
 
 
 class HomogeneousSystemCocircuits(HomogeneousSystem):
@@ -333,7 +353,7 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
             )
         )
 
-    def solve(self, reverse: bool = False, random: bool = False):
+    def certify_existence(self, reverse: bool = False, random: bool = False):
         r"""
         Compute a solution if existent.
 
@@ -366,6 +386,8 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
         self.solvable = False
         raise ValueError("No solution exists!")
 
+    def solve(self, reverse: bool = False, random: bool = False):
+        raise ValueError("Can't solve using cocircuits!")
 
 def inhomogeneous_from_general(M, I) -> tuple:
     r"""
