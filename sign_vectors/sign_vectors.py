@@ -210,6 +210,9 @@ class Sign(SageObject):
             sage: Sign.sign_sym((a + b)*(c + d) - b*c)
             1
         """
+        if isinstance(value, Sign):
+            return value.to_integer()
+
         expr = SR(value)
         if expr > 0:
             return 1
