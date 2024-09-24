@@ -21,9 +21,9 @@ EXAMPLES::
     (True, (0, 1))
     sage: S.certify_parallel()
     (True, (0, 1))
-    sage: S.certify_parallel(reverse=True) # random
+    sage: S.certify_parallel(reverse=True)
     (True, (0, 1))
-    sage: S.certify_parallel(random=True) # random
+    sage: S.certify_parallel(random=True)
     (True, (0, 1))
 
 We consider another system::
@@ -53,6 +53,8 @@ We consider yet another system::
     (False, (0, 1, 1))
     sage: S.certify_parallel()
     (False, (0, 1, 1))
+    sage: S.certify_parallel(random=True)
+    (False, (0, 1, 1))
 """
 
 #############################################################################
@@ -69,14 +71,13 @@ import concurrent.futures
 
 from collections.abc import Generator
 from sage.matrix.constructor import matrix, zero_matrix
-from sage.modules.free_module_element import vector
+from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
 from elementary_vectors.functions import ElementaryVectors
 from sign_vectors import sign_vector
 from vectors_in_intervals import exists_orthogonal_vector
-from .construction import vector_between_sign_vectors
 from .utility import interval_from_bounds, CombinationsIncluding
 
 
@@ -104,26 +105,26 @@ class LinearInequalitySystem(SageObject):
         r"""Check if an orthogonal vector exists in the intervals."""
         return exists_orthogonal_vector(v, self.intervals)
 
-    def elementary_vectors_generator(self, reverse: bool = False, random: bool = False) -> Generator:
+    def elementary_vectors_generator(self, kernel: bool = True, reverse: bool = False, random: bool = False) -> Generator:
         r"""Return a generator of elementary vectors."""
         if random:
             while True:
-                yield self.evs.random_element()
+                yield self.evs.random_element(kernel=kernel)
         else:
-            yield from self.evs.generator(reverse=reverse)
+            yield from self.evs.generator(kernel=kernel, reverse=reverse)
 
     def to_homogeneous(self):
         r"""Return the equivalent homogeneous system."""
         return HomogeneousSystem(*homogeneous_from_general(self.matrix, self.intervals), result=self.result)
 
-    def solve(self, reverse: bool = False):
+    def solve(self, reverse: bool = False, random: bool = False):
         r"""
         Compute a solution for this linear inequality system.
 
         If no solution exists, a ``ValueError`` is raised.
         """
         homogeneous = self.to_homogeneous()
-        solution = homogeneous.solve(reverse=reverse)
+        solution = homogeneous.solve(reverse=reverse, random=random)
         return solution[:-1] / solution[-1]
 
     def certify_nonexistence(self, reverse: bool = False, random: bool = False):
@@ -162,20 +163,21 @@ class LinearInequalitySystem(SageObject):
             done, not_done = concurrent.futures.wait(
                 [
                     executor.submit(lambda: (False, self.certify_nonexistence(reverse=not reverse, random=random))),
-                    executor.submit(lambda: (True, self.solve(reverse=reverse)))
+                    executor.submit(lambda: (True, self.solve(reverse=reverse, random=random)))
                 ],
                 return_when=concurrent.futures.FIRST_COMPLETED
             )
 
-            try:
-                result = done.pop().result()
-                for task in not_done:
-                    task.cancel()
+            for task in done:
+                try:
+                    result = task.result()
+                    for task in not_done:
+                        task.cancel()
 
-                return result
-            except ValueError:
-                for task in not_done:
-                    return task.result()
+                    return result
+                except ValueError:
+                    pass
+            return not_done.pop().result()
 
 
 class HomogeneousSystem(LinearInequalitySystem):
@@ -225,30 +227,40 @@ class HomogeneousSystem(LinearInequalitySystem):
     def to_homogeneous(self):
         return self
 
-    def solve(self, reverse: bool = False):
+    def solve(self, reverse: bool = False, random: bool = False):
         r"""
         Compute a solution if existent.
 
         This approach sums up positive elementary vectors in the row space.
+
+        .. NOTE::
+
+            If no solution exists, and ``random`` is true, this method will never finish.
         """
-        try:
-            result = self.matrix.solve_right(
-                vector_between_sign_vectors(
-                    self.evs.generator(kernel=False, reverse=reverse),
-                    sign_vector(
-                        len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
-                    ),
-                    sign_vector(
-                        (len(self.strict) + len(self.nonstrict)) * [1]
-                        + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
-                    )
-                )
-            )
-            self.solvable = True
+        lower = sign_vector(
+            len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
+        )
+        upper = sign_vector(
+            (len(self.strict) + len(self.nonstrict)) * [1]
+            + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
+        )
+        result = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
+
+        if sign_vector(result) >= lower:
             return result
-        except ValueError as exc:
-            self.solvable = False
-            raise ValueError("No solution exists!") from exc
+        for v in self.elementary_vectors_generator(kernel=False, reverse=reverse, random=random):
+            if self.solvable is False:
+                raise ValueError("No solution exists!")
+            for w in [v, -v]:
+                if sign_vector(w) <= upper:
+                    result += w
+                    if sign_vector(result) >= lower:
+                        self.solvable = True
+                        return self.matrix.solve_right(result)
+                    break
+
+        self.solvable = False
+        raise ValueError("No solution exists!")
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
