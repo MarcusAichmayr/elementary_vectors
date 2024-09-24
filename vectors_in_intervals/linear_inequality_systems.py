@@ -105,7 +105,7 @@ from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
 from elementary_vectors.functions import ElementaryVectors
-from sign_vectors import sign_vector, zero_sign_vector
+from sign_vectors import SignVector, sign_vector, zero_sign_vector
 from sign_vectors.oriented_matroids import Cocircuits
 from vectors_in_intervals import exists_orthogonal_vector
 from .utility import interval_from_bounds, CombinationsIncluding
@@ -127,7 +127,7 @@ class LinearInequalitySystem(SageObject):
     def _repr_(self) -> str:
         return str(self.matrix) + " x in " + str(self.get_intervals())
 
-    def get_intervals(self):
+    def get_intervals(self) -> list:
         r"""Return the corresponding intervals."""
         return self.intervals
 
@@ -187,14 +187,14 @@ class LinearInequalitySystem(SageObject):
         solution = self.to_homogeneous().solve(reverse=reverse, random=random)
         return solution[:-1] / solution[-1]
 
-    def certify(self, reverse: bool = False):
+    def certify(self, reverse: bool = False) -> tuple:
         r"""Return a boolean and a certificate for solvability."""
         try:
             return False, self.certify_nonexistence(reverse=reverse)
         except ValueError:
             return True, self.solve(reverse=reverse)
 
-    def certify_parallel(self, reverse: bool = False, random: bool = False):
+    def certify_parallel(self, reverse: bool = False, random: bool = False) -> tuple:
         r"""
         Return a boolean and a certificate for solvability.
 
@@ -240,7 +240,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
         len_b = len(self.b)
         len_c = len(self.c)
 
-        def condition(v):
+        def condition(v) -> bool:
             if all(vk >= 0 for vk in v):
                 scalarproduct = sum(v[k] * self.b[k] for k in range(len_b)) + sum(
                     v[k + len_b] * self.c[k] for k in range(len_c)
@@ -376,7 +376,7 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
             )
         )
 
-    def certify_existence(self, reverse: bool = False, random: bool = False):
+    def certify_existence(self, reverse: bool = False, random: bool = False) -> SignVector:
         r"""
         Compute a solution if existent.
 

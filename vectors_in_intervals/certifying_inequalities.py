@@ -320,7 +320,7 @@ class AlternativesHomogeneous(Alternatives):
 
     ``A x > 0``, ``B x >= 0``, ``C x = 0``
     """
-    def __init__(self, A, B, C):
+    def __init__(self, A, B, C) -> None:
         self.one = HomogeneousSystem(A, B, C, result=False)
         m_A = A.nrows()
         m_B = B.nrows()
@@ -361,7 +361,7 @@ class AlternativesInhomogeneous(Alternatives):
         sage: S.certify(random=True)[0]
         True
     """
-    def __init__(self, A, B, b, c, one_homogenized=False, two_double_system=False):
+    def __init__(self, A, B, b, c, one_homogenized=False, two_double_system=False) -> None:
         if one_homogenized:
             self.one = inhomogeneous_alternative1_homogenized(A, B, b, c)
         else:
@@ -413,7 +413,7 @@ class AlternativesInhomogeneous(Alternatives):
 
 class AlternativesGeneral(Alternatives):
     r"""Alternatives for a general system ``M x in I``."""
-    def __init__(self, M, I):
+    def __init__(self, M, I) -> None:
         self.one = LinearInequalitySystem(M, I, result=False)
         self.two = inhomogeneous_alternative2(*inhomogeneous_from_general(M, I))
 
