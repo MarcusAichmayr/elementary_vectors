@@ -127,6 +127,7 @@ from .utility import loops, classes_same_support, parallel_classes
 
 
 class Cocircuits(ElementaryVectors):
+    r"""Class used to compute cocircuits and circuits."""
     def minor(self, indices, kernel: bool = True):
         indices = tuple(indices)
         try:
