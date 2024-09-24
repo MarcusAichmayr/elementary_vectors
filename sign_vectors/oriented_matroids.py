@@ -118,10 +118,49 @@ dual oriented matroid::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from collections.abc import Generator
+
 from elementary_vectors import elementary_vectors
-from sign_vectors import sign_vector, zero_sign_vector
+from elementary_vectors.functions import ElementaryVectors
+from sign_vectors import Sign, SignVector, sign_vector, zero_sign_vector
 
 from .utility import loops, classes_same_support, parallel_classes
+
+
+class Cocircuits(ElementaryVectors):
+    def minor(self, indices, kernel: bool = True):
+        indices = tuple(indices)
+        try:
+            if kernel:
+                return self.minors[indices]
+            return self.minor_of_kernel_matrix(indices)
+        except KeyError:
+            pass
+
+        self.minors[indices] = Sign(self.matrix.matrix_from_columns(indices).det())
+        return self.minors[indices]
+
+    def _zero_element(self) -> list:
+        return [0] * self.length
+
+    def element(self, indices: list, kernel: bool = True) -> SignVector:
+        return sign_vector(super().element(indices, kernel=kernel))
+
+    def element_prevent_multiple(self, indices: list, kernel: bool = True) -> SignVector:
+        return sign_vector(super().element_prevent_multiple(indices, kernel=kernel))
+
+    def generator(
+        self,
+        kernel: bool = True,
+        prevent_multiples: bool = True,
+        reverse: bool = False
+    ) -> Generator:
+        for cocircuit in super().generator(kernel=kernel, prevent_multiples=prevent_multiples, reverse=reverse):
+            yield cocircuit
+            yield -cocircuit
+
+    def elements(self, kernel: bool = True, prevent_multiples: bool = True) -> set:
+        return set(self.generator(kernel=kernel, prevent_multiples=prevent_multiples))
 
 
 def cocircuits_from_elementary_vectors(evs):
@@ -182,7 +221,7 @@ def cocircuits_from_matrix(M, kernel: bool = True):
         sage: cocircuits_from_matrix(B, kernel=False)
         {(0+0+), (-000), (00+-), (00-+), (0-0-), (0--0), (+000), (0++0)}
     """
-    return cocircuits_from_elementary_vectors(elementary_vectors(M, kernel=kernel))
+    return Cocircuits(M).elements(kernel=kernel)
 
 
 def cocircuits_from_minors(minors: list, dim: tuple[int, int], kernel: bool = True):

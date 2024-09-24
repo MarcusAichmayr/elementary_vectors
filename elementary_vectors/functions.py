@@ -318,7 +318,7 @@ class ElementaryVectors:
 
             Raises a ``ValueError`` if the indices correspond to the zero vector.
         """
-        element = zero_vector(self.ring, self.length)
+        element = self._zero_element()
         nonzero_detected = False
         for pos, k in enumerate(indices):
             indices_minor = tuple(i for i in indices if i != k)
@@ -339,7 +339,7 @@ class ElementaryVectors:
 
             If this results in a multiple of a previous element, a ``ValueError`` is raised.
         """
-        element = zero_vector(self.ring, self.length)
+        element = self._zero_element()
         nonzero_detected = False
         zero_minors = []
         multiple_detected = False
@@ -382,6 +382,9 @@ class ElementaryVectors:
             return self.element(self.combinations_kernel.random_element(), kernel=False)
         except ValueError: # no elementary vectors exist or generated zero vector
             return
+
+    def _zero_element(self):
+        return zero_vector(self.ring, self.length)
 
     def _reset_set_for_preventing_multiples(self, kernel: bool = True) -> None:
         if kernel:
