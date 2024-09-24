@@ -76,7 +76,8 @@ from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
 from elementary_vectors.functions import ElementaryVectors
-from sign_vectors import sign_vector
+from sign_vectors import sign_vector, zero_sign_vector
+from sign_vectors.oriented_matroids import Cocircuits
 from vectors_in_intervals import exists_orthogonal_vector
 from .utility import interval_from_bounds, CombinationsIncluding
 
@@ -180,6 +181,50 @@ class LinearInequalitySystem(SageObject):
             return not_done.pop().result()
 
 
+class InhomogeneousSystem(LinearInequalitySystem):
+    r"""
+    A class for inhomogeneous linear inequality systems
+
+    ``A x <= b``, ``B x <= c``
+    """
+    def __init__(self, A, B, b, c, result=None) -> None:
+        super().__init__(matrix.block([[A], [B]]), None, result=result)
+        self.b = b
+        self.c = c
+
+    def get_intervals(self) -> list:
+        self.intervals = [interval_from_bounds(-Infinity, bi) for bi in self.b] + [interval_from_bounds(-Infinity, ci, False, False) for ci in self.c]
+        return self.intervals
+
+    def exists_orthogonal_vector(self, v) -> bool:
+        len_b = len(self.b)
+        len_c = len(self.c)
+
+        def condition(v):
+            if all(vk >= 0 for vk in v):
+                scalarproduct = sum(v[k] * self.b[k] for k in range(len_b)) + sum(
+                    v[k + len_b] * self.c[k] for k in range(len_c)
+                )
+                if scalarproduct < 0:
+                    return True
+                if scalarproduct <= 0 and any(v[k] for k in range(len_b, len_b + len_c)):
+                    return True
+            return False
+
+        return not condition(v) and not condition(-v)
+
+    def to_homogeneous(self):
+        return HomogeneousSystem(
+            *homogeneous_from_inhomogeneous(
+                self.matrix.submatrix(0, 0, len(self.b)),
+                self.matrix.submatrix(len(self.b), 0, len(self.c)),
+                self.b,
+                self.c
+            ),
+            result=self.result
+        )
+
+
 class HomogeneousSystem(LinearInequalitySystem):
     r"""
     A class for homogeneous linear inequality systems
@@ -263,48 +308,63 @@ class HomogeneousSystem(LinearInequalitySystem):
         raise ValueError("No solution exists!")
 
 
-class InhomogeneousSystem(LinearInequalitySystem):
+class HomogeneousSystemCocircuits(HomogeneousSystem):
     r"""
-    A class for inhomogeneous linear inequality systems
+    A class for homogeneous linear inequality systems
 
-    ``A x <= b``, ``B x <= c``
+    ``A x > 0``, ``B x >= 0``, ``C x = 0``
+
+    Certifying makes use of cocircuits instead of elementary vectors
     """
-    def __init__(self, A, B, b, c, result=None) -> None:
-        super().__init__(matrix.block([[A], [B]]), None, result=result)
-        self.b = b
-        self.c = c
+    def __init__(self, A, B, C, result=None) -> None:
+        super().__init__(A, B, C, result=result)
 
-    def get_intervals(self) -> list:
-        self.intervals = [interval_from_bounds(-Infinity, bi) for bi in self.b] + [interval_from_bounds(-Infinity, ci, False, False) for ci in self.c]
-        return self.intervals
+        self.evs = Cocircuits(self.matrix.T)
+
+        if len(self.strict) == 1:
+            self.evs.combinations = CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict)
 
     def exists_orthogonal_vector(self, v) -> bool:
-        len_b = len(self.b)
-        len_c = len(self.c)
-
-        def condition(v):
-            if all(vk >= 0 for vk in v):
-                scalarproduct = sum(v[k] * self.b[k] for k in range(len_b)) + sum(
-                    v[k + len_b] * self.c[k] for k in range(len_c)
-                )
-                if scalarproduct < 0:
-                    return True
-                if scalarproduct <= 0 and any(v[k] for k in range(len_b, len_b + len_c)):
-                    return True
-            return False
-
-        return not condition(v) and not condition(-v)
-
-    def to_homogeneous(self):
-        return HomogeneousSystem(
-            *homogeneous_from_inhomogeneous(
-                self.matrix.submatrix(0, 0, len(self.b)),
-                self.matrix.submatrix(len(self.b), 0, len(self.c)),
-                self.b,
-                self.c
-            ),
-            result=self.result
+        return not (
+            any(v[k] != 0 for k in self.strict)
+            and (
+                all(v[k] >= 0 for k in self.strict)
+                and all(v[k] >= 0 for k in self.nonstrict)
+            )
         )
+
+    def solve(self, reverse: bool = False, random: bool = False):
+        r"""
+        Compute a solution if existent.
+
+        This approach sums up positive elementary vectors in the row space.
+
+        .. NOTE::
+
+            If no solution exists, and ``random`` is true, this method will never finish.
+        """
+        lower = sign_vector(
+            len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
+        )
+        upper = sign_vector(
+            (len(self.strict) + len(self.nonstrict)) * [1]
+            + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
+        )
+        result = zero_sign_vector(self.matrix.nrows())
+
+        if result >= lower:
+            return result
+        for v in self.elementary_vectors_generator(kernel=False, reverse=reverse, random=random):
+            if self.solvable is False:
+                raise ValueError("No solution exists!")
+            if v <= upper:
+                result &= v
+                if result >= lower:
+                    self.solvable = True
+                    return result
+
+        self.solvable = False
+        raise ValueError("No solution exists!")
 
 
 def inhomogeneous_from_general(M, I) -> tuple:
