@@ -61,6 +61,29 @@ We consider yet another system::
     (False, (0, 1, 1))
     sage: S.certify_parallel(random=True)
     (False, (0, 1, 1))
+
+In the case of homogeneous systems, we can use cocircuits to certify::
+
+    sage: A = matrix([[1, 2], [0, 1]])
+    sage: B = matrix([[2, 3]])
+    sage: C = matrix([[-1, 0]])
+    sage: S = HomogeneousSystemCocircuits(A, B, C)
+    sage: S.solve()
+    Traceback (most recent call last):
+    ...
+    ValueError: Can't solve using cocircuits!
+    sage: S.certify_existence()
+    (+++0)
+    sage: # S.certify() # TODO
+
+We consider another example::
+
+    sage: A = matrix([[1, 0], [0, 1]])
+    sage: B = matrix([[2, -3]])
+    sage: C = matrix([[-1, -1]])
+    sage: S = HomogeneousSystemCocircuits(A, B, C)
+    sage: S.certify_nonexistence()
+    (++0+)
 """
 
 #############################################################################
