@@ -135,7 +135,7 @@ class LinearInequalitySystem(SageObject):
         r"""Check if an orthogonal vector exists in the intervals."""
         return exists_orthogonal_vector(v, self.intervals)
 
-    def elementary_vectors_generator(self, kernel: bool = True, reverse: bool = False, random: bool = False) -> Generator:
+    def candidate_generator(self, kernel: bool = True, reverse: bool = False, random: bool = False) -> Generator:
         r"""Return a generator of elementary vectors."""
         if random:
             while True:
@@ -157,7 +157,7 @@ class LinearInequalitySystem(SageObject):
 
             If a solution exists and ``random`` is set to true, this method will never finish.
         """
-        for v in self.elementary_vectors_generator(reverse=reverse, random=random):
+        for v in self.candidate_generator(reverse=reverse, random=random):
             if self.solvable:
                 break
             if not self.exists_orthogonal_vector(v):
@@ -324,7 +324,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 
         if sign_vector(result) >= lower:
             return result
-        for v in self.elementary_vectors_generator(kernel=False, reverse=reverse, random=random):
+        for v in self.candidate_generator(kernel=False, reverse=reverse, random=random):
             if self.solvable is False:
                 raise ValueError("No solution exists!")
             for w in [v, -v]:
@@ -397,7 +397,7 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
 
         if result >= lower:
             return result
-        for v in self.elementary_vectors_generator(kernel=False, reverse=reverse, random=random):
+        for v in self.candidate_generator(kernel=False, reverse=reverse, random=random):
             if self.solvable is False:
                 raise ValueError("No solution exists!")
             if v <= upper:

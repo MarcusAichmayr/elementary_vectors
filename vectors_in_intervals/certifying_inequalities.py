@@ -278,7 +278,7 @@ class Alternatives(SageObject):
         systems = [self.one, self.two]
         needed_iterations = 0
         for system in systems:
-            system.elementary_vectors = system.elementary_vectors_generator(reverse=reverse, random=random)
+            system.elementary_vectors = system.candidate_generator(reverse=reverse, random=random)
 
         if number_parallel <= 1:
             while True:
@@ -389,7 +389,7 @@ class AlternativesInhomogeneous(Alternatives):
         systems = {0: self.one, 1: self.two, 2: self.three}
         needed_iterations = 0
         for system in systems.values():
-            system.elementary_vectors = system.elementary_vectors_generator(reverse=reverse, random=random)
+            system.elementary_vectors = system.candidate_generator(reverse=reverse, random=random)
 
         certificates = {}
         while True:
