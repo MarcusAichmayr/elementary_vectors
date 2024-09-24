@@ -314,8 +314,9 @@ class ElementaryVectors:
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
-        OUTPUT:
-        If ``allow_multiple`` is false, a ``ValueError`` will be raised if a zero minor is reused.
+        .. NOTE::
+
+            Raises a ``ValueError`` if the indices correspond to the zero vector.
         """
         element = zero_vector(self.ring, self.length)
         nonzero_detected = False
@@ -334,8 +335,9 @@ class ElementaryVectors:
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
-        OUTPUT:
-        If ``allow_multiple`` is false, a ``ValueError`` will be raised if a zero minor is reused.
+        .. NOTE::
+
+            If this results in a multiple of a previous element, a ``ValueError`` is raised.
         """
         element = zero_vector(self.ring, self.length)
         nonzero_detected = False
