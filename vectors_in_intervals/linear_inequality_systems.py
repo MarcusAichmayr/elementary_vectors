@@ -18,15 +18,15 @@ EXAMPLES::
     ...
     ValueError: A solution exists!
     sage: S.certify()
-    (True, (0, 1))
+    (True, (2, 1, 3, 0))
     sage: S.certify(reverse=True)
-    (True, (0, 1))
+    (True, (2, 1, 3, 0))
     sage: S.certify_parallel()
-    (True, (0, 1))
+    (True, (2, 1, 3, 0))
     sage: S.certify_parallel(reverse=True)
-    (True, (0, 1))
+    (True, (2, 1, 3, 0))
     sage: S.certify_parallel(random=True)
-    (True, (0, 1))
+    (True, (2, 1, 3, 0))
 
 We consider another system::
 
@@ -42,11 +42,11 @@ We consider another system::
     sage: S.certify_existence()
     (3, 7, 1, 1, 0, 0, 0)
     sage: S.certify()
-    (True, (2, 5))
+    (True, (3, 7, 1, 1, 0, 0, 0))
     sage: S.certify(reverse=True)
-    (True, (5/2, 5))
+    (True, (5, 15, 1, 2, 1, 0, 0))
     sage: # S.certify_parallel() # TODO SignalError: Segmentation Fault
-    (True, (2, 5))
+    (True, (3, 7, 1, 1, 0, 0, 0))
 
 We consider yet another system::
 
@@ -192,7 +192,7 @@ class LinearInequalitySystem(SageObject):
         try:
             return False, self.certify_nonexistence(reverse=reverse)
         except ValueError:
-            return True, self.solve(reverse=reverse)
+            return True, self.certify_existence(reverse=reverse)
 
     def certify_parallel(self, reverse: bool = False, random: bool = False) -> tuple:
         r"""
@@ -204,7 +204,7 @@ class LinearInequalitySystem(SageObject):
             done, not_done = concurrent.futures.wait(
                 [
                     executor.submit(lambda: (False, self.certify_nonexistence(reverse=not reverse, random=random))),
-                    executor.submit(lambda: (True, self.solve(reverse=reverse, random=random)))
+                    executor.submit(lambda: (True, self.certify_existence(reverse=reverse, random=random)))
                 ],
                 return_when=concurrent.futures.FIRST_COMPLETED
             )

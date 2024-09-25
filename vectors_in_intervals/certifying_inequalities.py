@@ -65,11 +65,6 @@ We can also use elementary vectors to construct a solution::
     sage: S.one.solve()
     (0, 1)
 
-That way, we can certify solvability using only one alternative::
-
-    sage: S.one.certify()
-    (True, (0, 1))
-
 We consider another example::
 
     sage: A = matrix([[1, 0], [0, 1]])
