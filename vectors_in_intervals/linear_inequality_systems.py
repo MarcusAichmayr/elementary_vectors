@@ -145,7 +145,7 @@ class LinearInequalitySystem(SageObject):
 
     def to_homogeneous(self):
         r"""Return the equivalent homogeneous system."""
-        return HomogeneousSystem(*homogeneous_from_general(self.matrix, self.intervals), result=self.result)
+        return homogeneous_from_general(self)
 
     def certify_nonexistence(self, reverse: bool = False, random: bool = False):
         r"""
@@ -229,6 +229,8 @@ class InhomogeneousSystem(LinearInequalitySystem):
     """
     def __init__(self, A, B, b, c, result=None) -> None:
         super().__init__(matrix.block([[A], [B]]), None, result=result)
+        self.A = A
+        self.B = B
         self.b = b
         self.c = c
 
@@ -254,15 +256,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
         return not condition(v) and not condition(-v)
 
     def to_homogeneous(self):
-        return HomogeneousSystem(
-            *homogeneous_from_inhomogeneous(
-                self.matrix.submatrix(0, 0, len(self.b)),
-                self.matrix.submatrix(len(self.b), 0, len(self.c)),
-                self.b,
-                self.c
-            ),
-            result=self.result
-        )
+        return homogeneous_from_inhomogeneous(self)
 
 
 class HomogeneousSystem(LinearInequalitySystem):
@@ -412,29 +406,14 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
     def solve(self, reverse: bool = False, random: bool = False):
         raise ValueError("Can't solve using cocircuits!")
 
-def inhomogeneous_from_general(M, I) -> tuple:
-    r"""
-    Translate a general system into an inhomogeneous system.
-
-    INPUT:
-
-    - ``M`` -- a matrix with m rows
-
-    - ``I`` -- a list of m intervals
-
-    - To use a homogenized representation of the first alternative, pass ``one_homogenized=True``.
-
-    - To use two systems for the second alternative instead of a homogenized system, pass ``two_double_system=True``.
-
-    OUTPUT:
-    Matrices ``A``, ``B`` and vectors ``b``, ``c`` describing the equivalent system ``A x <= b``, ``B x < c``.
-    """
+def inhomogeneous_from_general(system: LinearInequalitySystem) -> InhomogeneousSystem:
+    r"""Translate a general system into an inhomogeneous system."""
     A_list = []
     B_list = []
     b_list = []
     c_list = []
 
-    for line, interval in zip(M, I):
+    for line, interval in zip(system.matrix, system.intervals):
         if interval.inf() != -Infinity:
             if interval.inf() in interval:
                 A_list.append(-line)
@@ -450,26 +429,18 @@ def inhomogeneous_from_general(M, I) -> tuple:
                 B_list.append(line)
                 c_list.append(interval.sup())
 
-    return (
-        matrix(len(A_list), M.ncols(), A_list),
-        matrix(len(B_list), M.ncols(), B_list),
+    return InhomogeneousSystem(
+        matrix(len(A_list), system.matrix.ncols(), A_list),
+        matrix(len(B_list), system.matrix.ncols(), B_list),
         vector(b_list),
-        vector(c_list)
+        vector(c_list),
+        result=system.result
     )
 
 
-def homogeneous_from_general(M, I) -> tuple:
+def homogeneous_from_general(system: LinearInequalitySystem) -> HomogeneousSystem:
     r"""
     Convert a general system to a homogeneous system.
-
-    INPUT:
-
-    - ``M`` -- a matrix with m rows
-
-    - ``I`` -- a list of m intervals
-
-    OUTPUT:
-    Matrices ``A``, ``B``, ``C`` describing the homogeneous system.
 
     EXAMPLE::
 
@@ -480,19 +451,23 @@ def homogeneous_from_general(M, I) -> tuple:
         sage: lower_bounds_closed = [True, True, True]
         sage: upper_bounds_closed = [False, False, True]
         sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
-        sage: homogeneous_from_general(M, I)
-        (
-        [ 1  0 -5]  [-1  0  2]         
-        [ 0  0 -1], [ 0 -1  5], [1 1 0]
-        )
+        sage: S = LinearInequalitySystem(M, I)
+        sage: homogeneous_from_general(S)
+        [ 1  0 -5]
+        [ 0  0 -1]
+        [--------]
+        [-1  0  2]
+        [ 0 -1  5]
+        [--------]
+        [ 1  1  0] x in [(0, +oo), (0, +oo), [0, +oo), [0, +oo), {0}]
     """
     A_list = []
     B_list = []
     C_list = []
 
-    length = M.ncols()
+    length = system.matrix.ncols()
 
-    for line, interval in zip(M, I):
+    for line, interval in zip(system.matrix, system.intervals):
         if interval.inf() == interval.sup():
             C_list.append(list(line) + [-interval.inf()])
             continue
@@ -509,22 +484,19 @@ def homogeneous_from_general(M, I) -> tuple:
 
     A_list.append([0] * length + [-1])
 
-    return (
+    return HomogeneousSystem(
         matrix(len(A_list), length + 1, A_list),
         matrix(len(B_list), length + 1, B_list),
-        matrix(len(C_list), length + 1, C_list)
+        matrix(len(C_list), length + 1, C_list),
+        result=system.result
     )
 
 
-def homogeneous_from_inhomogeneous(A, B, b, c) -> tuple:
-    r"""
-    Convert an inhomogeneous system to a homogeneous system.
-
-    OUTPUT:
-    Matrices ``A``, ``B``, ``C`` describing the homogeneous system.
-    """
-    return (
-        matrix.block([[B, matrix(len(c), 1, -c)], [zero_matrix(1, A.ncols()), matrix([[-1]])]]),
-        matrix.block([[A, matrix(len(b), 1, -b)]]),
-        matrix(0, A.ncols() + 1)
+def homogeneous_from_inhomogeneous(system: InhomogeneousSystem) -> HomogeneousSystem:
+    r"""Convert an inhomogeneous system to a homogeneous system."""
+    return HomogeneousSystem(
+        matrix.block([[system.B, matrix(len(system.c), 1, -system.c)], [zero_matrix(1, system.A.ncols()), matrix([[-1]])]]),
+        matrix.block([[system.A, matrix(len(system.b), 1, -system.b)]]),
+        matrix(0, system.A.ncols() + 1),
+        result=system.result
     )
