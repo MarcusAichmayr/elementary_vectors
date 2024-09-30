@@ -406,6 +406,7 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
     def solve(self, reverse: bool = False, random: bool = False):
         raise ValueError("Can't solve using cocircuits!")
 
+
 def inhomogeneous_from_general(system: LinearInequalitySystem) -> InhomogeneousSystem:
     r"""Translate a general system into an inhomogeneous system."""
     A_list = []

@@ -466,7 +466,7 @@ class SignVector(SageObject):
 
     __slots__ = ("_support", "_positive_support", "_length")
 
-    def __init__(self, support, psupport, length) -> None:
+    def __init__(self, support, psupport, length: int) -> None:
         r"""
         Create a sign vector object.
 
