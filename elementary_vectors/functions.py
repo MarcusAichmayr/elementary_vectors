@@ -236,12 +236,12 @@ class ElementaryVectors:
         self.rank = self.matrix.nrows()
         self.ring = self.matrix.base_ring()
         self.minors = {}
-        self.minors_kernel = {}
+        self.minors_dual = {}
         self.combinations = Combinations(self.length, self.rank + 1)
-        self.combinations_kernel = Combinations(self.length, self.length - self.rank + 1)
+        self.combinations_dual = Combinations(self.length, self.length - self.rank + 1)
 
         self.marked_minors = set()
-        self.marked_minors_kernel = set()
+        self.marked_minors_dual = set()
 
     def minor(self, indices, kernel: bool = True):
         r"""
@@ -256,31 +256,31 @@ class ElementaryVectors:
             sage: evs = ElementaryVectors(M)
             sage: evs.minors
             {}
-            sage: evs.minors_kernel
+            sage: evs.minors_dual
             {}
             sage: evs.minor([0, 1])
             1
             sage: evs.minors
             {(0, 1): 1}
-            sage: evs.minors_kernel
+            sage: evs.minors_dual
             {}
             sage: evs.minor([2, 3, 4], kernel=False)
             1
             sage: evs.minors
             {(0, 1): 1}
-            sage: evs.minors_kernel
+            sage: evs.minors_dual
             {(2, 3, 4): 1}
             sage: evs.minor([0, 1, 3], kernel=False)
             1
             sage: evs.minors
             {(0, 1): 1, (2, 4): -1}
-            sage: evs.minors_kernel
+            sage: evs.minors_dual
             {(0, 1, 3): 1, (2, 3, 4): 1}
             sage: evs.minor([2, 4])
             -1
             sage: evs.minors
             {(0, 1): 1, (2, 4): -1}
-            sage: evs.minors_kernel
+            sage: evs.minors_dual
             {(0, 1, 3): 1, (2, 3, 4): 1}
         """
         indices = tuple(indices)
@@ -302,13 +302,13 @@ class ElementaryVectors:
         """
         indices = tuple(indices)
         try:
-            return self.minors_kernel[indices]
+            return self.minors_dual[indices]
         except KeyError:
             pass
-        indices_complement = tuple(i for i in range(self.length) if i not in indices)
-        minor = self.minor(indices_complement)
-        self.minors_kernel[indices] = Permutation(i + 1 for i in list(indices_complement) + list(indices)).sign() * minor
-        return self.minors_kernel[indices]
+        indices_dual = tuple(i for i in range(self.length) if i not in indices)
+        minor = self.minor(indices_dual)
+        self.minors_dual[indices] = Permutation(i + 1 for i in list(indices_dual) + list(indices)).sign() * minor
+        return self.minors_dual[indices]
 
     def element(self, indices: list, kernel: bool = True):
         r"""
@@ -349,7 +349,7 @@ class ElementaryVectors:
                 if indices_minor in self.marked_minors:
                     multiple_detected = True
             else:
-                if indices_minor in self.marked_minors_kernel:
+                if indices_minor in self.marked_minors_dual:
                     multiple_detected = True
             minor = self.minor(indices_minor, kernel=kernel)
             if minor == 0:
@@ -362,7 +362,7 @@ class ElementaryVectors:
                 if kernel:
                     self.marked_minors.add(marked_minor)
                 else:
-                    self.marked_minors_kernel.add(marked_minor)
+                    self.marked_minors_dual.add(marked_minor)
                 if multiple_detected:
                     raise ValueError("Multiple detected!")
             return element
@@ -379,7 +379,7 @@ class ElementaryVectors:
         try:
             if kernel:
                 return self.element(self.combinations.random_element())
-            return self.element(self.combinations_kernel.random_element(), kernel=False)
+            return self.element(self.combinations_dual.random_element(), kernel=False)
         except ValueError: # no elementary vectors exist or generated zero vector
             return
 
@@ -390,7 +390,7 @@ class ElementaryVectors:
         if kernel:
             self.marked_minors = set()
         else:
-            self.marked_minors_kernel = set()
+            self.marked_minors_dual = set()
 
     def generator(
         self,
@@ -401,7 +401,7 @@ class ElementaryVectors:
         r"""Return a generator of elementary vectors"""
         if prevent_multiples:
             self._reset_set_for_preventing_multiples(kernel=kernel)
-        combinations = self.combinations if kernel else self.combinations_kernel
+        combinations = self.combinations if kernel else self.combinations_dual
         if reverse:
             combinations = reversed(combinations)
         for indices in combinations:
