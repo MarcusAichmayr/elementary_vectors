@@ -332,12 +332,12 @@ class CombinationsIncluding:
             self.elements = elements
 
     def __iter__(self) -> Generator[list]:
-        for comb in self.combinations:
-            yield sorted(list(self.elements) + comb)
+        for combination in self.combinations:
+            yield sorted(list(self.elements) + combination)
     
     def __reversed__(self) -> Generator[list]:
-        for comb in reversed(self.combinations):
-            yield sorted(list(self.elements) + comb)
+        for combination in reversed(self.combinations):
+            yield sorted(list(self.elements) + combination)
 
     def random_element(self) -> list:
         return sorted(list(self.elements) + self.combinations.random_element())
