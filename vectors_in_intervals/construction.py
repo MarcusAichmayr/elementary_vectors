@@ -19,6 +19,7 @@ from collections.abc import Generator
 
 from sage.categories.sets_cat import EmptySetError
 from sage.calculus.var import var
+from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix
 from sage.misc.mrange import cartesian_product_iterator
 from sage.modules.free_module_element import vector, zero_vector
@@ -31,7 +32,7 @@ from .utility import (
     interval_from_bounds,
     solve_left_for_roots,
 )
-from elementary_vectors import elementary_vectors
+from elementary_vectors.functions import ElementaryVectors
 from sign_vectors import sign_vector
 
 
@@ -250,6 +251,30 @@ def vector_between_sign_vectors(data, lower, upper):
     .. SEEALSO::
 
         :func:`~vector_from_sign_vector`
+
+    TESTS::
+
+        sage: from vectors_in_intervals import *
+        sage: from sign_vectors import *
+        sage: M = matrix([[-3, -8, 0, 0, 1, -1], [10, -1, 2, 1, -7, 0], [1, 0, 0, -1, -3, 3]])
+        sage: lower = sign_vector('000+00')
+        sage: lower
+        (000+00)
+        sage: upper = sign_vector('++0+0+')
+        sage: upper
+        (++0+0+)
+
+    The function considers only elementary vectors that are zero when ``upper`` is zero.
+    We find an element that corresponds to ``[0, 1, 3, 5]``::
+
+        sage: vector_between_sign_vectors(M, lower, upper)
+        (16, 48, 0, 2, 0, 0)
+
+    If we consider all elementary vectors, the element corresponding to ``[0, 1, 2, 3]`` is returned::
+
+        sage: from elementary_vectors.functions import ElementaryVectors
+        sage: vector_between_sign_vectors(ElementaryVectors(M).generator(kernel=False), lower, upper)
+        (56, 168, 0, 7, 0, 0)
     """
     if isinstance(data, list):
         evs = data
@@ -261,7 +286,9 @@ def vector_between_sign_vectors(data, lower, upper):
         evs = data
         result = zero_vector(lower.length())
     else:
-        evs = elementary_vectors(data, kernel=False, generator=True)
+        evs_object = ElementaryVectors(data)
+        evs_object.combinations_dual = Combinations(upper.support(), evs_object.length - evs_object.rank + 1)
+        evs = evs_object.generator(kernel=False)
         result = zero_vector(data.base_ring(), lower.length())
 
     if sign_vector(result) >= lower:

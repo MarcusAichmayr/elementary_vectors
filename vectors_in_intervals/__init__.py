@@ -23,6 +23,7 @@ from .construction import (
     construct_vector,
     construct_orthogonal_vector,
     vector_from_sign_vector,
+    vector_between_sign_vectors,
     sign_vectors_in_intervals,
 )
 from .linear_inequality_systems import (
