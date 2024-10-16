@@ -237,8 +237,8 @@ class ElementaryVectors:
         self.ring = self.matrix.base_ring()
         self.minors = {}
         self.minors_dual = {}
-        self.combinations = Combinations(self.length, self.rank + 1)
-        self.combinations_dual = Combinations(self.length, self.length - self.rank + 1)
+        self.set_combinations()
+        self.set_combinations_dual()
 
         self.marked_minors = set()
         self.marked_minors_dual = set()
@@ -310,6 +310,20 @@ class ElementaryVectors:
         self.minors_dual[indices] = Permutation(i + 1 for i in list(indices_dual) + list(indices)).sign() * minor
         return self.minors_dual[indices]
 
+    def set_combinations(self, combinations=None) -> None:
+        r"""Set or reset combinations."""
+        if combinations is None:
+            self._combinations = Combinations(self.length, self.rank + 1)
+        else:
+            self._combinations = combinations
+
+    def set_combinations_dual(self, combinations=None) -> None:
+        r"""Set or reset combinations."""
+        if combinations is None:
+            self._combinations_dual = Combinations(self.length, self.length - self.rank + 1)
+        else:
+            self._combinations_dual = combinations
+
     def element(self, indices: list, kernel: bool = True):
         r"""
         Compute the elementary vector corresponding to a list of indices.
@@ -378,8 +392,8 @@ class ElementaryVectors:
         """
         try:
             if kernel:
-                return self.element(self.combinations.random_element())
-            return self.element(self.combinations_dual.random_element(), kernel=False)
+                return self.element(self._combinations.random_element())
+            return self.element(self._combinations_dual.random_element(), kernel=False)
         except ValueError: # no elementary vectors exist or generated zero vector
             return
 
@@ -401,7 +415,7 @@ class ElementaryVectors:
         r"""Return a generator of elementary vectors"""
         if prevent_multiples:
             self._reset_set_for_preventing_multiples(kernel=kernel)
-        combinations = self.combinations if kernel else self.combinations_dual
+        combinations = self._combinations if kernel else self._combinations_dual
         if reverse:
             combinations = reversed(combinations)
         for indices in combinations:

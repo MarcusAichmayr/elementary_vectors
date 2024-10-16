@@ -287,7 +287,7 @@ def vector_between_sign_vectors(data, lower, upper):
         result = zero_vector(lower.length())
     else:
         evs_object = ElementaryVectors(data)
-        evs_object.combinations_dual = Combinations(upper.support(), evs_object.length - evs_object.rank + 1)
+        evs_object.set_combinations_dual(Combinations(upper.support(), evs_object.length - evs_object.rank + 1))
         evs = evs_object.generator(kernel=False)
         result = zero_vector(data.base_ring(), lower.length())
 

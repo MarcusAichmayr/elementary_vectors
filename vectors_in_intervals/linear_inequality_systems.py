@@ -273,7 +273,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         self.nonstrict = range(A.nrows(), A.nrows() + B.nrows())
 
         if len(self.strict) == 1:
-            self.evs.combinations = CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict)
+            self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict))
 
     def get_intervals(self) -> list:
         self.intervals = [
@@ -359,7 +359,7 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
         self.evs = Cocircuits(self.matrix.T)
 
         if len(self.strict) == 1:
-            self.evs.combinations = CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict)
+            self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict))
 
     def exists_orthogonal_vector(self, v) -> bool:
         return not (
