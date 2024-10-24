@@ -99,6 +99,7 @@ We consider another example::
 import concurrent.futures
 
 from collections.abc import Generator
+from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix
 from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
@@ -271,6 +272,8 @@ class HomogeneousSystem(LinearInequalitySystem):
         super().__init__(matrix.block([[A], [B], [C]]), None, result=result)
         self.strict = range(A.nrows())
         self.nonstrict = range(A.nrows(), A.nrows() + B.nrows())
+
+        self.evs.set_combinations_dual(Combinations(range(A.nrows() + B.nrows()), self.evs.length - self.evs.rank + 1))
 
         if len(self.strict) == 1:
             self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict))
