@@ -14,6 +14,7 @@ from collections.abc import Generator
 
 from sage.categories.sets_cat import EmptySetError
 from sage.combinat.combination import Combinations
+from sage.functions.generalized import sign
 from sage.functions.other import floor, ceil
 from sage.matrix.constructor import matrix
 from sage.misc.prandom import randint
@@ -22,6 +23,8 @@ from sage.rings.continued_fraction import continued_fraction
 from sage.rings.infinity import Infinity
 from sage.rings.rational_field import QQ
 from sage.sets.real_set import RealSet
+
+from elementary_vectors.functions import ElementaryVectors
 
 
 def interval_from_bounds(
@@ -302,11 +305,41 @@ def solve_left_for_roots(A, b):
 
     NOTE::
 
-        The built in method ``solve_left`` for matrices does not always work.
+        The built in method ``solve_left`` for matrices fails occasionally.
     """
     M = matrix(list(A) + [-b]).T.right_kernel_matrix()
     x = matrix(M.column(-1)).solve_right(vector([1]))
     return (x * M)[:-1]
+
+
+def solve_without_division(A, b):
+    r"""
+    Solve a linear system of equations without division.
+
+    The system is ``A x = c b`` where ``c`` is a positive constant.
+    Uses an elementary vector.
+
+    EXAMPLES::
+
+        sage: from vectors_in_intervals.utility import solve_without_division
+        sage: A = matrix([[1, 2], [0, 1], [1, -1]])
+        sage: b = vector([1, 0, 1])
+        sage: solve_without_division(A, b)
+        (1, 0)
+        sage: A = matrix([[1, 4], [0, 2], [1, -2]])
+        sage: b = vector([6, 2, 0])
+        sage: solve_without_division(A, b)
+        (4, 2)
+        sage: A.solve_right(b)
+        (2, 1)
+        sage: A = matrix([[1, 1, 1], [0, 1, 2]])
+        sage: b = vector([2, 3])
+        sage: solve_without_division(A, b)
+        (0, 1, 1)
+    """
+    Ab = matrix.block([[A, matrix.column(b)]])
+    ev = next(ElementaryVectors(Ab).generator(reverse=True))
+    return -sign(ev[-1]) * ev[:-1]
 
 
 class CombinationsIncluding:

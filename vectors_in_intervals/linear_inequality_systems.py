@@ -109,7 +109,7 @@ from elementary_vectors.functions import ElementaryVectors
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
 from sign_vectors.oriented_matroids import Cocircuits
 from vectors_in_intervals import exists_orthogonal_vector
-from .utility import interval_from_bounds, CombinationsIncluding
+from .utility import interval_from_bounds, CombinationsIncluding, solve_without_division
 
 
 class LinearInequalitySystem(SageObject):
@@ -340,12 +340,13 @@ class HomogeneousSystem(LinearInequalitySystem):
         Compute a solution if existent.
 
         This approach sums up positive elementary vectors in the row space.
+        It doesn't use division.
 
         .. NOTE::
 
             If no solution exists, and ``random`` is true, this method will never finish.
         """
-        return self.matrix.solve_right(self.certify_existence(reverse=reverse, random=random))
+        return solve_without_division(self.matrix, self.certify_existence(reverse=reverse, random=random))
 
 
 class HomogeneousSystemCocircuits(HomogeneousSystem):
