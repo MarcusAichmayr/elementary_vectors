@@ -99,7 +99,6 @@ We consider another example::
 import concurrent.futures
 
 from collections.abc import Generator
-from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix, zero_matrix
 from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
@@ -265,6 +264,16 @@ class HomogeneousSystem(LinearInequalitySystem):
     A class for homogeneous linear inequality systems
 
     ``A x > 0``, ``B x >= 0``, ``C x = 0``
+
+    TESTS::
+
+        sage: from vectors_in_intervals import *
+        sage: A = matrix([[0, 1], [0, 1], [0, 1]])
+        sage: B = zero_matrix(0, 2)
+        sage: C = matrix([[1, 1], [0, 0]])
+        sage: S = HomogeneousSystem(A, B, C)
+        sage: S.certify_existence()
+        (1, 1, 1, 0, 0)
     """
     __slots__ = "strict", "nonstrict"
 
@@ -273,7 +282,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         self.strict = range(A.nrows())
         self.nonstrict = range(A.nrows(), A.nrows() + B.nrows())
 
-        self.evs.set_combinations_dual(Combinations(range(A.nrows() + B.nrows()), self.evs.length - self.evs.rank + 1))
+        # self.evs.set_combinations_dual(Combinations(range(A.nrows() + B.nrows()), self.evs.length - self.evs.rank + 1))
 
         if len(self.strict) == 1:
             self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict))

@@ -264,17 +264,12 @@ def vector_between_sign_vectors(data, lower, upper):
         sage: upper
         (++0+0+)
 
-    The function considers only elementary vectors that are zero when ``upper`` is zero.
-    We find an element that corresponds to ``[0, 1, 3, 5]``::
+    We demonstrate that we cannot just use evs with indices in supp X::
 
-        sage: vector_between_sign_vectors(M, lower, upper)
-        (16, 48, 0, 2, 0, 0)
-
-    If we consider all elementary vectors, the element corresponding to ``[0, 1, 2, 3]`` is returned::
-
-        sage: from elementary_vectors.functions import ElementaryVectors
-        sage: vector_between_sign_vectors(ElementaryVectors(M).generator(kernel=False), lower, upper)
-        (56, 168, 0, 7, 0, 0)
+        sage: M = matrix([[1, 1, 1, 0, 0], [0, 0, 0, 1, 1]])
+        sage: X = sign_vector("+++00")
+        sage: vector_between_sign_vectors(M, X, X)
+        (1, 1, 1, 0, 0)
     """
     if isinstance(data, list):
         evs = data
@@ -287,7 +282,7 @@ def vector_between_sign_vectors(data, lower, upper):
         result = zero_vector(lower.length())
     else:
         evs_object = ElementaryVectors(data)
-        evs_object.set_combinations_dual(Combinations(upper.support(), evs_object.length - evs_object.rank + 1))
+        # evs_object.set_combinations_dual(Combinations(upper.support(), evs_object.length - evs_object.rank + 1))
         evs = evs_object.generator(kernel=False)
         result = zero_vector(data.base_ring(), lower.length())
 
