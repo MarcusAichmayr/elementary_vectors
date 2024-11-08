@@ -224,6 +224,21 @@ class ElementaryVectors:
          (-2, -1, 0, -2, -1),
          (1, 0, -1, 0, -1),
          (0, 1, 2, 2, 3)]
+
+    TESTS:
+
+    This used to return a multiple::
+
+        sage: M = matrix([
+        ....:     [-1, 1, -2, -1, -2, -1, -4, -4],
+        ....:     [-1, 71, -12, 0, 6, 0, 0, 1],
+        ....:     [0, 0, 1, 0, -2, 0, -1, 6],
+        ....:     [1, 0, 1, 0, -5, 0, 1, 1],
+        ....:     [-1, -1, 0, 1, -1, 1, 15, -1]
+        ....: ])
+        sage: evs = ElementaryVectors(M)
+        sage: len(evs.elements())
+        14
     """
     def __init__(self, M) -> None:
         try:
@@ -362,23 +377,23 @@ class ElementaryVectors:
             if kernel:
                 if indices_minor in self.marked_minors:
                     multiple_detected = True
-            else:
-                if indices_minor in self.marked_minors_dual:
-                    multiple_detected = True
+            elif indices_minor in self.marked_minors_dual:
+                multiple_detected = True
             minor = self.minor(indices_minor, kernel=kernel)
             if minor == 0:
                 zero_minors.append(indices_minor)
                 continue
             nonzero_detected = True
-            element[k] = (-1) ** pos * minor
+            if not multiple_detected:
+                element[k] = (-1) ** pos * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
                 if kernel:
                     self.marked_minors.add(marked_minor)
                 else:
                     self.marked_minors_dual.add(marked_minor)
-                if multiple_detected:
-                    raise ValueError("Multiple detected!")
+            if multiple_detected:
+                raise ValueError("Multiple detected!")
             return element
         raise ValueError("Indices correspond to zero vector!")
 

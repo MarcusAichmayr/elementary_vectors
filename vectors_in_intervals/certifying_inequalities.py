@@ -142,7 +142,7 @@ This system can be described by two matrices and two lists of intervals::
 The package offers a single function that certifies existence of a solution::
 
     sage: S.certify()
-    (True, (2, 2, 0, 0, 0, 4, -2, 2), 13)
+    (True, (2, 2, 0, 0, 0, 4, -2, 2), 12)
 
 The alternatives for the inhomogeneous case can be formulated using two systems.
 The resulting systems yield different certificates::
