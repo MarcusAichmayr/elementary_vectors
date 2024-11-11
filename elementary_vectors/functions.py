@@ -53,7 +53,7 @@ def elementary_vectors(M, kernel: bool = True, generator: bool = False):
     To consider the row space, pass ``kernel=False``::
 
         sage: elementary_vectors(M, kernel=False)
-        [(0, -2, -4, 0, 0), (0, -2, 0, -4, 0), (-4, 0, 0, 0, -4), (0, 0, -2, 2, 0)]
+        [(0, -2, -4, 0, 0), (0, 2, 0, 4, 0), (-4, 0, 0, 0, -4), (0, 0, -2, 2, 0)]
 
     We can also compute elementary vectors over a finite field::
 
@@ -217,13 +217,13 @@ class ElementaryVectors:
          (0, 2, 0, -1, 0),
          (0, 0, 2, 1, -2)]
         sage: evs.elements(kernel=False)
-        [(-3, -1, 1, -2, 0), (2, 0, -2, 0, -2), (-2, -1, 0, -2, -1), (0, 1, 2, 2, 3)]
+        [(3, 1, -1, 2, 0), (2, 0, -2, 0, -2), (2, 1, 0, 2, 1), (0, -1, -2, -2, -3)]
         sage: evs.elements(kernel=False, prevent_multiples=False)
-        [(-3, -1, 1, -2, 0),
+        [(3, 1, -1, 2, 0),
          (2, 0, -2, 0, -2),
-         (-2, -1, 0, -2, -1),
+         (2, 1, 0, 2, 1),
          (1, 0, -1, 0, -1),
-         (0, 1, 2, 2, 3)]
+         (0, -1, -2, -2, -3)]
 
     TESTS:
 
@@ -251,14 +251,13 @@ class ElementaryVectors:
         self.rank = self.matrix.nrows()
         self.ring = self.matrix.base_ring()
         self.minors = {}
-        self.minors_dual = {}
         self.set_combinations()
         self.set_combinations_dual()
 
         self.marked_minors = set()
         self.marked_minors_dual = set()
 
-    def minor(self, indices, kernel: bool = True):
+    def minor(self, indices):
         r"""
         Compute a minor given by indices
 
@@ -271,59 +270,21 @@ class ElementaryVectors:
             sage: evs = ElementaryVectors(M)
             sage: evs.minors
             {}
-            sage: evs.minors_dual
-            {}
             sage: evs.minor([0, 1])
             1
             sage: evs.minors
             {(0, 1): 1}
-            sage: evs.minors_dual
-            {}
-            sage: evs.minor([2, 3, 4], kernel=False)
-            1
-            sage: evs.minors
-            {(0, 1): 1}
-            sage: evs.minors_dual
-            {(2, 3, 4): 1}
-            sage: evs.minor([0, 1, 3], kernel=False)
-            1
-            sage: evs.minors
-            {(0, 1): 1, (2, 4): -1}
-            sage: evs.minors_dual
-            {(0, 1, 3): 1, (2, 3, 4): 1}
             sage: evs.minor([2, 4])
             -1
             sage: evs.minors
             {(0, 1): 1, (2, 4): -1}
-            sage: evs.minors_dual
-            {(0, 1, 3): 1, (2, 3, 4): 1}
         """
         indices = tuple(indices)
         try:
-            if kernel:
-                return self.minors[indices]
-            return self.minor_of_kernel_matrix(indices)
+            return self.minors[indices]
         except KeyError:
-            pass
-
-        self.minors[indices] = self.matrix.matrix_from_columns(indices).det()
-        return self.minors[indices]
-
-    def minor_of_kernel_matrix(self, indices):
-        r"""
-        Return a minor of the kernel matrix given by indices
-
-        Caches the result for efficient reuse and uses the corresponding minor
-        """
-        indices = tuple(indices)
-        try:
-            return self.minors_dual[indices]
-        except KeyError:
-            pass
-        indices_dual = tuple(i for i in range(self.length) if i not in indices)
-        minor = self.minor(indices_dual)
-        self.minors_dual[indices] = Permutation(i + 1 for i in list(indices_dual) + list(indices)).sign() * minor
-        return self.minors_dual[indices]
+            self.minors[indices] = self.matrix.matrix_from_columns(indices).det()
+            return self.minors[indices]
 
     def set_combinations(self, combinations=None) -> None:
         r"""Set or reset combinations."""
@@ -347,15 +308,30 @@ class ElementaryVectors:
 
             Raises a ``ValueError`` if the indices correspond to the zero vector.
         """
+        if not kernel:
+            return self.element_dual(indices)
         element = self._zero_element()
         nonzero_detected = False
         for pos, k in enumerate(indices):
-            indices_minor = tuple(i for i in indices if i != k)
-            minor = self.minor(indices_minor, kernel=kernel)
+            minor = self.minor(tuple(i for i in indices if i != k))
             if minor == 0:
                 continue
             nonzero_detected = True
             element[k] = (-1) ** pos * minor
+        if nonzero_detected:
+            return element
+        raise ValueError("Indices correspond to zero vector!")
+
+    def element_dual(self, indices: list):
+        element = self._zero_element()
+        nonzero_detected = False
+        indices_complement = [i for i in range(self.length) if i not in indices]
+        for k in indices:
+            minor = self.minor(tuple(set(indices_complement + [k])))
+            if minor == 0:
+                continue
+            nonzero_detected = True
+            element[k] = (-1) ** len([i for i in indices_complement if i < k]) * minor
         if nonzero_detected:
             return element
         raise ValueError("Indices correspond to zero vector!")
@@ -368,18 +344,17 @@ class ElementaryVectors:
 
             If this results in a multiple of a previous element, a ``ValueError`` is raised.
         """
+        if not kernel:
+            return self.element_prevent_multiple_dual(indices)
         element = self._zero_element()
         nonzero_detected = False
         zero_minors = []
         multiple_detected = False
         for pos, k in enumerate(indices):
             indices_minor = tuple(i for i in indices if i != k)
-            if kernel:
-                if indices_minor in self.marked_minors:
-                    multiple_detected = True
-            elif indices_minor in self.marked_minors_dual:
+            if indices_minor in self.marked_minors:
                 multiple_detected = True
-            minor = self.minor(indices_minor, kernel=kernel)
+            minor = self.minor(indices_minor)
             if minor == 0:
                 zero_minors.append(indices_minor)
                 continue
@@ -388,10 +363,39 @@ class ElementaryVectors:
                 element[k] = (-1) ** pos * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
-                if kernel:
-                    self.marked_minors.add(marked_minor)
-                else:
-                    self.marked_minors_dual.add(marked_minor)
+                self.marked_minors.add(marked_minor)
+            if multiple_detected:
+                raise ValueError("Multiple detected!")
+            return element
+        raise ValueError("Indices correspond to zero vector!")
+
+    def element_prevent_multiple_dual(self, indices: list):
+        r"""
+        Compute the elementary vector corresponding to a list of indices.
+
+        .. NOTE::
+
+            If this results in a multiple of a previous element, a ``ValueError`` is raised.
+        """
+        element = self._zero_element()
+        nonzero_detected = False
+        zero_minors = []
+        multiple_detected = False
+        indices_complement = [i for i in range(self.length) if i not in indices]
+        for k in indices:
+            indices_minor = tuple(set(indices_complement + [k]))
+            if indices_minor in self.marked_minors_dual:
+                multiple_detected = True
+            minor = self.minor(indices_minor)
+            if minor == 0:
+                zero_minors.append(indices_minor)
+                continue
+            nonzero_detected = True
+            if not multiple_detected:
+                element[k] = (-1) ** len([i for i in indices_complement if i < k]) * minor
+        if nonzero_detected:
+            for marked_minor in zero_minors:
+                self.marked_minors_dual.add(marked_minor)
             if multiple_detected:
                 raise ValueError("Multiple detected!")
             return element

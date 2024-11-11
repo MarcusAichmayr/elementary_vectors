@@ -189,13 +189,13 @@ def cocircuits_from_matrix(M, kernel: bool = True):
         [ 2 -1 -1]
         sage: cocircuits_from_matrix(A)
         {(0-+), (+0+), (--0), (-0-), (0+-), (++0)}
-        sage: B = matrix([[1,0,0,0],[0,1,0,2],[0,0,1,-1]])
+        sage: B = matrix([[1, 0, 0, 0], [0, 1, 0, 2], [0, 0, 1, -1]])
         sage: B
         [ 1  0  0  0]
         [ 0  1  0  2]
         [ 0  0  1 -1]
         sage: cocircuits_from_matrix(B, kernel=False)
-        {(0+0+), (-000), (00+-), (00-+), (0-0-), (0--0), (+000), (0++0)}
+        {(-000), (0+0+), (00+-), (00-+), (0-0-), (0--0), (+000), (0++0)}
     """
     return Cocircuits(M).elements(kernel=kernel)
 
