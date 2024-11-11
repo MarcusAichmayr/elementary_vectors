@@ -354,13 +354,13 @@ class ElementaryVectors:
             indices_minor = tuple(i for i in indices if i != k)
             if indices_minor in self.marked_minors:
                 multiple_detected = True
+                continue
             minor = self.minor(indices_minor)
             if minor == 0:
                 zero_minors.append(indices_minor)
                 continue
             nonzero_detected = True
-            if not multiple_detected:
-                element[k] = (-1) ** pos * minor
+            element[k] = (-1) ** pos * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
                 self.marked_minors.add(marked_minor)
@@ -386,13 +386,13 @@ class ElementaryVectors:
             indices_minor = tuple(set(indices_complement + [k]))
             if indices_minor in self.marked_minors_dual:
                 multiple_detected = True
+                continue
             minor = self.minor(indices_minor)
             if minor == 0:
                 zero_minors.append(indices_minor)
                 continue
             nonzero_detected = True
-            if not multiple_detected:
-                element[k] = (-1) ** len([i for i in indices_complement if i < k]) * minor
+            element[k] = (-1) ** len([i for i in indices_complement if i < k]) * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
                 self.marked_minors_dual.add(marked_minor)
