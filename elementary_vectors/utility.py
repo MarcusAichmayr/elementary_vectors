@@ -32,7 +32,8 @@ def kernel_vector_support_given(M, indices):
 
         sage: from elementary_vectors.utility import kernel_vector_support_given
         sage: M = matrix([[1, 2, 0, 0], [0, 1, -1, 0]])
-        sage: kernel_vector_support_given(M, [0, 1, 2])
+        sage: v = kernel_vector_support_given(M, [0, 1, 2])
+        sage: max(v, -v)
         (2, -1, -1, 0)
         sage: kernel_vector_support_given(M, [3])
         (0, 0, 0, 1)

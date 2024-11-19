@@ -44,6 +44,18 @@ You can also run instead the shorthand:
 
     make install
 
+### Local install from source (no Sage installation required)
+
+Download the source from the git repository:
+
+    git clone https://github.com/MarcusAichmayr/elementary_vectors.git
+
+Change to the root directory of the repository and run:
+
+    python3 -m venv venv
+    . venv/bin/activate
+    pip install -v -e ".[passagemath]"
+
 ### Documentation
 
 The documentation of this package can be found on GitHub:

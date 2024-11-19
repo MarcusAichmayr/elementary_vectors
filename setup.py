@@ -38,4 +38,12 @@ setup(
         "vectors_in_intervals",
         "sign_vectors",
     ],
+    extras_require={
+        "passagemath": [
+            "passagemath-symbolics",
+            "passagemath-flint",
+            "passagemath-graphs",
+            "passagemath-repl",
+        ],
+    },
 )
