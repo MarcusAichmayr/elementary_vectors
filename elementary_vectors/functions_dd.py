@@ -35,7 +35,7 @@ Now, we define a vector ``a``.
 We will use this vector as a third row in our matrix::
 
     sage: a = vector([1, 1, 1, 0, 0])
-    sage: Ma = M.insert_row(2, a)
+    sage: Ma = M.stack(a)
     sage: Ma
     [ 1  2  0  0  3]
     [ 0  1 -1  2  1]
@@ -276,7 +276,7 @@ def double_description(M, a):
     We will use this vector as a third row in our matrix::
 
         sage: a = vector([1, 1, 1, 0, 0])
-        sage: Ma = M.insert_row(2, a)
+        sage: Ma = M.stack(a)
         sage: Ma
         [ 1  2  0  0  3]
         [ 0  1 -1  2  1]
