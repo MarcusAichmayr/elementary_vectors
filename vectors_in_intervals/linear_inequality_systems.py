@@ -302,7 +302,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def exists_orthogonal_vector(self, v) -> bool:
         return not (
-            any(v[k] != 0 for k in self.strict)
+            any(v[k] for k in self.strict)
             and (
                 (
                     all(v[k] >= 0 for k in self.strict)
@@ -376,7 +376,7 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
 
     def exists_orthogonal_vector(self, v) -> bool:
         return not (
-            any(v[k] != 0 for k in self.strict)
+            any(v[k] for k in self.strict)
             and (
                 all(v[k] >= 0 for k in self.strict)
                 and all(v[k] >= 0 for k in self.nonstrict)
