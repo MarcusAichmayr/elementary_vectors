@@ -187,12 +187,12 @@ class LinearInequalitySystem(SageObject):
         solution = self.to_homogeneous().solve(reverse=reverse, random=random)
         return solution[:-1] / solution[-1]
 
-    def certify(self, reverse: bool = False) -> tuple:
+    def certify(self, reverse: bool = False, random: bool = False) -> tuple:
         r"""Return a boolean and a certificate for solvability."""
         try:
-            return False, self.certify_nonexistence(reverse=reverse)
+            return False, self.certify_nonexistence(reverse=reverse, random=random)
         except ValueError:
-            return True, self.certify_existence(reverse=reverse)
+            return True, self.certify_existence(reverse=reverse, random=random)
 
     def certify_parallel(self, reverse: bool = False, random: bool = False) -> tuple:
         r"""
