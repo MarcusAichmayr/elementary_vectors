@@ -9,6 +9,8 @@ EXAMPLES::
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
     sage: S = HomogeneousSystem(A, B, C)
+    sage: S.get_intervals()
+    [(0, +oo), (0, +oo), [0, +oo), {0}]
     sage: S.solve()
     (0, 1)
     sage: S.certify_existence()
@@ -275,25 +277,26 @@ class HomogeneousSystem(LinearInequalitySystem):
         sage: S.certify_existence()
         (1, 1, 1, 0, 0)
     """
-    __slots__ = "strict", "nonstrict"
+    __slots__ = "positive", "nonnegative", "zero"
 
     def __init__(self, A, B, C, result=None) -> None:
         super().__init__(matrix.block([[A], [B], [C]]), None, result=result)
-        self.strict = range(A.nrows())
-        self.nonstrict = range(A.nrows(), A.nrows() + B.nrows())
+        self.positive = range(A.nrows())
+        self.nonnegative = range(A.nrows() + B.nrows())
+        self.zero = range(A.nrows() + B.nrows(), self.matrix.nrows())
 
         # self.evs.set_combinations_dual(Combinations(range(A.nrows() + B.nrows()), self.evs.length - self.evs.rank + 1))
 
-        if len(self.strict) == 1:
-            self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict))
+        if len(self.positive) == 1:
+            self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
 
     def get_intervals(self) -> list:
         self.intervals = [
             interval_from_bounds(0, Infinity, False, False)
-            if i in self.strict else
+            if i in self.positive else
             (
                 interval_from_bounds(0, Infinity)
-                if i in self.nonstrict else
+                if i in self.nonnegative else
                 interval_from_bounds(0, 0)
             )
             for i in range(self.matrix.nrows())
@@ -302,16 +305,10 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def exists_orthogonal_vector(self, v) -> bool:
         return not (
-            any(v[k] for k in self.strict)
+            any(v[k] for k in self.positive)
             and (
-                (
-                    all(v[k] >= 0 for k in self.strict)
-                    and all(v[k] >= 0 for k in self.nonstrict)
-                )
-                or (
-                    all(v[k] <= 0 for k in self.strict)
-                    and all(v[k] <= 0 for k in self.nonstrict)
-                )
+                all(v[k] >= 0 for k in self.nonnegative)
+                or all(v[k] <= 0 for k in self.nonnegative)
             )
         )
 
@@ -319,24 +316,17 @@ class HomogeneousSystem(LinearInequalitySystem):
         return self
 
     def certify_existence(self, reverse: bool = False, random: bool = False):
-        lower = sign_vector(
-            len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
-        )
-        upper = sign_vector(
-            (len(self.strict) + len(self.nonstrict)) * [1]
-            + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
-        )
         result = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
-        if sign_vector(result) >= lower:
+        if self.positive.stop == 0:
             return result
         for v in self.candidate_generator(kernel=False, reverse=reverse, random=random):
             if self.solvable is False:
                 raise ValueError("No solution exists!")
             for w in [v, -v]:
-                if sign_vector(w) <= upper:
+                if all(w[i] >= 0 for i in self.nonnegative) and all(w[i] == 0 for i in self.zero):
                     result += w
-                    if sign_vector(result) >= lower:
+                    if all(result[i] > 0 for i in self.positive):
                         self.solvable = True
                         return result
                     break
@@ -371,16 +361,13 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
 
         self.evs = Cocircuits(self.matrix.T)
 
-        if len(self.strict) == 1:
-            self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.strict))
+        if len(self.positive) == 1:
+            self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
 
     def exists_orthogonal_vector(self, v) -> bool:
         return not (
-            any(v[k] for k in self.strict)
-            and (
-                all(v[k] >= 0 for k in self.strict)
-                and all(v[k] >= 0 for k in self.nonstrict)
-            )
+            any(v[k] for k in self.positive)
+            and all(v[k] >= 0 for k in self.nonnegative)
         )
 
     def certify_existence(self, reverse: bool = False, random: bool = False) -> SignVector:
@@ -394,11 +381,10 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
             If no solution exists, and ``random`` is true, this method will never finish.
         """
         lower = sign_vector(
-            len(self.strict) * [1] + (self.matrix.nrows() - len(self.strict)) * [0]
+            len(self.positive) * [1] + (self.matrix.nrows() - len(self.positive)) * [0]
         )
         upper = sign_vector(
-            (len(self.strict) + len(self.nonstrict)) * [1]
-            + (self.matrix.nrows() - len(self.strict) - len(self.nonstrict)) * [0]
+            len(self.nonnegative) * [1] + (self.matrix.nrows() - len(self.nonnegative)) * [0]
         )
         result = zero_sign_vector(self.matrix.nrows())
 
