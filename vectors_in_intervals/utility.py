@@ -344,7 +344,7 @@ def solve_without_division(A, b):
 
 class CombinationsIncluding:
     r"""
-    Combinatorical object of all combinations that include given elements
+    Combinatorial object of all combinations that include given elements
 
     EXAMPLES:
 
