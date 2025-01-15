@@ -24,13 +24,13 @@ import sage.all
 # -- Project information -----------------------------------------------------
 
 project = u'elementary_vectors'
-copyright = u'2024, Marcus S. Aichmayr'
+copyright = u'2025, Marcus S. Aichmayr'
 author = u'Marcus S. Aichmayr'
 
 # The short X.Y version
-version = u'1.0'
+version = u'1.1'
 # The full version, including alpha/beta/rc tags
-release = u'1.0'
+release = u'1.1'
 
 
 # -- General configuration ---------------------------------------------------

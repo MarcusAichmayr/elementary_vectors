@@ -9,7 +9,7 @@ def readfile(filename):
 
 setup(
     name="elementary_vectors",
-    version="v1.0",
+    version="v1.1",
     description="a SageMath package to work with elementary vectors, sign vectors, oriented matroids and vectors with components in intervals",
     long_description=readfile("README.md"),
     long_description_content_type="text/markdown",
