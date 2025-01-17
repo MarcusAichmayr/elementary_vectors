@@ -241,7 +241,7 @@ class ElementaryVectors:
     """
     def __init__(self, M) -> None:
         try:
-            self.matrix = M.matrix_from_rows(M.pivot_rows())  # does not work for polynomial matrices
+            self.matrix = M.matrix_from_rows(M.pivot_rows())  # fails for polynomial matrices
         except (ArithmeticError, NotImplementedError):
             self.matrix = M
             warnings.warn("Could not determine rank of matrix. Expect wrong result!")
