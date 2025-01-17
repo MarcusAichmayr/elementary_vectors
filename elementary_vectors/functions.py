@@ -13,7 +13,6 @@ r"""Computing elementary vectors"""
 import warnings
 from collections.abc import Generator
 from sage.combinat.combination import Combinations
-from sage.combinat.permutation import Permutation
 from sage.matrix.constructor import matrix
 from sage.modules.free_module_element import zero_vector
 
@@ -254,8 +253,7 @@ class ElementaryVectors:
         self.set_combinations()
         self.set_combinations_dual()
 
-        self.marked_minors = set()
-        self.marked_minors_dual = set()
+        self._reset_set_for_preventing_multiples()
 
     def minor(self, indices):
         r"""
@@ -384,7 +382,7 @@ class ElementaryVectors:
         indices_complement = [i for i in range(self.length) if i not in indices]
         for k in indices:
             indices_minor = tuple(set(indices_complement + [k]))
-            if indices_minor in self.marked_minors_dual:
+            if indices_minor in self.marked_minors:
                 multiple_detected = True
                 continue
             minor = self.minor(indices_minor)
@@ -395,7 +393,7 @@ class ElementaryVectors:
             element[k] = (-1) ** len([i for i in indices_complement if i < k]) * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
-                self.marked_minors_dual.add(marked_minor)
+                self.marked_minors.add(marked_minor)
             if multiple_detected:
                 raise ValueError("Multiple detected!")
             return element
@@ -419,11 +417,8 @@ class ElementaryVectors:
     def _zero_element(self):
         return zero_vector(self.ring, self.length)
 
-    def _reset_set_for_preventing_multiples(self, kernel: bool = True) -> None:
-        if kernel:
-            self.marked_minors = set()
-        else:
-            self.marked_minors_dual = set()
+    def _reset_set_for_preventing_multiples(self) -> None:
+        self.marked_minors = set()
 
     def generator(
         self,
@@ -433,7 +428,7 @@ class ElementaryVectors:
     ) -> Generator:
         r"""Return a generator of elementary vectors"""
         if prevent_multiples:
-            self._reset_set_for_preventing_multiples(kernel=kernel)
+            self._reset_set_for_preventing_multiples()
         combinations = self._combinations if kernel else self._combinations_dual
         if reverse:
             combinations = reversed(combinations)
