@@ -308,10 +308,11 @@ class ElementaryVectors:
         """
         if kernel is None:
             if len(indices) == self.rank + 1:
-                return self.element_kernel(indices, prevent_multiple=prevent_multiple)
-            if len(indices) == self.rank - 1:
-                return self.element_row_space(indices, prevent_multiple=prevent_multiple)
-            raise ValueError("Number of indices does not fit!")
+                kernel = True
+            elif len(indices) == self.rank - 1:
+                kernel = False
+            else:
+                raise ValueError("Number of indices does not fit!")
         if kernel:
             return self.element_kernel(indices, prevent_multiple=prevent_multiple)
         return self.element_row_space(indices, prevent_multiple=prevent_multiple)
