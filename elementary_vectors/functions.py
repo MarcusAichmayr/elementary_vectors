@@ -15,6 +15,7 @@ from collections.abc import Generator
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix
 from sage.modules.free_module_element import zero_vector
+from sage.structure.sage_object import SageObject
 
 from .utility import is_symbolic
 
@@ -183,7 +184,7 @@ def kernel_matrix_using_elementary_vectors(M):
     return matrix(evs.element(set(indices).union([k])) for k in range(length) if k not in indices)
 
 
-class ElementaryVectors:
+class ElementaryVectors(SageObject):
     r"""
     A class used to compute elementary vectors.
 
