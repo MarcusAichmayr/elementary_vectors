@@ -298,7 +298,7 @@ class ElementaryVectors:
         else:
             self._combinations_dual = combinations
 
-    def element(self, indices: list, kernel: bool = True):
+    def element(self, indices: list, kernel: bool = None, prevent_multiple: bool = False):
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
@@ -306,8 +306,26 @@ class ElementaryVectors:
 
             Raises a ``ValueError`` if the indices correspond to the zero vector.
         """
-        if not kernel:
-            return self.element_dual(indices)
+        if kernel is None:
+            if len(indices) == self.rank + 1:
+                return self.element_kernel(indices, prevent_multiple=prevent_multiple)
+            if len(indices) == self.rank - 1:
+                return self.element_row_space(indices, prevent_multiple=prevent_multiple)
+            raise ValueError("Number of indices does not fit!")
+        if kernel:
+            return self.element_kernel(indices, prevent_multiple=prevent_multiple)
+        return self.element_row_space(indices, prevent_multiple=prevent_multiple)
+
+    def element_kernel(self, indices: list, prevent_multiple: bool = False):
+        r"""
+        Compute the elementary vector corresponding to a list of indices.
+
+        .. NOTE::
+
+            Raises a ``ValueError`` if the indices correspond to the zero vector.
+        """
+        if prevent_multiple:
+            return self._element_kernel_prevent_multiple(indices)
         element = self._zero_element()
         nonzero_detected = False
         for pos, k in enumerate(indices):
@@ -320,7 +338,16 @@ class ElementaryVectors:
             return element
         raise ValueError("Indices correspond to zero vector!")
 
-    def element_dual(self, indices: list):
+    def element_row_space(self, indices: list, prevent_multiple: bool = False):
+        """
+        Compute the elementary vector in the row space corresponding to the given indices.
+
+        INPUT::
+
+        - ``indices`` -- a list of ``rank - 1``elements
+        """
+        if prevent_multiple:
+            return self._element_row_space_prevent_multiple(indices)
         element = self._zero_element()
         nonzero_detected = False
         pos = 0
@@ -337,7 +364,7 @@ class ElementaryVectors:
             return element
         raise ValueError("Indices correspond to zero vector!")
 
-    def element_prevent_multiple(self, indices: list, kernel: bool = True):
+    def _element_kernel_prevent_multiple(self, indices: list):
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
@@ -345,8 +372,6 @@ class ElementaryVectors:
 
             If this results in a multiple of a previous element, a ``ValueError`` is raised.
         """
-        if not kernel:
-            return self.element_prevent_multiple_dual(indices)
         element = self._zero_element()
         nonzero_detected = False
         zero_minors = []
@@ -370,7 +395,7 @@ class ElementaryVectors:
             return element
         raise ValueError("Indices correspond to zero vector!")
 
-    def element_prevent_multiple_dual(self, indices: list):
+    def _element_row_space_prevent_multiple(self, indices: list):
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
@@ -415,8 +440,8 @@ class ElementaryVectors:
         """
         try:
             if kernel:
-                return self.element(self._combinations.random_element())
-            return self.element(self._combinations_dual.random_element(), kernel=False)
+                return self.element_kernel(self._combinations.random_element())
+            return self.element_row_space(self._combinations_dual.random_element())
         except ValueError: # no elementary vectors exist or generated zero vector
             return
 
@@ -445,10 +470,7 @@ class ElementaryVectors:
             combinations = reversed(combinations)
         for indices in combinations:
             try:
-                if prevent_multiples:
-                    yield self.element_prevent_multiple(indices, kernel=kernel)
-                else:
-                    yield self.element(indices, kernel=kernel)
+                yield self.element(indices, kernel=kernel, prevent_multiple=prevent_multiples)
             except ValueError:
                 pass
 
