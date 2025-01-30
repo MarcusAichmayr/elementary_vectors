@@ -128,17 +128,13 @@ from .utility import loops, classes_same_support, parallel_classes
 
 class Cocircuits(ElementaryVectors):
     r"""Class used to compute cocircuits and circuits."""
-    def minor(self, indices, kernel: bool = True):
+    def minor(self, indices):
         indices = tuple(indices)
         try:
-            if kernel:
-                return self.minors[indices]
-            return self.minor_of_kernel_matrix(indices)
+            return super().minor(indices)
         except KeyError:
-            pass
-
-        self.minors[indices] = Sign(self.matrix.matrix_from_columns(indices).det())
-        return self.minors[indices]
+            self.minors[indices] = Sign(self.matrix.matrix_from_columns(indices).det())
+            return self.minors[indices]
 
     def _zero_element(self) -> list:
         return [0] * self.length
