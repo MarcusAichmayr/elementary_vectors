@@ -224,6 +224,24 @@ class ElementaryVectors:
          (2, 0, -2, 0, -2),
          (3, 1, -1, 2, 0)]
 
+    ::
+
+        sage: evs = ElementaryVectors(M)
+        sage: evs.minor([0, 2])
+        2
+        sage: evs.element([0, 2, 3])
+        (-2, 0, -2, 2, 0)
+        sage: evs.element([0])
+        (0, -1, -2, -2, -3)
+        sage: evs.element_kernel([0, 2, 3])
+        (-2, 0, -2, 2, 0)
+        sage: evs.element_row_space([0])
+        (0, -1, -2, -2, -3)
+        sage: evs.random_element() # random
+        (0, 2, 0, -1, 0)
+        sage: evs.random_element(kernel=False) # random
+        (3, 1, -1, 2, 0)
+
     TESTS:
 
     This used to return a multiple::
