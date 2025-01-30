@@ -26,7 +26,7 @@ concurrency:
 jobs:
   # Build job
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # TODO change to ubuntu-latest when sagemath is available
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -51,7 +51,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # TODO change to ubuntu-latest when sagemath is available
     needs: build
     steps:
       - name: Deploy to GitHub Pages
