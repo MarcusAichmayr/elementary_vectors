@@ -120,6 +120,8 @@ dual oriented matroid::
 
 from collections.abc import Generator
 
+from sage.structure.sage_object import SageObject
+
 from elementary_vectors.functions import ElementaryVectors
 from sign_vectors import Sign, SignVector, sign_vector, zero_sign_vector
 
@@ -158,6 +160,42 @@ class Cocircuits(ElementaryVectors):
     def elements(self, kernel: bool = True, prevent_multiples: bool = True) -> set:
         return set(self.generator(kernel=kernel, prevent_multiples=prevent_multiples))
 
+
+class OrientedMatroid(SageObject):
+    def __init__(self, M) -> None:
+        self.matrix = M
+        self._cocircuits = Cocircuits(M)
+
+    def circuits(self):
+        return self._cocircuits.elements(kernel=False)
+
+    def cocircuits(self):
+        return self._cocircuits.elements(kernel=True)
+
+    def vectors(self):
+        return covectors_from_cocircuits(self.circuits())
+
+    def covectors(self):
+        return covectors_from_cocircuits(self.cocircuits())
+
+    def topes(self):
+        return topes_from_cocircuits(self.circuits())
+
+    def cotopes(self):
+        return topes_from_cocircuits(self.cocircuits())
+
+    def faces(self, level: int):
+        # should use lower faces to get down
+        raise NotImplementedError
+
+    def rank(self):
+        raise NotImplementedError
+
+    def dimension(self):
+        raise NotImplementedError
+
+    def plot(self):
+        raise NotImplementedError
 
 def cocircuits_from_matrix(M, kernel: bool = True):
     r"""
