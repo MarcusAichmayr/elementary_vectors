@@ -89,7 +89,7 @@ Parallel computation is also supported::
 A solution for the second system is::
 
     sage: S.two.solve()
-    (1, 1, 0, 1)
+    (0, 5, 1, 2)
 
 Inhomogeneous systems
 ~~~~~~~~~~~~~~~~~~~~~
@@ -154,7 +154,7 @@ The resulting systems yield different certificates::
 A solution is::
 
     sage: S.one.solve()
-    (2, -1)
+    (7/2, -2)
 
 We consider another example::
 
@@ -222,7 +222,7 @@ we can certify general systems::
 We compute a solution using elementary vectors::
 
     sage: S.one.solve()
-    (2, 5)
+    (5/2, 5)
 """
 
 #############################################################################

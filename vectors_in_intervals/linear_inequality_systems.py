@@ -40,13 +40,13 @@ We consider another system::
     sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
     sage: S = LinearInequalitySystem(M, I)
     sage: S.solve()
-    (2, 5)
+    (5/2, 5)
     sage: S.certify_existence()
-    (3, 7, 1, 1, 0, 0, 0)
+    (5, 15, 1, 2, 1, 0, 0)
     sage: S.certify()
-    (True, (3, 7, 1, 1, 0, 0, 0))
-    sage: S.certify(reverse=True)
     (True, (5, 15, 1, 2, 1, 0, 0))
+    sage: S.certify(reverse=True)
+    (True, (3, 7, 1, 1, 0, 0, 0))
     sage: # S.certify_parallel() # TODO SignalError: Segmentation Fault
     (True, (3, 7, 1, 1, 0, 0, 0))
 

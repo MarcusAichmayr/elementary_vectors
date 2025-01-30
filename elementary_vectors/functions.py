@@ -47,12 +47,12 @@ def elementary_vectors(M, kernel: bool = True, generator: bool = False):
         [ 1  1  1  1  1]
         sage: elementary_vectors(M)
         [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
-    
+
     By default, the elementary vectors in the kernel are computed.
     To consider the row space, pass ``kernel=False``::
 
         sage: elementary_vectors(M, kernel=False)
-        [(0, -2, -4, 0, 0), (0, 2, 0, 4, 0), (-4, 0, 0, 0, -4), (0, 0, -2, 2, 0)]
+        [(0, 0, 2, -2, 0), (0, -2, 0, -4, 0), (0, 2, 4, 0, 0), (2, 0, 0, 0, 2)]
 
     We can also compute elementary vectors over a finite field::
 
@@ -186,7 +186,7 @@ def kernel_matrix_using_elementary_vectors(M):
 class ElementaryVectors:
     r"""
     A class used to compute elementary vectors.
-    
+
     Whenever a maximal minor is computed, it is stored in a dictionary for efficient reuse.
     Supports elementary vectors in the kernel and row space.
 
@@ -216,13 +216,13 @@ class ElementaryVectors:
          (0, 2, 0, -1, 0),
          (0, 0, 2, 1, -2)]
         sage: evs.elements(kernel=False)
-        [(3, 1, -1, 2, 0), (2, 0, -2, 0, -2), (2, 1, 0, 2, 1), (0, -1, -2, -2, -3)]
+        [(0, -1, -2, -2, -3), (1, 0, -1, 0, -1), (2, 1, 0, 2, 1), (3, 1, -1, 2, 0)]
         sage: evs.elements(kernel=False, prevent_multiples=False)
-        [(3, 1, -1, 2, 0),
-         (2, 0, -2, 0, -2),
-         (2, 1, 0, 2, 1),
+        [(0, -1, -2, -2, -3),
          (1, 0, -1, 0, -1),
-         (0, -1, -2, -2, -3)]
+         (2, 1, 0, 2, 1),
+         (2, 0, -2, 0, -2),
+         (3, 1, -1, 2, 0)]
 
     TESTS:
 
@@ -294,7 +294,7 @@ class ElementaryVectors:
     def set_combinations_dual(self, combinations=None) -> None:
         r"""Set or reset combinations."""
         if combinations is None:
-            self._combinations_dual = Combinations(self.length, self.length - self.rank + 1)
+            self._combinations_dual = Combinations(self.length, self.rank - 1)
         else:
             self._combinations_dual = combinations
 
@@ -323,13 +323,16 @@ class ElementaryVectors:
     def element_dual(self, indices: list):
         element = self._zero_element()
         nonzero_detected = False
-        indices_complement = [i for i in range(self.length) if i not in indices]
-        for k in indices:
-            minor = self.minor(tuple(set(indices_complement + [k])))
+        pos = 0
+        for k in range(self.length):
+            if k in indices:
+                pos += 1
+                continue
+            minor = self.minor(tuple(set(indices + [k])))
             if minor == 0:
                 continue
             nonzero_detected = True
-            element[k] = (-1) ** len([i for i in indices_complement if i < k]) * minor
+            element[k] = (-1) ** pos * minor
         if nonzero_detected:
             return element
         raise ValueError("Indices correspond to zero vector!")
@@ -376,12 +379,15 @@ class ElementaryVectors:
             If this results in a multiple of a previous element, a ``ValueError`` is raised.
         """
         element = self._zero_element()
+        pos = 0
         nonzero_detected = False
         zero_minors = []
         multiple_detected = False
-        indices_complement = [i for i in range(self.length) if i not in indices]
-        for k in indices:
-            indices_minor = tuple(set(indices_complement + [k]))
+        for k in range(self.length):
+            if k in indices:
+                pos += 1
+                continue
+            indices_minor = tuple(set(indices + [k]))
             if indices_minor in self.marked_minors:
                 multiple_detected = True
                 continue
@@ -390,7 +396,7 @@ class ElementaryVectors:
                 zero_minors.append(indices_minor)
                 continue
             nonzero_detected = True
-            element[k] = (-1) ** len([i for i in indices_complement if i < k]) * minor
+            element[k] = (-1) ** pos * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
                 self.marked_minors.add(marked_minor)
@@ -429,7 +435,12 @@ class ElementaryVectors:
         r"""Return a generator of elementary vectors"""
         if prevent_multiples:
             self._reset_set_for_preventing_multiples()
-        combinations = self._combinations if kernel else self._combinations_dual
+        if kernel:
+            combinations = self._combinations
+        else:
+            combinations = self._combinations_dual
+            if self.rank == 0:
+                return
         if reverse:
             combinations = reversed(combinations)
         for indices in combinations:

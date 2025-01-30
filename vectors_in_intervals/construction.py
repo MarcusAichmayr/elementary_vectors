@@ -223,12 +223,10 @@ def vector_from_sign_vector(data, sv):
         sage: vector_from_sign_vector(M, sign_vector("+0+0"))
         (1, 0, 2, 0)
         sage: vector_from_sign_vector(M, sign_vector("+-0+"))
-        (1, -2, 0, 2)
-        sage: vector_from_sign_vector(M, sign_vector("+-0+"))
-        (1, -2, 0, 2)
+        (1, -2, 0, 1)
         sage: evs = elementary_vectors(M, kernel=False)
         sage: vector_from_sign_vector(evs, sign_vector("+-0+"))
-        (1, -2, 0, 2)
+        (1, -2, 0, 1)
         sage: vector_from_sign_vector(M, sign_vector("+0-0"))
         Traceback (most recent call last):
         ...
