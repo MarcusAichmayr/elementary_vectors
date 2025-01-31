@@ -167,10 +167,10 @@ class OrientedMatroid(SageObject):
         self._cocircuits = Cocircuits(M)
 
     def circuits(self):
-        return self._cocircuits.elements(kernel=False)
+        return self._cocircuits.elements(kernel=True)
 
     def cocircuits(self):
-        return self._cocircuits.elements(kernel=True)
+        return self._cocircuits.elements(kernel=False)
 
     def vectors(self):
         return covectors_from_cocircuits(self.circuits())
@@ -182,6 +182,7 @@ class OrientedMatroid(SageObject):
         return topes_from_cocircuits(self.circuits())
 
     def cotopes(self):
+        # TODO name?
         return topes_from_cocircuits(self.cocircuits())
 
     def faces(self, level: int):
