@@ -396,18 +396,19 @@ def lower_faces(covectors):
         for covector in covectors_with_same_support:
             for parallel_class in p_classes:
                 for i in parallel_class:
-                    if covector[i]:
-                        if (
-                            covector.reverse_signs_in(parallel_class)
-                            in covectors_with_same_support
-                        ):
-                            output.add(
-                                sign_vector(
-                                    0 if i in parallel_class else covector[i]
-                                    for i in range(length)
-                                )
+                    if not covector[i]:
+                        continue
+                    if (
+                        covector.reverse_signs_in(parallel_class)
+                        in covectors_with_same_support
+                    ):
+                        output.add(
+                            sign_vector(
+                                0 if i in parallel_class else covector[i]
+                                for i in range(length)
                             )
-                        break
+                        )
+                    break
     return output
 
 
