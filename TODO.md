@@ -2,27 +2,7 @@
 
 ## 1. elementary_vectors
 
-* [ ] Add explanations and examples to demonstrate functions in this module. (in `__init__`?)
-  * several reductions
-  * `elementary_vectors`
-  * `exists_vector`
-* [ ] Should we rename this file?
-  * It is a bit difficult to get the documentation of this file.
-  Compare:
-  ```
-  import elementary_vectors
-  elementary_vectors?
-
-  from elementary_vectors import *
-  elementary_vectors?
-  ```
-
 ### 1.1. elementary_vectors.functions
-
-* [x] Add examples to `positive_elementary_vectors`.
-  * [ ] add examples with variables
-* Do we want more optional arguments for `elementary_vectors` to have more control of reductions?
-  * optional argument: `cancel_common_factor`?
 
 #### 1.1.1. elementary_vectors.functions.positive_elementary_vectors
 
@@ -44,11 +24,6 @@
   * Should this function work for real vectors (as `X` and `a`)? Does not make much sense.
   * [ ] This function works for cocircuits. For other sign vectors, it might fail.
 
-### 1.3. vectors_in_intervals
-
-* [ ] Right now, this works only for matrices.
-  What if elementary vectors are given? Can we use those to construct a vector in the corresponding vector space?
-
 ### 1.4. elementary_vectors.utility
 
 * `kernel_vector_support_given`
@@ -59,13 +34,6 @@
   * [ ] add examples
   * [ ] add tests
 
-### 1.5. elementary_vectors.reductions
-
-* [ ] add examples to docstring on top
-* [ ] (optional) write functions `reduce_factor_of_vector` and `reduce_factor_of_list`
-  * [ ] `reduce_factor` should use these functions
-* [ ] improve `reduce_factor` by canceling denominators if applicable
-
 ## 2. sign_vectors
 
 ### 2.1. sign_vectors.sign_vectors
@@ -75,12 +43,6 @@
 * [ ] is list/tuple of Sign objects faster than sets for support and positive support?
 * [ ] Cython might not be that useful if length of sign vectors is small (e.g. <100)
 
-### 2.2. sign_vectors.oriented_matroids
-
-* [ ] Is it possible to move references to the end of the documentation?
-* [ ] It might be useful to use a class for oriented matroids.
-  * sign vectors could be stored in a better way
-
 ### 2.3. sign_vectors.utility
 
 * [x] Improve the implementation of `closure`
@@ -88,13 +50,12 @@
   * We could improve the implementation by using Combinations of support.
 * [ ] implement lower, upper, total closure
   * We might be able to reuse code.
-* [ ] improve docstring of `adjacent`
-  * define adjacency.
 
 ## 3. Sphinx documentation
 
 NOTE:
-I adapted the files from here: https://github.com/mkauers/ore_algebra
+I adapted the files from here:
+https://github.com/mkauers/ore_algebra
 
 * [ ] Do we want to have tests in the documentation?
-  * Currently, test are in the documentation
+  * Currently, tests are in the documentation
