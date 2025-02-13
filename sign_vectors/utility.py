@@ -104,7 +104,7 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
         sage: is_parallel(L, 2, 0, return_ratio=True)
         (True, 2)
         sage: is_parallel(L, 0, 1, return_ratio=True)
-        (False, 0)
+        (False, None)
 
     Also works for matrices::
 
@@ -114,28 +114,25 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
         sage: is_parallel(M, 0, 1)
         False
     """
-    ratio = 0
-
-    if return_ratio:
-        false_return = False, 0
-    else:
-        false_return = False
+    ratio = None
 
     for element in iterable:
-        if ratio == 0:
-            if element[component2] == 0:
-                if element[component1] != 0:
-                    return false_return
-            elif element[component1] == 0:
-                return false_return
-            else:
-                ratio = element[component1] / element[component2]
-        else:
-            if element[component1] != ratio * element[component2]:
-                return false_return
-    if return_ratio:
-        return True, ratio
-    return True
+        a = element[component1]
+        b = element[component2]
+        if ratio is None:
+            if a == 0 and b == 0:
+                continue
+            if a == 0 and b != 0:
+                break
+            if a != 0 and b == 0:
+                break
+            ratio = a / b
+        elif a != ratio * b:
+            ratio = None
+            break
+    if ratio is None:
+        return (False, ratio) if return_ratio else False
+    return (True, ratio) if return_ratio else True
 
 
 def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
@@ -193,29 +190,27 @@ def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
         [[0, 4], [1], [2], [3]]
     """
     if not iterable:
-        raise ValueError("Iterable is empty.")
-    output = []
-    indices_to_check = list(range(iterable[0].length()))
+        return []
+    result = []
+    indices_to_check = set(range(iterable[0].length()))
 
     if positive_only:
-
         def is_par(iterable, component1, component2):
             value = is_parallel(iterable, component1, component2, return_ratio=True)
             return value[1] > 0 if value[0] else False
     else:
-
         def is_par(iterable, component1, component2):
             return is_parallel(iterable, component1, component2)
 
-    while len(indices_to_check) > 0:
-        component1 = indices_to_check.pop(0)
+    while indices_to_check:
+        component1 = indices_to_check.pop()
         parallel_class = [component1]
-        for component2 in indices_to_check[:]:
+        for component2 in indices_to_check.copy():
             if is_par(iterable, component1, component2):
                 parallel_class.append(component2)
                 indices_to_check.remove(component2)
-        output.append(parallel_class)
-    return output
+        result.append(parallel_class)
+    return result
 
 
 def positive_parallel_classes(iterable) -> list[list[int]]:
@@ -277,14 +272,14 @@ def classes_same_support(iterable) -> list:
         sage: classes_same_support([vector([1, 1, 0, 0]), vector([2, -3, 0, 0]), vector([0, 1, 0, 0])])
         [[(1, 1, 0, 0), (2, -3, 0, 0)], [(0, 1, 0, 0)]]
     """
-    output = {}
+    result = {}
     for element in iterable:
         support = tuple(element.support())  # tuples are hashable
-        if support not in output.keys():
-            output[support] = [element]
+        if support not in result.keys():
+            result[support] = [element]
         else:
-            output[support].append(element)
-    return list(output.values())
+            result[support].append(element)
+    return list(result.values())
 
 
 def adjacent(element1, element2, iterable) -> bool:
@@ -386,11 +381,9 @@ def exclude_indices(vectors, indices: list[int]):
     other_indices = [e for e in range(length) if not e in indices]
 
     if isinstance(vectors[0], SignVector):
-
         def vec(iterable):
             return sign_vector(iterable.list_from_positions(other_indices))
     else:
-
         def vec(iterable):
             iterable = vector(iterable.list_from_positions(other_indices))
             iterable.set_immutable()
