@@ -175,21 +175,19 @@ def determine_sign(X, a, M=None):
     """
     if X.disjoint_support(a):
         return 0
-    elif X.is_harmonious(a):
+    if X.is_harmonious(a):
         return 1
-    elif X.is_harmonious(-a):
+    if X.is_harmonious(-a):
         return -1
-    else:
-        if M is None:
-            raise ValueError("Sign could not be determined. Pass a suitable matrix to determine the sign.")
-        x = kernel_vector_support_given(M, X.support())
-        if sign_vector(x) != X:
-            x = -x
-        s = a*x
-        if s == 0:
-            return 0
-        else:
-            return 1 if s > 0 else -1
+    if M is None:
+        raise ValueError("Sign could not be determined. Pass a suitable matrix to determine the sign.")
+    x = kernel_vector_support_given(M, X.support())
+    if sign_vector(x) != X:
+        x = -x
+    s = a*x
+    if s == 0:
+        return 0
+    return 1 if s > 0 else -1
 
 
 def dd(E0, Ep, **kwargs):
