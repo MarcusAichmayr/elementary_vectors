@@ -19,7 +19,6 @@ from collections.abc import Generator
 
 from sage.categories.sets_cat import EmptySetError
 from sage.calculus.var import var
-from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix
 from sage.misc.mrange import cartesian_product_iterator
 from sage.modules.free_module_element import vector, zero_vector
@@ -332,10 +331,8 @@ def sign_vectors_in_intervals(intervals: list[RealSet], generator: bool = False)
     list_of_signs = []
     if not intervals:
         if generator:
-
             def empty():
                 yield from ()
-
             return empty()
         return []
     for interval in intervals:
@@ -626,7 +623,7 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
             for row in M.rows():
                 if row:
                     return multiple_in_intervals(row, intervals)
-        if not rank:
+        if rank == 0:
             return zero_vector(M.base_ring(), M.ncols())
 
         def coefficient(k):

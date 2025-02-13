@@ -238,10 +238,7 @@ def simplest_rational_in_interval(interval: RealSet):
         sage: simplest_rational_in_interval(I)
         2/3
     """
-    cfl = [
-        floor(interval.inf()),
-        2,
-    ]  # continued fraction representation of inf(interval) + 1/2
+    cfl = [floor(interval.inf()), 2]  # continued fraction representation of inf(interval) + 1/2
     while True:
         value = continued_fraction(cfl).value()
         if value in interval:
