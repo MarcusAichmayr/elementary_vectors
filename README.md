@@ -52,12 +52,13 @@ Change to the root directory of the repository and run:
     . venv/bin/activate
     pip install -v -e ".[passagemath]"
 
-### Documentation
+## Documentation
 
-The documentation of this package can be found on GitHub:
+The documentation of this package is available on GitHub:
+
 https://marcusaichmayr.github.io/elementary_vectors/index.html
 
-If you want to generate it yourself, run
+To generate it, run
 
     make doc
 
@@ -67,7 +68,7 @@ or
 
 at the root directory of the repository.
 
-### Testing
+## Testing
 
 To run the test suite, install the package and run the command
 
