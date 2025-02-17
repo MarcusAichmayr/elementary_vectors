@@ -19,16 +19,16 @@ Sage 9.0 or later is recommended.
 
 ### Install from GitHub (recommended)
 
-To download and install the latest development version on a system where Sage
-was built from source or installed from official packages, run
+To install the latest development version on a system where Sage
+was built from source or installed from official packages, run:
 
     sage -pip install git+https://github.com/MarcusAichmayr/elementary_vectors.git
 
-or
+### Install from PyPI (recommended)
 
-    sage -pip install --user git+https://github.com/MarcusAichmayr/elementary_vectors.git
+To install the package for Python directly, run:
 
-The optional `--user` flag causes the package to be installed in your `.sage` directory instead of the Sage installation tree.
+    pip install elementary-vectors
 
 ### Local install from source
 
@@ -37,10 +37,6 @@ Download the source from the git repository:
     git clone https://github.com/MarcusAichmayr/elementary_vectors.git
 
 Change to the root directory of the repository and run:
-
-    sage -pip install --upgrade --no-index -v .
-
-You can also run instead the shorthand:
 
     make install
 
