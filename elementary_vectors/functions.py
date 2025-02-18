@@ -440,6 +440,50 @@ class ElementaryVectors(SageObject):
     def _reset_set_for_preventing_multiples(self) -> None:
         self.marked_minors = set()
 
+    def index_sets_from_minor(self, indices: list, kernel: bool = True) -> Generator[list]:
+        r"""Generator of index sets corresponding to elementary vectors involving given minor."""
+        if kernel:
+            for i in range(self.length):
+                if i in indices:
+                    continue
+                yield list(set(indices + [i]))
+        else:
+            for i in indices:
+                yield [j for j in indices if j != i]
+
+    def elements_with_smaller_support(self, kernel: bool = True) -> Generator:
+        r"""
+        Generator of elementary vectors with smaller than usual support.
+
+        EXAMPLES::
+
+            sage: from elementary_vectors import *
+            sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
+            sage: evs = ElementaryVectors(M)
+            sage: list(evs.elements_with_smaller_support())
+            [(0, -1, 0, 0)]
+            sage: list(evs.elements_with_smaller_support(kernel=False))
+            [(0, 0, -1, -1), (1, 0, 0, -1), (1, 0, 1, 0)]
+
+        ::
+
+            sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
+            sage: evs = ElementaryVectors(M)
+            sage: list(evs.elements_with_smaller_support())
+            [(0, -1, 1, 0)]
+            sage: list(evs.elements_with_smaller_support(kernel=False))
+            [(1, 0, 0, -1)]
+        """
+        self._reset_set_for_preventing_multiples()
+        for indices_minor in Combinations(self.length, self.rank):
+            if self.minor(indices_minor):
+                continue
+            for indices in self.index_sets_from_minor(indices_minor, kernel=kernel):
+                try:
+                    yield self.element(indices, kernel=kernel, prevent_multiple=True)
+                except ValueError:
+                    pass
+
     def generator(
         self,
         kernel: bool = True,
