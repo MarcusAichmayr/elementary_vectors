@@ -156,16 +156,11 @@ def kernel_matrix_using_elementary_vectors(M):
         return matrix(M.base_ring(), 0, length)
 
     evs = ElementaryVectors(M)
-    constant_minor_found = False
-    for indices in Combinations(reversed(range(length)), rank):
-        minor = evs.minor(indices)
+    for indices_minor in Combinations(reversed(range(length)), rank):
+        minor = evs.minor(indices_minor)
         if minor and not is_symbolic(minor):
-            constant_minor_found = True
-            break
-    if not constant_minor_found:
-        raise ValueError("Could not find a constant nonzero maximal minor.")
-
-    return matrix(evs.element(set(indices).union([k])) for k in range(length) if k not in indices)
+            return matrix(evs.element(indices) for indices in evs.index_sets_from_minor(indices_minor))
+    raise ValueError("Could not find a constant nonzero maximal minor.")
 
 
 class ElementaryVectors(SageObject):
@@ -226,6 +221,15 @@ class ElementaryVectors(SageObject):
         (0, 0, 7, -18, 10)
         sage: evs.random_element(dual=False) # random
         (3, 5, 10, 0, -7)
+
+    We consider an example that involves many zero minors::
+
+        sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
+        sage: M.minors(2)
+        [1, 2, 0, 0, 0, 0]
+        sage: evs = ElementaryVectors(M)
+        sage: evs.elements()
+        [(0, -2, 1, 0), (0, 0, 0, 1)]
     """
     def __init__(self, M) -> None:
         try:
@@ -238,9 +242,9 @@ class ElementaryVectors(SageObject):
         self.rank = self.matrix.nrows()
         self.ring = self.matrix.base_ring()
         self.minors = {}
+
         self.set_combinations()
         self.set_combinations_dual()
-
         self._reset_set_for_preventing_multiples()
 
     def minor(self, indices):
@@ -293,6 +297,33 @@ class ElementaryVectors(SageObject):
         .. NOTE::
 
             Raises a ``ValueError`` if the indices correspond to the zero vector.
+
+        EXAMPLES::
+
+            sage: from elementary_vectors import *
+            sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
+            sage: evs = ElementaryVectors(M)
+
+        Elementary vectors in the kernel require 3 indices::
+
+            sage: evs.element([0, 1, 2])
+            (0, -2, 1, 0)
+            sage: evs.element([1, 2, 3])
+            Traceback (most recent call last):
+            ...
+            ValueError: Indices [1, 2, 3] correspond to zero vector!
+
+        For the row space, we need 1 element::
+
+            sage: evs.element([0])
+            (0, -1, -2, 0)
+
+        TESTS::
+
+            sage: evs.element([1, 2])
+            Traceback (most recent call last):
+            ...
+            ValueError: Number of indices should be 1 or 3.
         """
         if dual is None:
             if len(indices) == self.rank + 1:
@@ -300,7 +331,7 @@ class ElementaryVectors(SageObject):
             elif len(indices) == self.rank - 1:
                 dual = False
             else:
-                raise ValueError("Number of indices does not fit!")
+                raise ValueError(f"Number of indices should be {self.rank - 1} or {self.rank + 1}.")
         if dual:
             return self.element_kernel(indices, prevent_multiple=prevent_multiple)
         return self.element_row_space(indices, prevent_multiple=prevent_multiple)
@@ -317,15 +348,17 @@ class ElementaryVectors(SageObject):
             return self._element_kernel_prevent_multiple(indices)
         element = self._zero_element()
         nonzero_detected = False
-        for pos, i in enumerate(indices):
-            minor = self.minor(tuple(j for j in indices if j != i))
-            if minor == 0:
+        for pos in range(self.rank + 1):
+            indices_minor = indices.copy()
+            i = indices_minor.pop(pos)
+            minor = self.minor(indices_minor)
+            if not minor:
                 continue
             nonzero_detected = True
             element[i] = (-1) ** pos * minor
         if nonzero_detected:
             return element
-        raise ValueError("Indices correspond to zero vector!")
+        raise ValueError(f"Indices {indices} correspond to zero vector!")
 
     def element_row_space(self, indices: list, prevent_multiple: bool = False):
         """
@@ -344,14 +377,14 @@ class ElementaryVectors(SageObject):
             if i in indices:
                 pos += 1
                 continue
-            minor = self.minor(tuple(set(indices + [i])))
-            if minor == 0:
+            minor = self.minor(sorted(indices + [i]))
+            if not minor:
                 continue
             nonzero_detected = True
             element[i] = (-1) ** pos * minor
         if nonzero_detected:
             return element
-        raise ValueError("Indices correspond to zero vector!")
+        raise ValueError(f"Indices {indices} correspond to zero vector!")
 
     def _element_kernel_prevent_multiple(self, indices: list):
         r"""
@@ -365,13 +398,15 @@ class ElementaryVectors(SageObject):
         nonzero_detected = False
         zero_minors = []
         multiple_detected = False
-        for pos, i in enumerate(indices):
-            indices_minor = tuple(j for j in indices if j != i)
+        for pos in range(self.rank + 1):
+            indices_minor = indices.copy()
+            i = indices_minor.pop(pos)
+            indices_minor = tuple(indices_minor)
             if indices_minor in self.marked_minors:
                 multiple_detected = True
                 continue
             minor = self.minor(indices_minor)
-            if minor == 0:
+            if not minor:
                 zero_minors.append(indices_minor)
                 continue
             nonzero_detected = True
@@ -380,9 +415,9 @@ class ElementaryVectors(SageObject):
             for marked_minor in zero_minors:
                 self.marked_minors.add(marked_minor)
             if multiple_detected:
-                raise ValueError("Multiple detected!")
+                raise ValueError(f"Indices {indices} produce a multiple of computed element!")
             return element
-        raise ValueError("Indices correspond to zero vector!")
+        raise ValueError(f"Indices {indices} correspond to zero vector!")
 
     def _element_row_space_prevent_multiple(self, indices: list):
         r"""
@@ -401,12 +436,12 @@ class ElementaryVectors(SageObject):
             if k in indices:
                 pos += 1
                 continue
-            indices_minor = tuple(set(indices + [k]))
+            indices_minor = tuple(sorted(indices + [k]))
             if indices_minor in self.marked_minors:
                 multiple_detected = True
                 continue
             minor = self.minor(indices_minor)
-            if minor == 0:
+            if not minor:
                 zero_minors.append(indices_minor)
                 continue
             nonzero_detected = True
@@ -415,9 +450,9 @@ class ElementaryVectors(SageObject):
             for marked_minor in zero_minors:
                 self.marked_minors.add(marked_minor)
             if multiple_detected:
-                raise ValueError("Multiple detected!")
+                raise ValueError(f"Indices {indices} produce a multiple of computed element!")
             return element
-        raise ValueError("Indices correspond to zero vector!")
+        raise ValueError(f"Indices {indices} correspond to zero vector!")
 
     def random_element(self, dual: bool = True):
         r"""
@@ -440,16 +475,15 @@ class ElementaryVectors(SageObject):
     def _reset_set_for_preventing_multiples(self) -> None:
         self.marked_minors = set()
 
-    def index_sets_from_minor(self, indices: list, dual: bool = True) -> Generator[list]:
+    def index_sets_from_minor(self, indices_minor: list, dual: bool = True) -> Generator[list]:
         r"""Generator of index sets corresponding to elementary vectors involving given minor."""
         if dual:
             for i in range(self.length):
-                if i in indices:
+                if i in indices_minor:
                     continue
-                yield list(set(indices + [i]))
+                yield sorted(indices_minor + [i])
         else:
-            for i in indices:
-                yield [j for j in indices if j != i]
+            yield from Combinations(indices_minor, self.rank - 1)
 
     def elements_with_smaller_support(self, dual: bool = True) -> Generator:
         r"""
