@@ -101,10 +101,10 @@ Next, we compute all covectors separated by their rank::
      {(0-+), (+0+), (--0), (-0-), (0+-), (++0)},
      {(+-+), (---), (-+-), (--+), (++-), (+++)}]
 
-By passing ``kernel=False``, we can compute the covectors of the
+By passing ``dual=False``, we can compute the covectors of the
 dual oriented matroid::
 
-    sage: cocircuits_from_matrix(A, kernel=False)
+    sage: cocircuits_from_matrix(A, dual=False)
     {(-++), (+--)}
 """
 
@@ -149,16 +149,16 @@ class Cocircuits(ElementaryVectors):
 
     def generator(
         self,
-        kernel: bool = True,
+        dual: bool = True,
         prevent_multiples: bool = True,
         reverse: bool = False
     ) -> Generator:
-        for cocircuit in super().generator(kernel=kernel, prevent_multiples=prevent_multiples, reverse=reverse):
+        for cocircuit in super().generator(dual=dual, prevent_multiples=prevent_multiples, reverse=reverse):
             yield cocircuit
             yield -cocircuit
 
-    def elements(self, kernel: bool = True, prevent_multiples: bool = True) -> set:
-        return set(self.generator(kernel=kernel, prevent_multiples=prevent_multiples))
+    def elements(self, dual: bool = True, prevent_multiples: bool = True) -> set:
+        return set(self.generator(dual=dual, prevent_multiples=prevent_multiples))
 
 
 class OrientedMatroid(SageObject):
@@ -167,10 +167,10 @@ class OrientedMatroid(SageObject):
         self._cocircuits = Cocircuits(M)
 
     def circuits(self):
-        return self._cocircuits.elements(kernel=True)
+        return self._cocircuits.elements(dual=True)
 
     def cocircuits(self):
-        return self._cocircuits.elements(kernel=False)
+        return self._cocircuits.elements(dual=False)
 
     def vectors(self):
         return covectors_from_cocircuits(self.circuits())
@@ -198,7 +198,7 @@ class OrientedMatroid(SageObject):
     def plot(self):
         raise NotImplementedError
 
-def cocircuits_from_matrix(M, kernel: bool = True):
+def cocircuits_from_matrix(M, dual: bool = True):
     r"""
     Compute a set of cocircuits determined by the matrix ``M``.
 
@@ -206,14 +206,14 @@ def cocircuits_from_matrix(M, kernel: bool = True):
 
     - ``M`` -- a matrix with real arguments.
 
-    - ``kernel`` -- a boolean (default: ``True``)
+    - ``dual`` -- a boolean (default: ``True``)
 
     OUTPUT:
 
-    - If ``kernel`` is true, returns a set of cocircuits determined by the
+    - If ``dual`` is true, returns a set of cocircuits determined by the
       kernel of the matrix ``M``.
 
-    - If ``kernel`` is false, returns a set of cocircuits determined by the row
+    - If ``dual`` is false, returns a set of cocircuits determined by the row
       space of the matrix ``M``.
 
     EXAMPLES::
@@ -229,10 +229,10 @@ def cocircuits_from_matrix(M, kernel: bool = True):
         [ 1  0  0  0]
         [ 0  1  0  2]
         [ 0  0  1 -1]
-        sage: cocircuits_from_matrix(B, kernel=False)
+        sage: cocircuits_from_matrix(B, dual=False)
         {(0+0+), (00+-), (-000), (00-+), (0-0-), (0--0), (+000), (0++0)}
     """
-    return Cocircuits(M).elements(kernel=kernel)
+    return Cocircuits(M).elements(dual=dual)
 
 
 def covectors_from_cocircuits(cocircuits):
@@ -462,7 +462,7 @@ def face_enumeration(covectors):
     return faces
 
 
-def topes_from_matrix(M, kernel: bool = True):
+def topes_from_matrix(M, dual: bool = True):
     r"""
     Return the topes of the oriented matroid corresponding to the matrix ``M``.
 
@@ -470,14 +470,14 @@ def topes_from_matrix(M, kernel: bool = True):
 
     - ``M`` -- a matrix
 
-    - ``kernel`` -- a boolean (default: ``True``)
+    - ``dual`` -- a boolean (default: ``True``)
 
     OUTPUT:
 
-    - If ``kernel`` is true, returns a set of topes determined by the kernel of
+    - If ``dual`` is true, returns a set of topes determined by the kernel of
       the matrix ``M``.
 
-    - If ``kernel`` is false, returns a set of topes determined by the row space
+    - If ``dual`` is false, returns a set of topes determined by the row space
       of the matrix ``M``.
 
     EXAMPLES:
@@ -495,10 +495,10 @@ def topes_from_matrix(M, kernel: bool = True):
     TESTS::
 
         sage: M = zero_matrix(1, 3)
-        sage: topes_from_matrix(M, kernel=False)
+        sage: topes_from_matrix(M, dual=False)
         {(000)}
     """
-    cocircuits = cocircuits_from_matrix(M, kernel=kernel)
+    cocircuits = cocircuits_from_matrix(M, dual=dual)
     if cocircuits:
         return topes_from_cocircuits(cocircuits)
     return {zero_sign_vector(M.ncols())}
@@ -594,7 +594,7 @@ def cocircuits_from_topes(topes):
     return face_enumeration(topes)[1]
 
 
-def covectors_from_matrix(M, kernel: bool = True, algorithm: str = None, separate: bool = False):
+def covectors_from_matrix(M, dual: bool = True, algorithm: str = None, separate: bool = False):
     r"""
     Return the covectors of the oriented matroid corresponding to the matrix ``M``.
 
@@ -602,7 +602,7 @@ def covectors_from_matrix(M, kernel: bool = True, algorithm: str = None, separat
 
     - ``M`` -- a matrix.
 
-    - ``kernel`` -- a boolean (default: ``True``)
+    - ``dual`` -- a boolean (default: ``True``)
 
     - ``algorithm`` -- either ``None`` (default), ``"face_enumeration"`` or ``"fe"``
 
@@ -613,10 +613,10 @@ def covectors_from_matrix(M, kernel: bool = True, algorithm: str = None, separat
     Returns a set of covectors of an oriented matroid corresponding to the
     matrix ``M``.
 
-    - If ``kernel`` is true, the returned covectors will be determined by the
+    - If ``dual`` is true, the returned covectors will be determined by the
       kernel of the matrix ``M``.
 
-    - If ``kernel`` is false, the returned covectors will be determined by the
+    - If ``dual`` is false, the returned covectors will be determined by the
       row space of the matrix ``M``.
 
     - If ``algorithm`` is ``"face_enumeration"`` or the shortcut ``"fe"``,
@@ -669,21 +669,21 @@ def covectors_from_matrix(M, kernel: bool = True, algorithm: str = None, separat
 
     TESTS::
 
-        sage: covectors_from_matrix(zero_matrix(1, 4), kernel=False, separate=False)
+        sage: covectors_from_matrix(zero_matrix(1, 4), dual=False, separate=False)
         {(0000)}
-        sage: covectors_from_matrix(zero_matrix(1, 4), kernel=False, separate=True)
+        sage: covectors_from_matrix(zero_matrix(1, 4), dual=False, separate=True)
         [{(0000)}]
     """
     if algorithm is None:
         if separate:
             algorithm = "face_enumeration"
         else:
-            cocircuits = cocircuits_from_matrix(M, kernel=kernel)
+            cocircuits = cocircuits_from_matrix(M, dual=dual)
             if cocircuits:
                 return covectors_from_cocircuits(cocircuits)
             return {zero_sign_vector(M.ncols())}
     if algorithm in ["face_enumeration", "fe"]:
         return covectors_from_topes(
-            topes_from_matrix(M, kernel=kernel), separate=separate
+            topes_from_matrix(M, dual=dual), separate=separate
         )
     raise ValueError(f"no algorithm '{algorithm}'")
