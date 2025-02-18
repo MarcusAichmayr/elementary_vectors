@@ -41,19 +41,18 @@ def elementary_vectors(M, kernel: bool = True, generator: bool = False):
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: M = matrix([[0, 0, 1, -1, 0], [2, 0, 0, 0, 2], [1, 1, 1, 1, 1]])
+        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
         sage: M
-        [ 0  0  1 -1  0]
-        [ 2  0  0  0  2]
-        [ 1  1  1  1  1]
+        [1 2 0 0]
+        [0 1 2 3]
         sage: elementary_vectors(M)
-        [(0, 4, -2, -2, 0), (2, 0, 0, 0, -2)]
+        [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
 
     By default, the elementary vectors in the kernel are computed.
     To consider the row space, pass ``kernel=False``::
 
         sage: elementary_vectors(M, kernel=False)
-        [(0, 0, 2, -2, 0), (0, -2, 0, -4, 0), (0, 2, 4, 0, 0), (2, 0, 0, 0, 2)]
+        [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
 
     We can also compute elementary vectors over a finite field::
 
@@ -73,29 +72,14 @@ def elementary_vectors(M, kernel: bool = True, generator: bool = False):
 
     Variables are also supported::
 
-        sage: var('c')
-        c
-        sage: C = matrix([[c, 0, 0, 2, 1, 1], [0, 1, 0, 1, 2, 1], [0, 0, 1, 1, 1, 2]])
-        sage: C
-        [c 0 0 2 1 1]
-        [0 1 0 1 2 1]
-        [0 0 1 1 1 2]
-        sage: elementary_vectors(C)
-        [(2, c, c, -c, 0, 0),
-         (1, 2*c, c, 0, -c, 0),
-         (1, c, 2*c, 0, 0, -c),
-         (-1, c, 0, c, -c, 0),
-         (-3, -c, 0, 2*c, 0, -c),
-         (-1, -3*c, 0, 0, 2*c, -c),
-         (3, 0, c, -2*c, c, 0),
-         (1, 0, -c, -c, 0, c),
-         (-1, 0, -3*c, 0, -c, 2*c),
-         (4, 0, 0, -3*c, c, c),
-         (0, 3, 1, 1, -2, 0),
-         (0, 1, 3, 1, 0, -2),
-         (0, -1, 1, 0, 1, -1),
-         (0, 4, 0, 1, -3, 1),
-         (0, 0, 4, 1, 1, -3)]
+        sage: var('a, b')
+        (a, b)
+        sage: M = matrix([[1, 2, a, 0], [0, 1, 2, b]])
+        sage: M
+        [1 2 a 0]
+        [0 1 2 b]
+        sage: elementary_vectors(M)
+        [(-a + 4, -2, 1, 0), (2*b, -b, 0, 1), (a*b, 0, -b, 2), (0, a*b, -2*b, -a + 4)]
 
     TESTS::
 
@@ -194,36 +178,36 @@ class ElementaryVectors(SageObject):
     EXAMPLES::
 
         sage: from elementary_vectors.functions import ElementaryVectors
-        sage: M = matrix([[1, 2, 3, 4, 5], [0, 1, 2, 2, 3]])
+        sage: M = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
         sage: evs = ElementaryVectors(M)
         sage: evs.elements()
-        [(1, -2, 1, 0, 0),
-         (0, -2, 0, 1, 0),
-         (1, -3, 0, 0, 1),
-         (-2, 0, -2, 2, 0),
-         (-1, 0, -3, 0, 2),
-         (2, 0, 0, -3, 2),
-         (0, -1, -1, 0, 1),
-         (0, 0, 2, 1, -2)]
+        [(0, -2, 1, 0, 0),
+         (5, -3, 0, 1, 0),
+         (9, -4, 0, 0, 1),
+         (10, 0, -3, 2, 0),
+         (18, 0, -4, 0, 2),
+         (7, 0, 0, -4, 3),
+         (0, 7, 0, -9, 5),
+         (0, 0, 7, -18, 10)]
         sage: evs.elements(prevent_multiples=False)
-        [(1, -2, 1, 0, 0),
-         (0, -2, 0, 1, 0),
-         (1, -3, 0, 0, 1),
-         (-2, 0, -2, 2, 0),
-         (-1, 0, -3, 0, 2),
-         (2, 0, 0, -3, 2),
-         (0, -2, 0, 1, 0),
-         (0, -1, -1, 0, 1),
-         (0, 2, 0, -1, 0),
-         (0, 0, 2, 1, -2)]
+        [(0, -2, 1, 0, 0),
+         (5, -3, 0, 1, 0),
+         (9, -4, 0, 0, 1),
+         (10, 0, -3, 2, 0),
+         (18, 0, -4, 0, 2),
+         (7, 0, 0, -4, 3),
+         (0, 10, -5, 0, 0),
+         (0, 18, -9, 0, 0),
+         (0, 7, 0, -9, 5),
+         (0, 0, 7, -18, 10)]
         sage: evs.elements(kernel=False)
-        [(0, -1, -2, -2, -3), (1, 0, -1, 0, -1), (2, 1, 0, 2, 1), (3, 1, -1, 2, 0)]
+        [(0, -1, -2, -3, -4), (1, 0, 0, -5, -9), (3, 5, 10, 0, -7), (4, 9, 18, 7, 0)]
         sage: evs.elements(kernel=False, prevent_multiples=False)
-        [(0, -1, -2, -2, -3),
-         (1, 0, -1, 0, -1),
-         (2, 1, 0, 2, 1),
-         (2, 0, -2, 0, -2),
-         (3, 1, -1, 2, 0)]
+        [(0, -1, -2, -3, -4),
+         (1, 0, 0, -5, -9),
+         (2, 0, 0, -10, -18),
+         (3, 5, 10, 0, -7),
+         (4, 9, 18, 7, 0)]
 
     ::
 
@@ -231,32 +215,17 @@ class ElementaryVectors(SageObject):
         sage: evs.minor([0, 2])
         2
         sage: evs.element([0, 2, 3])
-        (-2, 0, -2, 2, 0)
+        (10, 0, -3, 2, 0)
         sage: evs.element([0])
-        (0, -1, -2, -2, -3)
+        (0, -1, -2, -3, -4)
         sage: evs.element_kernel([0, 2, 3])
-        (-2, 0, -2, 2, 0)
+        (10, 0, -3, 2, 0)
         sage: evs.element_row_space([0])
-        (0, -1, -2, -2, -3)
+        (0, -1, -2, -3, -4)
         sage: evs.random_element() # random
-        (0, 2, 0, -1, 0)
+        (0, 0, 7, -18, 10)
         sage: evs.random_element(kernel=False) # random
-        (3, 1, -1, 2, 0)
-
-    TESTS:
-
-    This used to return a multiple::
-
-        sage: M = matrix([
-        ....:     [-1, 1, -2, -1, -2, -1, -4, -4],
-        ....:     [-1, 71, -12, 0, 6, 0, 0, 1],
-        ....:     [0, 0, 1, 0, -2, 0, -1, 6],
-        ....:     [1, 0, 1, 0, -5, 0, 1, 1],
-        ....:     [-1, -1, 0, 1, -1, 1, 15, -1]
-        ....: ])
-        sage: evs = ElementaryVectors(M)
-        sage: len(evs.elements())
-        14
+        (3, 5, 10, 0, -7)
     """
     def __init__(self, M) -> None:
         try:
@@ -283,7 +252,7 @@ class ElementaryVectors(SageObject):
         TESTS::
 
             sage: from elementary_vectors.functions import ElementaryVectors
-            sage: M = matrix([[1, 2, 3, 4, 5], [0, 1, 2, 2, 3]])
+            sage: M = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
             sage: evs = ElementaryVectors(M)
             sage: evs.minors
             {}
@@ -292,9 +261,9 @@ class ElementaryVectors(SageObject):
             sage: evs.minors
             {(0, 1): 1}
             sage: evs.minor([2, 4])
-            -1
+            18
             sage: evs.minors
-            {(0, 1): 1, (2, 4): -1}
+            {(0, 1): 1, (2, 4): 18}
         """
         indices = tuple(indices)
         try:
@@ -348,12 +317,12 @@ class ElementaryVectors(SageObject):
             return self._element_kernel_prevent_multiple(indices)
         element = self._zero_element()
         nonzero_detected = False
-        for pos, k in enumerate(indices):
-            minor = self.minor(tuple(i for i in indices if i != k))
+        for pos, i in enumerate(indices):
+            minor = self.minor(tuple(j for j in indices if j != i))
             if minor == 0:
                 continue
             nonzero_detected = True
-            element[k] = (-1) ** pos * minor
+            element[i] = (-1) ** pos * minor
         if nonzero_detected:
             return element
         raise ValueError("Indices correspond to zero vector!")
@@ -371,15 +340,15 @@ class ElementaryVectors(SageObject):
         element = self._zero_element()
         nonzero_detected = False
         pos = 0
-        for k in range(self.length):
-            if k in indices:
+        for i in range(self.length):
+            if i in indices:
                 pos += 1
                 continue
-            minor = self.minor(tuple(set(indices + [k])))
+            minor = self.minor(tuple(set(indices + [i])))
             if minor == 0:
                 continue
             nonzero_detected = True
-            element[k] = (-1) ** pos * minor
+            element[i] = (-1) ** pos * minor
         if nonzero_detected:
             return element
         raise ValueError("Indices correspond to zero vector!")
@@ -396,8 +365,8 @@ class ElementaryVectors(SageObject):
         nonzero_detected = False
         zero_minors = []
         multiple_detected = False
-        for pos, k in enumerate(indices):
-            indices_minor = tuple(i for i in indices if i != k)
+        for pos, i in enumerate(indices):
+            indices_minor = tuple(j for j in indices if j != i)
             if indices_minor in self.marked_minors:
                 multiple_detected = True
                 continue
@@ -406,7 +375,7 @@ class ElementaryVectors(SageObject):
                 zero_minors.append(indices_minor)
                 continue
             nonzero_detected = True
-            element[k] = (-1) ** pos * minor
+            element[i] = (-1) ** pos * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
                 self.marked_minors.add(marked_minor)
