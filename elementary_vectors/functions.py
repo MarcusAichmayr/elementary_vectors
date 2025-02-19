@@ -20,7 +20,7 @@ from sage.structure.sage_object import SageObject
 from .utility import is_symbolic
 
 
-def elementary_vectors(M, dual: bool = True, generator: bool = False):
+def elementary_vectors(M, dual: bool = True, prevent_multiples: bool = True, generator: bool = False):
     r"""
     Compute elementary vectors of a subspace determined by a matrix or a list of maximal minors.
 
@@ -47,6 +47,8 @@ def elementary_vectors(M, dual: bool = True, generator: bool = False):
         [0 1 2 3]
         sage: elementary_vectors(M)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
+        sage: elementary_vectors(M, prevent_multiples=False)
+        [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2), (0, 0, -6, 4)]
 
     By default, the elementary vectors in the kernel are computed.
     To consider the row space, pass ``dual=False``::
@@ -89,8 +91,8 @@ def elementary_vectors(M, dual: bool = True, generator: bool = False):
         [(0, -1, 0), (0, 0, -1)]
     """
     if generator:
-        return ElementaryVectors(M).generator(dual=dual)
-    return ElementaryVectors(M).elements(dual=dual)
+        return ElementaryVectors(M).generator(dual=dual, prevent_multiples=prevent_multiples)
+    return ElementaryVectors(M).elements(dual=dual, prevent_multiples=prevent_multiples)
 
 
 def kernel_matrix_using_elementary_vectors(M):
@@ -444,15 +446,15 @@ class ElementaryVectors(SageObject):
             If this results in a multiple of a previous element, a ``ValueError`` is raised.
         """
         element = self._zero_element()
-        pos = 0
         nonzero_detected = False
+        pos = 0
         zero_minors = []
         multiple_detected = False
-        for k in range(self.length):
-            if k in indices:
+        for i in range(self.length):
+            if i in indices:
                 pos += 1
                 continue
-            indices_minor = tuple(sorted(indices + [k]))
+            indices_minor = tuple(sorted(indices + [i]))
             if indices_minor in self.marked_minors:
                 multiple_detected = True
                 continue
@@ -461,7 +463,7 @@ class ElementaryVectors(SageObject):
                 zero_minors.append(indices_minor)
                 continue
             nonzero_detected = True
-            element[k] = (-1) ** pos * minor
+            element[i] = (-1) ** pos * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
                 self.marked_minors.add(marked_minor)
