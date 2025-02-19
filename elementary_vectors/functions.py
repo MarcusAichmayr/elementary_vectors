@@ -416,7 +416,7 @@ class ElementaryVectors(SageObject):
             indices_minor = indices.copy()
             i = indices_minor.pop(pos)
             indices_minor = tuple(indices_minor)
-            if indices_minor in self.marked_minors:
+            if indices_minor in self._marked_minors:
                 multiple_detected = True
                 continue
             minor = self.minor(indices_minor)
@@ -427,7 +427,7 @@ class ElementaryVectors(SageObject):
             element[i] = (-1) ** pos * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
-                self.marked_minors.add(marked_minor)
+                self._marked_minors.add(marked_minor)
             if multiple_detected:
                 raise ValueError(f"Indices {indices} produce a multiple of computed element!")
             return element
@@ -455,7 +455,7 @@ class ElementaryVectors(SageObject):
                 pos += 1
                 continue
             indices_minor = tuple(sorted(indices + [i]))
-            if indices_minor in self.marked_minors:
+            if indices_minor in self._marked_minors:
                 multiple_detected = True
                 continue
             minor = self.minor(indices_minor)
@@ -466,7 +466,7 @@ class ElementaryVectors(SageObject):
             element[i] = (-1) ** pos * minor
         if nonzero_detected:
             for marked_minor in zero_minors:
-                self.marked_minors.add(marked_minor)
+                self._marked_minors.add(marked_minor)
             if multiple_detected:
                 raise ValueError(f"Indices {indices} produce a multiple of computed element!")
             return element
@@ -491,7 +491,7 @@ class ElementaryVectors(SageObject):
         return zero_vector(self.ring, self.length)
 
     def _reset_set_for_preventing_multiples(self) -> None:
-        self.marked_minors = set()
+        self._marked_minors = set()
 
     def index_sets_from_minor(self, indices_minor: list, dual: bool = True) -> Generator[list]:
         r"""Generator of index sets corresponding to elementary vectors involving given minor."""
@@ -548,9 +548,9 @@ class ElementaryVectors(SageObject):
         if dual:
             combinations = self._combinations
         else:
-            combinations = self._combinations_dual
             if self.rank == 0:
                 return
+            combinations = self._combinations_dual
         if reverse:
             combinations = reversed(combinations)
         for indices in combinations:
