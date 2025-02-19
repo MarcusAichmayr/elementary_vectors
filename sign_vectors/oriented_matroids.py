@@ -141,11 +141,17 @@ class Cocircuits(ElementaryVectors):
     def _zero_element(self) -> list:
         return [0] * self.length
 
-    def element_kernel(self, indices: list, prevent_multiple: bool = False) -> SignVector:
-        return sign_vector(super().element_kernel(indices, prevent_multiple=prevent_multiple))
+    def element_kernel(self, indices: list) -> SignVector:
+        return sign_vector(super().element_kernel(indices))
 
-    def element_row_space(self, indices: list, prevent_multiple: bool = False) -> SignVector:
-        return sign_vector(super().element_row_space(indices, prevent_multiple=prevent_multiple))
+    def element_row_space(self, indices: list) -> SignVector:
+        return sign_vector(super().element_row_space(indices))
+
+    def _element_kernel_prevent_multiple(self, indices: list) -> SignVector:
+        return sign_vector(super()._element_kernel_prevent_multiple(indices))
+
+    def _element_row_space_prevent_multiple(self, indices: list) -> SignVector:
+        return sign_vector(super()._element_row_space_prevent_multiple(indices))
 
     def generator(
         self,

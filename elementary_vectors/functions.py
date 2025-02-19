@@ -332,20 +332,26 @@ class ElementaryVectors(SageObject):
                 dual = False
             else:
                 raise ValueError(f"Number of indices should be {self.rank - 1} or {self.rank + 1}.")
+        if prevent_multiple:
+            if dual:
+                return self._element_kernel_prevent_multiple(indices)
+            return self._element_row_space_prevent_multiple(indices)
         if dual:
-            return self.element_kernel(indices, prevent_multiple=prevent_multiple)
-        return self.element_row_space(indices, prevent_multiple=prevent_multiple)
+            return self.element_kernel(indices)
+        return self.element_row_space(indices)
 
-    def element_kernel(self, indices: list, prevent_multiple: bool = False):
+    def element_kernel(self, indices: list):
         r"""
-        Compute the elementary vector corresponding to a list of indices.
+        Compute the elementary vector in the kernel corresponding to a list of indices.
+
+        INPUT::
+
+        - ``indices`` -- a list of ``rank + 1``elements
 
         .. NOTE::
 
             Raises a ``ValueError`` if the indices correspond to the zero vector.
         """
-        if prevent_multiple:
-            return self._element_kernel_prevent_multiple(indices)
         element = self._zero_element()
         nonzero_detected = False
         for pos in range(self.rank + 1):
@@ -360,16 +366,18 @@ class ElementaryVectors(SageObject):
             return element
         raise ValueError(f"Indices {indices} correspond to zero vector!")
 
-    def element_row_space(self, indices: list, prevent_multiple: bool = False):
+    def element_row_space(self, indices: list):
         """
         Compute the elementary vector in the row space corresponding to the given indices.
 
         INPUT::
 
         - ``indices`` -- a list of ``rank - 1``elements
+
+        .. NOTE::
+
+            Raises a ``ValueError`` if the indices correspond to the zero vector.
         """
-        if prevent_multiple:
-            return self._element_row_space_prevent_multiple(indices)
         element = self._zero_element()
         nonzero_detected = False
         pos = 0
@@ -389,6 +397,10 @@ class ElementaryVectors(SageObject):
     def _element_kernel_prevent_multiple(self, indices: list):
         r"""
         Compute the elementary vector corresponding to a list of indices.
+
+        INPUT::
+
+        - ``indices`` -- a list of ``rank + 1``elements
 
         .. NOTE::
 
@@ -422,6 +434,10 @@ class ElementaryVectors(SageObject):
     def _element_row_space_prevent_multiple(self, indices: list):
         r"""
         Compute the elementary vector corresponding to a list of indices.
+
+        INPUT::
+
+        - ``indices`` -- a list of ``rank - 1``elements
 
         .. NOTE::
 
