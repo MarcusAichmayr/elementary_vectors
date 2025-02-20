@@ -129,14 +129,21 @@ from .utility import loops, classes_same_support, parallel_classes
 
 
 class Cocircuits(ElementaryVectors):
-    r"""Class used to compute cocircuits and circuits."""
+    r"""
+    Class used to compute cocircuits and circuits.
+
+    TESTS::
+
+        sage: from sign_vectors.oriented_matroids import *
+        sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
+        sage: cc = Cocircuits(M)
+        sage: cc.element([1, 2, 3])
+        Traceback (most recent call last):
+        ...
+        ValueError: Indices [1, 2, 3] correspond to zero vector!
+    """
     def minor(self, indices):
-        indices = tuple(indices)
-        try:
-            return super().minor(indices)
-        except KeyError:
-            self.minors[indices] = Sign(self.matrix.matrix_from_columns(indices).det())
-            return self.minors[indices]
+        return Sign(super().minor(indices))
 
     def _zero_element(self) -> list:
         return [0] * self.length
@@ -231,6 +238,19 @@ def cocircuits_from_matrix(M, dual: bool = True):
         [ 0  0  1 -1]
         sage: cocircuits_from_matrix(B, dual=False)
         {(0+0+), (00+-), (-000), (00-+), (0-0-), (0--0), (+000), (0++0)}
+
+    TESTS::
+
+        sage: W = matrix(3, 6, [0, 0, 1, 1, -1, 0, 1, -1, 0, 0, 0, -1, 0, 0, 1, -1, 0, 0])
+        sage: cocircuits_from_matrix(W, dual=True)
+        {(00---0),
+         (00+++0),
+         (--0000),
+         (-0000-),
+         (0-000+),
+         (+0000+),
+         (++0000),
+         (0+000-)}
     """
     return Cocircuits(M).elements(dual=dual)
 

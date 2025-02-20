@@ -1051,6 +1051,9 @@ class SignVector(SageObject):
             return not self._support
         return False
 
+    def __bool__(self) -> bool:
+        return self != 0
+
     def __le__(self, other) -> bool:
         r"""
         Return whether this sign vector is less or equal to ``other``.
