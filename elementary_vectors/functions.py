@@ -215,9 +215,9 @@ class ElementaryVectors(SageObject):
         (10, 0, -3, 2, 0)
         sage: evs.element([0])
         (0, -1, -2, -3, -4)
-        sage: evs.element_kernel([0, 2, 3])
+        sage: evs.element([0, 2, 3], dual=True)
         (10, 0, -3, 2, 0)
-        sage: evs.element_row_space([0])
+        sage: evs.element([0], dual=False)
         (0, -1, -2, -3, -4)
         sage: evs.random_element() # random
         (0, 0, 7, -18, 10)
@@ -301,6 +301,22 @@ class ElementaryVectors(SageObject):
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
+        INPUT:
+
+        - ``indices`` -- a list of ``rank - 1`` (for elements in the row space)
+                         or ``rank + 1`` (for elements in the kernel) integers
+
+        - ``dual`` -- a boolean
+
+        - ``prevent_multiple`` -- a boolean
+
+        If ``dual`` is true, return an elementary vector in the kernel
+        and otherwise in the row space.
+        If not specified, this is determined from the number of indices.
+
+        If ``prevent_multiple`` is true, a ``ValueError`` is raised if a multiple
+        of this element has been computed before.
+
         .. NOTE::
 
             Raises a ``ValueError`` if the indices correspond to the zero vector.
@@ -331,6 +347,13 @@ class ElementaryVectors(SageObject):
             Traceback (most recent call last):
             ...
             ValueError: Number of indices should be 1 or 3.
+
+        ::
+
+            evs._element_kernel([1, 2, 3])
+            (0, 0, 0, 0)
+            evs._element_row_space([3])
+            (0, 0, 0, 0)
         """
         if dual is None:
             if len(indices) == self.rank + 1:
@@ -341,7 +364,7 @@ class ElementaryVectors(SageObject):
                 raise ValueError(f"Number of indices should be {self.rank - 1} or {self.rank + 1}.")
 
         self._prevent_multiples = prevent_multiple
-        element = self.element_kernel(indices) if dual else self.element_row_space(indices)
+        element = self._element_kernel(indices) if dual else self._element_row_space(indices)
         if not element:
             self._zero_minors.clear()
             raise ValueError(f"Indices {indices} correspond to zero vector!")
@@ -359,18 +382,7 @@ class ElementaryVectors(SageObject):
                 raise ValueError(f"Indices {indices} produce a multiple of computed element!")
         return element
 
-    def element_kernel(self, indices: list):
-        r"""
-        Compute the elementary vector in the kernel corresponding to a list of indices.
-
-        INPUT::
-
-        - ``indices`` -- a list of ``rank + 1``elements
-
-        .. NOTE::
-
-            Raises a ``ValueError`` if the indices correspond to the zero vector.
-        """
+    def _element_kernel(self, indices: list):
         element = self._zero_element()
         for pos in range(self.rank + 1):
             indices_minor = indices.copy()
@@ -381,18 +393,7 @@ class ElementaryVectors(SageObject):
             element[i] = (-1) ** pos * minor
         return element
 
-    def element_row_space(self, indices: list):
-        """
-        Compute the elementary vector in the row space corresponding to the given indices.
-
-        INPUT::
-
-        - ``indices`` -- a list of ``rank - 1``elements
-
-        .. NOTE::
-
-            Raises a ``ValueError`` if the indices correspond to the zero vector.
-        """
+    def _element_row_space(self, indices: list):
         element = self._zero_element()
         pos = 0
         for i in range(self.length):
