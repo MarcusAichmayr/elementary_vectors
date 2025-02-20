@@ -266,13 +266,18 @@ class ElementaryVectors(SageObject):
             18
             sage: evs.minors
             {(0, 1): 1, (2, 4): 18}
+            sage: evs.minor([0, 1, 2])
+            Traceback (most recent call last):
+            ...
+            ValueError: Indices (0, 1, 2) should have size 2 and not 3.
         """
         indices = tuple(indices)
-        try:
-            minor = self.minors[indices]
-        except KeyError:
-            self.minors[indices] = self.matrix.matrix_from_columns(indices).det()
-            minor = self.minors[indices]
+        if indices not in self.minors:
+            try:
+                self.minors[indices] = self.matrix.matrix_from_columns(indices).det()
+            except ValueError as e:
+                raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
+        minor = self.minors[indices]
         if self._prevent_multiples and minor == 0:
             self._zero_minors.add(indices)
         return minor
@@ -340,7 +345,7 @@ class ElementaryVectors(SageObject):
             sage: evs.element([1, 2])
             Traceback (most recent call last):
             ...
-            ValueError: Number of indices should be 1 or 3.
+            ValueError: Number of indices should be 1 or 3 but got 2.
 
         ::
 
@@ -355,7 +360,7 @@ class ElementaryVectors(SageObject):
             elif len(indices) == self.rank - 1:
                 dual = False
             else:
-                raise ValueError(f"Number of indices should be {self.rank - 1} or {self.rank + 1}.")
+                raise ValueError(f"Number of indices should be {self.rank - 1} or {self.rank + 1} but got {len(indices)}.")
 
         self._prevent_multiples = prevent_multiple
         element = self._element_kernel(indices) if dual else self._element_row_space(indices)
