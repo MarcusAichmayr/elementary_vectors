@@ -244,6 +244,8 @@ class ElementaryVectors(SageObject):
         self.rank = self.matrix.nrows()
         self.ring = self.matrix.base_ring()
         self.minors = {}
+        self._zero_minors = set()
+        self._prevent_multiples = True
 
         self.set_combinations()
         self.set_combinations_dual()
@@ -273,10 +275,13 @@ class ElementaryVectors(SageObject):
         """
         indices = tuple(indices)
         try:
-            return self.minors[indices]
+            minor = self.minors[indices]
         except KeyError:
             self.minors[indices] = self.matrix.matrix_from_columns(indices).det()
-            return self.minors[indices]
+            minor = self.minors[indices]
+        if self._prevent_multiples and minor == 0:
+            self._zero_minors.add(indices)
+        return minor
 
     def set_combinations(self, combinations=None) -> None:
         r"""Set or reset combinations."""
@@ -334,13 +339,25 @@ class ElementaryVectors(SageObject):
                 dual = False
             else:
                 raise ValueError(f"Number of indices should be {self.rank - 1} or {self.rank + 1}.")
+
+        self._prevent_multiples = prevent_multiple
+        try:
+            element = self.element_kernel(indices) if dual else self.element_row_space(indices)
+        except ValueError:
+            self._zero_minors.clear()
+            raise
         if prevent_multiple:
-            if dual:
-                return self._element_kernel_prevent_multiple(indices)
-            return self._element_row_space_prevent_multiple(indices)
-        if dual:
-            return self.element_kernel(indices)
-        return self.element_row_space(indices)
+            multiple = False
+            while self._zero_minors:
+                minor = self._zero_minors.pop()
+                if minor in self._marked_minors:
+                    multiple = True
+                    continue
+                self._marked_minors.add(minor)
+
+            if multiple:
+                raise ValueError(f"Indices {indices} produce a multiple of computed element!")
+        return element
 
     def element_kernel(self, indices: list):
         r"""
@@ -393,82 +410,6 @@ class ElementaryVectors(SageObject):
             nonzero_detected = True
             element[i] = (-1) ** pos * minor
         if nonzero_detected:
-            return element
-        raise ValueError(f"Indices {indices} correspond to zero vector!")
-
-    def _element_kernel_prevent_multiple(self, indices: list):
-        r"""
-        Compute the elementary vector corresponding to a list of indices.
-
-        INPUT::
-
-        - ``indices`` -- a list of ``rank + 1``elements
-
-        .. NOTE::
-
-            If this results in a multiple of a previous element, a ``ValueError`` is raised.
-        """
-        element = self._zero_element()
-        nonzero_detected = False
-        zero_minors = []
-        multiple_detected = False
-        for pos in range(self.rank + 1):
-            indices_minor = indices.copy()
-            i = indices_minor.pop(pos)
-            indices_minor = tuple(indices_minor)
-            if indices_minor in self._marked_minors:
-                multiple_detected = True
-                continue
-            minor = self.minor(indices_minor)
-            if not minor:
-                zero_minors.append(indices_minor)
-                continue
-            nonzero_detected = True
-            element[i] = (-1) ** pos * minor
-        if nonzero_detected:
-            for marked_minor in zero_minors:
-                self._marked_minors.add(marked_minor)
-            if multiple_detected:
-                raise ValueError(f"Indices {indices} produce a multiple of computed element!")
-            return element
-        raise ValueError(f"Indices {indices} correspond to zero vector!")
-
-    def _element_row_space_prevent_multiple(self, indices: list):
-        r"""
-        Compute the elementary vector corresponding to a list of indices.
-
-        INPUT::
-
-        - ``indices`` -- a list of ``rank - 1``elements
-
-        .. NOTE::
-
-            If this results in a multiple of a previous element, a ``ValueError`` is raised.
-        """
-        element = self._zero_element()
-        nonzero_detected = False
-        pos = 0
-        zero_minors = []
-        multiple_detected = False
-        for i in range(self.length):
-            if i in indices:
-                pos += 1
-                continue
-            indices_minor = tuple(sorted(indices + [i]))
-            if indices_minor in self._marked_minors:
-                multiple_detected = True
-                continue
-            minor = self.minor(indices_minor)
-            if not minor:
-                zero_minors.append(indices_minor)
-                continue
-            nonzero_detected = True
-            element[i] = (-1) ** pos * minor
-        if nonzero_detected:
-            for marked_minor in zero_minors:
-                self._marked_minors.add(marked_minor)
-            if multiple_detected:
-                raise ValueError(f"Indices {indices} produce a multiple of computed element!")
             return element
         raise ValueError(f"Indices {indices} correspond to zero vector!")
 
