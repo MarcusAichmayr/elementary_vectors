@@ -142,17 +142,17 @@ class Cocircuits(ElementaryVectors):
         ...
         ValueError: Indices [1, 2, 3] correspond to zero vector!
     """
-    def minor(self, indices):
-        return Sign(super().minor(indices))
+    def minor(self, indices, mark_if_zero: bool = False):
+        return Sign(super().minor(indices, mark_if_zero=mark_if_zero))
 
     def _zero_element(self) -> list:
         return [0] * self.length
 
-    def _element_kernel(self, indices: list) -> SignVector:
-        return sign_vector(super()._element_kernel(indices))
+    def _element_kernel(self, indices: list[int], mark_zeros: bool = False) -> SignVector:
+        return sign_vector(super()._element_kernel(indices, mark_zeros=mark_zeros))
 
-    def _element_row_space(self, indices: list) -> SignVector:
-        return sign_vector(super()._element_row_space(indices))
+    def _element_row_space(self, indices: list[int], mark_zeros: bool = False) -> SignVector:
+        return sign_vector(super()._element_row_space(indices, mark_zeros=mark_zeros))
 
     def generator(
         self,

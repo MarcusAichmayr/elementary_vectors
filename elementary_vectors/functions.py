@@ -237,13 +237,12 @@ class ElementaryVectors(SageObject):
         self.ring = M.base_ring()
         self.minors = {}
         self._zero_minors = set()
-        self._prevent_multiples = True
 
         self.set_combinations_kernel()
         self.set_combinations_row_space()
         self._reset_set_for_preventing_multiples()
 
-    def minor(self, indices: list[int]):
+    def minor(self, indices: list[int], mark_if_zero: bool = False):
         r"""
         Compute a minor given by indices
 
@@ -277,7 +276,7 @@ class ElementaryVectors(SageObject):
                 self.minors[indices] = minor
             except ValueError as e:
                 raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
-        if self._prevent_multiples and minor == 0:
+        if mark_if_zero and minor == 0:
             self._zero_minors.add(indices)
         return minor
 
@@ -361,8 +360,10 @@ class ElementaryVectors(SageObject):
             else:
                 raise ValueError(f"Number of indices should be {self.rank - 1} or {self.rank + 1} but got {len(indices)}.")
 
-        self._prevent_multiples = prevent_multiple
-        element = self._element_kernel(indices) if dual else self._element_row_space(indices)
+        if dual:
+            element = self._element_kernel(indices, mark_zeros=prevent_multiple)
+        else:
+            element = self._element_row_space(indices, mark_zeros=prevent_multiple)
         if element == 0:
             self._zero_minors.clear()
             raise ValueError(f"Indices {indices} correspond to zero vector!")
@@ -380,25 +381,25 @@ class ElementaryVectors(SageObject):
                 raise ValueError(f"Indices {indices} produce a multiple of a previously computed element!")
         return element
 
-    def _element_kernel(self, indices: list[int]):
+    def _element_kernel(self, indices: list[int], mark_zeros: bool = False):
         element = self._zero_element()
         for pos in range(self.rank + 1):
             indices_minor = indices.copy()
             i = indices_minor.pop(pos)
-            minor = self.minor(indices_minor)
+            minor = self.minor(indices_minor, mark_if_zero=mark_zeros)
             if minor == 0:
                 continue
             element[i] = (-1) ** pos * minor
         return element
 
-    def _element_row_space(self, indices: list[int]):
+    def _element_row_space(self, indices: list[int], mark_zeros: bool = False):
         element = self._zero_element()
         pos = 0
         for i in range(self.length):
             if i in indices:
                 pos += 1
                 continue
-            minor = self.minor(sorted(indices + [i]))
+            minor = self.minor(sorted(indices + [i]), mark_if_zero=mark_zeros)
             if minor == 0:
                 continue
             element[i] = (-1) ** pos * minor
