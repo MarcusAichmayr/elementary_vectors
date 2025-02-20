@@ -463,9 +463,12 @@ class ElementaryVectors(SageObject):
         for indices_minor in Combinations(self.length, self.rank):
             if self.minor(indices_minor) != 0:
                 continue
+            if tuple(indices_minor) in self._marked_minors:
+                continue
             for indices in self.index_sets_from_minor(indices_minor, dual=dual):
                 try:
                     yield self.element(indices, dual=dual, prevent_multiple=True)
+                    break
                 except ValueError:
                     pass
 
