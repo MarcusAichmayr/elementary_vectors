@@ -10,7 +10,6 @@ r"""Computing elementary vectors"""
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-import warnings
 from collections.abc import Generator
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix
@@ -158,11 +157,11 @@ def kernel_matrix_using_elementary_vectors(M):
         return matrix(M.base_ring(), 0, length)
 
     evs = ElementaryVectors(M)
-    for indices_minor in Combinations(reversed(range(length)), rank):
+    for indices_minor in Combinations(range(length - 1, -1, -1), rank):
         minor = evs.minor(indices_minor)
         if minor and not is_symbolic(minor):
             return matrix(evs.element(indices) for indices in evs.index_sets_from_minor(indices_minor))
-    raise ValueError("Could not find a constant nonzero maximal minor.")
+    raise ValueError("Matrix has no constant nonzero maximal minor.")
 
 
 class ElementaryVectors(SageObject):
@@ -234,9 +233,8 @@ class ElementaryVectors(SageObject):
     """
     def __init__(self, M) -> None:
         self.matrix = M.matrix_from_rows(M.pivot_rows())
-        self.length = self.matrix.ncols()
-        self.rank = self.matrix.nrows()
-        self.ring = self.matrix.base_ring()
+        self.rank, self.length = self.matrix.dimensions()
+        self.ring = M.base_ring()
         self.minors = {}
         self._zero_minors = set()
         self._prevent_multiples = True
@@ -245,7 +243,7 @@ class ElementaryVectors(SageObject):
         self.set_combinations_dual()
         self._reset_set_for_preventing_multiples()
 
-    def minor(self, indices):
+    def minor(self, indices: list[int]):
         r"""
         Compute a minor given by indices
 
@@ -272,12 +270,13 @@ class ElementaryVectors(SageObject):
             ValueError: Indices (0, 1, 2) should have size 2 and not 3.
         """
         indices = tuple(indices)
-        if indices not in self.minors:
+        minor = self.minors.get(indices)
+        if minor is None:
             try:
-                self.minors[indices] = self.matrix.matrix_from_columns(indices).det()
+                minor = self.matrix.matrix_from_columns(indices).det()
+                self.minors[indices] = minor
             except ValueError as e:
                 raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
-        minor = self.minors[indices]
         if self._prevent_multiples and minor == 0:
             self._zero_minors.add(indices)
         return minor
@@ -296,7 +295,7 @@ class ElementaryVectors(SageObject):
         else:
             self._combinations_dual = combinations
 
-    def element(self, indices: list, dual: bool = None, prevent_multiple: bool = False):
+    def element(self, indices: list[int], dual: bool = None, prevent_multiple: bool = False):
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
@@ -378,10 +377,10 @@ class ElementaryVectors(SageObject):
                 self._marked_minors.add(minor)
 
             if multiple:
-                raise ValueError(f"Indices {indices} produce a multiple of computed element!")
+                raise ValueError(f"Indices {indices} produce a multiple of a previously computed element!")
         return element
 
-    def _element_kernel(self, indices: list):
+    def _element_kernel(self, indices: list[int]):
         element = self._zero_element()
         for pos in range(self.rank + 1):
             indices_minor = indices.copy()
@@ -392,7 +391,7 @@ class ElementaryVectors(SageObject):
             element[i] = (-1) ** pos * minor
         return element
 
-    def _element_row_space(self, indices: list):
+    def _element_row_space(self, indices: list[int]):
         element = self._zero_element()
         pos = 0
         for i in range(self.length):
@@ -426,7 +425,7 @@ class ElementaryVectors(SageObject):
     def _reset_set_for_preventing_multiples(self) -> None:
         self._marked_minors = set()
 
-    def index_sets_from_minor(self, indices_minor: list, dual: bool = True) -> Generator[list]:
+    def index_sets_from_minor(self, indices_minor: list[int], dual: bool = True) -> Generator[list]:
         r"""Generator of index sets corresponding to elementary vectors involving given minor."""
         if dual:
             for i in range(self.length):
