@@ -341,11 +341,11 @@ class ElementaryVectors(SageObject):
                 raise ValueError(f"Number of indices should be {self.rank - 1} or {self.rank + 1}.")
 
         self._prevent_multiples = prevent_multiple
-        try:
-            element = self.element_kernel(indices) if dual else self.element_row_space(indices)
-        except ValueError:
+        element = self.element_kernel(indices) if dual else self.element_row_space(indices)
+        if not element:
             self._zero_minors.clear()
-            raise
+            raise ValueError(f"Indices {indices} correspond to zero vector!")
+
         if prevent_multiple:
             multiple = False
             while self._zero_minors:
@@ -372,18 +372,14 @@ class ElementaryVectors(SageObject):
             Raises a ``ValueError`` if the indices correspond to the zero vector.
         """
         element = self._zero_element()
-        nonzero_detected = False
         for pos in range(self.rank + 1):
             indices_minor = indices.copy()
             i = indices_minor.pop(pos)
             minor = self.minor(indices_minor)
             if not minor:
                 continue
-            nonzero_detected = True
             element[i] = (-1) ** pos * minor
-        if nonzero_detected:
-            return element
-        raise ValueError(f"Indices {indices} correspond to zero vector!")
+        return element
 
     def element_row_space(self, indices: list):
         """
@@ -398,7 +394,6 @@ class ElementaryVectors(SageObject):
             Raises a ``ValueError`` if the indices correspond to the zero vector.
         """
         element = self._zero_element()
-        nonzero_detected = False
         pos = 0
         for i in range(self.length):
             if i in indices:
@@ -407,11 +402,8 @@ class ElementaryVectors(SageObject):
             minor = self.minor(sorted(indices + [i]))
             if not minor:
                 continue
-            nonzero_detected = True
             element[i] = (-1) ** pos * minor
-        if nonzero_detected:
-            return element
-        raise ValueError(f"Indices {indices} correspond to zero vector!")
+        return element
 
     def random_element(self, dual: bool = True):
         r"""
@@ -422,9 +414,9 @@ class ElementaryVectors(SageObject):
             If no elementary vector exists or the zero vector has been generated, ``None`` is returned.
         """
         try:
-            if dual:
-                return self.element_kernel(self._combinations.random_element())
-            return self.element_row_space(self._combinations_dual.random_element())
+            return self.element(
+                (self._combinations if dual else self._combinations_dual).random_element(),
+                dual=dual)
         except ValueError: # no elementary vectors exist or generated zero vector
             return
 
