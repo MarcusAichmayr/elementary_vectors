@@ -363,7 +363,7 @@ class ElementaryVectors(SageObject):
 
         self._prevent_multiples = prevent_multiple
         element = self._element_kernel(indices) if dual else self._element_row_space(indices)
-        if not element:
+        if element == 0:
             self._zero_minors.clear()
             raise ValueError(f"Indices {indices} correspond to zero vector!")
 
@@ -386,7 +386,7 @@ class ElementaryVectors(SageObject):
             indices_minor = indices.copy()
             i = indices_minor.pop(pos)
             minor = self.minor(indices_minor)
-            if not minor:
+            if minor == 0:
                 continue
             element[i] = (-1) ** pos * minor
         return element
@@ -399,7 +399,7 @@ class ElementaryVectors(SageObject):
                 pos += 1
                 continue
             minor = self.minor(sorted(indices + [i]))
-            if not minor:
+            if minor == 0:
                 continue
             element[i] = (-1) ** pos * minor
         return element
@@ -460,7 +460,7 @@ class ElementaryVectors(SageObject):
         """
         self._reset_set_for_preventing_multiples()
         for indices_minor in Combinations(self.length, self.rank):
-            if self.minor(indices_minor):
+            if self.minor(indices_minor) != 0:
                 continue
             for indices in self.index_sets_from_minor(indices_minor, dual=dual):
                 try:

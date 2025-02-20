@@ -494,7 +494,7 @@ def construct_orthogonal_vector(v, intervals: list[RealSet]):
 
     if lam_candidates:
         for product in [z_min * v, z_max * v]:
-            if not product:
+            if product == 0:
                 continue
             try:
                 lam_candidates.append(solve(product, lam, solution_dict=True)[0][lam])
@@ -512,9 +512,9 @@ def construct_orthogonal_vector(v, intervals: list[RealSet]):
 
     product_min = v * z_min
     product_max = v * z_max
-    if not product_min:
+    if product_min == 0:
         return z_min
-    if not product_max:
+    if product_max == 0:
         return z_max
 
     return (product_max * z_min - product_min * z_max) / (product_max - product_min)
