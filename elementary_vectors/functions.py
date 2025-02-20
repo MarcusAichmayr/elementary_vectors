@@ -239,8 +239,8 @@ class ElementaryVectors(SageObject):
         self._zero_minors = set()
         self._prevent_multiples = True
 
-        self.set_combinations()
-        self.set_combinations_dual()
+        self.set_combinations_kernel()
+        self.set_combinations_row_space()
         self._reset_set_for_preventing_multiples()
 
     def minor(self, indices: list[int]):
@@ -281,19 +281,19 @@ class ElementaryVectors(SageObject):
             self._zero_minors.add(indices)
         return minor
 
-    def set_combinations(self, combinations=None) -> None:
-        r"""Set or reset combinations."""
+    def set_combinations_kernel(self, combinations=None) -> None:
+        r"""Set or reset combinations for elements in the kernel."""
         if combinations is None:
-            self._combinations = Combinations(self.length, self.rank + 1)
+            self._combinations_kernel = Combinations(self.length, self.rank + 1)
         else:
-            self._combinations = combinations
+            self._combinations_kernel = combinations
 
-    def set_combinations_dual(self, combinations=None) -> None:
-        r"""Set or reset combinations."""
+    def set_combinations_row_space(self, combinations=None) -> None:
+        r"""Set or reset combinations for elements in the row space."""
         if combinations is None:
-            self._combinations_dual = Combinations(self.length, self.rank - 1)
+            self._combinations_row_space = Combinations(self.length, self.rank - 1)
         else:
-            self._combinations_dual = combinations
+            self._combinations_row_space = combinations
 
     def element(self, indices: list[int], dual: bool = None, prevent_multiple: bool = False):
         r"""
@@ -414,7 +414,7 @@ class ElementaryVectors(SageObject):
         """
         try:
             return self.element(
-                (self._combinations if dual else self._combinations_dual).random_element(),
+                (self._combinations_kernel if dual else self._combinations_row_space).random_element(),
                 dual=dual)
         except ValueError: # no elementary vectors exist or generated zero vector
             return
@@ -478,11 +478,11 @@ class ElementaryVectors(SageObject):
         if prevent_multiples:
             self._reset_set_for_preventing_multiples()
         if dual:
-            combinations = self._combinations
+            combinations = self._combinations_kernel
         else:
             if self.rank == 0:
                 return
-            combinations = self._combinations_dual
+            combinations = self._combinations_row_space
         if reverse:
             combinations = reversed(combinations)
         for indices in combinations:

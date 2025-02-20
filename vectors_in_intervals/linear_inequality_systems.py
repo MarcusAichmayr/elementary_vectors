@@ -119,7 +119,7 @@ class LinearInequalitySystem(SageObject):
     """
     __slots__ = "result", "matrix", "intervals", "evs", "elementary_vectors", "solvable"
 
-    def __init__(self, _matrix, intervals, result=None) -> None:
+    def __init__(self, _matrix, intervals: list, result: bool = None) -> None:
         self.matrix = _matrix
         self.intervals = intervals
         self.result = result
@@ -229,7 +229,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
     ``A x <= b``, ``B x <= c``
     """
-    def __init__(self, A, B, b, c, result=None) -> None:
+    def __init__(self, A, B, b, c, result: bool = None) -> None:
         super().__init__(matrix.block([[A], [B]]), None, result=result)
         self.A = A
         self.B = B
@@ -279,16 +279,16 @@ class HomogeneousSystem(LinearInequalitySystem):
     """
     __slots__ = "positive", "nonnegative", "zero"
 
-    def __init__(self, A, B, C, result=None) -> None:
+    def __init__(self, A, B, C, result: bool = None) -> None:
         super().__init__(matrix.block([[A], [B], [C]]), None, result=result)
         self.positive = range(A.nrows())
         self.nonnegative = range(A.nrows() + B.nrows())
         self.zero = range(A.nrows() + B.nrows(), self.matrix.nrows())
 
-        # self.evs.set_combinations_dual(Combinations(range(A.nrows() + B.nrows()), self.evs.length - self.evs.rank + 1))
+        # self.evs.set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self.evs.length - self.evs.rank + 1))
 
         if len(self.positive) == 1:
-            self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
+            self.evs.set_combinations_kernel(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
 
     def get_intervals(self) -> list:
         self.intervals = [
@@ -356,7 +356,7 @@ class HomogeneousSystemCocircuits(HomogeneousSystem):
 
     Certifying makes use of cocircuits instead of elementary vectors
     """
-    def __init__(self, A, B, C, result=None) -> None:
+    def __init__(self, A, B, C, result: bool = None) -> None:
         super().__init__(A, B, C, result=result)
 
         self.evs = Cocircuits(self.matrix.T)
