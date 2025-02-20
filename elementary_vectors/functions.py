@@ -109,7 +109,7 @@ def kernel_matrix_using_elementary_vectors(M):
 
     .. NOTE::
 
-        A ``ValueError`` is returned if ``M`` has no constant nonzero maximal minor.
+        Raises a ``ValueError`` if ``M`` has no constant nonzero maximal minor.
 
     EXAMPLES::
 
@@ -208,7 +208,6 @@ class ElementaryVectors(SageObject):
 
     ::
 
-        sage: evs = ElementaryVectors(M)
         sage: evs.minor([0, 2])
         2
         sage: evs.element([0, 2, 3])
@@ -234,12 +233,7 @@ class ElementaryVectors(SageObject):
         [(0, -2, 1, 0), (0, 0, 0, 1)]
     """
     def __init__(self, M) -> None:
-        try:
-            self.matrix = M.matrix_from_rows(M.pivot_rows())  # fails for polynomial matrices
-        except (ArithmeticError, NotImplementedError):
-            self.matrix = M
-            warnings.warn("Could not determine rank of matrix. Expect wrong result!")
-
+        self.matrix = M.matrix_from_rows(M.pivot_rows())
         self.length = self.matrix.ncols()
         self.rank = self.matrix.nrows()
         self.ring = self.matrix.base_ring()
