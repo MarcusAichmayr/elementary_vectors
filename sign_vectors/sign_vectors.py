@@ -151,7 +151,7 @@ sign vectors are also orthogonal::
 #############################################################################
 
 import warnings
-from sage.misc.prandom import randint
+from sage.combinat.combination import Combinations
 from sage.structure.sage_object import SageObject
 from sage.symbolic.ring import SR
 
@@ -1354,4 +1354,6 @@ def random_sign_vector(length: int):
         sage: random_sign_vector(5) # random
         (++-0-)
     """
-    return sign_vector(randint(-1, 1) for _ in range(length))
+    support = Combinations(length).random_element()
+    positive_support = Combinations(support).random_element()
+    return SignVector(frozenset(support), frozenset(positive_support), length)
