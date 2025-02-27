@@ -466,15 +466,15 @@ class SignVector(SageObject):
 
     __slots__ = ("_support", "_positive_support", "_length")
 
-    def __init__(self, support, psupport, length: int) -> None:
+    def __init__(self, support: frozenset, psupport: frozenset, length: int) -> None:
         r"""
         Create a sign vector object.
 
         INPUT:
 
-        - ``support`` -- an iterable that represents the support of this sign vector.
+        - ``support`` -- a frozenset that represents the support of this sign vector.
 
-        - ``psupport`` -- an iterable that represents the positive support of this sign vector.
+        - ``psupport`` -- a frozenset that represents the positive support of this sign vector.
 
         - ``length`` -- the length of this sign vector.
 
@@ -490,13 +490,13 @@ class SignVector(SageObject):
         EXAMPLES::
 
             sage: from sign_vectors import *
-            sage: s = {0, 1, 3}
-            sage: p = {1, 3}
+            sage: s = frozenset([0, 1, 3])
+            sage: p = frozenset([1, 3])
             sage: SignVector(s, p, 4)
             (-+0+)
         """
-        self._support = frozenset(support)
-        self._positive_support = frozenset(psupport)
+        self._support = support
+        self._positive_support = psupport
         self._length = length
 
     def _repr_(self) -> str:
@@ -515,7 +515,7 @@ class SignVector(SageObject):
         r"""Return the hash value of this sign vector."""
         return hash((self._length, self._support, self._positive_support))
 
-    def _negative_support(self) -> set[int]:
+    def _negative_support(self) -> frozenset[int]:
         r"""Return the set corresponding to the negative support."""
         return self._support.symmetric_difference(self._positive_support)
 
@@ -587,12 +587,12 @@ class SignVector(SageObject):
             raise length_error
 
         support = self._support.union(other._support)
-        psupport = {
+        psupport = frozenset(
             e
             for e in support
             if (e in self._positive_support)
             or (e in other._positive_support and not e in self._support)
-        }
+        )
 
         return SignVector(support, psupport, self.length())
 
@@ -975,7 +975,7 @@ class SignVector(SageObject):
             sage: X.reverse_signs_in([0, 2, 3])
             (++-0+)
         """
-        support = set(self._support)
+        support = frozenset(self._support)
         psupport = set(self._positive_support)
         for e in indices:
             if e in support:
@@ -983,7 +983,7 @@ class SignVector(SageObject):
                     psupport.remove(e)
                 else:
                     psupport.add(e)
-        return SignVector(support, psupport, self.length())
+        return SignVector(support, frozenset(psupport), self.length())
 
     def conforms(self, other) -> bool:
         r"""
@@ -1291,7 +1291,7 @@ def sign_vector(iterable):
             if sign_entry > 0:
                 psupport.add(length)
         length += 1
-    return SignVector(support, psupport, length)
+    return SignVector(frozenset(support), frozenset(psupport), length)
 
 
 def sign_vector_from_support(support: list, psupport: list, length: int):
@@ -1320,7 +1320,7 @@ def sign_vector_from_support(support: list, psupport: list, length: int):
         sage: sign_vector_from_support([1, 2, 4], [1, 4], 6)
         (0+-0+0)
     """
-    return SignVector(support, psupport, length)
+    return SignVector(frozenset(support), frozenset(psupport), length)
 
 
 def zero_sign_vector(length: int):
@@ -1337,7 +1337,7 @@ def zero_sign_vector(length: int):
         sage: zero_sign_vector(4)
         (0000)
     """
-    return SignVector(set(), set(), length)
+    return SignVector(frozenset(), frozenset(), length)
 
 
 def random_sign_vector(length: int):
