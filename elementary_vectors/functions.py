@@ -486,6 +486,18 @@ class ElementaryVectors(SageObject):
             [(0, -1, 1, 0)]
             sage: list(evs.elements_with_smaller_support(dual=False))
             [(1, 0, 0, -1)]
+
+        We consider an example with 4 zero minors.
+        There are six multiples that involve 2 of them each::
+
+            sage: M = matrix([[1, -1, 0, 0, 1, 1], [0, 0, 1, 0, 1, 2], [0, 0, 0, 1, 1, 3]])
+            sage: M
+            [ 1 -1  0  0  1  1]
+            [ 0  0  1  0  1  2]
+            [ 0  0  0  1  1  3]
+            sage: evs = ElementaryVectors(M)
+            sage: list(evs.elements_with_smaller_support())
+            [(-1, -1, 0, 0, 0, 0)]
         """
         self._reset_set_for_preventing_multiples()
         for indices_minor in Combinations(self.length, self.rank):
