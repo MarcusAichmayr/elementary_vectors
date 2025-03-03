@@ -160,7 +160,7 @@ def kernel_matrix_using_elementary_vectors(M):
     for indices_minor in Combinations(range(length - 1, -1, -1), rank):
         minor = evs.minor(indices_minor)
         if minor and not is_symbolic(minor):
-            return matrix(evs.element(indices) for indices in evs.index_sets_from_minor(indices_minor))
+            return matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor))
     raise ValueError("Matrix has no constant nonzero maximal minor.")
 
 
@@ -236,11 +236,28 @@ class ElementaryVectors(SageObject):
         self.rank, self.length = self.matrix.dimensions()
         self.ring = M.base_ring()
         self.minors = {}
-        self._zero_minors = set()
 
         self.set_combinations_kernel()
         self.set_combinations_row_space()
         self._reset_set_for_preventing_multiples()
+
+    def set_combinations_kernel(self, combinations=None) -> None:
+        r"""Set or reset combinations for elements in the kernel."""
+        if combinations is None:
+            self._combinations_kernel = Combinations(self.length, self.rank + 1)
+        else:
+            self._combinations_kernel = combinations
+
+    def set_combinations_row_space(self, combinations=None) -> None:
+        r"""Set or reset combinations for elements in the row space."""
+        if combinations is None:
+            self._combinations_row_space = Combinations(self.length, self.rank - 1)
+        else:
+            self._combinations_row_space = combinations
+
+    def _reset_set_for_preventing_multiples(self) -> None:
+        self._zero_minors = set()
+        self._marked_minors = set()
 
     def minor(self, indices: list[int], mark_if_zero: bool = False):
         r"""
@@ -279,20 +296,6 @@ class ElementaryVectors(SageObject):
         if mark_if_zero and minor == 0:
             self._zero_minors.add(indices)
         return minor
-
-    def set_combinations_kernel(self, combinations=None) -> None:
-        r"""Set or reset combinations for elements in the kernel."""
-        if combinations is None:
-            self._combinations_kernel = Combinations(self.length, self.rank + 1)
-        else:
-            self._combinations_kernel = combinations
-
-    def set_combinations_row_space(self, combinations=None) -> None:
-        r"""Set or reset combinations for elements in the row space."""
-        if combinations is None:
-            self._combinations_row_space = Combinations(self.length, self.rank - 1)
-        else:
-            self._combinations_row_space = combinations
 
     def element(self, indices: list[int], dual: bool = None, prevent_multiple: bool = False):
         r"""
@@ -372,16 +375,6 @@ class ElementaryVectors(SageObject):
             raise MultipleException(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector!")
         return element
 
-    def _mark_zero_minors(self) -> bool:
-        r"""Return whether a marked minor is encountered again."""
-        detected_marked_minor = not self._marked_minors.isdisjoint(self._zero_minors)
-        self._marked_minors.update(self._zero_minors)
-        self._clear_zero_minors()
-        return detected_marked_minor
-
-    def _clear_zero_minors(self) -> None:
-        self._zero_minors.clear()
-
     def _element_kernel(self, indices: list[int], mark_zeros: bool = False):
         element = self._zero_element()
         for pos in range(self.rank + 1):
@@ -424,10 +417,17 @@ class ElementaryVectors(SageObject):
     def _zero_element(self):
         return zero_vector(self.ring, self.length)
 
-    def _reset_set_for_preventing_multiples(self) -> None:
-        self._marked_minors = set()
+    def _mark_zero_minors(self) -> bool:
+        r"""Return whether a marked minor is encountered again."""
+        detected_marked_minor = not self._marked_minors.isdisjoint(self._zero_minors)
+        self._marked_minors.update(self._zero_minors)
+        self._clear_zero_minors()
+        return detected_marked_minor
 
-    def index_sets_from_minor(self, indices_minor: list[int], dual: bool = True) -> Generator[list]:
+    def _clear_zero_minors(self) -> None:
+        self._zero_minors.clear()
+
+    def _index_sets_from_minor(self, indices_minor: list[int], dual: bool = True) -> Generator[list]:
         r"""Generator of index sets corresponding to elementary vectors involving given minor."""
         if dual:
             for i in range(self.length):
@@ -436,6 +436,33 @@ class ElementaryVectors(SageObject):
                 yield sorted(indices_minor + [i])
         else:
             yield from Combinations(indices_minor, self.rank - 1)
+
+    def generator(
+        self,
+        dual: bool = True,
+        prevent_multiples: bool = True,
+        reverse: bool = False
+    ) -> Generator:
+        r"""Return a generator of elementary vectors"""
+        if prevent_multiples:
+            self._reset_set_for_preventing_multiples()
+        if dual:
+            combinations = self._combinations_kernel
+        else:
+            if self.rank == 0:
+                return
+            combinations = self._combinations_row_space
+        if reverse:
+            combinations = reversed(combinations)
+        for indices in combinations:
+            try:
+                yield self.element(indices, dual=dual, prevent_multiple=prevent_multiples)
+            except ValueError:
+                pass
+
+    def elements(self, dual: bool = True, prevent_multiples: bool = True) -> list:
+        r"""Return a list of elementary vectors"""
+        return list(self.generator(dual=dual, prevent_multiples=prevent_multiples))
 
     def elements_with_smaller_support(self, dual: bool = True) -> Generator:
         r"""
@@ -466,7 +493,7 @@ class ElementaryVectors(SageObject):
                 continue
             if tuple(indices_minor) in self._marked_minors:
                 continue
-            for indices in self.index_sets_from_minor(indices_minor, dual=dual):
+            for indices in self._index_sets_from_minor(indices_minor, dual=dual):
                 try:
                     yield self.element(indices, dual=dual, prevent_multiple=True)
                     break
@@ -474,33 +501,6 @@ class ElementaryVectors(SageObject):
                     break
                 except ValueError: # zero vector
                     continue
-
-    def generator(
-        self,
-        dual: bool = True,
-        prevent_multiples: bool = True,
-        reverse: bool = False
-    ) -> Generator:
-        r"""Return a generator of elementary vectors"""
-        if prevent_multiples:
-            self._reset_set_for_preventing_multiples()
-        if dual:
-            combinations = self._combinations_kernel
-        else:
-            if self.rank == 0:
-                return
-            combinations = self._combinations_row_space
-        if reverse:
-            combinations = reversed(combinations)
-        for indices in combinations:
-            try:
-                yield self.element(indices, dual=dual, prevent_multiple=prevent_multiples)
-            except ValueError:
-                pass
-
-    def elements(self, dual: bool = True, prevent_multiples: bool = True) -> list:
-        r"""Return a list of elementary vectors"""
-        return list(self.generator(dual=dual, prevent_multiples=prevent_multiples))
 
 
 class MultipleException(ValueError):
