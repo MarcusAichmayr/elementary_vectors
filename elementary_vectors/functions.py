@@ -373,13 +373,10 @@ class ElementaryVectors(SageObject):
         return element
 
     def _mark_zero_minors(self) -> bool:
-        detected_marked_minor = False
-        while self._zero_minors:
-            minor = self._zero_minors.pop()
-            if minor in self._marked_minors:
-                detected_marked_minor = True
-                continue
-            self._marked_minors.add(minor)
+        r"""Return whether a marked minor is encountered again."""
+        detected_marked_minor = not self._marked_minors.isdisjoint(self._zero_minors)
+        self._marked_minors.update(self._zero_minors)
+        self._clear_zero_minors()
         return detected_marked_minor
 
     def _clear_zero_minors(self) -> None:
