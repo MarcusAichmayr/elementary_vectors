@@ -244,7 +244,7 @@ class ElementaryVectors(SageObject):
 
     def minor(self, indices: list[int], mark_if_zero: bool = False):
         r"""
-        Compute a minor given by indices
+        Compute a minor given by (sorted) indices.
 
         The minor is cached for efficient reuse.
 
@@ -365,21 +365,25 @@ class ElementaryVectors(SageObject):
         else:
             element = self._element_row_space(indices, mark_zeros=prevent_multiple)
         if element == 0:
-            self._zero_minors.clear()
+            self._clear_zero_minors()
             raise ValueError(f"Indices {indices} correspond to zero vector!")
 
-        if prevent_multiple:
-            multiple = False
-            while self._zero_minors:
-                minor = self._zero_minors.pop()
-                if minor in self._marked_minors:
-                    multiple = True
-                    continue
-                self._marked_minors.add(minor)
-
-            if multiple:
-                raise ValueError(f"Indices {indices} produce a multiple of a previously computed element!")
+        if prevent_multiple and self._mark_zero_minors():
+            raise ValueError(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector!")
         return element
+
+    def _mark_zero_minors(self) -> bool:
+        detected_marked_minor = False
+        while self._zero_minors:
+            minor = self._zero_minors.pop()
+            if minor in self._marked_minors:
+                detected_marked_minor = True
+                continue
+            self._marked_minors.add(minor)
+        return detected_marked_minor
+
+    def _clear_zero_minors(self) -> None:
+        self._zero_minors.clear()
 
     def _element_kernel(self, indices: list[int], mark_zeros: bool = False):
         element = self._zero_element()
@@ -471,6 +475,7 @@ class ElementaryVectors(SageObject):
                     break
                 except ValueError:
                     pass
+            # mark zero minors J' with |J n J'| = d - 1
 
     def generator(
         self,
