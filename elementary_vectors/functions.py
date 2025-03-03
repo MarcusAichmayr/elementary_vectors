@@ -369,7 +369,7 @@ class ElementaryVectors(SageObject):
             raise ValueError(f"Indices {indices} correspond to zero vector!")
 
         if prevent_multiple and self._mark_zero_minors():
-            raise ValueError(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector!")
+            raise MultipleException(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector!")
         return element
 
     def _mark_zero_minors(self) -> bool:
@@ -473,9 +473,10 @@ class ElementaryVectors(SageObject):
                 try:
                     yield self.element(indices, dual=dual, prevent_multiple=True)
                     break
-                except ValueError:
-                    pass
-            # mark zero minors J' with |J n J'| = d - 1
+                except MultipleException:
+                    break
+                except ValueError: # zero vector
+                    continue
 
     def generator(
         self,
@@ -503,3 +504,7 @@ class ElementaryVectors(SageObject):
     def elements(self, dual: bool = True, prevent_multiples: bool = True) -> list:
         r"""Return a list of elementary vectors"""
         return list(self.generator(dual=dual, prevent_multiples=prevent_multiples))
+
+
+class MultipleException(ValueError):
+    r"""Raised when multiple of previously computed elementary vector detected."""
