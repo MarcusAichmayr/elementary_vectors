@@ -159,24 +159,20 @@ length_error = ValueError("Elements have different length.")
 
 
 class Sign(SageObject):
-    r"""Auxiliary object for sign vectors."""
+    r"""An element in ``{+, -, 0}``."""
 
     def __init__(self, value) -> None:
         if isinstance(value, Sign):
-            self.__positive = value.__positive
-            self.__negative = value.__negative
+            self._positive = value._positive
             return
 
         value = Sign.sign_sym(value)
         if value > 0:
-            self.__positive = True
-            self.__negative = False
+            self._positive = True
         elif value < 0:
-            self.__positive = False
-            self.__negative = True
+            self._positive = False
         else:
-            self.__positive = False
-            self.__negative = False
+            self._positive = None
 
     @staticmethod
     def sign_sym(value) -> int:
@@ -235,32 +231,30 @@ class Sign(SageObject):
         return 0
 
     def _repr_(self) -> str:
-        r"""A sign is represented by ``+``, ``-`` or ``0``."""
-        if self.__positive:
+        if self._positive is None:
+            return "0"
+        if self._positive:
             return "+"
-        if self.__negative:
-            return "-"
-        return "0"
+        return "-"
 
     def __hash__(self):
-        r"""Return the hash value of this sign."""
-        if self.__positive:
+        if self._positive is None:
+            return 0
+        if self._positive:
             return 2
-        if self.__negative:
-            return 1
-        return 0
+        return 1
 
     def is_positive(self) -> bool:
         r"""Return whether this sign is ``+``."""
-        return self.__positive
+        return self._positive
 
     def is_negative(self) -> bool:
         r"""Return whether this sign is ``-``."""
-        return self.__negative
+        return self._positive is False
 
     def is_zero(self) -> bool:
         r"""Return whether this sign is ``0``."""
-        return (not self.__positive) and (not self.__negative)
+        return self._positive is None
 
     def compose(self, other):
         r"""
@@ -294,9 +288,9 @@ class Sign(SageObject):
             sage: Sign(0) & Sign(0)
             0
         """
-        if self.__positive or self.__negative:
-            return self
-        return other
+        if self._positive is None:
+            return other
+        return self
 
     def __and__(self, other):
         r"""
@@ -323,14 +317,14 @@ class Sign(SageObject):
         return self * other
 
     def __neg__(self):
-        r"""Return this sign multiplied by ``-1``."""
+        r"""Multiplication with ``-1``."""
         if self.is_positive():
             return Sign(-1)
         if self.is_negative():
             return Sign(1)
         return Sign(0)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other) -> int:
         r"""
         Division of two signs.
 
@@ -353,14 +347,13 @@ class Sign(SageObject):
             sage: from sign_vectors.sign_vectors import Sign
             sage: Sign(1) == Sign(2)
             True
+            sage: Sign(1) == Sign(-2)
+            False
             sage: Sign(-1) == Sign(0)
             False
         """
         if isinstance(other, Sign):
-            return (
-                self.__positive == other.__positive
-                and self.__negative == other.__negative
-            )
+            return self._positive == other._positive
         if other == 0:
             return self.is_zero()
         return False
