@@ -1219,6 +1219,22 @@ class SignVector(SageObject):
                 return True
         return False
 
+    @staticmethod
+    def from_str(s: str):
+        r"""
+        Creates a sign vector from a string.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: SignVector.from_str("+-0+0")
+            (+-0+0)
+        """
+        return sign_vector_from_support(
+            {pos for pos, t in enumerate(s) if t in ["+", "-"]},
+            {pos for pos, t in enumerate(s) if t == "+"},
+            len(s),
+        )
 
 def sign_vector(iterable):
     r"""
@@ -1268,11 +1284,7 @@ def sign_vector(iterable):
         (++-)
     """
     if isinstance(iterable, str):
-        return sign_vector_from_support(
-            {pos for pos, t in enumerate(iterable) if t in ["+", "-"]},
-            {pos for pos, t in enumerate(iterable) if t == "+"},
-            len(iterable),
-        )
+        return SignVector.from_str(iterable)
     support = set()
     psupport = set()
     length = 0
