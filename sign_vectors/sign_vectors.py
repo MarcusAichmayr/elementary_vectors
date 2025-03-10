@@ -1011,7 +1011,7 @@ class SignVector(SageObject):
         if self.length() != other.length():
             raise length_error
 
-        return self._support.issubset(other._support) and self.is_harmonious(other)
+        return all(self[e] == other[e] for e in self._support)
 
     def __eq__(self, other) -> bool:
         r"""
