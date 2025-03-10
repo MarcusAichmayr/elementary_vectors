@@ -910,10 +910,12 @@ class SignVector(SageObject):
         if not isinstance(other, SignVector):
             other = sign_vector(other)
 
-        return not any(
-            (e in self._positive_support) ^ (e in other._positive_support)
-            for e in self._support.intersection(other._support)
-        )
+        for e in self._support:
+            if e not in other._support:
+                continue
+            if (e in self._positive_support) ^ (e in other._positive_support):
+                return False
+        return True
 
     def disjoint_support(self, other) -> bool:
         r"""
