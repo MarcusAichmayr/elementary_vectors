@@ -493,15 +493,14 @@ class SignVector(SageObject):
         self._length = length
 
     def _repr_(self) -> str:
-        return (
-            "("
-            + "".join(
-                "+"
-                if e in self._positive_support
-                else ("-" if e in self._support else "0")
-                for e in range(self.length())
-            )
-            + ")"
+        return "(" + str(self) + ")"
+
+    def __str__(self) -> str:
+        return "".join(
+            "+"
+            if e in self._positive_support
+            else ("-" if e in self._support else "0")
+            for e in range(self.length())
         )
 
     def __hash__(self):
