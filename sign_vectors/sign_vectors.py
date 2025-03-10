@@ -1230,11 +1230,40 @@ class SignVector(SageObject):
             sage: SignVector.from_str("+-0+0")
             (+-0+0)
         """
-        return sign_vector_from_support(
+        return SignVector.from_support(
             {pos for pos, t in enumerate(s) if t in ["+", "-"]},
             {pos for pos, t in enumerate(s) if t == "+"},
             len(s),
         )
+
+    @staticmethod
+    def from_support(support: list, psupport: list, length: int):
+        r"""
+        Return a sign vector that is given by lists representing support and positive support.
+
+        INPUT:
+
+        - ``support`` -- a list
+
+        - ``psupport`` -- a list
+
+        - ``length`` -- a nonnegative integer
+
+        OUTPUT:
+        a sign vector
+
+        .. NOTE::
+
+            The list ``psupport`` should be a sublist of ``support``.
+            For efficiency, this is not checked.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: SignVector.from_support([1, 2, 4], [1, 4], 6)
+            (0+-0+0)
+        """
+        return SignVector(frozenset(support), frozenset(psupport), length)
 
 def sign_vector(iterable):
     r"""
@@ -1295,35 +1324,6 @@ def sign_vector(iterable):
             if sign_entry > 0:
                 psupport.add(length)
         length += 1
-    return SignVector(frozenset(support), frozenset(psupport), length)
-
-
-def sign_vector_from_support(support: list, psupport: list, length: int):
-    r"""
-    Return a sign vector that is given by lists representing support and positive support.
-
-    INPUT:
-
-    - ``support`` -- a list
-
-    - ``psupport`` -- a list
-
-    - ``length`` -- a nonnegative integer
-
-    OUTPUT:
-    a sign vector
-
-    .. NOTE::
-
-        The list ``psupport`` should be a sublist of ``support``.
-        For efficiency, this is not checked.
-
-    EXAMPLES::
-
-        sage: from sign_vectors import *
-        sage: sign_vector_from_support([1, 2, 4], [1, 4], 6)
-        (0+-0+0)
-    """
     return SignVector(frozenset(support), frozenset(psupport), length)
 
 
