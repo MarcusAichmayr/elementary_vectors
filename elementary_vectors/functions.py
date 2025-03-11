@@ -381,9 +381,8 @@ class ElementaryVectors(SageObject):
             indices_minor = indices.copy()
             i = indices_minor.pop(pos)
             minor = self.minor(indices_minor, mark_if_zero=mark_zeros)
-            if minor == 0:
-                continue
-            element[i] = (-1) ** pos * minor
+            if minor != 0:
+                element[i] = -minor if (pos & 1) else minor # check oddness of last bit of pos
         return element
 
     def _element_row_space(self, indices: list[int], mark_zeros: bool = False):
@@ -394,9 +393,8 @@ class ElementaryVectors(SageObject):
                 pos += 1
                 continue
             minor = self.minor(sorted(indices + [i]), mark_if_zero=mark_zeros)
-            if minor == 0:
-                continue
-            element[i] = (-1) ** pos * minor
+            if minor != 0:
+                element[i] = -minor if (pos & 1) else minor # check oddness of last bit of pos
         return element
 
     def random_element(self, dual: bool = True):
