@@ -462,7 +462,7 @@ class ElementaryVectors(SageObject):
         r"""Return a list of elementary vectors"""
         return list(self.generator(dual=dual, prevent_multiples=prevent_multiples))
 
-    def elements_with_smaller_support(self, dual: bool = True) -> Generator:
+    def degenerate_elements(self, dual: bool = True) -> Generator:
         r"""
         Generator of elementary vectors with smaller than usual support.
 
@@ -471,18 +471,18 @@ class ElementaryVectors(SageObject):
             sage: from elementary_vectors import *
             sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
             sage: evs = ElementaryVectors(M)
-            sage: list(evs.elements_with_smaller_support())
+            sage: list(evs.degenerate_elements())
             [(0, -1, 0, 0)]
-            sage: list(evs.elements_with_smaller_support(dual=False))
+            sage: list(evs.degenerate_elements(dual=False))
             [(0, 0, -1, -1), (1, 0, 0, -1), (1, 0, 1, 0)]
 
         ::
 
             sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
             sage: evs = ElementaryVectors(M)
-            sage: list(evs.elements_with_smaller_support())
+            sage: list(evs.degenerate_elements())
             [(0, -1, 1, 0)]
-            sage: list(evs.elements_with_smaller_support(dual=False))
+            sage: list(evs.degenerate_elements(dual=False))
             [(1, 0, 0, -1)]
 
         We consider an example with 4 zero minors.
@@ -494,7 +494,7 @@ class ElementaryVectors(SageObject):
             [ 0  0  1  0  1  2]
             [ 0  0  0  1  1  3]
             sage: evs = ElementaryVectors(M)
-            sage: list(evs.elements_with_smaller_support())
+            sage: list(evs.degenerate_elements())
             [(-1, -1, 0, 0, 0, 0)]
         """
         self._reset_set_for_preventing_multiples()
