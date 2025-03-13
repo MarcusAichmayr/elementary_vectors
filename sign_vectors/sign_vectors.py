@@ -497,15 +497,6 @@ class SignVector(SageObject):
             for e in range(self.length())
         )
 
-    def __hash__(self):
-        r"""Return the hash value of this sign vector."""
-        # TODO remove length
-        return hash((self._length, self._support, self._positive_support))
-
-    def _negative_support(self) -> frozenset[int]:
-        r"""Return the set corresponding to the negative support."""
-        return self._support.symmetric_difference(self._positive_support)
-
     def length(self) -> int:
         r"""
         Return the length of the sign vector.
@@ -533,6 +524,125 @@ class SignVector(SageObject):
             3
         """
         return self._length
+
+    def support(self) -> list[int]:
+        r"""
+        Return a list of indices where the sign vector is nonzero.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector([-1, 0, 1, -1, 0])
+            sage: X
+            (-0+-0)
+            sage: X.support()
+            [0, 2, 3]
+        """
+        return list(self._support)
+
+    def zero_support(self) -> list[int]:
+        r"""
+        Return a list of indices where the sign vector is zero.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector([-1, 0, 1, -1, 0])
+            sage: X
+            (-0+-0)
+            sage: X.zero_support()
+            [1, 4]
+        """
+        return [e for e in range(self.length()) if not e in self._support]
+
+    def positive_support(self) -> list[int]:
+        r"""
+        Return a list of indices where the sign vector is positive.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector([-1, 0, 1, -1, 0])
+            sage: X
+            (-0+-0)
+            sage: X.positive_support()
+            [2]
+        """
+        return list(self._positive_support)
+
+    def negative_support(self) -> list[int]:
+        r"""
+        Return a list of indices where the sign vector is negative.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector([-1, 0, 1, -1, 0])
+            sage: X
+            (-0+-0)
+            sage: X.negative_support()
+            [0, 3]
+        """
+        return list(self._negative_support())
+
+    def _negative_support(self) -> frozenset[int]:
+        r"""Return the set corresponding to the negative support."""
+        return self._support.symmetric_difference(self._positive_support)
+
+    def __getitem__(self, e):
+        r"""
+        Return the element at position ``e`` of the sign vector.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector("0++-")
+            sage: X
+            (0++-)
+            sage: X[0]
+            0
+            sage: X[1]
+            1
+            sage: X[3]
+            -1
+            sage: X[-1]
+            -1
+            sage: X[1:3] # todo: not implemented
+            (++)
+
+        TESTS::
+
+            sage: X[-2]
+            1
+            sage: X[100]
+            Traceback (most recent call last):
+            ...
+            IndexError: index out of range
+        """
+        if isinstance(e, slice):
+            raise NotImplementedError("TODO")
+        if e >= self.length() or e < -self.length():
+            raise IndexError("index out of range")
+        if e < 0:
+            e %= self.length()
+        if e in self._support:
+            return 1 if e in self._positive_support else -1
+        return 0
+
+    def list_from_positions(self, S) -> list[int]:
+        r"""
+        Return a list of components that are in the list of indices ``S``.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector([-1, 1, 0, 0, 1])
+            sage: X
+            (-+00+)
+            sage: X.list_from_positions([0, 1, 4])
+            [-1, 1, 1]
+        """
+        return [self[e] for e in S]
 
     def compose(self, other):
         r"""
@@ -684,154 +794,6 @@ class SignVector(SageObject):
             (-+00+)
         """
         return self * value
-
-    def __neg__(self):
-        r"""
-        Return the sign vectors multiplied by ``-1``.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector('0+-'); X
-            (0+-)
-            sage: -X
-            (0-+)
-        """
-        return SignVector(self._support, self._negative_support(), self.length())
-
-    def __pos__(self):
-        r"""
-        Return the sign vectors multiplied by ``1`` which is a copy of this sign vector.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector('0+-')
-            sage: X
-            (0+-)
-            sage: +X
-            (0+-)
-        """
-        return SignVector(self._support, self._positive_support, self.length())
-
-    def __getitem__(self, e):
-        r"""
-        Return the element at position ``e`` of the sign vector.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector("0++-")
-            sage: X
-            (0++-)
-            sage: X[0]
-            0
-            sage: X[1]
-            1
-            sage: X[3]
-            -1
-            sage: X[-1]
-            -1
-            sage: X[1:3] # todo: not implemented
-            (++)
-
-        TESTS::
-
-            sage: X[-2]
-            1
-            sage: X[100]
-            Traceback (most recent call last):
-            ...
-            IndexError: index out of range
-        """
-        if isinstance(e, slice):
-            raise NotImplementedError("TODO")
-        if e >= self.length() or e < -self.length():
-            raise IndexError("index out of range")
-        if e < 0:
-            e %= self.length()
-        if e in self._support:
-            return 1 if e in self._positive_support else -1
-        return 0
-
-    def support(self) -> list[int]:
-        r"""
-        Return a list of indices where the sign vector is nonzero.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector([-1, 0, 1, -1, 0])
-            sage: X
-            (-0+-0)
-            sage: X.support()
-            [0, 2, 3]
-        """
-        return list(self._support)
-
-    def zero_support(self) -> list[int]:
-        r"""
-        Return a list of indices where the sign vector is zero.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector([-1, 0, 1, -1, 0])
-            sage: X
-            (-0+-0)
-            sage: X.zero_support()
-            [1, 4]
-        """
-        return [e for e in range(self.length()) if not e in self._support]
-
-    def positive_support(self) -> list[int]:
-        r"""
-        Return a list of indices where the sign vector is positive.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector([-1, 0, 1, -1, 0])
-            sage: X
-            (-0+-0)
-            sage: X.positive_support()
-            [2]
-        """
-        return list(self._positive_support)
-
-    def negative_support(self) -> list[int]:
-        r"""
-        Return a list of indices where the sign vector is negative.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector([-1, 0, 1, -1, 0])
-            sage: X
-            (-0+-0)
-            sage: X.negative_support()
-            [0, 3]
-        """
-        return list(self._negative_support())
-
-    def list_from_positions(self, S) -> list[int]:
-        r"""
-        Return a list of components that are in the list of indices ``S``.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector([-1, 1, 0, 0, 1])
-            sage: X
-            (-+00+)
-            sage: X.list_from_positions([0, 1, 4])
-            [-1, 1, 1]
-        """
-        return [self[e] for e in S]
-
-    def is_vector(self) -> bool:
-        r"""Return ``False`` since sign vectors are not vectors."""
-        return False
 
     def separating_elements(self, other) -> list[int]:
         r"""
@@ -1040,9 +1002,6 @@ class SignVector(SageObject):
             return not self._support
         return False
 
-    def __bool__(self) -> bool:
-        return self != 0
-
     def __le__(self, other) -> bool:
         r"""
         Return whether this sign vector is less or equal to ``other``.
@@ -1215,6 +1174,47 @@ class SignVector(SageObject):
             if have_positive_product and have_negative_product:
                 return True
         return False
+
+    def __bool__(self) -> bool:
+        return self != 0
+
+    def __neg__(self):
+        r"""
+        Return the sign vectors multiplied by ``-1``.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector('0+-'); X
+            (0+-)
+            sage: -X
+            (0-+)
+        """
+        return SignVector(self._support, self._negative_support(), self.length())
+
+    def __pos__(self):
+        r"""
+        Return the sign vectors multiplied by ``1`` which is a copy of this sign vector.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector('0+-')
+            sage: X
+            (0+-)
+            sage: +X
+            (0+-)
+        """
+        return SignVector(self._support, self._positive_support, self.length())
+
+    def is_vector(self) -> bool:
+        r"""Return ``False`` since sign vectors are not vectors."""
+        return False
+
+    def __hash__(self):
+        r"""Return the hash value of this sign vector."""
+        # TODO remove length
+        return hash((self._length, self._support, self._positive_support))
 
     @staticmethod
     def from_str(s: str):
