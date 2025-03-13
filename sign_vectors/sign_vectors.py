@@ -16,26 +16,19 @@ There are several ways to define sign vectors::
     sage: sign_vector('++-+-00-')
     (++-+-00-)
 
-We can easily construct the zero sign vector of a given length::
+We construct the zero sign vector of a given length::
 
     sage: zero_sign_vector(6)
     (000000)
 
-It is also possible to generate some random sign vector::
+It is also possible to generate random sign vectors::
 
     sage: random_sign_vector(7) # random
     (+-+00+-)
 
-To reverse signs, we apply the operator ``-`` as usual::
-
-    sage: X = sign_vector('+++000--')
-    sage: X
-    (+++000--)
-    sage: -X
-    (---000++)
-
 There are different notions of support::
 
+    sage: X = sign_vector('+++000--')
     sage: X.support()
     [0, 1, 2, 6, 7]
     sage: X.zero_support()
@@ -54,14 +47,14 @@ Next, we define two sign vectors::
     sage: Y
     (0+0+0)
 
-We can compose them::
+We compose them::
 
     sage: X.compose(Y)
     (-++-0)
     sage: Y.compose(X)
     (-+++0)
 
-One can also use the operator ``&`` to compose sign vectors::
+Use the operator ``&`` as a shorthand for composition::
 
     sage: X & Y
     (-++-0)
@@ -79,9 +72,6 @@ The conformal relation is a partial order on a set of sign vectors::
     (-++0+)
     sage: Z
     (-++-+)
-
-We can apply it in the following way::
-
     sage: X.conforms(Y)
     True
     sage: X.conforms(X)
@@ -173,6 +163,9 @@ def sign_symbolic(value) -> int:
         1
         sage: sign_symbolic(-2)
         -1
+
+    ::
+
         sage: var('a')
         a
         sage: sign_symbolic(a)
@@ -183,6 +176,9 @@ def sign_symbolic(value) -> int:
         sage: sign_symbolic(a)
         1
         sage: forget()
+
+    ::
+
         sage: var('a, b, c, d')
         (a, b, c, d)
         sage: assume(a > 0, b > 0, c > 0, d > 0)
