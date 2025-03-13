@@ -209,15 +209,14 @@ class Sign(SageObject):
         if isinstance(value, Sign):
             return value.to_integer()
 
-        expr = SR(value)
-        if expr > 0:
+        if value > 0:
             return 1
-        if expr < 0:
+        if value < 0:
             return -1
-        if expr == 0:
+        if value == 0:
             return 0
 
-        expr = expr.simplify_full()
+        expr = SR(value).simplify_full()
         if expr > 0:
             return 1
         if expr < 0:
@@ -1267,6 +1266,7 @@ class SignVector(SageObject):
         """
         return SignVector(frozenset(support), frozenset(psupport), length)
 
+
 def sign_vector(iterable):
     r"""
     Create a sign vector from a list, vector or string.
@@ -1321,7 +1321,7 @@ def sign_vector(iterable):
     length = 0
     for entry in iterable:
         sign_entry = Sign.sign_sym(entry)
-        if sign_entry:
+        if sign_entry != 0:
             support.add(length)
             if sign_entry > 0:
                 psupport.add(length)
