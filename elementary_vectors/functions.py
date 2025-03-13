@@ -245,18 +245,18 @@ class ElementaryVectors(SageObject):
         self.ring = M.base_ring()
         self.minors = {}
 
-        self.set_combinations_kernel()
-        self.set_combinations_row_space()
+        self._set_combinations_kernel()
+        self._set_combinations_row_space()
         self._reset_set_for_preventing_multiples()
 
-    def set_combinations_kernel(self, combinations=None) -> None:
+    def _set_combinations_kernel(self, combinations=None) -> None:
         r"""Set or reset combinations for elements in the kernel."""
         if combinations is None:
             self._combinations_kernel = Combinations(self.length, self.rank + 1)
         else:
             self._combinations_kernel = combinations
 
-    def set_combinations_row_space(self, combinations=None) -> None:
+    def _set_combinations_row_space(self, combinations=None) -> None:
         r"""Set or reset combinations for elements in the row space."""
         if combinations is None:
             self._combinations_row_space = Combinations(self.length, self.rank - 1)
@@ -525,4 +525,4 @@ class ElementaryVectors(SageObject):
 
 
 class MultipleException(ValueError):
-    r"""Raised when multiple of previously computed elementary vector detected."""
+    r"""Raised when a multiple of a previously computed elementary vector is detected."""

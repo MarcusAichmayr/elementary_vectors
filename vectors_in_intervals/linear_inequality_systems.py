@@ -285,10 +285,10 @@ class HomogeneousSystem(LinearInequalitySystem):
         self.nonnegative = range(A.nrows() + B.nrows())
         self.zero = range(A.nrows() + B.nrows(), self.matrix.nrows())
 
-        # self.evs.set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self.evs.length - self.evs.rank + 1))
+        # self.evs._set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self.evs.length - self.evs.rank + 1))
 
         if len(self.positive) == 1:
-            self.evs.set_combinations_kernel(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
+            self.evs._set_combinations_kernel(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
 
     def get_intervals(self) -> list:
         self.intervals = [
