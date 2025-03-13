@@ -205,7 +205,7 @@ class LinearInequalitySystem(SageObject):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             done, not_done = concurrent.futures.wait(
                 [
-                    executor.submit(lambda: (False, self.certify_nonexistence(reverse=not reverse, random=random))),
+                    executor.submit(lambda: (False, self.certify_nonexistence(reverse=reverse, random=random))),
                     executor.submit(lambda: (True, self.certify_existence(reverse=reverse, random=random)))
                 ],
                 return_when=concurrent.futures.FIRST_COMPLETED
