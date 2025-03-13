@@ -160,7 +160,7 @@ length_error = ValueError("Elements have different length.")
 
 def sign_symbolic(value) -> int:
     r"""
-    Return appropriate sign of symbolic expression.
+    Return sign of expression. Supports symbolic expressions.
 
     OUTPUT:
     If the sign cannot be determined, a warning is shown and ``0`` is returned.
@@ -188,20 +188,20 @@ def sign_symbolic(value) -> int:
         sage: sign_symbolic((a + b)*(c + d) - b*c)
         1
     """
+    if value == 0:
+        return 0
     if value > 0:
         return 1
     if value < 0:
         return -1
-    if value == 0:
-        return 0
 
     expr = SR(value).simplify_full()
+    if expr == 0:
+        return 0
     if expr > 0:
         return 1
     if expr < 0:
         return -1
-    if expr == 0:
-        return 0
 
     warnings.warn("Cannot determine sign of symbolic expression, using ``0`` instead.")
     return 0
@@ -452,7 +452,7 @@ class SignVector(SageObject):
 
     __slots__ = ("_support", "_positive_support", "_length")
 
-    def __init__(self, support: frozenset, psupport: frozenset, length: int) -> None:
+    def __init__(self, support: frozenset[int], psupport: frozenset[int], length: int) -> None:
         r"""
         Create a sign vector object.
 
@@ -498,6 +498,7 @@ class SignVector(SageObject):
 
     def __hash__(self):
         r"""Return the hash value of this sign vector."""
+        # TODO remove length
         return hash((self._length, self._support, self._positive_support))
 
     def _negative_support(self) -> frozenset[int]:
