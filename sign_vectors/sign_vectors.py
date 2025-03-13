@@ -1226,9 +1226,9 @@ class SignVector(SageObject):
             sage: SignVector.from_str("+-0+0")
             (+-0+0)
         """
-        return SignVector.from_support(
-            {pos for pos, t in enumerate(s) if t in ["+", "-"]},
-            {pos for pos, t in enumerate(s) if t == "+"},
+        return SignVector(
+            frozenset(pos for pos, t in enumerate(s) if t in "+-"),
+            frozenset(pos for pos, t in enumerate(s) if t == "+"),
             len(s),
         )
 
