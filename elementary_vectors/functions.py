@@ -289,13 +289,16 @@ class ElementaryVectors(SageObject):
         minor = self.minors.get(indices)
         if minor is None:
             try:
-                minor = self.matrix.matrix_from_columns(indices).det()
+                minor = self._compute_minor(indices)
                 self.minors[indices] = minor
             except ValueError as e:
                 raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
         if mark_if_zero and minor == 0:
             self._zero_minors.add(indices)
         return minor
+
+    def _compute_minor(self, indices: tuple[int]):
+        return self.matrix.matrix_from_columns(indices).det()
 
     def element(self, indices: list[int], dual: bool = None, prevent_multiple: bool = False):
         r"""

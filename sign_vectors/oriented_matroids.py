@@ -123,7 +123,7 @@ from collections.abc import Generator
 from sage.structure.sage_object import SageObject
 
 from elementary_vectors.functions import ElementaryVectors
-from sign_vectors import Sign, SignVector, sign_vector, zero_sign_vector
+from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vector
 
 from .utility import loops, classes_same_support, parallel_classes
 
@@ -141,9 +141,13 @@ class Cocircuits(ElementaryVectors):
         Traceback (most recent call last):
         ...
         ValueError: Indices [1, 2, 3] correspond to zero vector!
+        sage: cc.elements()
+        {(0+-0), (000-), (000+), (0-+0)}
+        sage: cc.minors
+        {(0, 1): 1, (0, 2): 1, (0, 3): 0, (1, 2): 0, (1, 3): 0, (2, 3): 0}
     """
-    def minor(self, indices, mark_if_zero: bool = False):
-        return Sign(super().minor(indices, mark_if_zero=mark_if_zero))
+    def _compute_minor(self, indices: tuple[int]):
+        return sign_symbolic(super()._compute_minor(indices))
 
     def _zero_element(self) -> list:
         return [0] * self.length
