@@ -96,7 +96,7 @@ def elementary_vectors(M, dual: bool = True, prevent_multiples: bool = True, gen
 
 def kernel_matrix_using_elementary_vectors(M):
     """
-    Division-free computation of the right kernel based on elementary vectors.
+    Division-free right kernel matrix based on elementary vectors.
 
     INPUT:
 
@@ -150,16 +150,24 @@ def kernel_matrix_using_elementary_vectors(M):
         [1 0 0]
         [0 1 0]
         [0 0 1]
+
+    ::
+
+        sage: M = matrix([[0, 1], [0, 1]])
+        sage: kernel_matrix_using_elementary_vectors(M)
+        [1 0]
     """
-    rank, length = M.dimensions()
+    evs = ElementaryVectors(M)
+
+    rank = evs.rank
+    length = evs.length
 
     if rank == length:
         return matrix(M.base_ring(), 0, length)
 
-    evs = ElementaryVectors(M)
     for indices_minor in Combinations(range(length - 1, -1, -1), rank):
         minor = evs.minor(indices_minor)
-        if minor and not is_symbolic(minor):
+        if minor != 0 and not is_symbolic(minor):
             return matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor))
     raise ValueError("Matrix has no constant nonzero maximal minor.")
 
