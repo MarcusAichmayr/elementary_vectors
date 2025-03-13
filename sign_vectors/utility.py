@@ -252,7 +252,7 @@ def positive_parallel_classes(iterable) -> list[list[int]]:
     return parallel_classes(iterable, positive_only=True)
 
 
-def classes_same_support(iterable) -> list:
+def classes_same_support(iterable) -> list[list]:
     r"""
     Compute the classes with same support of given sign vectors or vectors.
 

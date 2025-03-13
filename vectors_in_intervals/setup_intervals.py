@@ -193,8 +193,12 @@ def intervals_from_sign_vector(sv) -> list[RealSet]:
     upper_bounds = (
         Infinity if element > 0 else (0 if element < 0 else 0) for element in sv
     )
-    closed = [element == 0 for element in sv]
     return [
         interval_from_bounds(*bounds)
-        for bounds in zip(lower_bounds, upper_bounds, closed, closed)
+        for bounds in zip(
+            lower_bounds,
+            upper_bounds,
+            (element == 0 for element in sv),
+            (element == 0 for element in sv)
+        )
     ]

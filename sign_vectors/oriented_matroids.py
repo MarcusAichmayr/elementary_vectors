@@ -146,10 +146,10 @@ class Cocircuits(ElementaryVectors):
         sage: cc.minors
         {(0, 1): 1, (0, 2): 1, (0, 3): 0, (1, 2): 0, (1, 3): 0, (2, 3): 0}
     """
-    def _compute_minor(self, indices: tuple[int]):
+    def _compute_minor(self, indices: tuple[int]) -> int:
         return sign_symbolic(super()._compute_minor(indices))
 
-    def _zero_element(self) -> list:
+    def _zero_element(self) -> list[int]:
         return [0] * self.length
 
     def _element_kernel(self, indices: list[int], mark_zeros: bool = False) -> SignVector:
@@ -163,12 +163,12 @@ class Cocircuits(ElementaryVectors):
         dual: bool = True,
         prevent_multiples: bool = True,
         reverse: bool = False
-    ) -> Generator:
+    ) -> Generator[SignVector]:
         for cocircuit in super().generator(dual=dual, prevent_multiples=prevent_multiples, reverse=reverse):
             yield cocircuit
             yield -cocircuit
 
-    def elements(self, dual: bool = True, prevent_multiples: bool = True) -> set:
+    def elements(self, dual: bool = True, prevent_multiples: bool = True) -> set[SignVector]:
         return set(self.generator(dual=dual, prevent_multiples=prevent_multiples))
 
 

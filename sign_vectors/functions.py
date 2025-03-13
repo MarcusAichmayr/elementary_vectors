@@ -113,7 +113,7 @@ def closure(iterable, separate: bool = False):
     return output if separate else set().union(*output)
 
 
-def contraction(iterable, indices: list[int], keep_components: bool = False):
+def contraction(iterable, indices: list[int], keep_components: bool = False) -> set:
     r"""
     Return all sign vectors or vectors that are zero on given components.
 
@@ -186,7 +186,7 @@ def contraction(iterable, indices: list[int], keep_components: bool = False):
     return set(vec(X) for X in iterable if not any(e in indices for e in X.support()))
 
 
-def deletion(iterable, indices: list[int]):
+def deletion(iterable, indices: list[int]) -> set:
     r"""
     Remove given components from an iterable of sign vectors or vectors.
 
