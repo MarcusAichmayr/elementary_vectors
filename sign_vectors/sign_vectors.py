@@ -151,9 +151,10 @@ sign vectors are also orthogonal::
 #############################################################################
 
 import warnings
-from sage.combinat.combination import Combinations
+from random import choices
 from sage.structure.sage_object import SageObject
 from sage.symbolic.ring import SR
+
 
 length_error = ValueError("Elements have different length.")
 
@@ -1354,7 +1355,10 @@ def random_sign_vector(length: int):
         sage: from sign_vectors import random_sign_vector
         sage: random_sign_vector(5) # random
         (++-0-)
+
+    TEST::
+
+        sage: len(random_sign_vector(5))
+        5
     """
-    support = Combinations(length).random_element()
-    positive_support = Combinations(support).random_element()
-    return SignVector(frozenset(support), frozenset(positive_support), length)
+    return SignVector.from_str("".join(choices("00+-", k=length)))
