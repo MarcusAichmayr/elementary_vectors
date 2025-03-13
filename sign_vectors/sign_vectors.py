@@ -158,6 +158,55 @@ from sage.symbolic.ring import SR
 length_error = ValueError("Elements have different length.")
 
 
+def sign_sym(value) -> int:
+    r"""
+    Return appropriate sign of symbolic expression.
+
+    OUTPUT:
+    If the sign cannot be determined, a warning is shown and ``0`` is returned.
+
+    EXAMPLES::
+
+        sage: from sign_vectors.sign_vectors import sign_sym
+        sage: sign_sym(1)
+        1
+        sage: sign_sym(-2)
+        -1
+        sage: var('a')
+        a
+        sage: sign_sym(a)
+        ...
+        UserWarning: Cannot determine sign of symbolic expression, using ``0`` instead.
+        0
+        sage: assume(a > 0)
+        sage: sign_sym(a)
+        1
+        sage: forget()
+        sage: var('a, b, c, d')
+        (a, b, c, d)
+        sage: assume(a > 0, b > 0, c > 0, d > 0)
+        sage: sign_sym((a + b)*(c + d) - b*c)
+        1
+    """
+    if value > 0:
+        return 1
+    if value < 0:
+        return -1
+    if value == 0:
+        return 0
+
+    expr = SR(value).simplify_full()
+    if expr > 0:
+        return 1
+    if expr < 0:
+        return -1
+    if expr == 0:
+        return 0
+
+    warnings.warn("Cannot determine sign of symbolic expression, using ``0`` instead.")
+    return 0
+
+
 class Sign(SageObject):
     r"""An element in ``{+, -, 0}``."""
 
@@ -166,68 +215,13 @@ class Sign(SageObject):
             self._positive = value._positive
             return
 
-        value = Sign.sign_sym(value)
+        value = sign_sym(value)
         if value > 0:
             self._positive = True
         elif value < 0:
             self._positive = False
         else:
             self._positive = None
-
-    @staticmethod
-    def sign_sym(value) -> int:
-        r"""
-        Return appropriate sign of symbolic expression.
-
-        OUTPUT:
-        If the sign cannot be determined, a warning is shown and ``0`` is returned.
-
-        EXAMPLES::
-
-            sage: from sign_vectors.sign_vectors import Sign
-            sage: from sign_vectors import SignVector
-            sage: Sign.sign_sym(1)
-            1
-            sage: Sign.sign_sym(-2)
-            -1
-            sage: var('a')
-            a
-            sage: Sign.sign_sym(a)
-            ...
-            UserWarning: Cannot determine sign of symbolic expression, using 0 for sign vector instead.
-            0
-            sage: assume(a > 0)
-            sage: Sign.sign_sym(a)
-            1
-            sage: forget()
-            sage: var('a, b, c, d')
-            (a, b, c, d)
-            sage: assume(a > 0, b > 0, c > 0, d > 0)
-            sage: Sign.sign_sym((a + b)*(c + d) - b*c)
-            1
-        """
-        if isinstance(value, Sign):
-            return value.to_integer()
-
-        if value > 0:
-            return 1
-        if value < 0:
-            return -1
-        if value == 0:
-            return 0
-
-        expr = SR(value).simplify_full()
-        if expr > 0:
-            return 1
-        if expr < 0:
-            return -1
-        if expr == 0:
-            return 0
-
-        warnings.warn(
-            "Cannot determine sign of symbolic expression, using 0 for sign vector instead."
-        )
-        return 0
 
     def _repr_(self) -> str:
         if self._positive is None:
@@ -1320,7 +1314,7 @@ def sign_vector(iterable):
     psupport = set()
     length = 0
     for entry in iterable:
-        sign_entry = Sign.sign_sym(entry)
+        sign_entry = sign_sym(entry)
         if sign_entry != 0:
             support.add(length)
             if sign_entry > 0:
