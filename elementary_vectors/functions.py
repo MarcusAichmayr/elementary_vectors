@@ -308,6 +308,10 @@ class ElementaryVectors(SageObject):
     def _compute_minor(self, indices: tuple[int]):
         return self.matrix.matrix_from_columns(indices).det()
 
+    def _compute_minors(self) -> None:
+        for indices in Combinations(self.length, self.rank):
+            self.minor(indices)
+
     def element(self, indices: list[int], dual: bool = None, prevent_multiple: bool = False):
         r"""
         Compute the elementary vector corresponding to a list of indices.
