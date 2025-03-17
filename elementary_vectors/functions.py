@@ -19,6 +19,10 @@ from sage.structure.sage_object import SageObject
 from .utility import is_symbolic
 
 
+class MultipleException(ValueError):
+    r"""Raised when a multiple of a previously computed elementary vector is detected."""
+
+
 def elementary_vectors(M, dual: bool = True, prevent_multiples: bool = True, generator: bool = False):
     r"""
     Compute elementary vectors of a subspace determined by a matrix or a list of maximal minors.
@@ -28,6 +32,8 @@ def elementary_vectors(M, dual: bool = True, prevent_multiples: bool = True, gen
     - ``M`` -- a matrix
 
     - ``dual`` -- a boolean (default: ``True``)
+
+    - ``prevent_multiples`` -- a boolean (default: ``True``)
 
     - ``generator`` -- a boolean (default: ``False``)
 
@@ -526,7 +532,3 @@ class ElementaryVectors(SageObject):
                     break
                 except ValueError: # zero vector
                     continue
-
-
-class MultipleException(ValueError):
-    r"""Raised when a multiple of a previously computed elementary vector is detected."""
