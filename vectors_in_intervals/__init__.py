@@ -12,6 +12,7 @@ r"""Finding vectors with components in intervals"""
 
 from __future__ import absolute_import
 
+from .intervals import Interval, Intervals
 from .setup_intervals import (
     intervals_from_bounds,
     is_vector_in_intervals,
