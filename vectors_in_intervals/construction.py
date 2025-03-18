@@ -288,7 +288,7 @@ def sign_vectors_in_intervals(intervals: Intervals, generator: bool = False):
         []
     """
     list_of_signs = []
-    if not intervals:
+    if intervals.is_empty():
         if generator:
             def empty():
                 yield from ()
