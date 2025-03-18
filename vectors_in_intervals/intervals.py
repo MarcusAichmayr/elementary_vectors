@@ -420,6 +420,8 @@ class Intervals(SageObject):
         return self.intervals[i]
 
     def _repr_(self) -> str:
+        if len(self) == 0:
+            return "()"
         return " x ".join(str(interval) for interval in self.intervals)
 
     def __eq__(self, other) -> bool:
