@@ -254,40 +254,34 @@ class Interval(SageObject):
         if self.is_empty():
             raise ValueError("The interval is empty.")
 
+        if self.is_pointed():
+            return self.lower
+        if 0 in self:
+            return 0
         if (
             self.upper - self.lower > 1
             or floor(self.lower) + 1 in self
             or ceil(self.upper) - 1 in self
-            or (
-                self.lower == self.upper
-                and (isinstance(self.lower, int) or self.lower.is_integer())
-            )
         ):
-            if 0 in self:
-                return 0
-            if self.upper == Infinity:
-                if ceil(self.lower) in self:
-                    return ceil(self.lower)
-                return ceil(self.lower) + 1
             if self.lower == minus_infinity:
-                if floor(self.upper) in self:
-                    return floor(self.upper)
-                return floor(self.upper) - 1
+                floor_upper = floor(self.upper)
+                return floor_upper if floor_upper in self else floor_upper - 1
+            if self.upper == Infinity:
+                ceil_lower = ceil(self.lower)
+                return ceil_lower if ceil_lower in self else ceil_lower + 1
             if self.lower == 0:
                 return 1
             if self.upper == 0:
                 return -1
             if self.upper < 0:
+                floor_upper = floor(self.upper)
                 return (
-                    floor(self.upper)
-                    if floor(self.upper) in self
-                    else floor(self.upper) - 1
+                    floor_upper if floor_upper in self else floor_upper - 1
                 )
             # self.lower > 0
+            ceil_lower = ceil(self.lower)
             return (
-                ceil(self.lower)
-                if ceil(self.lower) in self
-                else ceil(self.lower) + 1
+                ceil_lower if ceil_lower in self else ceil_lower + 1
             )
         return self._simplest_rational()
 
