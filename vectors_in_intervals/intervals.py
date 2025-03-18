@@ -64,6 +64,13 @@ class Interval(SageObject):
         False
         sage: Interval.random() # random
         (-1, 1)
+
+    Variables are supported, too::
+
+        sage: var('a')
+        a
+        sage: Interval(a, 1)
+        [a, 1]
     """
     def __init__(self, lower, upper, lower_closed: bool = True, upper_closed: bool = True) -> None:
         if lower > upper:
