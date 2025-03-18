@@ -189,7 +189,7 @@ we can certify general systems::
     sage: upper_bounds = [5, oo, 8, 5]
     sage: lower_bounds_closed = [True, True, False, False]
     sage: upper_bounds_closed = [False, False, False, True]
-    sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+    sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
     sage: exists_vector(M, I) # no certificate
     True
     sage: S = AlternativesGeneral(M, I)
@@ -199,7 +199,7 @@ we can certify general systems::
     [1 1]
     [0 1]
     sage: S.one.get_intervals()
-    [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
+    [2, 5) x [5, +oo) x (0, 8) x (-oo, 5]
     sage: S.two.matrix
     [ 0  0  0  1  1  1  1]
     [--------------------]

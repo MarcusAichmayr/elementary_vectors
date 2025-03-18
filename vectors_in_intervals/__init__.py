@@ -13,12 +13,6 @@ r"""Finding vectors with components in intervals"""
 from __future__ import absolute_import
 
 from .intervals import Interval, Intervals
-from .setup_intervals import (
-    intervals_from_bounds,
-    is_vector_in_intervals,
-    random_intervals,
-    intervals_from_sign_vector,
-)
 from .existence import exists_vector, exists_orthogonal_vector
 from .construction import (
     construct_vector,

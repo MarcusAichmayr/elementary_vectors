@@ -25,51 +25,14 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.sets.real_set import RealSet
 from sage.symbolic.relation import solve
-from .existence import exists_orthogonal_vector, exists_vector
-from .utility import (
-    simplest_element_in_interval,
-    interval_from_bounds,
-    solve_left_for_roots,
-)
-from elementary_vectors.functions import ElementaryVectors
 from sign_vectors import sign_vector
+from elementary_vectors.functions import ElementaryVectors
+from .existence import exists_orthogonal_vector, exists_vector
+from .utility import solve_left_for_roots
+from . import Intervals, Interval
 
 
-def simplest_vector_in_intervals(intervals: list[RealSet]):
-    r"""
-    Return the simplest vector with components in given intervals.
-
-    INPUT:
-
-    - ``intervals`` -- a list of intervals
-
-    OUTPUT:
-    A vector with components in the intervals.
-    If possible, each component is the integer
-    with smallest possible absolute value in the corresponding interval.
-    Otherwise, components are rational with smallest possible denominator.
-
-    EXAMPLES::
-
-        sage: from vectors_in_intervals import *
-        sage: from vectors_in_intervals.construction import *
-        sage: lower_bounds = [2, 5, -1]
-        sage: upper_bounds = [5, 6, 1]
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds)
-        sage: I
-        [[2, 5], [5, 6], [-1, 1]]
-        sage: simplest_vector_in_intervals(I)
-        (2, 5, 0)
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, False, False)
-        sage: I
-        [(2, 5), (5, 6), (-1, 1)]
-        sage: simplest_vector_in_intervals(I)
-        (3, 11/2, 0)
-    """
-    return vector(simplest_element_in_interval(interval) for interval in intervals)
-
-
-def multiple_in_intervals_candidates(v, intervals: list[RealSet]):
+def multiple_in_intervals_candidates(v, intervals: Intervals):
     r"""
     Return the largest interval where the vector, when multiplied with elements of this interval, lies in given intervals.
 
@@ -90,19 +53,19 @@ def multiple_in_intervals_candidates(v, intervals: list[RealSet]):
 
         sage: from vectors_in_intervals import *
         sage: from vectors_in_intervals.construction import *
-        sage: I = intervals_from_bounds([0, 0, -1/4, -oo], [2, oo, 1/5, 1/9], False, [True, False, False, True])
+        sage: I = Intervals.from_bounds([0, 0, -1/4, -oo], [2, oo, 1/5, 1/9], False, [True, False, False, True])
         sage: v = vector([1, 5, -2, 0])
         sage: multiple_in_intervals_candidates(v, I)
         (0, 1/8)
         sage: v = vector([0, 5, -2, 0])
         sage: multiple_in_intervals_candidates(v, I)
         {}
-        sage: I = intervals_from_bounds([-2, -1/4, -7], [0, 1, 0], [True, False, False], [False, False, True])
+        sage: I = Intervals.from_bounds([-2, -1/4, -7], [0, 1, 0], [True, False, False], [False, False, True])
         sage: v = vector([-2, -2, -1])
         sage: multiple_in_intervals_candidates(v, I)
         (0, 1/8)
         sage: v = vector([0, -2, 1])
-        sage: I = intervals_from_bounds([-2, 0, -1], [1, 1/3, 0], True, False)
+        sage: I = Intervals.from_bounds([-2, 0, -1], [1, 1/3, 0], True, False)
         sage: multiple_in_intervals_candidates(v, I)
         (-1/6, 0)
     """
@@ -117,37 +80,37 @@ def multiple_in_intervals_candidates(v, intervals: list[RealSet]):
                 continue
             return RealSet()
 
-        val_inf = interval.inf() / entry
-        val_sup = interval.sup() / entry
+        val_inf = interval.infimum() / entry
+        val_sup = interval.supremum() / entry
         if entry > 0:
             if val_inf > a_inf:
                 a_inf = val_inf
-                lower_bound_closed = interval.inf() in interval
+                lower_bound_closed = interval.infimum() in interval
             elif val_inf == a_inf:
-                lower_bound_closed = interval.inf() in interval and lower_bound_closed
+                lower_bound_closed = interval.infimum() in interval and lower_bound_closed
             if val_sup < a_sup:
                 a_sup = val_sup
-                upper_bound_closed = interval.sup() in interval
+                upper_bound_closed = interval.supremum() in interval
             elif val_sup == a_sup:
-                upper_bound_closed = interval.sup() in interval and upper_bound_closed
+                upper_bound_closed = interval.supremum() in interval and upper_bound_closed
         else:  # entry < 0
             if val_sup > a_inf:
                 a_inf = val_sup
-                lower_bound_closed = interval.sup() in interval
+                lower_bound_closed = interval.supremum() in interval
             elif val_sup == a_inf:
-                lower_bound_closed = interval.sup() in interval and lower_bound_closed
+                lower_bound_closed = interval.supremum() in interval and lower_bound_closed
             if val_inf < a_sup:
                 a_sup = val_inf
-                upper_bound_closed = interval.inf() in interval
+                upper_bound_closed = interval.infimum() in interval
             elif val_inf == a_sup:
-                upper_bound_closed = interval.inf() in interval and upper_bound_closed
+                upper_bound_closed = interval.infimum() in interval and upper_bound_closed
         if a_inf > a_sup:
             return RealSet()
 
-    return interval_from_bounds(a_inf, a_sup, lower_bound_closed, upper_bound_closed)
+    return Interval(a_inf, a_sup, lower_bound_closed, upper_bound_closed)
 
 
-def multiple_in_intervals(v, intervals: list[RealSet]):
+def multiple_in_intervals(v, intervals: Intervals):
     r"""
     Return a multiple of a vector that lies in given intervals if possible.
 
@@ -162,15 +125,11 @@ def multiple_in_intervals(v, intervals: list[RealSet]):
     The number ``a`` is chosen as simple as possible.
     However, there might exist a simpler multiple lying in the intervals.
 
-    .. SEEALSO::
-
-        :func:`.utility.simplest_element_in_interval`
-
     EXAMPLES::
 
         sage: from vectors_in_intervals import *
         sage: from vectors_in_intervals.construction import *
-        sage: I = intervals_from_bounds([0, 0, -1/4, -oo], [2, oo, 1/5, 1/9], False, [True, False, False, True])
+        sage: I = Intervals.from_bounds([0, 0, -1/4, -oo], [2, oo, 1/5, 1/9], False, [True, False, False, True])
         sage: v = vector([1, 5, -2, 0])
         sage: multiple_in_intervals(v, I)
         (1/9, 5/9, -2/9, 0)
@@ -181,10 +140,10 @@ def multiple_in_intervals(v, intervals: list[RealSet]):
     """
     try:
         return (
-            simplest_element_in_interval(multiple_in_intervals_candidates(v, intervals))
+            Interval.simplest_element(multiple_in_intervals_candidates(v, intervals))
             * v
         )
-    except EmptySetError as exc:
+    except ValueError as exc:
         raise ValueError("There is no multiple in given intervals.") from exc
 
 
@@ -296,7 +255,7 @@ def vector_between_sign_vectors(data, lower, upper):
     raise ValueError("Cannot find vector corresponding to given sign vectors.")
 
 
-def sign_vectors_in_intervals(intervals: list[RealSet], generator: bool = False):
+def sign_vectors_in_intervals(intervals: Intervals, generator: bool = False):
     r"""
     Compute all sign vectors that correspond to a vector with components in given intervals.
 
@@ -309,22 +268,22 @@ def sign_vectors_in_intervals(intervals: list[RealSet], generator: bool = False)
     EXAMPLES::
 
         sage: from vectors_in_intervals import *
-        sage: intervals = intervals_from_bounds([-1, 1], [0, 1])
+        sage: intervals = Intervals.from_bounds([-1, 1], [0, 1])
         sage: sign_vectors_in_intervals(intervals)
         [(0+), (-+)]
-        sage: intervals = intervals_from_bounds([-1, -2], [0, 1])
+        sage: intervals = Intervals.from_bounds([-1, -2], [0, 1])
         sage: sign_vectors_in_intervals(intervals)
         [(00), (0+), (0-), (-0), (-+), (--)]
-        sage: intervals = intervals_from_bounds([-1, -1, 0], [0, 5, 0])
+        sage: intervals = Intervals.from_bounds([-1, -1, 0], [0, 5, 0])
         sage: sign_vectors_in_intervals(intervals)
         [(000), (0+0), (0-0), (-00), (-+0), (--0)]
-        sage: intervals = intervals_from_bounds([-1, -1, -1], [0, 1, 0], False, False)
+        sage: intervals = Intervals.from_bounds([-1, -1, -1], [0, 1, 0], False, False)
         sage: sign_vectors_in_intervals(intervals)
         [(-0-), (-+-), (---)]
-        sage: intervals = intervals_from_bounds([-1, 0], [1, 0], False, False)
+        sage: intervals = Intervals.from_bounds([-1, 0], [1, 0], False, False)
         sage: sign_vectors_in_intervals(intervals)
         []
-        sage: intervals = intervals_from_bounds([], [])
+        sage: intervals = Intervals.from_bounds([], [])
         sage: sign_vectors_in_intervals(intervals)
         []
     """
@@ -339,9 +298,9 @@ def sign_vectors_in_intervals(intervals: list[RealSet], generator: bool = False)
         available_signs = []
         if 0 in interval:
             available_signs.append(0)
-        if interval.sup() > 0:
+        if interval.supremum() > 0:
             available_signs.append(1)
-        if interval.inf() < 0:
+        if interval.infimum() < 0:
             available_signs.append(-1)
         list_of_signs.append(available_signs)
 
@@ -352,7 +311,7 @@ def sign_vectors_in_intervals(intervals: list[RealSet], generator: bool = False)
     return [sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs)]
 
 
-def construct_orthogonal_vector(v, intervals: list[RealSet]):
+def construct_orthogonal_vector(v, intervals: Intervals):
     r"""
     Construct a vector, orthogonal to a given vector, with components in specified intervals.
 
@@ -375,9 +334,9 @@ def construct_orthogonal_vector(v, intervals: list[RealSet]):
     EXAMPLES::
 
         sage: from vectors_in_intervals import *
-        sage: I = intervals_from_bounds([0, 1, -1], [1, 2, -1])
+        sage: I = Intervals.from_bounds([0, 1, -1], [1, 2, -1])
         sage: I
-        [[0, 1], [1, 2], {-1}]
+        [0, 1] x [1, 2] x {-1}
         sage: v = vector([1, 1, 1])
         sage: construct_orthogonal_vector(v, I)
         (0, 1, -1)
@@ -392,18 +351,18 @@ def construct_orthogonal_vector(v, intervals: list[RealSet]):
 
     Next, we consider open intervals::
 
-        sage: I = intervals_from_bounds([0, 1, -1], [1, 2, 1], False, [True, True, False])
+        sage: I = Intervals.from_bounds([0, 1, -1], [1, 2, 1], False, [True, True, False])
         sage: I
-        [(0, 1], (1, 2], (-1, 1)]
+        (0, 1] x (1, 2] x (-1, 1)
         sage: v = vector([1, 0, 1])
         sage: construct_orthogonal_vector(v, I)
         (1/2, 2, -1/2)
 
     We can also work with unbounded intervals::
 
-        sage: I = intervals_from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
+        sage: I = Intervals.from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
         sage: I
-        [(0, +oo), (1, 2], (-oo, -2)]
+        (0, +oo) x (1, 2] x (-oo, -2)
         sage: v = vector([-1, 1, -1])
         sage: construct_orthogonal_vector(v, I)
         (5, 2, -3)
@@ -419,20 +378,20 @@ def construct_orthogonal_vector(v, intervals: list[RealSet]):
 
     for entry, interval in zip(v, intervals):
         if entry == 0:
-            z_min.append(simplest_element_in_interval(interval))
-            z_max.append(simplest_element_in_interval(interval))
+            z_min.append(interval.simplest_element())
+            z_max.append(interval.simplest_element())
             continue
-        if interval.inf() == -Infinity:
+        if interval.infimum() == -Infinity:
             lower_element = -lam
         else:
             lower_element = (
-                interval.inf() if interval.inf() in interval else interval.inf() + eps
+                interval.infimum() if interval.infimum() in interval else interval.infimum() + eps
             )
-        if interval.sup() == Infinity:
+        if interval.supremum() == Infinity:
             upper_element = lam
         else:
             upper_element = (
-                interval.sup() if interval.sup() in interval else interval.sup() - eps
+                interval.supremum() if interval.supremum() in interval else interval.supremum() - eps
             )
 
         if entry > 0:
@@ -451,27 +410,27 @@ def construct_orthogonal_vector(v, intervals: list[RealSet]):
     for entry, interval in zip(v, intervals):
         if entry == 0:
             continue
-        if interval.inf() == -Infinity and interval.sup() == Infinity:  # (-oo, oo)
+        if interval.infimum() == -Infinity and interval.supremum() == Infinity:  # (-oo, oo)
             lam_candidates.append(0)
-        elif interval.inf() == -Infinity:
-            if interval.sup() in interval:  # (-oo, b]
-                lam_candidates.append(-interval.sup())
+        elif interval.infimum() == -Infinity:
+            if interval.supremum() in interval:  # (-oo, b]
+                lam_candidates.append(-interval.supremum())
             else:  # (-oo, b)
-                lam_candidates.append(1 - interval.sup())
+                lam_candidates.append(1 - interval.supremum())
                 eps_candidates.append(1)
-        elif interval.sup() == Infinity:
-            if interval.inf() in interval:  # [a, oo)
-                lam_candidates.append(interval.inf())
+        elif interval.supremum() == Infinity:
+            if interval.infimum() in interval:  # [a, oo)
+                lam_candidates.append(interval.infimum())
             else:  # (a, oo)
-                lam_candidates.append(1 + interval.inf())
+                lam_candidates.append(1 + interval.infimum())
                 eps_candidates.append(1)
         elif not interval.is_closed():
             if (
-                interval.sup() in interval or interval.inf() in interval
+                interval.supremum() in interval or interval.infimum() in interval
             ):  # [a, b) or (a, b]
-                eps_candidates.append(interval.sup() - interval.inf())
+                eps_candidates.append(interval.supremum() - interval.infimum())
             else:  # (a, b)
-                eps_candidates.append((interval.sup() - interval.inf()) / 2)
+                eps_candidates.append((interval.supremum() - interval.infimum()) / 2)
 
     if eps_candidates:
         for product in [z_min * v, z_max * v]:
@@ -520,7 +479,7 @@ def construct_orthogonal_vector(v, intervals: list[RealSet]):
     return (product_max * z_min - product_min * z_max) / (product_max - product_min)
 
 
-def construct_vector(M, intervals: list[RealSet], evs=None):
+def construct_vector(M, intervals: Intervals, evs=None):
     r"""
     Construct a vector of a given vector space with components in given intervals.
 
@@ -551,17 +510,17 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
 
     First, we consider closed intervals::
 
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds)
+        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds)
         sage: I
-        [[2, 5], [5, 6], [-1, 1]]
+        [2, 5] x [5, 6] x [-1, 1]
         sage: construct_vector(M, I)
         (5)
 
     Next, we take open intervals. This time, there is no solution::
 
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, False, False)
+        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, False, False)
         sage: I
-        [(2, 5), (5, 6), (-1, 1)]
+        (2, 5) x (5, 6) x (-1, 1)
         sage: construct_vector(M, I)
         Traceback (most recent call last):
         ...
@@ -574,9 +533,9 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
         sage: upper_bounds = [5, oo, 8, 5]
         sage: lower_bounds_closed = [True, True, False, False]
         sage: upper_bounds_closed = [False, False, False, True]
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
         sage: I
-        [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
+        [2, 5) x [5, +oo) x (0, 8) x (-oo, 5]
         sage: construct_vector(M.T, I)
         (2, 5)
 
@@ -585,7 +544,7 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
     This example shows the case ``rank == 1``::
 
         sage: M = matrix([[0, 0, 0, 0, 0, 0], [-1, -1, 0, -1, 1, 0], [-1, 1, 0, -2, -1, -2]])
-        sage: I = intervals_from_bounds(
+        sage: I = Intervals.from_bounds(
         ....:     [-2, -1/2, -1, -1/4, -1/6, 0],
         ....:     [3/4, 1, 1, 0, 12, 1],
         ....:     [False, True, True, True, False, True],
@@ -597,23 +556,23 @@ def construct_vector(M, intervals: list[RealSet], evs=None):
     Other special cases::
 
         sage: M = zero_matrix(QQ, 3, 1)
-        sage: I = intervals_from_bounds([-1, -1, -1], [1, 1, 1], False, True)
+        sage: I = Intervals.from_bounds([-1, -1, -1], [1, 1, 1], False, True)
         sage: construct_vector(M, I)
         (0)
         sage: M = matrix([[0, 1], [0, 1]])
-        sage: I = intervals_from_bounds([0, 0], [1, 1], False, True)
+        sage: I = Intervals.from_bounds([0, 0], [1, 1], False, True)
         sage: construct_vector(M, I)
         (0, 1)
     """
     if not exists_vector(evs if evs else M, intervals):
         raise ValueError("There is no solution.")
 
-    def recursive_construct_vector(M, intervals):
+    def recursive_construct_vector(M, intervals: Intervals):
         r"""Recursive call."""
         length = M.ncols()
         rank = M.rank()
         if rank == length:
-            return simplest_vector_in_intervals(intervals)
+            return intervals.simplest_element()
         if rank == length - 1:
             # The kernel of ``M`` has one dimension.
             return construct_orthogonal_vector(

@@ -14,9 +14,10 @@ from collections.abc import Generator
 from sage.sets.real_set import RealSet
 
 from elementary_vectors import elementary_vectors
+from . import Intervals
 
 
-def exists_orthogonal_vector(v, intervals: list[RealSet]) -> bool:
+def exists_orthogonal_vector(v, intervals: Intervals) -> bool:
     r"""
     Check whether an orthogonal vector exists with components in given intervals.
 
@@ -37,9 +38,9 @@ def exists_orthogonal_vector(v, intervals: list[RealSet]) -> bool:
     and apply the function::
 
         sage: from vectors_in_intervals import *
-        sage: I = intervals_from_bounds([0, 1, -1], [1, 2, -1])
+        sage: I = Intervals.from_bounds([0, 1, -1], [1, 2, -1])
         sage: I
-        [[0, 1], [1, 2], {-1}]
+        [0, 1] x [1, 2] x {-1}
         sage: v = vector([1, 1, 1])
         sage: exists_orthogonal_vector(v, I)
         True
@@ -49,27 +50,27 @@ def exists_orthogonal_vector(v, intervals: list[RealSet]) -> bool:
 
     Next, we consider open intervals::
 
-        sage: I = intervals_from_bounds([0, 1, -1], [1, 2, 1], False, [True, True, False])
+        sage: I = Intervals.from_bounds([0, 1, -1], [1, 2, 1], False, [True, True, False])
         sage: I
-        [(0, 1], (1, 2], (-1, 1)]
+        (0, 1] x (1, 2] x (-1, 1)
         sage: v = vector([1, 0, 1])
         sage: exists_orthogonal_vector(v, I)
         True
 
     We can also work with unbounded intervals::
 
-        sage: I = intervals_from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
+        sage: I = Intervals.from_bounds([0, 1, -oo], [oo, 2, -2], False, [True, True, False])
         sage: I
-        [(0, +oo), (1, 2], (-oo, -2)]
+        (0, +oo) x (1, 2] x (-oo, -2)
         sage: v = vector([-1, 1, -1])
         sage: exists_orthogonal_vector(v, I)
         True
 
     TESTS::
 
-        sage: I = intervals_from_bounds([-oo, 0], [oo, 0], False, False)
+        sage: I = Intervals.from_bounds([-oo, 0], [oo, 0], False, False)
         sage: I
-        [(-oo, +oo), {}]
+        (-oo, +oo) x {}
         sage: v = vector([1, 0])
         sage: exists_orthogonal_vector(v, I)
         False
@@ -92,8 +93,8 @@ def exists_orthogonal_vector(v, intervals: list[RealSet]) -> bool:
             return False
         if not entry:
             continue
-        bound1 = interval.inf() if entry > 0 else interval.sup()
-        bound2 = interval.sup() if entry > 0 else interval.inf()
+        bound1 = interval.infimum() if entry > 0 else interval.supremum()
+        bound2 = interval.supremum() if entry > 0 else interval.infimum()
         lower_product += entry * bound1
         upper_product += entry * bound2
         lower_product_attainable &= bound1 in interval
@@ -110,7 +111,7 @@ def exists_orthogonal_vector(v, intervals: list[RealSet]) -> bool:
     return True
 
 
-def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool:
+def exists_vector(data, intervals: Intervals, certify: bool = False) -> bool:
     r"""
     Check whether the system ``M x in I`` has a solution.
 
@@ -148,17 +149,17 @@ def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool
 
     First, we consider closed intervals::
 
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds)
+        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds)
         sage: I
-        [[2, 5], [5, 6], [-1, 1]]
+        [2, 5] x [5, 6] x [-1, 1]
         sage: exists_vector(M, I)
         True
 
     Next, we take open intervals::
 
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, False, False)
+        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, False, False)
         sage: I
-        [(2, 5), (5, 6), (-1, 1)]
+        (2, 5) x (5, 6) x (-1, 1)
         sage: exists_vector(M, I)
         False
 
@@ -172,9 +173,9 @@ def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool
 
         sage: lower_bounds_closed = [True, True, False]
         sage: upper_bounds_closed = [False, True, True]
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
         sage: I
-        [[2, 5), [5, 6], (-1, 1]]
+        [2, 5) x [5, 6] x (-1, 1]
         sage: exists_vector(M, I)
         False
 
@@ -185,32 +186,23 @@ def exists_vector(data, intervals: list[RealSet], certify: bool = False) -> bool
         sage: upper_bounds = [5, oo, 8, 5]
         sage: lower_bounds_closed = [True, True, False, False]
         sage: upper_bounds_closed = [False, False, False, True]
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
         sage: I
-        [[2, 5), [5, +oo), (0, 8), (-oo, 5]]
+        [2, 5) x [5, +oo) x (0, 8) x (-oo, 5]
         sage: exists_vector(M, I)
         True
 
     TESTS::
 
-        sage: I = intervals_from_bounds([0, 0], [1, 0], False)
+        sage: I = Intervals.from_bounds([0, 0], [1, 0], False)
         sage: I
-        [(0, 1], {}]
+        (0, 1] x {}
         sage: exists_vector([], I)
         False
         sage: M = random_matrix(QQ, 2, 0)
         sage: exists_vector(M, I)
         False
-        sage: M = random_matrix(QQ, 1, 0)
-        sage: exists_vector(M, I)
-        Traceback (most recent call last):
-        ...
-        ValueError: Number of rows of matrix ``data`` and length of ``intervals`` do not match.
     """
-    if hasattr(data, "nrows") and data.nrows() != len(intervals):
-        raise ValueError(
-            "Number of rows of matrix ``data`` and length of ``intervals`` do not match."
-        )
     if any(interval.is_empty() for interval in intervals):
         return False
     evs = data if isinstance(data, (Generator, list)) else elementary_vectors(data.T, generator=True)

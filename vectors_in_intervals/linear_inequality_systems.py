@@ -37,7 +37,7 @@ We consider another system::
     sage: upper_bounds = [5, oo, 8, 5]
     sage: lower_bounds_closed = [True, True, False, False]
     sage: upper_bounds_closed = [False, False, False, True]
-    sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+    sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
     sage: S = LinearInequalitySystem(M, I)
     sage: S.solve()
     (5/2, 5)
@@ -98,6 +98,8 @@ We consider another example::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from __future__ import annotations
+
 import concurrent.futures
 
 from collections.abc import Generator
@@ -106,11 +108,11 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
-from elementary_vectors.functions import ElementaryVectors
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
 from sign_vectors.oriented_matroids import Cocircuits
-from vectors_in_intervals import exists_orthogonal_vector
-from .utility import interval_from_bounds, CombinationsIncluding, solve_without_division
+from vectors_in_intervals import exists_orthogonal_vector, Intervals, Interval
+from elementary_vectors.functions import ElementaryVectors
+from .utility import CombinationsIncluding, solve_without_division
 
 
 class LinearInequalitySystem(SageObject):
@@ -119,7 +121,7 @@ class LinearInequalitySystem(SageObject):
     """
     __slots__ = "result", "matrix", "intervals", "evs", "elementary_vectors", "solvable"
 
-    def __init__(self, _matrix, intervals: list, result: bool = None) -> None:
+    def __init__(self, _matrix, intervals: Intervals, result: bool = None) -> None:
         self.matrix = _matrix
         self.intervals = intervals
         self.result = result
@@ -129,7 +131,7 @@ class LinearInequalitySystem(SageObject):
     def _repr_(self) -> str:
         return str(self.matrix) + " x in " + str(self.get_intervals())
 
-    def get_intervals(self) -> list:
+    def get_intervals(self) -> Intervals:
         r"""Return the corresponding intervals."""
         return self.intervals
 
@@ -145,7 +147,7 @@ class LinearInequalitySystem(SageObject):
         else:
             yield from self.evs.generator(dual=dual, reverse=reverse)
 
-    def to_homogeneous(self):
+    def to_homogeneous(self) -> HomogeneousSystem:
         r"""Return the equivalent homogeneous system."""
         return homogeneous_from_general(self)
 
@@ -236,8 +238,8 @@ class InhomogeneousSystem(LinearInequalitySystem):
         self.b = b
         self.c = c
 
-    def get_intervals(self) -> list:
-        self.intervals = [interval_from_bounds(-Infinity, bi) for bi in self.b] + [interval_from_bounds(-Infinity, ci, False, False) for ci in self.c]
+    def get_intervals(self) -> Intervals:
+        self.intervals = [Interval(-Infinity, bi) for bi in self.b] + [Interval(-Infinity, ci, False, False) for ci in self.c]
         return self.intervals
 
     def exists_orthogonal_vector(self, v) -> bool:
@@ -257,7 +259,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
         return not condition(v) and not condition(-v)
 
-    def to_homogeneous(self):
+    def to_homogeneous(self) -> HomogeneousSystem:
         return homogeneous_from_inhomogeneous(self)
 
 
@@ -292,12 +294,12 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def get_intervals(self) -> list:
         self.intervals = [
-            interval_from_bounds(0, Infinity, False, False)
+            Interval(0, Infinity, False, False)
             if i in self.positive else
             (
-                interval_from_bounds(0, Infinity)
+                Interval(0, Infinity)
                 if i in self.nonnegative else
-                interval_from_bounds(0, 0)
+                Interval(0, 0)
             )
             for i in range(self.matrix.nrows())
         ]
@@ -312,7 +314,7 @@ class HomogeneousSystem(LinearInequalitySystem):
             )
         )
 
-    def to_homogeneous(self):
+    def to_homogeneous(self) -> HomogeneousSystem:
         return self
 
     def certify_existence(self, reverse: bool = False, random: bool = False):
@@ -414,20 +416,20 @@ def inhomogeneous_from_general(system: LinearInequalitySystem) -> InhomogeneousS
     c_list = []
 
     for line, interval in zip(system.matrix, system.intervals):
-        if interval.inf() != -Infinity:
-            if interval.inf() in interval:
+        if interval.infimum() != -Infinity:
+            if interval.infimum() in interval:
                 A_list.append(-line)
-                b_list.append(-interval.inf())
+                b_list.append(-interval.infimum())
             else:
                 B_list.append(-line)
-                c_list.append(-interval.inf())
-        if interval.sup() != Infinity:
-            if interval.sup() in interval:
+                c_list.append(-interval.infimum())
+        if interval.supremum() != Infinity:
+            if interval.supremum() in interval:
                 A_list.append(line)
-                b_list.append(interval.sup())
+                b_list.append(interval.supremum())
             else:
                 B_list.append(line)
-                c_list.append(interval.sup())
+                c_list.append(interval.supremum())
 
     return InhomogeneousSystem(
         matrix(len(A_list), system.matrix.ncols(), A_list),
@@ -450,7 +452,7 @@ def homogeneous_from_general(system: LinearInequalitySystem) -> HomogeneousSyste
         sage: upper_bounds = [5, oo, 0]
         sage: lower_bounds_closed = [True, True, True]
         sage: upper_bounds_closed = [False, False, True]
-        sage: I = intervals_from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
         sage: S = LinearInequalitySystem(M, I)
         sage: homogeneous_from_general(S)
         [ 1  0 -5]
@@ -468,19 +470,19 @@ def homogeneous_from_general(system: LinearInequalitySystem) -> HomogeneousSyste
     length = system.matrix.ncols()
 
     for line, interval in zip(system.matrix, system.intervals):
-        if interval.inf() == interval.sup():
-            C_list.append(list(line) + [-interval.inf()])
+        if interval.infimum() == interval.supremum():
+            C_list.append(list(line) + [-interval.infimum()])
             continue
-        if interval.inf() != -Infinity:
-            if interval.inf() in interval:
-                B_list.append(list(-line) + [interval.inf()])
+        if interval.infimum() != -Infinity:
+            if interval.infimum() in interval:
+                B_list.append(list(-line) + [interval.infimum()])
             else:
-                A_list.append(list(-line) + [interval.inf()])
-        if interval.sup() != Infinity:
-            if interval.sup() in interval:
-                B_list.append(list(line) + [-interval.sup()])
+                A_list.append(list(-line) + [interval.infimum()])
+        if interval.supremum() != Infinity:
+            if interval.supremum() in interval:
+                B_list.append(list(line) + [-interval.supremum()])
             else:
-                A_list.append(list(line) + [-interval.sup()])
+                A_list.append(list(line) + [-interval.supremum()])
 
     A_list.append([0] * length + [-1])
 

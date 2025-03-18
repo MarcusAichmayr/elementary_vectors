@@ -1,3 +1,5 @@
+"""Interval classes."""
+
 from __future__ import annotations
 
 from random import getrandbits
@@ -43,9 +45,9 @@ class Interval(SageObject):
         (-oo, 4]
         sage: Interval(-oo, 4, False, False)
         (-oo, 4)
-        sage: I = Interval(-3, oo, False, False)
+        sage: I = Interval(-3, +oo, False, False)
         sage: I
-        (-3, oo)
+        (-3, +oo)
         sage: 0 in I
         True
         sage: -3 in I
@@ -84,7 +86,7 @@ class Interval(SageObject):
             return "{}"
         if self.is_pointed():
             return f"{{{self.lower}}}"
-        return f"{'[' if self.lower_closed else '('}{'-oo' if self.lower == minus_infinity else self.lower}, {'oo' if self.upper == Infinity else self.upper}{']' if self.upper_closed else ')'}"
+        return f"{'[' if self.lower_closed else '('}{'-oo' if self.lower == minus_infinity else self.lower}, {'+oo' if self.upper == Infinity else self.upper}{']' if self.upper_closed else ')'}"
 
     def __eq__(self, other) -> bool:
         return self.lower == other.lower and self.upper == other.upper and self.lower_closed == other.lower_closed and self.upper_closed == other.upper_closed
@@ -156,7 +158,7 @@ class Interval(SageObject):
             sage: from vectors_in_intervals import *
             sage: Interval(0, 1).supremum()
             1
-            sage: Interval(0, oo).supremum()
+            sage: Interval(0, +oo).supremum()
             +Infinity
             sage: Interval(0, 0, False, False).supremum()
             -Infinity
@@ -164,9 +166,6 @@ class Interval(SageObject):
         if self.is_empty():
             return minus_infinity
         return self.upper
-
-    def random_element(self):
-        raise NotImplementedError
 
     def an_element(self):
         r"""
@@ -183,9 +182,9 @@ class Interval(SageObject):
             1/2
             sage: Interval(-oo, 0).an_element()
             0
-            sage: Interval(-oo, oo).an_element()
+            sage: Interval(-oo, +oo).an_element()
             0
-            sage: Interval(5, oo, False, False).an_element()
+            sage: Interval(5, +oo, False, False).an_element()
             6
             sage: Interval(0, 0, False, False).an_element()
             Traceback (most recent call last):
@@ -217,7 +216,7 @@ class Interval(SageObject):
         EXAMPLES::
 
             sage: from vectors_in_intervals import *
-            sage: Interval(1/2, oo, False, False).simplest_element()
+            sage: Interval(1/2, +oo, False, False).simplest_element()
             1
             sage: Interval(-oo, 1/2, False, False).simplest_element()
             0
@@ -406,13 +405,19 @@ class Intervals(SageObject):
         sage: vector([0, 1]) in Intervals([Interval(0, 1), Interval(-5, 2)])
         True
         sage: Intervals.random(3) # random
-        [0, oo) x (-5, 2) x (0, 1]
+        [0, +oo) x (-5, 2) x (0, 1]
     """
     def __init__(self, intervals: list) -> None:
         self.intervals = intervals
 
     def __contains__(self, iterable) -> bool:
         return all(entry in interval for entry, interval in zip(iterable, self.intervals))
+
+    def __len__(self) -> int:
+        return len(self.intervals)
+
+    def __getitem__(self, i) -> Interval:
+        return self.intervals[i]
 
     def _repr_(self) -> str:
         return " x ".join(str(interval) for interval in self.intervals)
@@ -424,6 +429,8 @@ class Intervals(SageObject):
         return hash(tuple(self.intervals))
 
     def is_empty(self) -> bool:
+        if len(self) == 0:
+            return True
         return any(interval.is_empty() for interval in self.intervals)
 
     def is_open(self) -> bool:
@@ -447,14 +454,14 @@ class Intervals(SageObject):
     def __bool__(self) -> bool:
         return not self.is_empty()
 
-    def random_element(self):
-        return [interval.random_element() for interval in self.intervals]
-
     def an_element(self):
         return [interval.an_element() for interval in self.intervals]
 
     def simplest_element(self):
         return [interval.simplest_element() for interval in self.intervals]
+
+    def __iter__(self):
+        return iter(self.intervals)
 
     @staticmethod
     def random(length: int, ring=QQ) -> Intervals:
@@ -464,8 +471,8 @@ class Intervals(SageObject):
         EXAMPLES::
 
             sage: from vectors_in_intervals import *
-            sage: random_intervals(3) # random
-            [0, oo) x (-5, 2) x (0, 1]
+            sage: Intervals.random(3) # random
+            [0, +oo) x (-5, 2) x (0, 1]
         """
         return Intervals([Interval.random(ring) for _ in range(length)])
 
@@ -477,14 +484,14 @@ class Intervals(SageObject):
         EXAMPLES::
 
             sage: from vectors_in_intervals import *
-            sage: Intervals.from_bounds([0, -5, 0], [1, 2, oo])
-            [0, 1] x [-5, 2] x [0, oo)
-            sage: Intervals.from_bounds([0, -5, 0], [1, 2, oo], False, False)
-            (0, 1) x (-5, 2) x (0, oo)
-            sage: Intervals.from_bounds([0, -5, 0], [1, 2, oo], True, False)
-            [0, 1) x [-5, 2) x [0, oo)
-            sage: Intervals.from_bounds([0, -5, 0], [1, 2, oo], [True, False, True], [True, True, False])
-            [0, 1] x (-5, 2] x [0, oo)
+            sage: Intervals.from_bounds([0, -5, 0], [1, 2, +oo])
+            [0, 1] x [-5, 2] x [0, +oo)
+            sage: Intervals.from_bounds([0, -5, 0], [1, 2, +oo], False, False)
+            (0, 1) x (-5, 2) x (0, +oo)
+            sage: Intervals.from_bounds([0, -5, 0], [1, 2, +oo], True, False)
+            [0, 1) x [-5, 2) x [0, +oo)
+            sage: Intervals.from_bounds([0, -5, 0], [1, 2, +oo], [True, False, True], [True, True, False])
+            [0, 1] x (-5, 2] x [0, +oo)
         """
         length = len(lower_bounds)
         if lower_bounds_closed is True:
@@ -515,7 +522,7 @@ class Intervals(SageObject):
             sage: from sign_vectors import *
             sage: sv = sign_vector("+0-")
             sage: Intervals.from_sign_vector(sv)
-            (0, oo) x {0} x (-oo, 0)
+            (0, +oo) x {0} x (-oo, 0)
         """
         return Intervals([
             Interval(
