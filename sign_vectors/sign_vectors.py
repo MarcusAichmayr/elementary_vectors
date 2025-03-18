@@ -140,8 +140,10 @@ sign vectors are also orthogonal::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from __future__ import annotations
 import warnings
 from random import choices
+
 from sage.structure.sage_object import SageObject
 from sage.symbolic.ring import SR
 
@@ -151,7 +153,7 @@ length_error = ValueError("Elements have different length.")
 
 def sign_symbolic(value) -> int:
     r"""
-    Return sign of expression. Supports symbolic expressions.
+    Return the sign of an expression. Supports symbolic expressions.
 
     OUTPUT:
     If the sign cannot be determined, a warning is shown and ``0`` is returned.
@@ -400,7 +402,7 @@ class SignVector(SageObject):
         """
         return [self[e] for e in S]
 
-    def compose(self, other):
+    def compose(self, other) -> SignVector:
         r"""
         Return the composition of two sign vectors.
 
@@ -449,7 +451,7 @@ class SignVector(SageObject):
 
         return SignVector(support, psupport, self.length())
 
-    def compose_harmonious(self, other):
+    def compose_harmonious(self, other) -> SignVector:
         r"""
         Return the composition of two harmonious sign vectors.
 
@@ -489,7 +491,7 @@ class SignVector(SageObject):
             self.length(),
         )
 
-    def __and__(self, other):
+    def __and__(self, other) -> SignVector:
         r"""
         Return the composition of two sign vectors.
 
@@ -513,7 +515,7 @@ class SignVector(SageObject):
         """
         return self.compose(other)
 
-    def __mul__(self, value):
+    def __mul__(self, value) -> SignVector:
         r"""
         Multiplication with a scalar.
 
@@ -534,7 +536,7 @@ class SignVector(SageObject):
             return -self
         return zero_sign_vector(self.length())
 
-    def __rmul__(self, value):
+    def __rmul__(self, value) -> SignVector:
         r"""
         Right multiplication with a scalar.
 
@@ -661,7 +663,7 @@ class SignVector(SageObject):
             return self._support.isdisjoint(other._support)
         return self._support.isdisjoint(other.support())
 
-    def reverse_signs_in(self, indices):
+    def reverse_signs_in(self, indices) -> SignVector:
         r"""
         Reverses sign of given entries.
 
@@ -934,7 +936,7 @@ class SignVector(SageObject):
     def __bool__(self) -> bool:
         return self != 0
 
-    def __neg__(self):
+    def __neg__(self) -> SignVector:
         r"""
         Return the sign vectors multiplied by ``-1``.
 
@@ -948,7 +950,7 @@ class SignVector(SageObject):
         """
         return SignVector(self._support, self._negative_support(), self.length())
 
-    def __pos__(self):
+    def __pos__(self) -> SignVector:
         r"""
         Return the sign vectors multiplied by ``1`` which is a copy of this sign vector.
 
@@ -967,13 +969,13 @@ class SignVector(SageObject):
         r"""Return ``False`` since sign vectors are not vectors."""
         return False
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         r"""Return the hash value of this sign vector."""
         # TODO remove length
         return hash((self._length, self._support, self._positive_support))
 
     @staticmethod
-    def from_str(s: str):
+    def from_str(s: str) -> SignVector:
         r"""
         Creates a sign vector from a string.
 
@@ -990,7 +992,7 @@ class SignVector(SageObject):
         )
 
     @staticmethod
-    def from_support(support: list, psupport: list, length: int):
+    def from_support(support: list, psupport: list, length: int) -> SignVector:
         r"""
         Return a sign vector that is given by lists representing support and positive support.
 
@@ -1019,7 +1021,7 @@ class SignVector(SageObject):
         return SignVector(frozenset(support), frozenset(psupport), length)
 
 
-def sign_vector(iterable):
+def sign_vector(iterable) -> SignVector:
     r"""
     Create a sign vector from a list, vector or string.
 
@@ -1081,7 +1083,7 @@ def sign_vector(iterable):
     return SignVector(frozenset(support), frozenset(psupport), length)
 
 
-def zero_sign_vector(length: int):
+def zero_sign_vector(length: int) -> SignVector:
     r"""
     Return the zero sign vector of a given length.
 
@@ -1098,7 +1100,7 @@ def zero_sign_vector(length: int):
     return SignVector(frozenset(), frozenset(), length)
 
 
-def random_sign_vector(length: int):
+def random_sign_vector(length: int) -> SignVector:
     r"""
     Return a random sign vector of a given length.
 

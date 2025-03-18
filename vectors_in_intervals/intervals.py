@@ -101,12 +101,9 @@ class Interval(SageObject):
     def __eq__(self, other) -> bool:
         return self.lower == other.lower and self.upper == other.upper and self.lower_closed == other.lower_closed and self.upper_closed == other.upper_closed
 
-    def __hash__(self) -> int:
-        return hash((self.lower, self.upper, self.lower_closed, self.upper_closed))
-
     def is_empty(self) -> bool:
         r"""Return whether the interval is empty."""
-        return self.lower > self.upper or (self.lower == self.upper and (not self.lower_closed or not self.upper_closed))
+        return self.lower == self.upper and (not self.lower_closed or not self.upper_closed)
 
     def is_open(self) -> bool:
         r"""Return whether the interval is open."""
