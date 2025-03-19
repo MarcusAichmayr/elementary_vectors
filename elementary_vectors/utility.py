@@ -12,10 +12,8 @@
 
 from sage.modules.free_module_element import vector
 
-from sign_vectors import sign_vector
 
-
-def kernel_vector_support_given(M, indices):
+def kernel_vector_support_given(M, indices: list):
     r"""
     Return a right kernel vector such that the support is a subset of given indices.
 
@@ -52,7 +50,7 @@ def kernel_vector_support_given(M, indices):
     return vector(subvector_list)
 
 
-def is_symbolic(value):
+def is_symbolic(expression):
     r"""
     Return whether this element is a symbolic expression.
 
@@ -74,6 +72,6 @@ def is_symbolic(value):
         sage: is_symbolic(SR(5))
         False
     """
-    if hasattr(value, "variables"):
-        return bool(value.variables())
+    if hasattr(expression, "variables"):
+        return bool(expression.variables())
     return False
