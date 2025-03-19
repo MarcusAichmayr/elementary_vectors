@@ -258,11 +258,7 @@ class Interval(SageObject):
             return self.lower
         if 0 in self:
             return 0
-        if (
-            self.upper - self.lower > 1
-            or floor(self.lower) + 1 in self
-            or ceil(self.upper) - 1 in self
-        ):
+        if self.upper - self.lower > 1 or floor(self.lower) + 1 in self or ceil(self.upper) - 1 in self:
             if self.lower == minus_infinity:
                 floor_upper = floor(self.upper)
                 return floor_upper if floor_upper in self else floor_upper - 1
@@ -275,14 +271,10 @@ class Interval(SageObject):
                 return -1
             if self.upper < 0:
                 floor_upper = floor(self.upper)
-                return (
-                    floor_upper if floor_upper in self else floor_upper - 1
-                )
+                return floor_upper if floor_upper in self else floor_upper - 1
             # self.lower > 0
             ceil_lower = ceil(self.lower)
-            return (
-                ceil_lower if ceil_lower in self else ceil_lower + 1
-            )
+            return ceil_lower if ceil_lower in self else ceil_lower + 1
         return self._simplest_rational()
 
     def _simplest_rational(self):
@@ -307,8 +299,6 @@ class Interval(SageObject):
             sage: Interval(1/2, 241/287, False, False)._simplest_rational()
             2/3
         """
-        cfl = [floor(self.infimum()), 2]  # continued fraction representation of inf(interval) + 1/2
-
         def sb_child(cfl: list, left: bool):
             r"""
             Return a child of an element in the Stern-Brocot tree.
@@ -319,9 +309,11 @@ class Interval(SageObject):
 
             - ``left`` -- a boolean
             """
-            if left == (len(cfl) % 2 == 0):
+            if left != len(cfl) & 1: # check if odd
                 return cfl[:-1] + [cfl[-1] + 1]
             return cfl[:-1] + [cfl[-1] - 1, 2]
+
+        cfl = [floor(self.infimum()), 2] # continued fraction representation of inf(interval) + 1/2
 
         while True:
             value = continued_fraction(cfl).value()

@@ -16,6 +16,7 @@ from sage.combinat.combination import Combinations
 from sage.functions.generalized import sign
 from sage.matrix.constructor import matrix
 from sage.modules.free_module_element import vector
+from sage.structure.sage_object import SageObject
 
 from elementary_vectors.functions import ElementaryVectors
 
@@ -69,7 +70,7 @@ def solve_without_division(A, b):
     return -sign(ev[-1]) * ev[:-1]
 
 
-class CombinationsIncluding:
+class CombinationsIncluding(SageObject):
     r"""
     Combinatorial object of all combinations that include given elements
 
