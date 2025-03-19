@@ -71,6 +71,11 @@ class Interval(SageObject):
         a
         sage: Interval(a, 1)
         [a, 1]
+        sage: I = Interval(a, 1, False, False)
+        sage: I
+        (a, 1)
+        sage: I.an_element()
+        1/2*a + 1/2
     """
     def __init__(self, lower, upper, lower_closed: bool = True, upper_closed: bool = True) -> None:
         if lower > upper:
