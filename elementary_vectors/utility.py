@@ -35,8 +35,9 @@ def kernel_vector_support_given(M, indices: list):
         (2, -1, -1, 0)
         sage: kernel_vector_support_given(M, [3])
         (0, 0, 0, 1)
-        sage: kernel_vector_support_given(M, [0, 3])
-        (0, 0, 0, 1)
+        sage: v = kernel_vector_support_given(M, [0, 3]) # (0, 0, 0, 1) or (0, 0, 0, -1) depending on sage version
+        sage: v.support()
+        [3]
     """
     try:
         subvector_list = list(M.matrix_from_columns(indices).right_kernel_matrix()[0])
