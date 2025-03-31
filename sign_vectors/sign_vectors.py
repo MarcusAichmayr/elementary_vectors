@@ -255,6 +255,19 @@ class SignVector(SageObject):
             for e in range(self.length())
         )
 
+    def _latex_(self) -> str:
+        r"""
+        Return a LaTeX representation of this sign vector.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector('0+-')
+            sage: X._latex_()
+            '(0+-)'
+        """
+        return self._repr_()
+
     def length(self) -> int:
         r"""
         Return the length of the sign vector.
