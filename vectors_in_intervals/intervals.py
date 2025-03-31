@@ -124,8 +124,8 @@ class Interval(SageObject):
             '\\emptyset'
             sage: Interval(0, 0)._latex_()
             '\\{0\\}'
-            sage: Interval(-oo, 0)._latex_()
-            '(-\\infty, 0]'
+            sage: Interval(-oo, 1/2)._latex_()
+            '(-\\infty, 1/2]'
             sage: Interval(0, oo, False, False)._latex_()
             '(0, \\infty)'
        """
@@ -459,6 +459,20 @@ class Intervals(SageObject):
         if len(self) == 0:
             return "()"
         return " x ".join(str(interval) for interval in self.intervals)
+
+    def _latex_(self) -> str:
+        r"""
+        Return a LaTeX representation of the intervals.
+
+        EXAMPLES::
+
+            sage: from vectors_in_intervals import *
+            sage: Intervals([Interval(0, 1), Interval(-5, 2, False, False)])._latex_()
+            '[0, 1] \\times (-5, 2)'
+            sage: Intervals([Interval(-oo, 1), Interval(2, 2, False, False)])._latex_()
+            '(-\\infty, 1] \\times \\emptyset'
+        """
+        return " \\times ".join(interval._latex_() for interval in self.intervals)
 
     def __eq__(self, other) -> bool:
         return self.intervals == other.intervals
