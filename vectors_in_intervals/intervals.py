@@ -15,11 +15,11 @@ from __future__ import annotations
 from random import getrandbits
 
 from sage.functions.other import floor, ceil
-from sage.structure.sage_object import SageObject
 from sage.rings.continued_fraction import continued_fraction
 from sage.rings.infinity import minus_infinity
 from sage.rings.infinity import Infinity
 from sage.rings.rational_field import QQ
+from sage.structure.sage_object import SageObject
 
 from sign_vectors import SignVector
 
@@ -67,7 +67,7 @@ class Interval(SageObject):
 
     Variables are supported, too::
 
-        sage: var('a')
+        sage: var("a")
         a
         sage: Interval(a, 1)
         [a, 1]
@@ -109,6 +109,37 @@ class Interval(SageObject):
         if self.is_pointed():
             return f"{{{self.lower}}}"
         return f"{'[' if self.lower_closed else '('}{'-oo' if self.lower == minus_infinity else self.lower}, {'+oo' if self.upper == Infinity else self.upper}{']' if self.upper_closed else ')'}"
+
+    def _latex_(self) -> str:
+        r"""
+        Return a LaTeX representation of the interval.
+
+        EXAMPLES::
+            sage: from vectors_in_intervals import *
+            sage: Interval(0, 1)._latex_()
+            '[0, 1]'
+            sage: Interval(0, 1, False, True)._latex_()
+            '(0, 1]'
+            sage: Interval(0, 0, False, False)._latex_()
+            '\\emptyset'
+            sage: Interval(0, 0)._latex_()
+            '\\{0\\}'
+            sage: Interval(-oo, 0)._latex_()
+            '(-\\infty, 0]'
+            sage: Interval(0, oo, False, False)._latex_()
+            '(0, \\infty)'
+       """
+        if self.is_empty():
+            return r"\emptyset"
+        if self.is_pointed():
+            return r"\{" + f"{self.lower}" + r"\}"
+        return (
+            ("[" if self.lower_closed else "(")
+            + (r"-\infty" if self.lower == minus_infinity else f"{self.lower}")
+            + ", "
+            + (r"\infty" if self.upper == Infinity else f"{self.upper}")
+            + ("]" if self.upper_closed else ")")
+        )
 
     def __eq__(self, other) -> bool:
         return self.lower == other.lower and self.upper == other.upper and self.lower_closed == other.lower_closed and self.upper_closed == other.upper_closed
