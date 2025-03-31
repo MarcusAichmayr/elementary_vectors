@@ -158,15 +158,19 @@ def sign_symbolic(value) -> int:
     OUTPUT:
     If the sign cannot be determined, a warning is shown and ``0`` is returned.
 
-    EXAMPLES::
+    EXAMPLES:
+
+    For real numbers, the sign is determined::
 
         sage: from sign_vectors.sign_vectors import sign_symbolic
         sage: sign_symbolic(1)
         1
-        sage: sign_symbolic(-2)
+        sage: sign_symbolic(-1/2)
         -1
+        sage: sign_symbolic(0)
+        0
 
-    ::
+    For symbolic expressions, the sign is determined using assumptions::
 
         sage: var('a')
         a
@@ -249,8 +253,7 @@ class SignVector(SageObject):
 
     def __str__(self) -> str:
         return "".join(
-            "+"
-            if e in self._positive_support
+            "+" if e in self._positive_support
             else ("-" if e in self._support else "0")
             for e in range(self.length())
         )
