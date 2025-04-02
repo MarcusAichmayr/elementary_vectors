@@ -151,6 +151,108 @@ from sage.symbolic.ring import SR
 length_error = ValueError("Elements have different length.")
 
 
+def sign_vector(iterable) -> SignVector:
+    r"""
+    Create a sign vector from a list, vector or string.
+
+    INPUT:
+
+    - ``iterable`` -- different inputs are accepted:
+
+        - an iterable (e.g. a list or vector) of real values.
+          Variables can also occur.
+
+        - a string consisting of ``"-"``, ``"+"``, ``"0"``. Other characters are treated as ``"0"``.
+
+    OUTPUT:
+
+    Returns a sign vector. If variables occur and the signs of the corresponding
+    entries cannot be determined, prints a warning and inserts ``"0"`` instead.
+
+    EXAMPLES::
+
+        sage: from sign_vectors import sign_vector
+        sage: sign_vector([5, 0, -1, -2])
+        (+0--)
+        sage: v = vector([5, 0, -1, -2])
+        sage: sign_vector(v)
+        (+0--)
+
+    We can also use a string to construct a sign vector::
+
+        sage: sign_vector("00--")
+        (00--)
+        sage: sign_vector('++-+-00-')
+        (++-+-00-)
+
+    Variables are supported to some extent::
+
+        sage: var('a')
+        a
+        sage: v = vector([1, a, -1])
+        sage: sign_vector(v) # not tested TODO fails for some reason
+        ...
+        UserWarning: Cannot determine sign of symbolic expression, using 0 for sign vector instead.
+        (+0-)
+        sage: assume(a > 0)
+        sage: sign_vector(v)
+        (++-)
+        sage: forget()
+    """
+    if isinstance(iterable, str):
+        return SignVector.from_str(iterable)
+    support = set()
+    psupport = set()
+    length = 0
+    for entry in iterable:
+        sign_entry = sign_symbolic(entry)
+        if sign_entry != 0:
+            support.add(length)
+            if sign_entry > 0:
+                psupport.add(length)
+        length += 1
+    return SignVector(frozenset(support), frozenset(psupport), length)
+
+
+def zero_sign_vector(length: int) -> SignVector:
+    r"""
+    Return the zero sign vector of a given length.
+
+    INPUT:
+
+    - ``length`` -- length
+
+    EXAMPLES::
+
+        sage: from sign_vectors import zero_sign_vector
+        sage: zero_sign_vector(4)
+        (0000)
+    """
+    return SignVector(frozenset(), frozenset(), length)
+
+
+def random_sign_vector(length: int) -> SignVector:
+    r"""
+    Return a random sign vector of a given length.
+
+    INPUT:
+
+    - ``length`` -- length
+
+    EXAMPLES::
+
+        sage: from sign_vectors import random_sign_vector
+        sage: random_sign_vector(5) # random
+        (++-0-)
+
+    TEST::
+
+        sage: len(random_sign_vector(5))
+        5
+    """
+    return SignVector.from_str("".join(choices("00+-", k=length)))
+
+
 def sign_symbolic(value) -> int:
     r"""
     Return the sign of an expression. Supports symbolic expressions.
@@ -172,7 +274,8 @@ def sign_symbolic(value) -> int:
 
     For symbolic expressions, the sign is determined using assumptions::
 
-        sage: a = var('a')
+        sage: var('a')
+        a
         sage: sign_symbolic(a)
         ...
         UserWarning: Cannot determine sign of symbolic expression, using ``0`` instead.
@@ -1041,104 +1144,3 @@ class SignVector(SageObject):
             (0+-0+0)
         """
         return SignVector(frozenset(support), frozenset(psupport), length)
-
-
-def sign_vector(iterable) -> SignVector:
-    r"""
-    Create a sign vector from a list, vector or string.
-
-    INPUT:
-
-    - ``iterable`` -- different inputs are accepted:
-
-        - an iterable (e.g. a list or vector) of real values.
-          Variables can also occur.
-
-        - a string consisting of ``"-"``, ``"+"``, ``"0"``. Other characters are treated as ``"0"``.
-
-    OUTPUT:
-
-    Returns a sign vector. If variables occur and the signs of the corresponding
-    entries cannot be determined, prints a warning and inserts ``"0"`` instead.
-
-    EXAMPLES::
-
-        sage: from sign_vectors import sign_vector
-        sage: sign_vector([5, 0, -1, -2])
-        (+0--)
-        sage: v = vector([5, 0, -1, -2])
-        sage: sign_vector(v)
-        (+0--)
-
-    We can also use a string to construct a sign vector::
-
-        sage: sign_vector("00--")
-        (00--)
-        sage: sign_vector('++-+-00-')
-        (++-+-00-)
-
-    Variables are supported to some extent::
-
-        sage: var('a')
-        a
-        sage: v = vector([1, a, -1])
-        sage: sign_vector(v) # not tested TODO fails for some reason
-        ...
-        UserWarning: Cannot determine sign of symbolic expression, using 0 for sign vector instead.
-        (+0-)
-        sage: assume(a > 0)
-        sage: sign_vector(v)
-        (++-)
-    """
-    if isinstance(iterable, str):
-        return SignVector.from_str(iterable)
-    support = set()
-    psupport = set()
-    length = 0
-    for entry in iterable:
-        sign_entry = sign_symbolic(entry)
-        if sign_entry != 0:
-            support.add(length)
-            if sign_entry > 0:
-                psupport.add(length)
-        length += 1
-    return SignVector(frozenset(support), frozenset(psupport), length)
-
-
-def zero_sign_vector(length: int) -> SignVector:
-    r"""
-    Return the zero sign vector of a given length.
-
-    INPUT:
-
-    - ``length`` -- length
-
-    EXAMPLES::
-
-        sage: from sign_vectors import zero_sign_vector
-        sage: zero_sign_vector(4)
-        (0000)
-    """
-    return SignVector(frozenset(), frozenset(), length)
-
-
-def random_sign_vector(length: int) -> SignVector:
-    r"""
-    Return a random sign vector of a given length.
-
-    INPUT:
-
-    - ``length`` -- length
-
-    EXAMPLES::
-
-        sage: from sign_vectors import random_sign_vector
-        sage: random_sign_vector(5) # random
-        (++-0-)
-
-    TEST::
-
-        sage: len(random_sign_vector(5))
-        5
-    """
-    return SignVector.from_str("".join(choices("00+-", k=length)))
