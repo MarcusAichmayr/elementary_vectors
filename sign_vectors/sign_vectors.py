@@ -254,19 +254,6 @@ class SignVector(SageObject):
     def __str__(self) -> str:
         return f"({self.to_string()})"
 
-    def _latex_(self) -> str:
-        r"""
-        Return a LaTeX representation of this sign vector.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector('0+-')
-            sage: X._latex_()
-            '(0+-)'
-        """
-        return self._repr_()
-
     def to_string(self) -> str:
         r"""
         Return a string representation of this sign vector (without parentheses).
