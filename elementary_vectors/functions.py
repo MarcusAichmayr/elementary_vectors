@@ -38,9 +38,9 @@ def elementary_vectors(M: matrix, dual: bool = True, prevent_multiples: bool = T
 
     OUTPUT:
     Return a list of elementary vectors in the kernel of a matrix given by the matrix ``M``.
-    To compute the elementary vectors in the row space, pass false for ``dual``.
+    To compute the elementary vectors in the row space, pass ``False`` for ``dual``.
 
-    - If ``generator`` is true, the output will be a generator object instead of a list.
+    - If ``generator`` is ``True``, the output will be a generator object instead of a list.
 
     EXAMPLES::
 
@@ -109,7 +109,7 @@ def kernel_matrix_using_elementary_vectors(M: matrix) -> matrix:
 
     OUTPUT:
     A right kernel matrix of ``M``.
-    Also works for symbolic matrices.
+    It also works for symbolic matrices.
 
     .. NOTE::
 
@@ -354,7 +354,7 @@ class ElementaryVectors(SageObject):
             sage: evs.element([1, 2, 3])
             Traceback (most recent call last):
             ...
-            ValueError: Indices [1, 2, 3] correspond to zero vector!
+            ValueError: The indices [1, 2, 3] correspond to the zero vector!
 
         For the row space, we need 1 element::
 
@@ -366,7 +366,7 @@ class ElementaryVectors(SageObject):
             sage: evs.element([1, 2])
             Traceback (most recent call last):
             ...
-            ValueError: Number of indices should be 1 or 3 but got 2.
+            ValueError: The number of indices should be 1 or 3 but got 2.
 
         ::
 
@@ -381,7 +381,7 @@ class ElementaryVectors(SageObject):
             elif len(indices) == self.rank - 1:
                 dual = False
             else:
-                raise ValueError(f"Number of indices should be {self.rank - 1} or {self.rank + 1} but got {len(indices)}.")
+                raise ValueError(f"The number of indices should be {self.rank - 1} or {self.rank + 1} but got {len(indices)}.")
 
         if dual:
             element = self._element_kernel(indices, mark_zeros=prevent_multiple)
@@ -389,7 +389,7 @@ class ElementaryVectors(SageObject):
             element = self._element_row_space(indices, mark_zeros=prevent_multiple)
         if element == 0:
             self._clear_zero_minors()
-            raise ValueError(f"Indices {indices} correspond to zero vector!")
+            raise ValueError(f"The indices {indices} correspond to the zero vector!")
 
         if prevent_multiple and self._mark_zero_minors():
             raise MultipleException(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector!")
@@ -479,7 +479,7 @@ class ElementaryVectors(SageObject):
 
     def degenerate_elements(self, dual: bool = True) -> Generator[vector, None, None]:
         r"""
-        Generator of elementary vectors with smaller than usual support.
+        Generator of elementary vectors with smaller-than-usual support.
 
         EXAMPLES::
 

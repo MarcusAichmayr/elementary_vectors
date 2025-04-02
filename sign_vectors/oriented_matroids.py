@@ -140,7 +140,7 @@ class Cocircuits(ElementaryVectors):
         sage: cc.element([1, 2, 3])
         Traceback (most recent call last):
         ...
-        ValueError: Indices [1, 2, 3] correspond to zero vector!
+        ValueError: The indices [1, 2, 3] correspond to the zero vector!
         sage: cc.elements()
         {(0+-0), (000-), (000+), (0-+0)}
         sage: cc.minors
