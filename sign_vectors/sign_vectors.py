@@ -172,8 +172,7 @@ def sign_symbolic(value) -> int:
 
     For symbolic expressions, the sign is determined using assumptions::
 
-        sage: var('a')
-        a
+        sage: a = var('a')
         sage: sign_symbolic(a)
         ...
         UserWarning: Cannot determine sign of symbolic expression, using ``0`` instead.
@@ -576,6 +575,37 @@ class SignVector(SageObject):
         """
         return self * value
 
+    def reverse_signs_in(self, indices) -> SignVector:
+        r"""
+        Reverses sign of given entries.
+
+        INPUT:
+
+        - ``indices`` -- list of indices
+
+        OUTPUT:
+        Returns a new sign vector of same length. Components with indices in
+        ``indices`` are multiplied by ``-1``.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector([-1, 1, 1, 0, 1])
+            sage: X
+            (-++0+)
+            sage: X.reverse_signs_in([0, 2, 3])
+            (++-0+)
+        """
+        support = frozenset(self._support)
+        psupport = set(self._positive_support)
+        for e in indices:
+            if e in support:
+                if e in psupport:
+                    psupport.remove(e)
+                else:
+                    psupport.add(e)
+        return SignVector(support, frozenset(psupport), self.length())
+
     def separating_elements(self, other) -> list[int]:
         r"""
         Compute the list of separating elements of two sign vectors.
@@ -606,6 +636,47 @@ class SignVector(SageObject):
             for e in self._support.intersection(other._support)
             if (e in self._positive_support) ^ (e in other._positive_support)
         ]
+
+    def is_orthogonal_to(self, other) -> bool:
+        r"""
+        Return whether two sign vectors are orthogonal.
+
+        INPUT:
+
+        - ``other`` -- a sign vector.
+
+        OUTPUT:
+
+        - Returns ``True`` if the sign vectors are orthogonal and ``False`` otherwise.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector('-+00+'); X
+            (-+00+)
+            sage: X.is_orthogonal_to(X)
+            False
+            sage: X.is_orthogonal_to(sign_vector('++000'))
+            True
+            sage: X.is_orthogonal_to(sign_vector('++00+'))
+            True
+            sage: X.is_orthogonal_to(sign_vector('00++0'))
+            True
+        """
+        if self.length() != other.length():
+            raise length_error
+        if self._support.isdisjoint(other._support):
+            return True
+        have_positive_product = False
+        have_negative_product = False
+        for e in self._support:
+            if self[e] * other[e] > 0:
+                have_positive_product = True
+            elif self[e] * other[e] < 0:
+                have_negative_product = True
+            if have_positive_product and have_negative_product:
+                return True
+        return False
 
     def is_harmonious(self, other) -> bool:
         r"""
@@ -685,37 +756,6 @@ class SignVector(SageObject):
         if isinstance(other, SignVector):
             return self._support.isdisjoint(other._support)
         return self._support.isdisjoint(other.support())
-
-    def reverse_signs_in(self, indices) -> SignVector:
-        r"""
-        Reverses sign of given entries.
-
-        INPUT:
-
-        - ``indices`` -- list of indices
-
-        OUTPUT:
-        Returns a new sign vector of same length. Components with indices in
-        ``indices`` are multiplied by ``-1``.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector([-1, 1, 1, 0, 1])
-            sage: X
-            (-++0+)
-            sage: X.reverse_signs_in([0, 2, 3])
-            (++-0+)
-        """
-        support = frozenset(self._support)
-        psupport = set(self._positive_support)
-        for e in indices:
-            if e in support:
-                if e in psupport:
-                    psupport.remove(e)
-                else:
-                    psupport.add(e)
-        return SignVector(support, frozenset(psupport), self.length())
 
     def conforms(self, other) -> bool:
         r"""
@@ -914,47 +954,6 @@ class SignVector(SageObject):
             False
         """
         return self != other and self >= other
-
-    def is_orthogonal_to(self, other) -> bool:
-        r"""
-        Return whether two sign vectors are orthogonal.
-
-        INPUT:
-
-        - ``other`` -- a sign vector.
-
-        OUTPUT:
-
-        - Returns ``True`` if the sign vectors are orthogonal and ``False`` otherwise.
-
-        EXAMPLES::
-
-            sage: from sign_vectors import sign_vector
-            sage: X = sign_vector('-+00+'); X
-            (-+00+)
-            sage: X.is_orthogonal_to(X)
-            False
-            sage: X.is_orthogonal_to(sign_vector('++000'))
-            True
-            sage: X.is_orthogonal_to(sign_vector('++00+'))
-            True
-            sage: X.is_orthogonal_to(sign_vector('00++0'))
-            True
-        """
-        if self.length() != other.length():
-            raise length_error
-        if self._support.isdisjoint(other._support):
-            return True
-        have_positive_product = False
-        have_negative_product = False
-        for e in self._support:
-            if self[e] * other[e] > 0:
-                have_positive_product = True
-            elif self[e] * other[e] < 0:
-                have_negative_product = True
-            if have_positive_product and have_negative_product:
-                return True
-        return False
 
     def __bool__(self) -> bool:
         return self != 0
