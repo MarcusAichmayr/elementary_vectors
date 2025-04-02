@@ -249,14 +249,10 @@ class SignVector(SageObject):
         self._length = length
 
     def _repr_(self) -> str:
-        return "(" + str(self) + ")"
+        return str(self)
 
     def __str__(self) -> str:
-        return "".join(
-            "+" if e in self._positive_support
-            else ("-" if e in self._support else "0")
-            for e in range(self.length())
-        )
+        return f"({self.to_string()})"
 
     def _latex_(self) -> str:
         r"""
@@ -270,6 +266,30 @@ class SignVector(SageObject):
             '(0+-)'
         """
         return self._repr_()
+
+    def to_string(self) -> str:
+        r"""
+        Return a string representation of this sign vector (without parentheses).
+
+        EXAMPLES::
+
+            sage: from sign_vectors import sign_vector
+            sage: X = sign_vector("0+-")
+            sage: X
+            (0+-)
+            sage: X.to_string()
+            '0+-'
+
+        Note that that `str` and `to_string` are different::
+
+            sage: str(X)
+            '(0+-)'
+        """
+        return "".join(
+            "+" if e in self._positive_support
+            else ("-" if e in self._support else "0")
+            for e in range(self.length())
+        )
 
     def length(self) -> int:
         r"""
