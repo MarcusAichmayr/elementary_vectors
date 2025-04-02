@@ -781,7 +781,7 @@ class SignVector(SageObject):
                 return True
         return False
 
-    def is_harmonious(self, other) -> bool:
+    def is_harmonious_to(self, other) -> bool:
         r"""
         Check whether these two sign vectors are harmonious.
 
@@ -807,14 +807,14 @@ class SignVector(SageObject):
             sage: Y = sign_vector([1, -2, 1, 2, 5])
             sage: Y
             (+-+++)
-            sage: X.is_harmonious(Y)
+            sage: X.is_harmonious_to(Y)
             False
-            sage: sign_vector('0+00').is_harmonious(sign_vector('-+0+'))
+            sage: sign_vector('0+00').is_harmonious_to(sign_vector('-+0+'))
             True
             sage: v = vector([1, 2/3, 0, -1, -1])
-            sage: X.is_harmonious(v)
+            sage: X.is_harmonious_to(v)
             True
-            sage: Y.is_harmonious(v)
+            sage: Y.is_harmonious_to(v)
             False
         """
         if self.length() != other.length():

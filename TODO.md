@@ -38,7 +38,7 @@
 
 ### 2.1. sign_vectors.sign_vectors
 
-* [ ] `is_harmonious` should work for a vector as input.
+* [ ] `is_harmonious_to` should work for a vector as input.
 * [ ] improve new implementation of `SignVector`
 * [ ] is list/tuple of Sign objects faster than sets for support and positive support?
 * [ ] Cython might not be that useful if length of sign vectors is small (e.g. <100)

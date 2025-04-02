@@ -325,7 +325,7 @@ def adjacent(element1, element2, iterable) -> bool:
         sage: Y = sign_vector('+0+')
         sage: Y
         (+0+)
-        sage: X.is_harmonious(Y)
+        sage: X.is_harmonious_to(Y)
         True
 
     Furthermore, the only cocircuits lying under the composition of :math:`X` and :math:`Y`,

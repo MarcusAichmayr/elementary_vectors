@@ -175,9 +175,9 @@ def determine_sign(X, a, M=None):
     """
     if X.disjoint_support(a):
         return 0
-    if X.is_harmonious(a):
+    if X.is_harmonious_to(a):
         return 1
-    if X.is_harmonious(-a):
+    if X.is_harmonious_to(-a):
         return -1
     if M is None:
         raise ValueError("Sign could not be determined. Pass a suitable matrix to determine the sign.")
@@ -212,7 +212,7 @@ def dd(E0, Ep, **kwargs):
     out = []
 
     def check_pair(X, Y):
-        if X.is_harmonious(Y):
+        if X.is_harmonious_to(Y):
             if not any(all((e in X.support() or e in Y.support()) for e in v.support()) for v in E0):
                 if adjacent(X, Y, Ep) and adjacent(-X, -Y, Ep):
                     return True
