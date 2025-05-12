@@ -313,7 +313,7 @@ class ElementaryVectors(SageObject):
     def _compute_minor(self, indices: tuple[int]) -> int:
         return self.matrix.matrix_from_columns(indices).det()
 
-    def _compute_minors(self) -> None:
+    def compute_minors(self) -> None:
         for indices in Combinations(self.length, self.rank):
             self.minor(indices)
 
