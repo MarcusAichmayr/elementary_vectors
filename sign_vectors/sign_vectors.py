@@ -465,7 +465,7 @@ class SignVector(SageObject):
             -1
             sage: X[-1]
             -1
-            sage: X[1:3] # todo: not implemented
+            sage: X[1:3]
             (++)
 
         TESTS::
@@ -479,7 +479,7 @@ class SignVector(SageObject):
             IndexError: index out of range
         """
         if isinstance(e, slice):
-            raise NotImplementedError("TODO")
+            return SignVector.from_str(self.to_string()[e])
         if e >= self.length() or e < -self.length():
             raise IndexError("index out of range")
         if e < 0:
