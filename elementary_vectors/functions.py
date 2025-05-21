@@ -87,6 +87,25 @@ def elementary_vectors(M: matrix, dual: bool = True, prevent_multiples: bool = T
         sage: elementary_vectors(M)
         [(-a + 4, -2, 1, 0), (2*b, -b, 0, 1), (a*b, 0, -b, 2), (0, a*b, -2*b, -a + 4)]
 
+    Matrices over the polynomial ring work, too::
+
+        sage: R = PolynomialRing(ZZ, "x")
+        sage: x = R.gen()
+        sage: M = matrix([[1, 2, x, 0], [0, 1, 2, x]])
+        sage: M
+        [1 2 x 0]
+        [0 1 2 x]
+        sage: elementary_vectors(M)
+        [(-x + 4, -2, 1, 0), (2*x, -x, 0, 1), (x^2, 0, -x, 2), (0, x^2, -2*x, -x + 4)]
+        sage: R = PolynomialRing(ZZ, "x, y")
+        sage: x, y = R.gens()
+        sage: M = matrix([[x, y, 0, 0], [0, 1, 2, 3]])
+        sage: M
+        [x y 0 0]
+        [0 1 2 3]
+        sage: elementary_vectors(M)
+        [(2*y, -2*x, x, 0), (3*y, -3*x, 0, x), (0, 0, -3*x, 2*x)]
+
     TESTS::
 
         sage: elementary_vectors(random_matrix(QQ, 0, 4))
@@ -245,7 +264,12 @@ class ElementaryVectors(SageObject):
         [(0, -2, 1, 0), (0, 0, 0, 1)]
     """
     def __init__(self, M: matrix) -> None:
-        self.matrix = M.matrix_from_rows(M.pivot_rows())
+        try:
+            self.matrix = M.matrix_from_rows(M.pivot_rows())
+        except NotImplementedError as exc:
+            if all(minor == 0 for minor in M.minors(M.nrows())):
+                raise ValueError("Provide a matrix with maximal rank.") from exc
+            self.matrix = M
         self.rank, self.length = self.matrix.dimensions()
         self.ring = M.base_ring()
         self.minors = {}
