@@ -1060,11 +1060,15 @@ class SignVector(SageObject):
             sage: SignVector.from_iterable(v)
             (+0-0+)
         """
-        v = list(iterable)
-        psupport = [pos for pos, t in enumerate(v) if t > 0]
-        nsupport = [pos for pos, t in enumerate(v) if t < 0]
+        psupport = []
+        nsupport = []
+        for pos, t in enumerate(iterable):
+            if t > 0:
+                psupport.append(pos)
+            elif t < 0:
+                nsupport.append(pos)
 
-        return SignVector.from_support(psupport, nsupport, len(v))
+        return SignVector.from_support(psupport, nsupport, len(iterable))
 
     @staticmethod
     def from_support(psupport: list, nsupport: list, length: int) -> SignVector:
