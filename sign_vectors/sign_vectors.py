@@ -202,7 +202,7 @@ def zero_sign_vector(length: int) -> SignVector:
         sage: zero_sign_vector(4)
         (0000)
     """
-    return SignVector(FrozenBitset([],capacity=length), FrozenBitset([],capacity=length))
+    return SignVector(FrozenBitset([], capacity=length), FrozenBitset([], capacity=length))
 
 
 def random_sign_vector(length: int) -> SignVector:
@@ -322,7 +322,6 @@ class SignVector(SageObject):
         """
         self._positive_support = psupport
         self._negative_support = nsupport
-
 
     def _repr_(self) -> str:
         return str(self)
@@ -636,7 +635,6 @@ class SignVector(SageObject):
             (-+00+)
         """
         return self * value
-
 
     def _connecting_elements(self, other) -> FrozenBitset:
         return (self._positive_support & other._positive_support) | (self._negative_support & other._negative_support)
@@ -1005,7 +1003,6 @@ class SignVector(SageObject):
         """
         return self != other and self >= other
 
-
     def __bool__(self) -> bool:
         return self != 0
 
@@ -1061,7 +1058,7 @@ class SignVector(SageObject):
         psupport = [pos for pos, t in enumerate(s) if t == "+"]
         nsupport = [pos for pos, t in enumerate(s) if t == "-"]
 
-        return SignVector.from_support(psupport,nsupport,len(s))
+        return SignVector.from_support(psupport, nsupport, len(s))
 
     @staticmethod
     def from_iterable(iterable) -> SignVector:
@@ -1081,7 +1078,7 @@ class SignVector(SageObject):
         psupport = [pos for pos, t in enumerate(v) if t > 0]
         nsupport = [pos for pos, t in enumerate(v) if t < 0]
 
-        return SignVector.from_support(psupport,nsupport,len(v))
+        return SignVector.from_support(psupport, nsupport, len(v))
 
     @staticmethod
     def from_support(psupport: list, nsupport: list, length: int) -> SignVector:
@@ -1110,4 +1107,4 @@ class SignVector(SageObject):
             sage: SignVector.from_support([1, 4], [2], 6)
             (0+-0+0)
         """
-        return SignVector(FrozenBitset(psupport,capacity=length), FrozenBitset(nsupport,capacity=length))
+        return SignVector(FrozenBitset(psupport, capacity=length), FrozenBitset(nsupport, capacity=length))
