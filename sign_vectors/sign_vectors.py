@@ -144,29 +144,13 @@ from __future__ import annotations
 import warnings
 from random import choices
 
-from sage.structure.sage_object import SageObject
 from sage.data_structures.bitset import FrozenBitset
+from sage.structure.sage_object import SageObject
 from sage.symbolic.ring import SR
 
 
 length_error = ValueError("Elements have different length.")
 
-
-def zero_sign_vector(length: int) -> SignVector:
-    r"""
-    Return the zero sign vector of a given length.
-
-    INPUT:
-
-    - ``length`` -- length
-
-    EXAMPLES::
-
-        sage: from sign_vectors import *
-        sage: zero_sign_vector(4)
-        (0000)
-    """
-    return SignVector(FrozenBitset([],capacity=length), FrozenBitset([],capacity=length))
 
 def sign_vector(iterable) -> SignVector:
     r"""
@@ -205,6 +189,23 @@ def sign_vector(iterable) -> SignVector:
     if isinstance(iterable, str):
         return SignVector.from_str(iterable)
     return SignVector.from_iterable(iterable)
+
+
+def zero_sign_vector(length: int) -> SignVector:
+    r"""
+    Return the zero sign vector of a given length.
+
+    INPUT:
+
+    - ``length`` -- length
+
+    EXAMPLES::
+
+        sage: from sign_vectors import *
+        sage: zero_sign_vector(4)
+        (0000)
+    """
+    return SignVector(FrozenBitset([],capacity=length), FrozenBitset([],capacity=length))
 
 
 def random_sign_vector(length: int) -> SignVector:
@@ -356,7 +357,7 @@ class SignVector(SageObject):
             else ("-" if e in self._negative_support else "0")
             for e in range(self.length())
         )
-    
+
     @property
     def _length(self) -> int:
         return self._positive_support.capacity()
@@ -402,7 +403,7 @@ class SignVector(SageObject):
             [0, 2, 3]
         """
         return list(self._support())
-    
+
     def _support(self):
         return self._positive_support | self._negative_support
 
@@ -576,7 +577,7 @@ class SignVector(SageObject):
         if self.length() != other.length():
             raise length_error
 
-        res_psupport = self._positive_support | other._positive_support 
+        res_psupport = self._positive_support | other._positive_support
         res_nsupport = self._negative_support | other._negative_support
         return SignVector(res_psupport, res_nsupport)
 
@@ -642,16 +643,16 @@ class SignVector(SageObject):
         """
         return self * value
 
-    
+
     def _connecting_elements(self, other) -> FrozenBitset:
         return (self._positive_support & other._positive_support) | (self._negative_support & other._negative_support)
-    
+
     def connecting_elements(self, other) -> list[int]:
 
         if self.length() != other.length():
             raise length_error
         return list(self._connecting_elements(other))
-    
+
     def _separating_elements(self, other) -> FrozenBitset:
         return (self._positive_support & other._negative_support) | (self._negative_support & other._positive_support)
 
@@ -681,9 +682,7 @@ class SignVector(SageObject):
         if self.length() != other.length():
             raise length_error
         return list(self._separating_elements(other))
-    
-    
-    
+
     def is_orthogonal_to(self, other) -> bool:
         r"""
         Return whether two sign vectors are orthogonal.
@@ -712,7 +711,7 @@ class SignVector(SageObject):
         """
         if self.length() != other.length():
             raise length_error
-        
+
         return not (self._separating_elements(other).isempty() ^ self._connecting_elements(other).isempty())
 
     def is_harmonious_to(self, other) -> bool:
@@ -904,7 +903,7 @@ class SignVector(SageObject):
             sage: from sign_vectors import *
             sage: SignVector.from_str('00--') <= 0
             True
-            
+
             sage: sign_vector([1, 1, -1, 0]) <= 0
             False
             sage: 0 <= sign_vector([1, 1, 0, 0])
@@ -963,7 +962,7 @@ class SignVector(SageObject):
 
         EXAMPLES::
 
-            sage: from sign_vectors import *    
+            sage: from sign_vectors import *
             sage: X = SignVector.from_str('-+00+'); X
             (-+00+)
             sage: Y = SignVector.from_str('-++0+'); Y
@@ -1024,7 +1023,7 @@ class SignVector(SageObject):
             False
         """
         return self != other and self >= other
-   
+
 
     def __bool__(self) -> bool:
         return self != 0
@@ -1082,7 +1081,7 @@ class SignVector(SageObject):
         nsupport = [pos for pos, t in enumerate(s) if t == "-"]
 
         return SignVector.from_support(psupport,nsupport,len(s))
-    
+
     @staticmethod
     def from_iterable(iterable) -> SignVector:
         r"""
@@ -1131,6 +1130,3 @@ class SignVector(SageObject):
             (0+-0+0)
         """
         return SignVector(FrozenBitset(psupport,capacity=length), FrozenBitset(nsupport,capacity=length))
-
-
-
