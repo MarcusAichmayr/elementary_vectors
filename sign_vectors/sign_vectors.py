@@ -478,6 +478,7 @@ class SignVector(SageObject):
             IndexError: index out of range
         """
         if isinstance(e, slice):
+            # TODO improve
             return SignVector.from_string(self.to_string()[e])
         if e >= self.length() or e < -self.length():
             raise IndexError("index out of range")
