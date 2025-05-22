@@ -195,7 +195,7 @@ def sign_vector(iterable) -> SignVector:
         sage: forget()
     """
     if isinstance(iterable, str):
-        return SignVector.from_str(iterable)
+        return SignVector.from_string(iterable)
     return SignVector.from_iterable(iterable)
 
 
@@ -235,7 +235,7 @@ def random_sign_vector(length: int) -> SignVector:
         sage: len(random_sign_vector(5))
         5
     """
-    return SignVector.from_str("".join(choices("00+-", k=length)))
+    return SignVector.from_string("".join(choices("00+-", k=length)))
 
 
 def sign_symbolic(value) -> int:
@@ -476,7 +476,7 @@ class SignVector(SageObject):
             IndexError: index out of range
         """
         if isinstance(e, slice):
-            return SignVector.from_str(self.to_string()[e])
+            return SignVector.from_string(self.to_string()[e])
         if e >= self.length() or e < -self.length():
             raise IndexError("index out of range")
         if e < 0:
@@ -1031,14 +1031,14 @@ class SignVector(SageObject):
         return hash((self._positive_support, self._negative_support))
 
     @staticmethod
-    def from_str(s: str) -> SignVector:
+    def from_string(s: str) -> SignVector:
         r"""
-        Creates a sign vector from a string.
+        Create a sign vector from a string.
 
         EXAMPLES::
 
             sage: from sign_vectors import *
-            sage: SignVector.from_str("+-0+0")
+            sage: SignVector.from_string("+-0+0")
             (+-0+0)
         """
         psupport = [pos for pos, t in enumerate(s) if t == "+"]
@@ -1049,7 +1049,7 @@ class SignVector(SageObject):
     @staticmethod
     def from_iterable(iterable) -> SignVector:
         r"""
-        Creates a sign vector from a vector.
+        Create a sign vector from an iterable.
 
         EXAMPLES::
 
