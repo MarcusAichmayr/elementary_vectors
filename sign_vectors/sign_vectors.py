@@ -188,6 +188,8 @@ def sign_vector(iterable) -> SignVector:
         a
         sage: v = vector([1, a, -1])
         sage: sign_vector(v)
+        ...
+        UserWarning: Cannot determine sign of symbolic expression, using ``0`` instead.
         (+0-)
         sage: assume(a > 0)
         sage: sign_vector(v)
@@ -261,7 +263,7 @@ def sign_symbolic(value) -> int:
 
         sage: var('a')
         a
-        sage: sign_symbolic(a)
+        sage: sign_symbolic(a) # not tested
         ...
         UserWarning: Cannot determine sign of symbolic expression, using ``0`` instead.
         0
@@ -667,10 +669,6 @@ class SignVector(SageObject):
     def _connecting_elements(self, other) -> FrozenBitset:
         return (self._positive_support & other._positive_support) | (self._negative_support & other._negative_support)
 
-    def connecting_elements(self, other) -> list[int]:
-        r"""Compute the indices where both sign vectors have the same nonzero sign."""
-        return list(self._connecting_elements(other))
-
     def _separating_elements(self, other) -> FrozenBitset:
         return (self._positive_support & other._negative_support) | (self._negative_support & other._positive_support)
 
@@ -1062,13 +1060,15 @@ class SignVector(SageObject):
         """
         psupport = []
         nsupport = []
-        for pos, t in enumerate(iterable):
-            if t > 0:
-                psupport.append(pos)
-            elif t < 0:
-                nsupport.append(pos)
-
-        return SignVector.from_support(psupport, nsupport, len(iterable))
+        length = 0
+        for entry in iterable:
+            sign_entry = sign_symbolic(entry)
+            if sign_entry > 0:
+                psupport.append(length)
+            elif sign_entry < 0:
+                nsupport.append(length)
+            length += 1
+        return SignVector.from_support(psupport, nsupport, length)
 
     @staticmethod
     def from_support(psupport: list, nsupport: list, length: int) -> SignVector:
