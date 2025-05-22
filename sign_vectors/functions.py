@@ -64,11 +64,11 @@ def closure(iterable, separate: bool = False):
         sage: W
         [(++-), (-00), (0--)]
         sage: closure(W)
-        {(000), (-00), (00-), (+00), (+0-), (++0), (++-), (0--), (0+0), (0+-), (0-0)}
+        {(000), (-00), (00-), (0+0), (0+-), (+00), (+0-), (++0), (++-), (0-0), (0--)}
         sage: closure(W, separate=True)
         [{(000)},
-         {(-00), (00-), (+00), (0+0), (0-0)},
-         {(0--), (0+-), (+0-), (++0)},
+         {(-00), (00-), (0+0), (0-0), (+00)},
+         {(0+-), (++0), (+0-), (0--)},
          {(++-)}]
 
     TESTS::
@@ -144,9 +144,9 @@ def contraction(iterable, indices: list[int], keep_components: bool = False) -> 
         sage: contraction(W, [0])
         {(0+)}
         sage: contraction(W, [1])
-        {(0+), (-0)}
+        {(-0), (0+)}
         sage: contraction(W, [2])
-        {(++), (-0)}
+        {(-0), (++)}
 
     The second sign vector has zeros at positions ``1`` and ``2``::
 
@@ -159,9 +159,9 @@ def contraction(iterable, indices: list[int], keep_components: bool = False) -> 
         sage: contraction(W, [0], keep_components=True)
         {(00+)}
         sage: contraction(W, [1], keep_components=True)
-        {(00+), (-00)}
+        {(-00), (00+)}
         sage: contraction(W, [2], keep_components=True)
-        {(++0), (-00)}
+        {(-00), (++0)}
         sage: contraction(W, [1, 2], keep_components=True)
         {(-00)}
 
@@ -203,12 +203,12 @@ def deletion(iterable, indices: list[int]) -> set:
         sage: W
         [(++0), (00-), (+00)]
         sage: deletion(W, [0])
-        {(00), (0-), (+0)}
+        {(00), (+0), (0-)}
 
     Duplicate sign vectors are removed if they would occur::
 
         sage: deletion(W, [1])
-        {(0-), (+0)}
+        {(+0), (0-)}
         sage: deletion(W, [1, 2])
         {(0), (+)}
 
