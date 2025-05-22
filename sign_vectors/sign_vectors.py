@@ -149,9 +149,6 @@ from sage.structure.sage_object import SageObject
 from sage.symbolic.ring import SR
 
 
-length_error = ValueError("Elements have different length.")
-
-
 def sign_vector(iterable) -> SignVector:
     r"""
     Create a sign vector from a list, vector or string.
@@ -574,9 +571,6 @@ class SignVector(SageObject):
             sage: Y.compose_harmonious(X)
             (+-0)
         """
-        if self.length() != other.length():
-            raise length_error
-
         res_psupport = self._positive_support | other._positive_support
         res_nsupport = self._negative_support | other._negative_support
         return SignVector(res_psupport, res_nsupport)
@@ -648,9 +642,7 @@ class SignVector(SageObject):
         return (self._positive_support & other._positive_support) | (self._negative_support & other._negative_support)
 
     def connecting_elements(self, other) -> list[int]:
-
-        if self.length() != other.length():
-            raise length_error
+        r"""Compute the indices where both sign vectors have the same nonzero sign."""
         return list(self._connecting_elements(other))
 
     def _separating_elements(self, other) -> FrozenBitset:
@@ -679,8 +671,6 @@ class SignVector(SageObject):
             sage: X.separating_elements(Y)
             [1, 4]
         """
-        if self.length() != other.length():
-            raise length_error
         return list(self._separating_elements(other))
 
     def is_orthogonal_to(self, other) -> bool:
@@ -709,9 +699,6 @@ class SignVector(SageObject):
             sage: X.is_orthogonal_to(SignVector.from_str('00++0'))
             True
         """
-        if self.length() != other.length():
-            raise length_error
-
         return not (self._separating_elements(other).isempty() ^ self._connecting_elements(other).isempty())
 
     def is_harmonious_to(self, other) -> bool:
@@ -750,8 +737,6 @@ class SignVector(SageObject):
             sage: Y.is_harmonious_to(v)
             False
         """
-        if self.length() != other.length():
-            raise length_error
         if not isinstance(other, SignVector):
             other = sign_vector(other)
 
@@ -782,8 +767,6 @@ class SignVector(SageObject):
             sage: Y.disjoint_support(Z)
             False
         """
-        if self.length() != other.length():
-            raise length_error
         if isinstance(other, SignVector):
             return self._support().isdisjoint(other._support())
         return set(self.support()).isdisjoint(other.support())
@@ -845,8 +828,6 @@ class SignVector(SageObject):
             sage: X.conforms(Z)
             True
         """
-        if self.length() != other.length():
-            raise length_error
 
         return self._positive_support.issubset(other._positive_support) & self._negative_support.issubset(other._negative_support)
 
