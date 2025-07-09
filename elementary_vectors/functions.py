@@ -18,13 +18,68 @@ from sage.structure.sage_object import SageObject
 from .utility import is_symbolic
 
 
-class MultipleException(ValueError):
-    r"""Raised when a multiple of a previously computed elementary vector is detected."""
+def circuits(M: matrix) -> List[vector]:
+    r"""
+    Compute the circuits of a matrix.
+    INPUT:
+
+    - ``M`` -- a matrix
+
+    OUTPUT:
+    Return a list of circuits of the matrix ``M``.
+    These are the nonzero support-minimal elements in the kernel.
+
+    .. SEEALSO::
+
+        :func:`cocircuits`
+        :func:`elementary_vectors`
+
+    EXAMPLES::
+
+        sage: from elementary_vectors import *
+        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: M
+        [1 2 0 0]
+        [0 1 2 3]
+        sage: circuits(M)
+        [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
+    """
+    return elementary_vectors(M, dual=True)
+
+
+def cocircuits(M: matrix) -> List[vector]:
+    r"""
+    Compute the cocircuits of a matrix.
+
+    INPUT:
+
+    - ``M`` -- a matrix
+
+    OUTPUT:
+    Return a list of cocircuits of the matrix ``M``.
+    These are the nonzero support-minimal elements in the row space.
+
+    .. SEEALSO::
+
+        :func:`circuits`
+        :func:`elementary_vectors`
+
+    EXAMPLES::
+
+        sage: from elementary_vectors import *
+        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: M
+        [1 2 0 0]
+        [0 1 2 3]
+        sage: cocircuits(M)
+        [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
+    """
+    return elementary_vectors(M, dual=False)
 
 
 def elementary_vectors(M: matrix, dual: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Generator[vector, None, None]]:
     r"""
-    Compute elementary vectors of a subspace determined by a matrix or a list of maximal minors.
+    Compute elementary vectors of a subspace determined by a matrix.
 
     INPUT:
 
@@ -550,3 +605,7 @@ class ElementaryVectors(SageObject):
                     break
                 except ValueError: # zero vector
                     continue
+
+
+class MultipleException(ValueError):
+    r"""Raised when a multiple of a previously computed elementary vector is detected."""
