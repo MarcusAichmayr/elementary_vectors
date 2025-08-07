@@ -102,6 +102,7 @@ from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vecto
 from .utility import loops, classes_same_support, parallel_classes
 
 
+# TODO name
 class Cocircuits(ElementaryVectors):
     r"""
     Class used to compute cocircuits and circuits.
@@ -169,6 +170,21 @@ class OrientedMatroid(SageObject):
     def cotopes(self):
         # TODO name?
         return topes_from_cocircuits(self.cocircuits())
+
+    def chirotopes(self):
+        r"""
+        Compute the chirotopes of the oriented matroid.
+        """
+        raise NotImplementedError
+
+    def loops(self):
+        r"""
+        Compute the loops of the oriented matroid.
+
+        Output:
+        A list of zero entries of each covector.
+        """
+        raise NotImplementedError
 
     def faces(self, level: int):
         # should use lower faces to get down
