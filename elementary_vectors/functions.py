@@ -351,7 +351,7 @@ class ElementaryVectors(SageObject):
         self._zero_minors = set()
         self._marked_minors = set()
 
-    def minor(self, indices: List[int], mark_if_zero: bool = False) -> int:
+    def minor(self, indices: List[int], mark_if_zero: bool = False):
         r"""
         Compute a minor given by (sorted) indices.
 
@@ -389,10 +389,11 @@ class ElementaryVectors(SageObject):
             self._zero_minors.add(indices)
         return minor
 
-    def _compute_minor(self, indices: tuple[int]) -> int:
+    def _compute_minor(self, indices: tuple[int]):
         return self.matrix.matrix_from_columns(indices).det()
 
     def compute_minors(self) -> None:
+        r"""Compute all maximal minors of the matrix."""
         for indices in Combinations(self.length, self.rank):
             self.minor(indices)
 
