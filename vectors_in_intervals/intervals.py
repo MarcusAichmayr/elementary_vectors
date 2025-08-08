@@ -1,4 +1,4 @@
-"""Interval classes."""
+"""Interval classes"""
 
 #############################################################################
 #  Copyright (C) 2025                                                       #
@@ -481,35 +481,40 @@ class Intervals(SageObject):
         return hash(tuple(self.intervals))
 
     def is_empty(self) -> bool:
+        r"""Return whether the intervals are empty."""
         if len(self) == 0:
             return True
         return any(interval.is_empty() for interval in self.intervals)
 
     def is_open(self) -> bool:
+        r"""Return whether all intervals are open."""
         return all(interval.is_open() for interval in self.intervals)
 
     def is_closed(self) -> bool:
+        r"""Return whether all intervals are closed."""
         return all(interval.is_closed() for interval in self.intervals)
 
-    def is_half_open(self) -> bool:
-        return any(interval.is_half_open() for interval in self.intervals)
-
     def is_unbounded(self) -> bool:
+        r"""Return whether any interval is unbounded."""
         return any(interval.is_unbounded() for interval in self.intervals)
 
     def is_bounded(self) -> bool:
+        r"""Return whether all intervals are bounded."""
         return not self.is_unbounded()
 
     def is_pointed(self) -> bool:
+        r"""Return whether all intervals are pointed."""
         return all(interval.is_pointed() for interval in self.intervals)
 
     def __bool__(self) -> bool:
         return not self.is_empty()
 
     def an_element(self):
+        r"""Return an element from each interval."""
         return [interval.an_element() for interval in self.intervals]
 
     def simplest_element(self):
+        r"""Return the simplest element from each interval."""
         return [interval.simplest_element() for interval in self.intervals]
 
     def __iter__(self):
