@@ -148,25 +148,205 @@ class Sign(IntEnum):
         return cls.ZERO
 
 
-# TODO duplicates code of ElementaryVectors
 class OrientedMatroid(SageObject):
     r"""
     Class representing the chirotopes of an oriented matroid.
+
+    EXAMPLES::
+
+        sage: from sign_vectors.oriented_matroids import *
+        sage: M = matrix([[1, 2, 0, 0, 0], [0, 1, 2, 0, 0], [0, 0, 0, 1, 1]])
+        sage: om = OrientedMatroid(M)
+        sage: om
+        OrientedMatroid of dimension 2 over {0, ..., 4}.
+        sage: om.dimension
+        2
+        sage: om.rank
+        3
+        sage: om.length
+        5
+        sage: om.cocircuits()
+        {(00000),
+         (--000),
+         (000++),
+         (+0-00),
+         (0--00),
+         (++000),
+         (0++00),
+         (000--),
+         (-0+00)}
+        sage: om.faces(0)
+        {(00000),
+         (--000),
+         (000++),
+         (+0-00),
+         (0--00),
+         (++000),
+         (0++00),
+         (000--),
+         (-0+00)}
+        sage: om.vertices()
+        {(00000),
+         (--000),
+         (000++),
+         (+0-00),
+         (0--00),
+         (++000),
+         (0++00),
+         (000--),
+         (-0+00)}
+        sage: om.faces(1)
+        {(+0---),
+         (---00),
+         (-0+++),
+         (0----),
+         (++0--),
+         (++-00),
+         (--+00),
+         (-++00),
+         (0++--),
+         (+++00),
+         (0++++),
+         (0--++),
+         (-0+--),
+         (--0++),
+         (++0++),
+         (+--00),
+         (--0--),
+         (+0-++)}
+        sage: om.edges()
+        {(+0---),
+         (---00),
+         (-0+++),
+         (0----),
+         (++0--),
+         (++-00),
+         (--+00),
+         (-++00),
+         (0++--),
+         (+++00),
+         (0++++),
+         (0--++),
+         (-0+--),
+         (--0++),
+         (++0++),
+         (+--00),
+         (--0--),
+         (+0-++)}
+        sage: om.faces(2)
+        {(-++++),
+         (---++),
+         (+--++),
+         (++-++),
+         (+----),
+         (--+++),
+         (+++++),
+         (-----),
+         (++---),
+         (--+--),
+         (-++--),
+         (+++--)}
+        sage: om.topes()
+        {(-++++),
+         (---++),
+         (+--++),
+         (++-++),
+         (+----),
+         (--+++),
+         (+++++),
+         (-----),
+         (++---),
+         (--+--),
+         (-++--),
+         (+++--)}
+        sage: om.faces(-1)
+        {(00000)}
+        sage: om.covectors()
+        {(00000),
+         (+0---),
+         (0----),
+         (++-00),
+         (--+00),
+         (0++--),
+         (000++),
+         (++-++),
+         (--+++),
+         (0++++),
+         (++---),
+         (+--00),
+         (000--),
+         (--+--),
+         (+0-++),
+         (+----),
+         (++000),
+         (++0++),
+         (---00),
+         (++0--),
+         (---++),
+         (-0+00),
+         (0++00),
+         (-++00),
+         (+--++),
+         (+++00),
+         (+++++),
+         (-----),
+         (-0+--),
+         (-++--),
+         (+++--),
+         (-0+++),
+         (-++++),
+         (--000),
+         (+0-00),
+         (0--00),
+         (0--++),
+         (--0++),
+         (--0--)}
+
+    ::
+
+        sage: om.circuits()
+        {(000-+), (-+-00), (000+-), (+-+00)}
+        sage: om.vectors()
+        {(00000),
+         (000+-),
+         (-+-+-),
+         (000-+),
+         (+-+00),
+         (+-+-+),
+         (-+-00),
+         (-+--+),
+         (+-++-)}
+
+    ::
+
+        sage: om.chirotopes()
+        [0, +, +, +, +, 0, +, +, 0, 0]
+        sage: om.chirotope([0, 1, 2])
+        0
+        sage: om.cocircuit([0, 1])
+        (000++)
+        sage: om.circuit([0, 1, 2, 3])
+        (+-+00)
     """
-    def __init__(self, M, hash_faces: bool = True) -> None:
+    def __init__(self, M) -> None:
         try:
             self.matrix = M.matrix_from_rows(M.pivot_rows())
         except NotImplementedError as exc:
             if all(minor == 0 for minor in M.minors(M.nrows())):
                 raise ValueError("Provide a matrix with maximal rank.") from exc
             self.matrix = M
+
         self.rank, self.length = self.matrix.dimensions()
+        self.dimension = self.rank - 1
+
         self._chirotopes = {}
-        self._hash_faces = hash_faces
-        self._faces = {0: set(zero_sign_vector(self.length))}
-        self._faces_dual = {0: set(zero_sign_vector(self.length))}
+        self._faces_by_dimension = {-1: set([zero_sign_vector(self.length)])}
         self._loops = None
-        self._coloops = None
+
+        self._debug = False
+
+    def _repr_(self) -> str:
+        return f"OrientedMatroid of dimension {self.dimension} over {{{0}, ..., {self.length - 1}}}."
 
     def chirotope(self, indices: list[int]) -> Sign:
         r"""
@@ -216,36 +396,6 @@ class OrientedMatroid(SageObject):
         """
         return [self.chirotope(indices) for indices in Combinations(self.length, self.rank)]
 
-    def circuit(self, indices: list[int]) -> SignVector:
-        r"""
-        Compute the circuit for the given indices.
-
-        INPUT:
-
-        - ``indices`` -- a list of indices.
-
-        OUTPUT:
-
-        - The circuit as a SignVector.
-
-        EXAMPLES::
-
-            sage: from sign_vectors.oriented_matroids import *
-            sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid(M)
-            sage: om.circuit([0, 1, 2])
-            (+-+0)
-        """
-        element = [0] * self.length
-        for pos in range(self.rank + 1):
-            indices_chirotope = indices.copy()
-            i = indices_chirotope.pop(pos)
-            chirotope = self.chirotope(indices_chirotope)
-            if chirotope != 0:
-                # check oddness of last bit of pos
-                element[i] = -chirotope if (pos & 1) else chirotope
-        return sign_vector(element)
-
     def cocircuit(self, indices: list[int]) -> SignVector:
         r"""
         Compute the cocircuit for the given indices.
@@ -278,44 +428,35 @@ class OrientedMatroid(SageObject):
                 element[i] = -chirotope if (pos & 1) else chirotope
         return sign_vector(element)
 
-    def circuits_generator(self) -> Generator[SignVector]:
+    def circuit(self, indices: list[int]) -> SignVector:
         r"""
-        Compute the circuits of the oriented matroid.
+        Compute the circuit for the given indices.
+
+        INPUT:
+
+        - ``indices`` -- a list of indices.
 
         OUTPUT:
 
-        - A generator of circuits as SignVectors.
-        """
-        for indices in Combinations(self.length, self.rank + 1):
-            yield self.circuit(indices)
-            yield -self.circuit(indices)
-
-    def circuits(self) -> set[SignVector]:
-        r"""
-        Compute the circuits of the oriented matroid.
-
-        OUTPUT:
-
-        - A set of circuits as SignVectors.
-
-        .. NOTE::
-
-            The circuits are the support-minimal sign vectors corresponding to the kernel.
+        - The circuit as a SignVector.
 
         EXAMPLES::
 
             sage: from sign_vectors.oriented_matroids import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
             sage: om = OrientedMatroid(M)
-            sage: om.circuits()
-            {(00-+), (+-0+), (-+0-), (00+-), (-+-0), (+-+0)}
+            sage: om.circuit([0, 1, 2])
+            (+-+0)
         """
-        if 1 in self._faces:
-            return self._faces[1]
-        circuits = set(self.circuits_generator())
-        if self._hash_faces:
-            self._faces[1] = circuits
-        return circuits
+        element = [0] * self.length
+        for pos in range(self.rank + 1):
+            indices_chirotope = indices.copy()
+            i = indices_chirotope.pop(pos)
+            chirotope = self.chirotope(indices_chirotope)
+            if chirotope != 0:
+                # check oddness of last bit of pos
+                element[i] = -chirotope if (pos & 1) else chirotope
+        return sign_vector(element)
 
     def cocircuits_generator(self) -> Generator[SignVector]:
         r"""
@@ -349,12 +490,60 @@ class OrientedMatroid(SageObject):
             sage: om.cocircuits()
             {(+0--), (-0++), (--00), (++00), (0+++), (0---)}
         """
-        if 1 in self._faces_dual:
-            return self._faces_dual[1]
-        cocircuits = set(self.cocircuits_generator())
-        if self._hash_faces:
-            self._faces_dual[1] = cocircuits
-        return cocircuits
+        if 0 not in self._faces_by_dimension:
+            if self._debug:
+                print("Computing cocircuits...")
+            self._faces_by_dimension[0] = set(self.cocircuits_generator())
+        return self._faces_by_dimension[0]
+
+    def circuits_generator(self) -> Generator[SignVector]:
+        r"""
+        Compute the circuits of the oriented matroid.
+
+        OUTPUT:
+
+        - A generator of circuits as SignVectors.
+        """
+        for indices in Combinations(self.length, self.rank + 1):
+            yield self.circuit(indices)
+            yield -self.circuit(indices)
+
+    def circuits(self) -> set[SignVector]:
+        r"""
+        Compute the circuits of the oriented matroid.
+
+        OUTPUT:
+
+        - A set of circuits as SignVectors.
+
+        .. NOTE::
+
+            The circuits are the support-minimal sign vectors corresponding to the kernel.
+
+        EXAMPLES::
+
+            sage: from sign_vectors.oriented_matroids import *
+            sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+            sage: om = OrientedMatroid(M)
+            sage: om.circuits()
+            {(00-+), (+-0+), (-+0-), (00+-), (-+-0), (+-+0)}
+        """
+        if self._debug:
+            print("Computing circuits...")
+        return set(self.circuits_generator())
+
+    def covectors(self) -> list[SignVector]:
+        r"""
+        Compute the covectors of the oriented matroid.
+
+        .. NOTE::
+
+            The covectors are all sign vectors corresponding to the row space.
+        """
+        # TODO should store topes
+        if self._debug:
+            print("Applying covectors_from_cocircuits...")
+        return covectors_from_cocircuits(self.cocircuits())
 
     def vectors(self) -> list[SignVector]:
         r"""
@@ -367,26 +556,17 @@ class OrientedMatroid(SageObject):
         # TODO should store support-maximal elements
         return covectors_from_cocircuits(self.circuits())
 
-    def covectors(self) -> list[SignVector]:
-        r"""
-        Compute the covectors of the oriented matroid.
+    # def maximal_vectors(self) -> list[SignVector]:
+    #     r"""
+    #     Compute the support-maximal elements of the oriented matroid.
 
-        .. NOTE::
+    #     OUTPUT:
 
-            The covectors are all sign vectors corresponding to the row space.
-        """
-        # TODO should store topes
-        return covectors_from_cocircuits(self.cocircuits())
-
-    def support_maximal_elements(self) -> list[SignVector]:
-        r"""
-        Compute the support-maximal elements of the oriented matroid.
-
-        OUTPUT:
-
-        - A list of support-maximal elements as SignVectors.
-        """
-        return topes_from_cocircuits(self.circuits())
+    #     - A list of support-maximal elements as SignVectors.
+    #     """
+    #     if self._faces.get(self.rank) is None:
+    #         self._faces[self.rank] = topes_from_cocircuits(self.circuits())
+    #     return self._faces[self.rank]
 
     def topes(self) -> list[SignVector]:
         r"""
@@ -396,57 +576,91 @@ class OrientedMatroid(SageObject):
 
             The topes are the support-maximal sign vectors corresponding to the row space.
         """
-        return topes_from_cocircuits(self.cocircuits())
+        if self._faces_by_dimension.get(self.dimension) is None:
+            if self._debug:
+                print("Computing topes...")
+            self._faces_by_dimension[self.dimension] = topes_from_cocircuits(self.cocircuits())
+        return self._faces_by_dimension[self.dimension]
 
-    def loops(self) -> list[int]:
+    def vertices(self) -> set[SignVector]:
+        r"""Return the vertices (cocircuits) of the oriented matroid."""
+        return self.cocircuits()
+
+    def edges(self) -> set[SignVector]:
         r"""
-        Compute the loops of the oriented matroid.
+        Return the edges of the oriented matroid.
 
-        Output:
-        A list of zero entries of each covector.
+        Those are the elements of dimension 1.
         """
-        if self._loops is not None:
-            return self._loops
-        # TODO we check twice as many elements as necessary
-        self._loops = [
-            i for i in range(self.length)
-            if all(circuit[i] == 0 for circuit in self.circuits())
-        ]
-        return self._loops
+        return self.faces(1)
 
-    def coloops(self) -> list[int]:
-        r"""
-        Compute the coloops of the oriented matroid.
+    # def loops(self) -> list[int]:
+    #     r"""
+    #     Compute the loops of the oriented matroid.
 
-        Output:
-        A list of zero entries of each circuit.
-        """
-        if self._coloops is not None:
-            return self._coloops
-        self._coloops = [i for i, column in enumerate(self.matrix.columns()) if column == 0]
-        return self._coloops
+    #     Output:
+    #     A list of zero entries of each covector.
+    #     """
+    #     if self._loops is not None:
+    #         return self._loops
+    #     # TODO we check twice as many elements as necessary
+    #     self._loops = [
+    #         i for i in range(self.length)
+    #         if all(circuit[i] == 0 for circuit in self.circuits())
+    #     ]
+    #     return self._loops
 
-    def faces(self, level: int):
+    # def coloops(self) -> list[int]:
+    #     r"""
+    #     Compute the coloops of the oriented matroid.
+
+    #     Output:
+    #     A list of zero entries of each circuit.
+    #     """
+    #     if self._coloops is not None:
+    #         return self._coloops
+    #     self._coloops = [i for i, column in enumerate(self.matrix.columns()) if column == 0]
+    #     return self._coloops
+
+    def faces(self, dimension: int):
         r"""
         Compute the faces of the same level of the oriented matroid.
         """
-        if level in self._faces:
-            return self._faces[level]
-        if level == 1:
-            return self.circuits()
-        if level == self.rank:
-            return self.support_maximal_elements()
-        # should use lower faces to get down
-        raise NotImplementedError
+        if self._debug:
+            print(f"Faces available for: {self._faces_by_dimension.keys()}")
+        # TODO dimension = None -> return all faces as list of sets
+        if dimension < -1 or dimension > self.dimension:
+            raise ValueError(f"Dimension should be between -1 and {self.dimension}. Got {dimension}.")
+        if dimension in self._faces_by_dimension:
+            return self._faces_by_dimension[dimension]
+        if dimension == 0:
+            return self.cocircuits()
 
-    def dual_faces(self, level: int):
-        r"""
-        Compute the dual faces of the same level of the oriented matroid.
-        """
-        raise NotImplementedError
+        self.topes()
+        current_dimension = self.dimension
+        while current_dimension > dimension:
+            self._compute_lower_faces(current_dimension)
+            current_dimension -= 1
+        return self._faces_by_dimension[dimension]
 
-    def dimension(self):
-        raise NotImplementedError
+    def _compute_lower_faces(self, dimension: int) -> set[SignVector]:
+        # TODO use self.loops()
+        if self._debug:
+            print(f"Computing faces for dimension {dimension - 1}...")
+        if dimension - 1 not in self._faces_by_dimension:
+            self._faces_by_dimension[dimension - 1] = lower_faces(self._faces_by_dimension[dimension])
+        return self._faces_by_dimension[dimension - 1]
+
+    # def dual_faces(self, level: int):
+    #     r"""
+    #     Compute the dual faces of the same level of the oriented matroid.
+    #     """
+    #     raise NotImplementedError
+
+    # def dual(self) -> OrientedMatroid:
+    #     # TODO use duality of chirotopes to obtain new chirotopes
+    #     # TODO do we need a new matrix?
+    #     raise NotImplementedError
 
     def plot(self):
         r"""Plot the big face lattice of the oriented matroid."""
