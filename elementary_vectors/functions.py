@@ -31,8 +31,8 @@ def circuits(M: matrix) -> List[vector]:
 
     .. SEEALSO::
 
-        :func:`cocircuits`
-        :func:`elementary_vectors`
+        - - :func:`cocircuits`
+        - - :func:`elementary_vectors`
 
     EXAMPLES::
 
@@ -61,8 +61,8 @@ def cocircuits(M: matrix) -> List[vector]:
 
     .. SEEALSO::
 
-        :func:`circuits`
-        :func:`elementary_vectors`
+        - - :func:`circuits`
+        - - :func:`elementary_vectors`
 
     EXAMPLES::
 

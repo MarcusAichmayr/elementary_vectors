@@ -321,7 +321,7 @@ class SignVector(SageObject):
 
         .. SEEALSO::
 
-            :func: `~sign_vector`
+            - :func: `~sign_vector`
 
         TESTS::
 
@@ -556,7 +556,7 @@ class SignVector(SageObject):
 
         .. NOTE::
 
-            This method is more efficient than :meth:`compose`.
+            This method is more efficient than - :meth:`compose`.
             However, it does not check whether the sign vectors are harmonious.
 
         EXAMPLES::
@@ -583,7 +583,7 @@ class SignVector(SageObject):
 
         .. SEEALSO::
 
-            :meth: `compose`
+            - :meth: `compose`
 
         EXAMPLES::
 
@@ -862,7 +862,7 @@ class SignVector(SageObject):
 
         .. SEEALSO::
 
-            :meth: `conforms`
+            - :meth: `conforms`
 
         EXAMPLES::
 
@@ -897,7 +897,7 @@ class SignVector(SageObject):
 
         .. SEEALSO::
 
-            :meth: `conforms`
+            - :meth: `conforms`
 
         EXAMPLES::
 
@@ -928,7 +928,7 @@ class SignVector(SageObject):
 
         .. SEEALSO::
 
-            :meth: `conforms`
+            - :meth: `conforms`
 
         EXAMPLES::
 
@@ -963,7 +963,7 @@ class SignVector(SageObject):
 
         .. SEEALSO::
 
-            :meth: `conforms`
+            - :meth: `conforms`
 
         EXAMPLES::
 

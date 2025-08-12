@@ -219,7 +219,7 @@ def positive_parallel_classes(iterable) -> list[list[int]]:
 
     .. SEEALSO::
 
-        :func:`~parallel_classes`
+        - :func:`~parallel_classes`
 
     EXAMPLES::
 

@@ -150,7 +150,7 @@ class Sign(IntEnum):
 
 class OrientedMatroid(SageObject):
     r"""
-    Class representing the chirotopes of an oriented matroid.
+    Class representing a (realizable) oriented matroid.
 
     EXAMPLES::
 
@@ -165,6 +165,9 @@ class OrientedMatroid(SageObject):
         3
         sage: om.length
         5
+
+    We can easily compute the cocircuits and topes::
+
         sage: om.cocircuits()
         {(00000),
          (--000),
@@ -175,77 +178,6 @@ class OrientedMatroid(SageObject):
          (0++00),
          (000--),
          (-0+00)}
-        sage: om.faces(0)
-        {(00000),
-         (--000),
-         (000++),
-         (+0-00),
-         (0--00),
-         (++000),
-         (0++00),
-         (000--),
-         (-0+00)}
-        sage: om.vertices()
-        {(00000),
-         (--000),
-         (000++),
-         (+0-00),
-         (0--00),
-         (++000),
-         (0++00),
-         (000--),
-         (-0+00)}
-        sage: om.faces(1)
-        {(+0---),
-         (---00),
-         (-0+++),
-         (0----),
-         (++0--),
-         (++-00),
-         (--+00),
-         (-++00),
-         (0++--),
-         (+++00),
-         (0++++),
-         (0--++),
-         (-0+--),
-         (--0++),
-         (++0++),
-         (+--00),
-         (--0--),
-         (+0-++)}
-        sage: om.edges()
-        {(+0---),
-         (---00),
-         (-0+++),
-         (0----),
-         (++0--),
-         (++-00),
-         (--+00),
-         (-++00),
-         (0++--),
-         (+++00),
-         (0++++),
-         (0--++),
-         (-0+--),
-         (--0++),
-         (++0++),
-         (+--00),
-         (--0--),
-         (+0-++)}
-        sage: om.faces(2)
-        {(-++++),
-         (---++),
-         (+--++),
-         (++-++),
-         (+----),
-         (--+++),
-         (+++++),
-         (-----),
-         (++---),
-         (--+--),
-         (-++--),
-         (+++--)}
         sage: om.topes()
         {(-++++),
          (---++),
@@ -259,8 +191,6 @@ class OrientedMatroid(SageObject):
          (--+--),
          (-++--),
          (+++--)}
-        sage: om.faces(-1)
-        {(00000)}
         sage: om.covectors()
         {(00000),
          (+0---),
@@ -302,7 +232,87 @@ class OrientedMatroid(SageObject):
          (--0++),
          (--0--)}
 
-    ::
+    There is also a way to obtain the ``i``-faces where ``i`` is the dimension::
+
+        sage: om.faces(-1)
+        {(00000)}
+        sage: om.faces(0)
+        {(00000),
+         (--000),
+         (000++),
+         (+0-00),
+         (0--00),
+         (++000),
+         (0++00),
+         (000--),
+         (-0+00)}
+        sage: om.faces(1)
+        {(+0---),
+         (---00),
+         (-0+++),
+         (0----),
+         (++0--),
+         (++-00),
+         (--+00),
+         (-++00),
+         (0++--),
+         (+++00),
+         (0++++),
+         (0--++),
+         (-0+--),
+         (--0++),
+         (++0++),
+         (+--00),
+         (--0--),
+         (+0-++)}
+        sage: om.faces(2)
+        {(-++++),
+         (---++),
+         (+--++),
+         (++-++),
+         (+----),
+         (--+++),
+         (+++++),
+         (-----),
+         (++---),
+         (--+--),
+         (-++--),
+         (+++--)}
+
+    Geometrically, the cocircuits are the vertices and the edges are the faces of dimension 1::
+
+        sage: om.vertices()
+        {(00000),
+         (--000),
+         (000++),
+         (+0-00),
+         (0--00),
+         (++000),
+         (0++00),
+         (000--),
+         (-0+00)}
+        sage: om.edges()
+        {(+0---),
+         (---00),
+         (-0+++),
+         (0----),
+         (++0--),
+         (++-00),
+         (--+00),
+         (-++00),
+         (0++--),
+         (+++00),
+         (0++++),
+         (0--++),
+         (-0+--),
+         (--0++),
+         (++0++),
+         (+--00),
+         (--0--),
+         (+0-++)}
+
+    The dual oriented matroid corresponds to the kernel matrix.
+    It is represented by the circuits and vectors.
 
         sage: om.circuits()
         {(000-+), (-+-00), (000+-), (+-+00)}
@@ -317,7 +327,7 @@ class OrientedMatroid(SageObject):
          (-+--+),
          (+-++-)}
 
-    ::
+    We compute the chirotopes::
 
         sage: om.chirotopes()
         [0, +, +, +, +, 0, +, +, 0, 0]
@@ -352,6 +362,8 @@ class OrientedMatroid(SageObject):
         r"""
         Compute the chirotope for the given indices.
 
+        Chirotopes are signs of determinants of maximal submatrices.
+
         INPUT:
 
         - ``indices`` -- a list of indices.
@@ -359,6 +371,10 @@ class OrientedMatroid(SageObject):
         OUTPUT:
 
         - The chirotope value as a Sign.
+
+        .. SEEALSO::
+
+            - :meth:`chirotopes`
 
         EXAMPLES::
 
@@ -386,6 +402,10 @@ class OrientedMatroid(SageObject):
 
         - A list of chirotopes as Sign values.
 
+        .. SEEALSO::
+
+            - :meth:`chirotope`
+
         EXAMPLES::
 
             sage: from sign_vectors.oriented_matroids import *
@@ -400,6 +420,8 @@ class OrientedMatroid(SageObject):
         r"""
         Compute the cocircuit for the given indices.
 
+        Cocircuits correspond to the elements in the row space of the matrix.
+
         INPUT:
 
         - ``indices`` -- a list of indices.
@@ -407,6 +429,11 @@ class OrientedMatroid(SageObject):
         OUTPUT:
 
         - The cocircuit as a SignVector.
+
+        .. SEEALSO::
+
+            - :meth:`cocircuits`
+            - :meth:`circuit`
 
         EXAMPLES::
 
@@ -432,6 +459,8 @@ class OrientedMatroid(SageObject):
         r"""
         Compute the circuit for the given indices.
 
+        Circuits correspond to the elements in the kernel of the matrix.
+
         INPUT:
 
         - ``indices`` -- a list of indices.
@@ -439,6 +468,11 @@ class OrientedMatroid(SageObject):
         OUTPUT:
 
         - The circuit as a SignVector.
+
+        .. SEEALSO::
+
+            - :meth:`circuits`
+            - :meth:`cocircuit`
 
         EXAMPLES::
 
@@ -465,6 +499,10 @@ class OrientedMatroid(SageObject):
         OUTPUT:
 
         - A generator of cocircuits as SignVectors.
+
+        .. SEEALSO::
+
+            - :meth:`cocircuits`
         """
         for indices in Combinations(self.length, self.rank - 1):
             yield self.cocircuit(indices)
@@ -474,13 +512,16 @@ class OrientedMatroid(SageObject):
         r"""
         Compute the cocircuits of the oriented matroid.
 
+        The cocircuits are the support-minimal sign vectors corresponding to the row space.
+
         OUTPUT:
 
         - A set of cocircuits as SignVectors.
 
-        .. NOTE::
+        .. SEEALSO::
 
-            The cocircuits are the support-minimal sign vectors corresponding to the row space.
+            - :meth:`cocircuit`
+            - :meth:`circuits`
 
         EXAMPLES::
 
@@ -503,6 +544,10 @@ class OrientedMatroid(SageObject):
         OUTPUT:
 
         - A generator of circuits as SignVectors.
+
+        .. SEEALSO::
+
+            - :meth:`circuits`
         """
         for indices in Combinations(self.length, self.rank + 1):
             yield self.circuit(indices)
@@ -519,6 +564,11 @@ class OrientedMatroid(SageObject):
         .. NOTE::
 
             The circuits are the support-minimal sign vectors corresponding to the kernel.
+
+        .. SEEALSO::
+
+            - :meth:`circuit`
+            - :meth:`cocircuits`
 
         EXAMPLES::
 
@@ -539,6 +589,12 @@ class OrientedMatroid(SageObject):
         .. NOTE::
 
             The covectors are all sign vectors corresponding to the row space.
+
+        .. SEEALSO::
+
+            - :meth:`cocircuits`
+            - :meth:`topes`
+            - :meth:`faces`
         """
         # TODO should store topes
         if self._debug:
@@ -552,29 +608,23 @@ class OrientedMatroid(SageObject):
         .. NOTE::
 
             The vectors are all sign vectors corresponding to the kernel.
+
+        .. SEEALSO::
+
+            - :meth:`circuits`
         """
         # TODO should store support-maximal elements
         return covectors_from_cocircuits(self.circuits())
-
-    # def maximal_vectors(self) -> list[SignVector]:
-    #     r"""
-    #     Compute the support-maximal elements of the oriented matroid.
-
-    #     OUTPUT:
-
-    #     - A list of support-maximal elements as SignVectors.
-    #     """
-    #     if self._faces.get(self.rank) is None:
-    #         self._faces[self.rank] = topes_from_cocircuits(self.circuits())
-    #     return self._faces[self.rank]
 
     def topes(self) -> list[SignVector]:
         r"""
         Compute the topes of the oriented matroid.
 
-        .. NOTE::
+        The topes are the support-maximal sign vectors corresponding to the row space.
 
-            The topes are the support-maximal sign vectors corresponding to the row space.
+        .. SEEALSO::
+
+            - :meth:`cocircuits`
         """
         if self._faces_by_dimension.get(self.dimension) is None:
             if self._debug:
@@ -583,7 +633,16 @@ class OrientedMatroid(SageObject):
         return self._faces_by_dimension[self.dimension]
 
     def vertices(self) -> set[SignVector]:
-        r"""Return the vertices (cocircuits) of the oriented matroid."""
+        r"""
+        Return the vertices (cocircuits) of the oriented matroid.
+
+        .. SEEALSO::
+
+            - :meth:`cocircuits`
+            - :meth:`edges`
+            - :meth:`topes`
+            - :meth:`faces`
+        """
         return self.cocircuits()
 
     def edges(self) -> set[SignVector]:
@@ -591,6 +650,12 @@ class OrientedMatroid(SageObject):
         Return the edges of the oriented matroid.
 
         Those are the elements of dimension 1.
+
+        .. SEEALSO::
+
+            - :meth:`vertices`
+            - :meth:`topes`
+            - :meth:`faces`
         """
         return self.faces(1)
 
@@ -625,6 +690,15 @@ class OrientedMatroid(SageObject):
     def faces(self, dimension: int):
         r"""
         Compute the faces of the same level of the oriented matroid.
+
+        .. NOTE::
+
+            The results are hashed.
+
+        .. SEEALSO::
+
+            - :meth:`covectors`
+            - :meth:`topes`
         """
         if self._debug:
             print(f"Faces available for: {self._faces_by_dimension.keys()}")
@@ -896,8 +970,8 @@ def lower_faces(covectors):
 
     .. SEEALSO::
 
-        :func:`~face_enumeration`
-        :func:`~covectors_from_topes`
+        - :func:`~face_enumeration`
+        - :func:`~covectors_from_topes`
     """
     if not covectors:
         raise ValueError("List is empty.")
@@ -946,9 +1020,9 @@ def face_enumeration(covectors):
 
     .. SEEALSO::
 
-        :func:`~lower_faces`
-        :func:`~covectors_from_topes`
-        :func:`~covectors_from_matrix`
+        - :func:`~lower_faces`
+        - :func:`~covectors_from_topes`
+        - :func:`~covectors_from_matrix`
 
     EXAMPLES:
 
@@ -1040,7 +1114,7 @@ def covectors_from_topes(topes, separate: bool = False):
 
     .. SEEALSO::
 
-        :func:`~face_enumeration`
+        - :func:`~face_enumeration`
 
     EXAMPLES:
 
@@ -1143,7 +1217,7 @@ def covectors_from_matrix(M, dual: bool = True, algorithm: str = None, separate:
 
     .. SEEALSO::
 
-        :func:`~face_enumeration`
+        - :func:`~face_enumeration`
 
     EXAMPLES::
 
