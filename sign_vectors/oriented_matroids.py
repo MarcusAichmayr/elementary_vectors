@@ -24,7 +24,7 @@ from .utility import loops, classes_same_support, parallel_classes
 
 class Sign(IntEnum):
     r"""
-    Sign values used in oriented matroids.
+    Auxiliary class for chirotopes.
 
     EXAMPLES::
 
@@ -53,7 +53,6 @@ class Sign(IntEnum):
         return str(self)
 
     def __neg__(self):
-        """Return the opposite sign."""
         return Sign(-self.value) if self.value != 0 else Sign.ZERO
 
     @classmethod
@@ -161,8 +160,8 @@ class OrientedMatroid(SageObject):
          (-++00),
          (0++--),
          (+++00),
-         (0++++),
          (0--++),
+         (0++++),
          (-0+--),
          (--0++),
          (++0++),
@@ -195,8 +194,8 @@ class OrientedMatroid(SageObject):
           (-++00),
           (0++--),
           (+++00),
-          (0++++),
           (0--++),
+          (0++++),
           (-0+--),
           (--0++),
           (++0++),
@@ -238,8 +237,8 @@ class OrientedMatroid(SageObject):
          (-++00),
          (0++--),
          (+++00),
-         (0++++),
          (0--++),
+         (0++++),
          (-0+--),
          (--0++),
          (++0++),
@@ -311,6 +310,7 @@ class OrientedMatroid(SageObject):
         .. SEEALSO::
 
             - :meth:`chirotopes`
+            - :class:`Sign`
 
         EXAMPLES::
 
@@ -341,6 +341,7 @@ class OrientedMatroid(SageObject):
         .. SEEALSO::
 
             - :meth:`chirotope`
+            - :class:`Sign`
 
         EXAMPLES::
 
@@ -892,17 +893,16 @@ def topes_from_cocircuits(cocircuits):
     return topes
 
 
-def lower_faces(covectors):
+def lower_faces(i_faces) -> set[SignVector]:
     r"""
-    Compute the lower faces of given covectors.
+    Compute the faces of lower dimension.
 
     INPUT:
 
-    - ``covectors`` -- an iterable of all covectors with same rank ``r`` of an oriented matroid.
+    - ``i_faces`` -- an iterable of all faces with the same dimension ``i`` of an oriented matroid.
 
     OUTPUT:
-
-    Returns a set of covectors of rank ``r-1`` of the oriented matroid.
+    Return a set of faces of dimension ``i - 1`` of the oriented matroid.
 
     ALGORITHM:
 
@@ -919,45 +919,36 @@ def lower_faces(covectors):
         - :func:`~face_enumeration`
         - :func:`~covectors_from_topes`
     """
-    if not covectors:
+    if not i_faces:
         raise ValueError("List is empty.")
-    for _ in covectors:
+    for _ in i_faces:
         length = _.length()
         break
     output = set()
-    for covectors_with_same_support in classes_same_support(covectors):
-        p_classes = parallel_classes(covectors_with_same_support)
-        for covector in covectors_with_same_support:
+    for same_support_faces in classes_same_support(i_faces):
+        p_classes = parallel_classes(same_support_faces)
+        for face in same_support_faces:
             for parallel_class in p_classes:
-                for i in parallel_class:
-                    if not covector[i]:
-                        continue
-                    if (
-                        covector.reverse_signs_in(parallel_class)
-                        in covectors_with_same_support
-                    ):
-                        output.add(
-                            sign_vector(
-                                0 if i in parallel_class else covector[i]
-                                for i in range(length)
-                            )
-                        )
-                    break
+                if all(face[i] == 0 for i in parallel_class):
+                    continue
+                if face.reverse_signs_in(parallel_class) in same_support_faces:
+                    output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(length)))
     return output
 
 
-def face_enumeration(covectors):
+def face_enumeration(i_faces):
     r"""
-    Compute all covectors with less rank than the given covectors.
+    Compute all faces with smaller dimension.
 
     INPUT:
 
-    - ``covectors`` -- an iterable of all covectors of same rank ``r`` of an oriented matroid.
+    - ``i_faces`` -- an iterable of all faces with the same dimension ``i`` of an oriented matroid.
 
     OUTPUT:
+    A list of sets. Every set consists of all faces of the same dimension
+    smaller than or equal to ``i`` of the oriented matroid.
 
-    Returns a list of sets. Every set consists of all covectors of the same rank
-    smaller than or equal to ``r`` of the oriented matroid.
+    Apply this function to the topes and obtain all faces of the oriented matroid.
 
     ALGORITHM:
 
@@ -979,17 +970,17 @@ def face_enumeration(covectors):
         sage: A = matrix([[2, -1, -1]])
         sage: A
         [ 2 -1 -1]
-        sage: tA = topes_from_matrix(A)
-        sage: tA
+        sage: topes = topes_from_matrix(A)
+        sage: topes
         {(---), (++-), (--+), (+++), (-+-), (+-+)}
-        sage: face_enumeration(tA)
+        sage: face_enumeration(topes)
         [{(000)},
          {(0+-), (--0), (0-+), (++0), (+0+), (-0-)},
          {(---), (-+-), (++-), (--+), (+++), (+-+)}]
     """
-    if not covectors:
+    if not i_faces:
         raise ValueError("List is empty.")
-    faces = [set(covectors)]
+    faces = [set(i_faces)]
 
     while len(faces[0]) > 1:
         faces.insert(0, lower_faces(faces[0]))

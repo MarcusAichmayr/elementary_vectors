@@ -192,7 +192,7 @@ def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
     if not iterable:
         return []
     result = []
-    indices_to_check = set(range(iterable[0].length()))
+    indices_to_check = set(range(next(iter(iterable)).length()))
 
     if positive_only:
         def is_par(iterable, component1, component2):
@@ -252,7 +252,7 @@ def positive_parallel_classes(iterable) -> list[list[int]]:
     return parallel_classes(iterable, positive_only=True)
 
 
-def classes_same_support(iterable) -> list[list]:
+def classes_same_support(iterable) -> list[set]:
     r"""
     Compute the classes with same support of given sign vectors or vectors.
 
@@ -268,18 +268,18 @@ def classes_same_support(iterable) -> list[list]:
         sage: L
         [(++0-), (+-0+), (-0+0)]
         sage: classes_same_support(L)
-        [[(++0-), (+-0+)], [(-0+0)]]
+        [{(++0-), (+-0+)}, {(-0+0)}]
         sage: classes_same_support([vector([1, 1, 0, 0]), vector([2, -3, 0, 0]), vector([0, 1, 0, 0])])
-        [[(1, 1, 0, 0), (2, -3, 0, 0)], [(0, 1, 0, 0)]]
+        [{(1, 1, 0, 0), (2, -3, 0, 0)}, {(0, 1, 0, 0)}]
     """
-    result = {}
+    support_dict = {}
     for element in iterable:
         support = tuple(element.support())  # tuples are hashable
-        if support not in result.keys():
-            result[support] = [element]
+        if support not in support_dict:
+            support_dict[support] = {element}
         else:
-            result[support].append(element)
-    return list(result.values())
+            support_dict[support].add(element)
+    return list(support_dict.values())
 
 
 def adjacent(element1, element2, iterable) -> bool:
@@ -356,7 +356,7 @@ def exclude_indices(vectors, indices: list[int]):
 
     INPUT:
 
-    - ``vectors`` -- a list of sign vectors or vectors
+    - ``vectors`` -- an iterable of sign vectors or vectors
 
     - ``indices`` -- a list of indices
 
@@ -377,10 +377,10 @@ def exclude_indices(vectors, indices: list[int]):
     """
     if not vectors:
         raise ValueError("List is empty.")
-    length = len(list(vectors[0]))
+    length = len(list(next(iter(vectors))))
     other_indices = [e for e in range(length) if not e in indices]
 
-    if isinstance(vectors[0], SignVector):
+    if isinstance(next(iter(vectors)), SignVector):
         def vec(iterable):
             return sign_vector(iterable.list_from_positions(other_indices))
     else:
