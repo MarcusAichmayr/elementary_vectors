@@ -252,13 +252,13 @@ def positive_parallel_classes(iterable) -> list[list[int]]:
     return parallel_classes(iterable, positive_only=True)
 
 
-def classes_same_support(iterable) -> list[set]:
+def classes_same_support(iterable) -> list[set[SignVector]]:
     r"""
-    Compute the classes with same support of given sign vectors or vectors.
+    Compute the classes with same support of given sign vectors.
 
     INPUT:
 
-    - ``iterable`` -- an iterable of sign vectors or vectors with same length
+    - ``iterable`` -- an iterable of sign vectors
 
     EXAMPLES::
 
@@ -269,8 +269,6 @@ def classes_same_support(iterable) -> list[set]:
         [(++0-), (+-0+), (-0+0)]
         sage: classes_same_support(L)
         [{(++0-), (+-0+)}, {(-0+0)}]
-        sage: classes_same_support([vector([1, 1, 0, 0]), vector([2, -3, 0, 0]), vector([0, 1, 0, 0])])
-        [{(1, 1, 0, 0), (2, -3, 0, 0)}, {(0, 1, 0, 0)}]
     """
     support_dict = {}
     for element in iterable:
