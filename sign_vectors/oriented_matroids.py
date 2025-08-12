@@ -926,7 +926,7 @@ def lower_faces(i_faces) -> set[SignVector]:
         break
     output = set()
     for same_support_faces in classes_same_support(i_faces):
-        p_classes = parallel_classes(same_support_faces)
+        p_classes = parallel_classes(same_support_faces, length)
         for face in same_support_faces:
             for parallel_class in p_classes:
                 if all(face[i] == 0 for i in parallel_class):

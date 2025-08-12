@@ -135,13 +135,15 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
     return (True, ratio) if return_ratio else True
 
 
-def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
+def parallel_classes(iterable, length: int, positive_only: bool = False) -> list[list[int]]:
     r"""
     Compute the parallel classes of given sign vectors or vectors.
 
     INPUT:
 
     - ``iterable`` -- an iterable of sign vectors or vectors with same length
+
+    - ``length`` -- an integer ``n``
 
     - ``positive_only`` -- a boolean (default: False)
 
@@ -155,7 +157,7 @@ def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
     .. NOTE::
 
         The elements ``component1`` and ``component2`` are parallel if there exists a ratio ``d`` such that
-        ``v[component1] = d v[component2]`` for each ``v`` in ``iterable``.
+        ``X[component1] = d X[component2]`` for each ``X`` in ``iterable``.
 
     EXAMPLES::
 
@@ -164,9 +166,9 @@ def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
         sage: L = [sign_vector("++0-"), sign_vector("+-0+"), sign_vector("-0+0")]
         sage: L
         [(++0-), (+-0+), (-0+0)]
-        sage: parallel_classes(L)
+        sage: parallel_classes(L, 4)
         [[0], [1, 3], [2]]
-        sage: parallel_classes(L, positive_only=True)
+        sage: parallel_classes(L, 4, positive_only=True)
         [[0], [1], [2], [3]]
 
     Now, we compute the parallel classes of a list of real vectors::
@@ -174,7 +176,7 @@ def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
         sage: L = [vector([1, 1, 2, 3, 0, 0]), vector([-2, 1, -4, 3, 3, -17]), vector([0, 1, 0, 1, 0, 0])]
         sage: L
         [(1, 1, 2, 3, 0, 0), (-2, 1, -4, 3, 3, -17), (0, 1, 0, 1, 0, 0)]
-        sage: parallel_classes(L)
+        sage: parallel_classes(L, 6)
         [[0, 2], [1], [3], [4, 5]]
 
     Let us compute the parallel classes of the rows of a matrix::
@@ -184,15 +186,15 @@ def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
         [ 0  0  1 -2  0]
         [ 1  0  0  0  1]
         [ 1  1 -3  6  1]
-        sage: parallel_classes(M)
+        sage: parallel_classes(M, 5)
         [[0, 4], [1], [2, 3]]
-        sage: parallel_classes(M, positive_only=True)
+        sage: parallel_classes(M, 5, positive_only=True)
         [[0, 4], [1], [2], [3]]
     """
     if not iterable:
-        return []
+        return [list(range(length))]
     result = []
-    indices_to_check = set(range(next(iter(iterable)).length()))
+    indices_to_check = set(range(length))
 
     if positive_only:
         def is_par(iterable, component1, component2):
@@ -213,7 +215,7 @@ def parallel_classes(iterable, positive_only: bool = False) -> list[list[int]]:
     return result
 
 
-def positive_parallel_classes(iterable) -> list[list[int]]:
+def positive_parallel_classes(iterable, length: int) -> list[list[int]]:
     r"""
     Compute the positive parallel classes of given sign vectors or vectors.
 
@@ -228,7 +230,7 @@ def positive_parallel_classes(iterable) -> list[list[int]]:
         sage: L = [sign_vector("++0-"), sign_vector("--0+"), sign_vector("00+0")]
         sage: L
         [(++0-), (--0+), (00+0)]
-        sage: positive_parallel_classes(L)
+        sage: positive_parallel_classes(L, 4)
         [[0, 1], [2], [3]]
 
     Now, we compute the positive parallel classes of a list of real vectors::
@@ -236,7 +238,7 @@ def positive_parallel_classes(iterable) -> list[list[int]]:
         sage: L = [vector([1, 1, 2, 3, 0, 0]), vector([-2, 1, -4, 3, 3, -17]), vector([0, 1, 0, 1, 0, 0])]
         sage: L
         [(1, 1, 2, 3, 0, 0), (-2, 1, -4, 3, 3, -17), (0, 1, 0, 1, 0, 0)]
-        sage: positive_parallel_classes(L)
+        sage: positive_parallel_classes(L, 6)
         [[0, 2], [1], [3], [4], [5]]
 
     Let us compute the positive parallel classes of the rows of a matrix::
@@ -246,10 +248,10 @@ def positive_parallel_classes(iterable) -> list[list[int]]:
         [ 0  0  1 -2  0]
         [ 1  0  0  0  1]
         [ 1  1 -3  6  1]
-        sage: positive_parallel_classes(M)
+        sage: positive_parallel_classes(M, 5)
         [[0, 4], [1], [2], [3]]
     """
-    return parallel_classes(iterable, positive_only=True)
+    return parallel_classes(iterable, length, positive_only=True)
 
 
 def classes_same_support(iterable) -> list[set[SignVector]]:
