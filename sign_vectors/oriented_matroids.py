@@ -669,8 +669,47 @@ class OrientedMatroid(SageObject):
         if self._debug:
             print(f"Computing faces for dimension {dimension - 1}...")
         if dimension - 1 not in self._faces_by_dimension:
-            self._faces_by_dimension[dimension - 1] = lower_faces(self._faces_by_dimension[dimension])
+            self._faces_by_dimension[dimension - 1] = self._lower_faces(dimension)
         return self._faces_by_dimension[dimension - 1]
+
+    def _lower_faces(self, dimension: int) -> set[SignVector]:
+        r"""
+        Compute the faces of lower dimension.
+
+        INPUT:
+
+        - ``dimension`` -- the dimension ``i``
+
+        OUTPUT:
+        Return a set of faces of dimension ``i - 1`` of the oriented matroid.
+
+        ALGORITHM:
+
+        This function is based on an algorithm in [FST91]_.
+        See also [Fin01]_.
+
+        .. [FST91] Fukuda, K., Saito, S., and Tamura, A.:
+        "Combinatorial face enumeration in arrangements and oriented matroids".
+        In: Discrete Applied Mathematics 31.2 (1991), pp. 141-149.
+        doi: 10.1016/0166-218X(91)90066-6.
+
+        .. SEEALSO::
+
+            - :meth:`faces`
+            - :func:`~face_enumeration`
+        """
+        if not self._faces_by_dimension.get(dimension):
+            raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {self._faces_by_dimension.keys()}.")
+        output = set()
+        for same_support_faces in classes_same_support(self._faces_by_dimension[dimension]):
+            p_classes = parallel_classes(same_support_faces, self.length)
+            for face in same_support_faces:
+                for parallel_class in p_classes:
+                    if all(face[i] == 0 for i in parallel_class):
+                        continue
+                    if face.reverse_signs_in(parallel_class) in same_support_faces:
+                        output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self.length)))
+        return output
 
     # def dual_faces(self, level: int):
     #     r"""
@@ -825,14 +864,14 @@ def covectors_from_cocircuits(cocircuits):
     covectors = {zero_sign_vector(length)}
     covectors_new = {zero_sign_vector(length)}
     while covectors_new:
-        covector1 = covectors_new.pop()
-        for covector2 in cocircuits:
-            if covector2 <= covector1:
+        element1 = covectors_new.pop()
+        for element2 in cocircuits:
+            if element2 <= element1:
                 continue
-            composition = covector2.compose(covector1)
-            if composition not in covectors:
-                covectors.add(composition)
-                covectors_new.add(composition)
+            new_element = element2.compose(element1)
+            if new_element not in covectors:
+                covectors.add(new_element)
+                covectors_new.add(new_element)
     return covectors
 
 
@@ -879,17 +918,17 @@ def topes_from_cocircuits(cocircuits):
     loop_list = loops(cocircuits)
 
     while covectors_new:
-        covector1 = covectors_new.pop()
-        for covector2 in cocircuits:
-            if covector2 <= covector1:
+        element1 = covectors_new.pop()
+        for element2 in cocircuits:
+            if element2 <= element1:
                 continue
-            composition = covector2.compose(covector1)
-            if composition not in covectors:
-                covectors.add(composition)
-                if composition.zero_support() == loop_list:
-                    topes.add(composition)
+            new_element = element2.compose(element1)
+            if new_element not in covectors:
+                covectors.add(new_element)
+                if new_element.zero_support() == loop_list:
+                    topes.add(new_element)
                 else:
-                    covectors_new.add(composition)
+                    covectors_new.add(new_element)
     return topes
 
 
