@@ -152,7 +152,9 @@ class OrientedMatroid(SageObject):
     r"""
     Class representing a (realizable) oriented matroid.
 
-    EXAMPLES::
+    EXAMPLES:
+
+    We define an oriented matroid from a matrix::
 
         sage: from sign_vectors.oriented_matroids import *
         sage: M = matrix([[1, 2, 0, 0, 0], [0, 1, 2, 0, 0], [0, 0, 0, 1, 1]])
@@ -169,15 +171,7 @@ class OrientedMatroid(SageObject):
     We can easily compute the cocircuits and topes::
 
         sage: om.cocircuits()
-        {(00000),
-         (--000),
-         (000++),
-         (+0-00),
-         (0--00),
-         (++000),
-         (0++00),
-         (000--),
-         (-0+00)}
+        {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)}
         sage: om.topes()
         {(-++++),
          (---++),
@@ -237,15 +231,7 @@ class OrientedMatroid(SageObject):
         sage: om.faces(-1)
         {(00000)}
         sage: om.faces(0)
-        {(00000),
-         (--000),
-         (000++),
-         (+0-00),
-         (0--00),
-         (++000),
-         (0++00),
-         (000--),
-         (-0+00)}
+        {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)}
         sage: om.faces(1)
         {(+0---),
          (---00),
@@ -278,12 +264,44 @@ class OrientedMatroid(SageObject):
          (--+--),
          (-++--),
          (+++--)}
+        sage: om.all_faces()
+        [{(00000)},
+         {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)},
+         {(+0---),
+          (---00),
+          (-0+++),
+          (0----),
+          (++0--),
+          (++-00),
+          (--+00),
+          (-++00),
+          (0++--),
+          (+++00),
+          (0++++),
+          (0--++),
+          (-0+--),
+          (--0++),
+          (++0++),
+          (+--00),
+          (--0--),
+          (+0-++)},
+         {(-++++),
+          (---++),
+          (+--++),
+          (++-++),
+          (+----),
+          (--+++),
+          (+++++),
+          (-----),
+          (++---),
+          (--+--),
+          (-++--),
+          (+++--)}]
 
     Geometrically, the cocircuits are the vertices and the edges are the faces of dimension 1::
 
         sage: om.vertices()
-        {(00000),
-         (--000),
+        {(--000),
          (000++),
          (+0-00),
          (0--00),
@@ -453,7 +471,10 @@ class OrientedMatroid(SageObject):
             if chirotope != 0:
                 # check oddness of last bit of pos
                 element[i] = -chirotope if (pos & 1) else chirotope
-        return sign_vector(element)
+        result = sign_vector(element)
+        if result == 0:
+            raise ValueError("Computed zero cocircuit.")
+        return result
 
     def circuit(self, indices: list[int]) -> SignVector:
         r"""
@@ -490,7 +511,10 @@ class OrientedMatroid(SageObject):
             if chirotope != 0:
                 # check oddness of last bit of pos
                 element[i] = -chirotope if (pos & 1) else chirotope
-        return sign_vector(element)
+        result = sign_vector(element)
+        if result == 0:
+            raise ValueError("Computed zero circuit.")
+        return result
 
     def cocircuits_generator(self) -> Generator[SignVector]:
         r"""
@@ -505,8 +529,11 @@ class OrientedMatroid(SageObject):
             - :meth:`cocircuits`
         """
         for indices in Combinations(self.length, self.rank - 1):
-            yield self.cocircuit(indices)
-            yield -self.cocircuit(indices)
+            try:
+                yield self.cocircuit(indices)
+                yield -self.cocircuit(indices)
+            except ValueError:
+                continue
 
     def cocircuits(self) -> set[SignVector]:
         r"""
@@ -550,8 +577,11 @@ class OrientedMatroid(SageObject):
             - :meth:`circuits`
         """
         for indices in Combinations(self.length, self.rank + 1):
-            yield self.circuit(indices)
-            yield -self.circuit(indices)
+            try:
+                yield self.circuit(indices)
+                yield -self.circuit(indices)
+            except ValueError:
+                continue
 
     def circuits(self) -> set[SignVector]:
         r"""
@@ -675,18 +705,6 @@ class OrientedMatroid(SageObject):
     #     ]
     #     return self._loops
 
-    # def coloops(self) -> list[int]:
-    #     r"""
-    #     Compute the coloops of the oriented matroid.
-
-    #     Output:
-    #     A list of zero entries of each circuit.
-    #     """
-    #     if self._coloops is not None:
-    #         return self._coloops
-    #     self._coloops = [i for i, column in enumerate(self.matrix.columns()) if column == 0]
-    #     return self._coloops
-
     def faces(self, dimension: int):
         r"""
         Compute the faces of the same level of the oriented matroid.
@@ -702,7 +720,6 @@ class OrientedMatroid(SageObject):
         """
         if self._debug:
             print(f"Faces available for: {self._faces_by_dimension.keys()}")
-        # TODO dimension = None -> return all faces as list of sets
         if dimension < -1 or dimension > self.dimension:
             raise ValueError(f"Dimension should be between -1 and {self.dimension}. Got {dimension}.")
         if dimension in self._faces_by_dimension:
@@ -716,6 +733,17 @@ class OrientedMatroid(SageObject):
             self._compute_lower_faces(current_dimension)
             current_dimension -= 1
         return self._faces_by_dimension[dimension]
+
+    def all_faces(self) -> list[set[SignVector]]:
+        r"""
+        Return all faces of the oriented matroid separated by dimension.
+
+        .. SEEALSO::
+
+            - :meth:`faces`
+            - :func:`face_enumeration`
+        """
+        return [self.faces(d) for d in range(-1, self.dimension + 1)]
 
     def _compute_lower_faces(self, dimension: int) -> set[SignVector]:
         # TODO use self.loops()
