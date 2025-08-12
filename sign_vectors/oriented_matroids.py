@@ -286,7 +286,6 @@ class OrientedMatroid(SageObject):
 
         self._chirotopes = {}
         self._faces_by_dimension = {-1: set([zero_sign_vector(self.length)])}
-        self._loops = None
 
         self._debug = False
 
@@ -545,7 +544,7 @@ class OrientedMatroid(SageObject):
             - :meth:`topes`
             - :meth:`faces`
         """
-        # TODO should store topes
+        # TODO should store topes?
         if self._debug:
             print("Applying covectors_from_cocircuits...")
         return covectors_from_cocircuits(self.cocircuits())
@@ -562,7 +561,6 @@ class OrientedMatroid(SageObject):
 
             - :meth:`circuits`
         """
-        # TODO should store support-maximal elements
         return covectors_from_cocircuits(self.circuits())
 
     def topes(self) -> list[SignVector]:
@@ -608,22 +606,6 @@ class OrientedMatroid(SageObject):
         """
         return self.faces(1)
 
-    # def loops(self) -> list[int]:
-    #     r"""
-    #     Compute the loops of the oriented matroid.
-
-    #     Output:
-    #     A list of zero entries of each covector.
-    #     """
-    #     if self._loops is not None:
-    #         return self._loops
-    #     # TODO we check twice as many elements as necessary
-    #     self._loops = [
-    #         i for i in range(self.length)
-    #         if all(circuit[i] == 0 for circuit in self.circuits())
-    #     ]
-    #     return self._loops
-
     def faces(self, dimension: int):
         r"""
         Compute the faces of the same level of the oriented matroid.
@@ -665,7 +647,6 @@ class OrientedMatroid(SageObject):
         return [self.faces(d) for d in range(-1, self.dimension + 1)]
 
     def _compute_lower_faces(self, dimension: int) -> set[SignVector]:
-        # TODO use self.loops()
         if self._debug:
             print(f"Computing faces for dimension {dimension - 1}...")
         if dimension - 1 not in self._faces_by_dimension:
@@ -710,12 +691,6 @@ class OrientedMatroid(SageObject):
                     if face.reverse_signs_in(parallel_class) in same_support_faces:
                         output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self.length)))
         return output
-
-    # def dual_faces(self, level: int):
-    #     r"""
-    #     Compute the dual faces of the same level of the oriented matroid.
-    #     """
-    #     raise NotImplementedError
 
     # def dual(self) -> OrientedMatroid:
     #     # TODO use duality of chirotopes to obtain new chirotopes
