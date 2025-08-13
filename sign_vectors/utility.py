@@ -113,18 +113,27 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
         True
         sage: is_parallel(M, 0, 1)
         False
+
+    TESTS::
+
+        sage: is_parallel([], 0, 1)
+        True
+        sage: is_parallel([], 0, 1, return_ratio=True)
+        (True, 0)
     """
-    ratio = None
+    ratio = 0
 
     for element in iterable:
         a = element[component1]
         b = element[component2]
-        if ratio is None:
+        if ratio == 0:
             if a == 0 and b == 0:
                 continue
             if a == 0 and b != 0:
+                ratio = None
                 break
             if a != 0 and b == 0:
+                ratio = None
                 break
             ratio = a / b
         elif a != ratio * b:
