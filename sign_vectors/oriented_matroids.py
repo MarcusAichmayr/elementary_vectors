@@ -589,9 +589,7 @@ class OrientedMatroid(SageObject):
             - :meth:`faces`
         """
         # TODO should store topes?
-        if self._debug:
-            print("Applying covectors_from_cocircuits...")
-        return covectors_from_cocircuits(self.cocircuits())
+        return self._covectors_from_cocircuits(self.cocircuits())
 
     def vectors(self) -> list[SignVector]:
         r"""
@@ -605,7 +603,7 @@ class OrientedMatroid(SageObject):
 
             - :meth:`circuits`
         """
-        return covectors_from_cocircuits(self.circuits())
+        return self._covectors_from_cocircuits(self.circuits())
 
     def topes(self) -> list[SignVector]:
         r"""
@@ -734,6 +732,35 @@ class OrientedMatroid(SageObject):
                     if face.reverse_signs_in(parallel_class) in same_support_faces:
                         output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self._element_length)))
         return output
+
+    def _covectors_from_cocircuits(self, cocircuits: set[SignVector]) -> set[SignVector]:
+        r"""
+        Compute the covectors from the cocircuits.
+
+        OUTPUT:
+
+        - a set of all covectors of the oriented matroid.
+
+        ALGORITHM:
+
+        This function is based on an algorithm in [Fin01]_.
+
+        .. [Fin01] Finschi, L.:
+        „A graph theoretical approach for reconstruction and generation of oriented matroids“.
+        PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
+        """
+        covectors = {zero_sign_vector(self._element_length)}
+        covectors_new = {zero_sign_vector(self._element_length)}
+        while covectors_new:
+            element1 = covectors_new.pop()
+            for element2 in cocircuits:
+                if element2 <= element1:
+                    continue
+                new_element = element2.compose(element1)
+                if new_element not in covectors:
+                    covectors.add(new_element)
+                    covectors_new.add(new_element)
+        return covectors
 
     def _topes_from_cocircuits(self) -> set[SignVector]:
         r"""
