@@ -287,7 +287,7 @@ class OrientedMatroid(SageObject):
         self.rank, self.length = self.matrix.dimensions()
         self.dimension = self.rank - 1
 
-        self._chirotopes = {}
+        self._chirotopes_dict = {}
         self._faces_by_dimension = {-1: set([zero_sign_vector(self.length)])}
 
         self._loops = None
@@ -325,11 +325,11 @@ class OrientedMatroid(SageObject):
             +
         """
         indices = tuple(indices)
-        chirotope = self._chirotopes.get(indices)
+        chirotope = self._chirotopes_dict.get(indices)
         if chirotope is None:
             try:
                 chirotope = Sign(self.matrix.matrix_from_columns(indices).det())
-                self._chirotopes[indices] = chirotope
+                self._chirotopes_dict[indices] = chirotope
             except ValueError as e:
                 raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
         return chirotope
