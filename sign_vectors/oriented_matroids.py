@@ -20,6 +20,7 @@ from elementary_vectors.functions import ElementaryVectors
 from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vector
 
 from .utility import loops, classes_same_support, parallel_classes
+from .functions import plot_sign_vectors
 
 
 class Sign(IntEnum):
@@ -266,6 +267,8 @@ class OrientedMatroid(SageObject):
 
         sage: om.chirotopes()
         [0, +, +, +, +, 0, +, +, 0, 0]
+        sage: om.chirotopes_as_string()
+        '0++++0++00'
         sage: om.chirotope([0, 1, 2])
         0
         sage: om.cocircuit([0, 1])
@@ -353,6 +356,10 @@ class OrientedMatroid(SageObject):
             [+, +, +, +, +, 0]
         """
         return [self.chirotope(indices) for indices in Combinations(self.length, self.rank)]
+
+    def chirotopes_as_string(self) -> str:
+        r"""Represent the chirotopes as a string."""
+        return "".join(str(chirotope) for chirotope in self.chirotopes())
 
     def cocircuit(self, indices: list[int]) -> SignVector:
         r"""
