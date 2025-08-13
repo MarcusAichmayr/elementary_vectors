@@ -474,7 +474,7 @@ class OrientedMatroid(SageObject):
             raise ValueError("Computed zero circuit.")
         return result
 
-    def cocircuits_generator(self) -> Generator[SignVector]:
+    def _cocircuit_generator(self) -> Generator[SignVector]:
         r"""
         Compute the cocircuits of the oriented matroid.
 
@@ -523,10 +523,10 @@ class OrientedMatroid(SageObject):
         if 0 not in self._faces_by_dimension:
             if self._debug:
                 print("Computing cocircuits...")
-            self._faces_by_dimension[0] = set(self.cocircuits_generator())
+            self._faces_by_dimension[0] = set(self._cocircuit_generator())
         return self._faces_by_dimension[0]
 
-    def circuits_generator(self) -> Generator[SignVector]:
+    def _circuit_generator(self) -> Generator[SignVector]:
         r"""
         Compute the circuits of the oriented matroid.
 
@@ -572,7 +572,7 @@ class OrientedMatroid(SageObject):
         """
         if self._debug:
             print("Computing circuits...")
-        return set(self.circuits_generator())
+        return set(self._circuit_generator())
 
     def covectors(self) -> list[SignVector]:
         r"""
