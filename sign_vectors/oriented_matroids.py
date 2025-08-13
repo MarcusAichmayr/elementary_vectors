@@ -296,17 +296,17 @@ class OrientedMatroid(SageObject):
         if matrix is None:
             if rank is None or element_length is None:
                 raise ValueError("Provide either a matrix or both rank and element_length.")
-            self.matrix = None
+            self._matrix = None
             self.rank = rank
             self._element_length = element_length
         else:
             try:
-                self.matrix = matrix.matrix_from_rows(matrix.pivot_rows())
+                self._matrix = matrix.matrix_from_rows(matrix.pivot_rows())
             except NotImplementedError as exc:
                 if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
                     raise ValueError("Provide a matrix with maximal rank.") from exc
-                self.matrix = matrix
-            self.rank, self._element_length = self.matrix.dimensions()
+                self._matrix = matrix
+            self.rank, self._element_length = self._matrix.dimensions()
 
         self.dimension = self.rank - 1
 
@@ -355,7 +355,7 @@ class OrientedMatroid(SageObject):
         chirotope = self._chirotope_dict.get(indices)
         if chirotope is None:
             try:
-                chirotope = Sign(self.matrix.matrix_from_columns(indices).det())
+                chirotope = Sign(self._matrix.matrix_from_columns(indices).det())
                 self._chirotope_dict[indices] = chirotope
             except ValueError as e:
                 raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
