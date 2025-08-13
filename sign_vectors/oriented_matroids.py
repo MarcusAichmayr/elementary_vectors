@@ -78,13 +78,13 @@ class OrientedMatroid(SageObject):
         sage: M = matrix([[1, 2, 0, 0, 0], [0, 1, 2, 0, 0], [0, 0, 0, 1, 1]])
         sage: om = OrientedMatroid(M)
         sage: om
-        OrientedMatroid of dimension 2 over {0, ..., 4}.
+        OrientedMatroid of dimension 2 with covectors of size 5.
+        sage: om.ground_set
+        {0, 1, 2, 3, 4}
         sage: om.dimension
         2
         sage: om.rank
         3
-        sage: om.length
-        5
 
     We can easily compute the cocircuits and topes::
 
@@ -144,7 +144,7 @@ class OrientedMatroid(SageObject):
          (--0++),
          (--0--)}
 
-    There is also a way to obtain the ``i``-faces where ``i`` is the dimension::
+    We can easily compute the faces of the same dimension::
 
         sage: om.faces(-1)
         {(00000)}
@@ -284,18 +284,22 @@ class OrientedMatroid(SageObject):
                 raise ValueError("Provide a matrix with maximal rank.") from exc
             self.matrix = M
 
-        self.rank, self.length = self.matrix.dimensions()
+        self.rank, self._element_length = self.matrix.dimensions()
         self.dimension = self.rank - 1
 
         self._chirotopes_dict = {}
-        self._faces_by_dimension = {-1: set([zero_sign_vector(self.length)])}
-
+        self._faces_by_dimension = {-1: set([zero_sign_vector(self._element_length)])}
         self._loops = None
 
         self._debug = False
 
     def _repr_(self) -> str:
-        return f"OrientedMatroid of dimension {self.dimension} over {{{0}, ..., {self.length - 1}}}."
+        return f"OrientedMatroid of dimension {self.dimension} with covectors of size {self._element_length}."
+
+    @property
+    def ground_set(self) -> set[int]:
+        r"""The ground set of this oriented matroid."""
+        return set(range(self._element_length))
 
     def chirotope(self, indices: list[int]) -> Sign:
         r"""
@@ -355,7 +359,7 @@ class OrientedMatroid(SageObject):
             sage: om.chirotopes()
             [+, +, +, +, +, 0]
         """
-        return [self.chirotope(indices) for indices in Combinations(self.length, self.rank)]
+        return [self.chirotope(indices) for indices in Combinations(self._element_length, self.rank)]
 
     def chirotopes_as_string(self) -> str:
         r"""Represent the chirotopes as a string."""
@@ -388,9 +392,9 @@ class OrientedMatroid(SageObject):
             sage: om.cocircuit([0])
             (0---)
         """
-        element = [0] * self.length
+        element = [0] * self._element_length
         pos = 0
-        for i in range(self.length):
+        for i in range(self._element_length):
             if i in indices:
                 pos += 1
                 continue
@@ -430,7 +434,7 @@ class OrientedMatroid(SageObject):
             sage: om.circuit([0, 1, 2])
             (+-+0)
         """
-        element = [0] * self.length
+        element = [0] * self._element_length
         for pos in range(self.rank + 1):
             indices_chirotope = indices.copy()
             i = indices_chirotope.pop(pos)
@@ -455,7 +459,7 @@ class OrientedMatroid(SageObject):
 
             - :meth:`cocircuits`
         """
-        for indices in Combinations(self.length, self.rank - 1):
+        for indices in Combinations(self._element_length, self.rank - 1):
             try:
                 yield self.cocircuit(indices)
                 yield -self.cocircuit(indices)
@@ -507,7 +511,7 @@ class OrientedMatroid(SageObject):
 
             - :meth:`circuits`
         """
-        for indices in Combinations(self.length, self.rank + 1):
+        for indices in Combinations(self._element_length, self.rank + 1):
             try:
                 yield self.circuit(indices)
                 yield -self.circuit(indices)
@@ -695,13 +699,13 @@ class OrientedMatroid(SageObject):
             raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {self._faces_by_dimension.keys()}.")
         output = set()
         for same_support_faces in classes_same_support(self._faces_by_dimension[dimension]):
-            p_classes = parallel_classes(same_support_faces, self.length)
+            p_classes = parallel_classes(same_support_faces, self._element_length)
             for face in same_support_faces:
                 for parallel_class in p_classes:
                     if all(face[i] == 0 for i in parallel_class):
                         continue
                     if face.reverse_signs_in(parallel_class) in same_support_faces:
-                        output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self.length)))
+                        output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self._element_length)))
         return output
 
     def _topes_from_cocircuits(self) -> set[SignVector]:
@@ -715,8 +719,8 @@ class OrientedMatroid(SageObject):
 
         This function is based on an algorithm in [Fin01]_.
         """
-        covectors = {zero_sign_vector(self.length)}
-        covectors_new = {zero_sign_vector(self.length)}
+        covectors = {zero_sign_vector(self._element_length)}
+        covectors_new = {zero_sign_vector(self._element_length)}
         topes = set()
 
         while covectors_new:
@@ -747,7 +751,7 @@ class OrientedMatroid(SageObject):
             if self._debug:
                 print("Computing loops...")
             self._loops = [
-                e for e in range(self.length)
+                e for e in range(self._element_length)
                 if all(element[e] == 0 for element in self.cocircuits())
             ]
         return self._loops
