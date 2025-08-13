@@ -328,7 +328,7 @@ class OrientedMatroid(SageObject):
             sage: om.chirotope([1, 2])
             +
         """
-        indices = frozenset(indices)
+        indices = tuple(indices)
         chirotope = self._chirotopes_dict.get(indices)
         if chirotope is None:
             try:
