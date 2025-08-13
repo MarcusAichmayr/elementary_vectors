@@ -275,19 +275,42 @@ class OrientedMatroid(SageObject):
         (000++)
         sage: om.circuit([0, 1, 2, 3])
         (+-+00)
-    """
-    def __init__(self, M) -> None:
-        try:
-            self.matrix = M.matrix_from_rows(M.pivot_rows())
-        except NotImplementedError as exc:
-            if all(minor == 0 for minor in M.minors(M.nrows())):
-                raise ValueError("Provide a matrix with maximal rank.") from exc
-            self.matrix = M
 
-        self.rank, self._element_length = self.matrix.dimensions()
+    We compute the dual oriented matroid::
+
+        sage: om_dual = om.dual()
+        sage: om_dual
+        OrientedMatroid of dimension 1 with covectors of size 5.
+        sage: om_dual.cocircuits()
+        {(000-+), (-+-00), (000+-), (+-+00)}
+        sage: om.circuits()
+        {(000-+), (-+-00), (000+-), (+-+00)}
+        sage: om_dual.circuits()
+        {(--000), (000++), (+0-00), (++000), (0--00), (0++00), (000--), (-0+00)}
+        sage: om.cocircuits()
+        {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)}
+        sage: om_dual.topes()
+        {(-+-+-), (+-+-+), (-+--+), (+-++-)}
+    """
+    def __init__(self, matrix=None, rank: int = None, element_length: int = None) -> None:
+        if matrix is None:
+            if rank is None or element_length is None:
+                raise ValueError("Provide either a matrix or both rank and element_length.")
+            self.matrix = None
+            self.rank = rank
+            self._element_length = element_length
+        else:
+            try:
+                self.matrix = matrix.matrix_from_rows(matrix.pivot_rows())
+            except NotImplementedError as exc:
+                if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
+                    raise ValueError("Provide a matrix with maximal rank.") from exc
+                self.matrix = matrix
+            self.rank, self._element_length = self.matrix.dimensions()
+
         self.dimension = self.rank - 1
 
-        self._chirotopes_dict = {}
+        self._chirotope_dict = {}
         self._faces_by_dimension = {-1: set([zero_sign_vector(self._element_length)])}
         self._loops = None
 
@@ -329,14 +352,18 @@ class OrientedMatroid(SageObject):
             +
         """
         indices = tuple(indices)
-        chirotope = self._chirotopes_dict.get(indices)
+        chirotope = self._chirotope_dict.get(indices)
         if chirotope is None:
             try:
                 chirotope = Sign(self.matrix.matrix_from_columns(indices).det())
-                self._chirotopes_dict[indices] = chirotope
+                self._chirotope_dict[indices] = chirotope
             except ValueError as e:
                 raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
         return chirotope
+
+    def set_chirotope(self, indices: list[int], value: Sign) -> None:
+        r"""Set the chirotope for the given indices."""
+        self._chirotope_dict[tuple(indices)] = value
 
     def chirotopes(self) -> list[Sign]:
         r"""
@@ -756,12 +783,7 @@ class OrientedMatroid(SageObject):
             ]
         return self._loops
 
-    # def dual(self) -> OrientedMatroid:
-    #     # TODO use duality of chirotopes to obtain new chirotopes
-    #     # TODO do we need a new matrix?
-    #     raise NotImplementedError
-
-    def plot(self):
+    def plot(self) -> None:
         r"""
         Plot the big face lattice of the oriented matroid.
         
@@ -770,6 +792,17 @@ class OrientedMatroid(SageObject):
             Only works well for small length and dimension.
         """
         plot_sign_vectors(set().union(*self.all_faces()))
+
+    def dual(self) -> "OrientedMatroid":
+        r"""Return the dual oriented matroid."""
+        self.chirotopes() # compute all chirotopes
+        om = OrientedMatroid(rank=self._element_length - self.rank, element_length=self._element_length)
+        for indices, value in self._chirotope_dict.items():
+            indices_set = set(indices)
+            complement = tuple(i for i in range(self._element_length) if i not in indices_set)
+            inversions = sum(i < j for i in indices for j in complement)
+            om.set_chirotope(complement, -value if inversions & 1 else value) # check last bit
+        return om
 
 
 # TODO redundant
