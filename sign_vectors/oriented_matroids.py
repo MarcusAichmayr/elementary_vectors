@@ -751,8 +751,14 @@ class OrientedMatroid(SageObject):
     #     raise NotImplementedError
 
     def plot(self):
-        r"""Plot the big face lattice of the oriented matroid."""
-        raise NotImplementedError
+        r"""
+        Plot the big face lattice of the oriented matroid.
+        
+        .. NOTE::
+
+            Only works well for small length and dimension.
+        """
+        plot_sign_vectors(set().union(*self.all_faces()))
 
 
 # TODO redundant
