@@ -287,6 +287,8 @@ class OrientedMatroid(SageObject):
         self._chirotopes = {}
         self._faces_by_dimension = {-1: set([zero_sign_vector(self.length)])}
 
+        self._loops = None
+
         self._debug = False
 
     def _repr_(self) -> str:
@@ -463,6 +465,10 @@ class OrientedMatroid(SageObject):
 
         - A set of cocircuits as SignVectors.
 
+        .. NOTE::
+
+            The result is hashed.
+
         .. SEEALSO::
 
             - :meth:`cocircuit`
@@ -576,7 +582,7 @@ class OrientedMatroid(SageObject):
         if self._faces_by_dimension.get(self.dimension) is None:
             if self._debug:
                 print("Computing topes...")
-            self._faces_by_dimension[self.dimension] = topes_from_cocircuits(self.cocircuits())
+            self._faces_by_dimension[self.dimension] = self._topes_from_cocircuits()
         return self._faces_by_dimension[self.dimension]
 
     def vertices(self) -> set[SignVector]:
@@ -606,7 +612,7 @@ class OrientedMatroid(SageObject):
         """
         return self.faces(1)
 
-    def faces(self, dimension: int):
+    def faces(self, dimension: int) -> set[SignVector]:
         r"""
         Compute the faces of the same level of the oriented matroid.
 
@@ -646,12 +652,11 @@ class OrientedMatroid(SageObject):
         """
         return [self.faces(d) for d in range(-1, self.dimension + 1)]
 
-    def _compute_lower_faces(self, dimension: int) -> set[SignVector]:
-        if self._debug:
-            print(f"Computing faces for dimension {dimension - 1}...")
+    def _compute_lower_faces(self, dimension: int) -> None:
         if dimension - 1 not in self._faces_by_dimension:
+            if self._debug:
+                print(f"Computing faces for dimension {dimension - 1}...")
             self._faces_by_dimension[dimension - 1] = self._lower_faces(dimension)
-        return self._faces_by_dimension[dimension - 1]
 
     def _lower_faces(self, dimension: int) -> set[SignVector]:
         r"""
@@ -691,6 +696,54 @@ class OrientedMatroid(SageObject):
                     if face.reverse_signs_in(parallel_class) in same_support_faces:
                         output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self.length)))
         return output
+
+    def _topes_from_cocircuits(self) -> set[SignVector]:
+        r"""
+        Compute the topes from the cocircuits.
+
+        OUTPUT:
+        A set of topes of the oriented matroid.
+
+        ALGORITHM:
+
+        This function is based on an algorithm in [Fin01]_.
+        """
+        covectors = {zero_sign_vector(self.length)}
+        covectors_new = {zero_sign_vector(self.length)}
+        topes = set()
+
+        while covectors_new:
+            element1 = covectors_new.pop()
+            for element2 in self.cocircuits():
+                if element2 <= element1:
+                    continue
+                new_element = element2.compose(element1)
+                if new_element not in covectors:
+                    covectors.add(new_element)
+                    if new_element.zero_support() == self.loops():
+                        topes.add(new_element)
+                    else:
+                        covectors_new.add(new_element)
+        return topes
+
+    def loops(self) -> list[int]:
+        r"""
+        Compute the loops of this oriented matroid.
+
+        A loop is a component where every face is zero.
+
+        .. NOTE::
+
+            The result is hashed.
+        """
+        if self._loops is None:
+            if self._debug:
+                print("Computing loops...")
+            self._loops = [
+                e for e in range(self.length)
+                if all(element[e] == 0 for element in self.cocircuits())
+            ]
+        return self._loops
 
     # def dual(self) -> OrientedMatroid:
     #     # TODO use duality of chirotopes to obtain new chirotopes
