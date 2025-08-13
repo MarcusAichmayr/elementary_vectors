@@ -144,7 +144,7 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
     return (True, ratio) if return_ratio else True
 
 
-def parallel_classes(iterable, length: int, positive_only: bool = False) -> list[list[int]]:
+def parallel_classes(iterable, length: int) -> list[list[int]]:
     r"""
     Compute the parallel classes of given sign vectors or vectors.
 
@@ -154,14 +154,9 @@ def parallel_classes(iterable, length: int, positive_only: bool = False) -> list
 
     - ``length`` -- an integer ``n``
 
-    - ``positive_only`` -- a boolean (default: False)
-
     OUTPUT:
 
     Returns a partition of ``[0, ..., n - 1]`` into parallel classes.
-
-    If ``positive_only`` is true, returns a partition of ``[0, ..., n - 1]`` into positive parallel classes,
-    that is, the ratios of the corresponding classes are nonnegative.
 
     .. NOTE::
 
@@ -177,8 +172,6 @@ def parallel_classes(iterable, length: int, positive_only: bool = False) -> list
         [(++0-), (+-0+), (-0+0)]
         sage: parallel_classes(L, 4)
         [[0], [1, 3], [2]]
-        sage: parallel_classes(L, 4, positive_only=True)
-        [[0], [1], [2], [3]]
 
     Now, we compute the parallel classes of a list of real vectors::
 
@@ -197,27 +190,20 @@ def parallel_classes(iterable, length: int, positive_only: bool = False) -> list
         [ 1  1 -3  6  1]
         sage: parallel_classes(M, 5)
         [[0, 4], [1], [2, 3]]
-        sage: parallel_classes(M, 5, positive_only=True)
-        [[0, 4], [1], [2], [3]]
+
+    TESTS::
+
+        sage: parallel_classes([], 5)
+        [[0, 1, 2, 3, 4]]
     """
-    if not iterable:
-        return [list(range(length))]
     result = []
     indices_to_check = set(range(length))
-
-    if positive_only:
-        def is_par(iterable, component1, component2):
-            value = is_parallel(iterable, component1, component2, return_ratio=True)
-            return value[1] > 0 if value[0] else False
-    else:
-        def is_par(iterable, component1, component2):
-            return is_parallel(iterable, component1, component2)
 
     while indices_to_check:
         component1 = indices_to_check.pop()
         parallel_class = [component1]
         for component2 in indices_to_check.copy():
-            if is_par(iterable, component1, component2):
+            if is_parallel(iterable, component1, component2):
                 parallel_class.append(component2)
                 indices_to_check.remove(component2)
         result.append(parallel_class)
@@ -259,8 +245,25 @@ def positive_parallel_classes(iterable, length: int) -> list[list[int]]:
         [ 1  1 -3  6  1]
         sage: positive_parallel_classes(M, 5)
         [[0, 4], [1], [2], [3]]
+
+    TESTS::
+
+        sage: positive_parallel_classes([], 5)
+        [[0, 1, 2, 3, 4]]
     """
-    return parallel_classes(iterable, length, positive_only=True)
+    result = []
+    indices_to_check = set(range(length))
+
+    while indices_to_check:
+        component1 = indices_to_check.pop()
+        parallel_class = [component1]
+        for component2 in indices_to_check.copy():
+            value, ratio = is_parallel(iterable, component1, component2, return_ratio=True)
+            if value and ratio >= 0:
+                parallel_class.append(component2)
+                indices_to_check.remove(component2)
+        result.append(parallel_class)
+    return result
 
 
 def classes_same_support(iterable) -> list[set[SignVector]]:
