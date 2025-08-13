@@ -783,15 +783,15 @@ class OrientedMatroid(SageObject):
             ]
         return self._loops
 
-    def plot(self) -> None:
+    def plot(self, **kwargs) -> None:
         r"""
         Plot the big face lattice of the oriented matroid.
-        
+
         .. NOTE::
 
             Only works well for small length and dimension.
         """
-        plot_sign_vectors(set().union(*self.all_faces()))
+        plot_sign_vectors(set().union(*self.all_faces()), **kwargs)
 
     def dual(self) -> "OrientedMatroid":
         r"""Return the dual oriented matroid."""
