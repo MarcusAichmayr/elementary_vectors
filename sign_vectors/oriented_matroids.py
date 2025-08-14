@@ -74,7 +74,7 @@ class OrientedMatroid(SageObject):
 
     We define an oriented matroid from a matrix::
 
-        sage: from sign_vectors.oriented_matroids import *
+        sage: from sign_vectors import *
         sage: M = matrix([[1, 2, 0, 0, 0], [0, 1, 2, 0, 0], [0, 0, 0, 1, 1]])
         sage: om = OrientedMatroid(M)
         sage: om
@@ -358,7 +358,7 @@ class OrientedMatroid(SageObject):
 
         EXAMPLES::
 
-            sage: from sign_vectors.oriented_matroids import *
+            sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
             sage: om = OrientedMatroid(M)
             sage: om.chirotope([1, 2])
@@ -393,7 +393,7 @@ class OrientedMatroid(SageObject):
 
         EXAMPLES::
 
-            sage: from sign_vectors.oriented_matroids import *
+            sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
             sage: om = OrientedMatroid(M)
             sage: om.chirotopes()
@@ -426,7 +426,7 @@ class OrientedMatroid(SageObject):
 
         EXAMPLES::
 
-            sage: from sign_vectors.oriented_matroids import *
+            sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
             sage: om = OrientedMatroid(M)
             sage: om.cocircuit([0])
@@ -468,7 +468,7 @@ class OrientedMatroid(SageObject):
 
         EXAMPLES::
 
-            sage: from sign_vectors.oriented_matroids import *
+            sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
             sage: om = OrientedMatroid(M)
             sage: om.circuit([0, 1, 2])
@@ -529,7 +529,7 @@ class OrientedMatroid(SageObject):
 
         EXAMPLES::
 
-            sage: from sign_vectors.oriented_matroids import *
+            sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
             sage: om = OrientedMatroid(M)
             sage: om.cocircuits()
@@ -579,7 +579,7 @@ class OrientedMatroid(SageObject):
 
         EXAMPLES::
 
-            sage: from sign_vectors.oriented_matroids import *
+            sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
             sage: om = OrientedMatroid(M)
             sage: om.circuits()
@@ -1072,8 +1072,8 @@ def face_enumeration(i_faces: set[SignVector]) -> list[set[SignVector]]:
     oriented matroid::
 
         sage: from sign_vectors.oriented_matroids import *
-        sage: A = matrix([[1, 0, 2], [0, 1, -1]])
-        sage: topes = topes_from_cocircuits(cocircuits_from_matrix(A))
+        sage: M = matrix([[1, 0, 2], [0, 1, -1]])
+        sage: topes = OrientedMatroid(M).topes()
         sage: topes
         {(---), (++-), (--+), (+++), (-+-), (+-+)}
         sage: face_enumeration(topes)

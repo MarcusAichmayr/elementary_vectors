@@ -11,4 +11,5 @@
 from __future__ import absolute_import
 
 from .sign_vectors import *
+from .oriented_matroids import OrientedMatroid
 from .functions import *

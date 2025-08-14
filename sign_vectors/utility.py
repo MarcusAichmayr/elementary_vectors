@@ -324,9 +324,9 @@ def adjacent(element1, element2, iterable) -> bool:
 
     By using the function :func:`sign_vectors.oriented_matroids.cocircuits_from_matrix`, we can compute the corresponding cocircuits::
 
-        sage: from sign_vectors.oriented_matroids import *
-        sage: cc = cocircuits_from_matrix(M)
-        sage: cc
+        sage: from sign_vectors import *
+        sage: om = OrientedMatroid(M)
+        sage: om.cocircuits()
         {(0+-), (--0), (0-+), (++0), (+0+), (-0-)}
 
     The two sign vectors ``X = (++0)`` and ``Y = (+0+)`` are harmonious::
@@ -346,7 +346,7 @@ def adjacent(element1, element2, iterable) -> bool:
     Hence, those two sign vectors are adjacent::
 
         sage: from sign_vectors.utility import adjacent
-        sage: adjacent(X, Y, cc)
+        sage: adjacent(X, Y, om.cocircuits())
         True
 
     Conversely, :math:`Y = (+0+)` and :math:`Z = (0+-)` are not adjacent since
@@ -355,7 +355,7 @@ def adjacent(element1, element2, iterable) -> bool:
         sage: Z = sign_vector('0+-')
         sage: Z
         (0+-)
-        sage: adjacent(Y, Z, cc)
+        sage: adjacent(Y, Z, om.cocircuits())
         False
     """
     composition = element1 & element2
