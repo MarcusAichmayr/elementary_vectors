@@ -89,7 +89,7 @@ class OrientedMatroid(SageObject):
         sage: M = matrix([[1, 2, 0, 0, 0], [0, 1, 2, 0, 0], [0, 0, 0, 1, 1]])
         sage: om = OrientedMatroid(M)
         sage: om
-        OrientedMatroid of dimension 2 with covectors of size 5.
+        Oriented matroid of dimension 2 with elements of size 5.
         sage: om.ground_set
         {0, 1, 2, 3, 4}
         sage: om.dimension
@@ -291,7 +291,7 @@ class OrientedMatroid(SageObject):
 
         sage: om_dual = om.dual()
         sage: om_dual
-        OrientedMatroid of dimension 1 with covectors of size 5.
+        Oriented matroid of dimension 1 with elements of size 5.
         sage: om_dual.cocircuits()
         {(000-+), (-+-00), (000+-), (+-+00)}
         sage: om.circuits()
@@ -341,7 +341,7 @@ class OrientedMatroid(SageObject):
         self._loops = None
 
     def _repr_(self) -> str:
-        return f"OrientedMatroid of dimension {self.dimension} with covectors of size {self._element_length}."
+        return f"Oriented matroid of dimension {self.dimension} with elements of size {self._element_length}."
 
     @property
     def ground_set(self) -> set[int]:
@@ -866,7 +866,7 @@ class OrientedMatroid(SageObject):
             sage: from sign_vectors import *
             sage: om = OrientedMatroid.from_chirotopes([1, 2, 3, 4, 6, 0], 2, 4)
             sage: om
-            OrientedMatroid of dimension 1 with covectors of size 4.
+            Oriented matroid of dimension 1 with elements of size 4.
             sage: om.all_faces()
             [{(0000)},
              {(+0--), (-0++), (--00), (++00), (0+++), (0---)},
@@ -876,7 +876,7 @@ class OrientedMatroid(SageObject):
 
             sage: om = OrientedMatroid.from_chirotopes([0, 0, -1, -1, 0, 1, 1, 1, 1, 1], 2, 5)
             sage: om
-            OrientedMatroid of dimension 1 with covectors of size 5.
+            Oriented matroid of dimension 1 with elements of size 5.
             sage: om.all_faces()
             [{(00000)},
              {(-+++0), (+---0), (000++), (-++0-), (+--0+), (000--)},
@@ -885,7 +885,7 @@ class OrientedMatroid(SageObject):
         Chirotopes can also be specified as a string::
 
             sage: OrientedMatroid.from_chirotopes("00--0+++++", 2, 5)
-            OrientedMatroid of dimension 1 with covectors of size 5.
+            Oriented matroid of dimension 1 with elements of size 5.
         """
         om = OrientedMatroid(rank=rank, element_length=element_length)
         for (indices, value) in zip(Combinations(element_length, rank), chirotopes):
