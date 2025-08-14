@@ -375,7 +375,7 @@ class OrientedMatroid(SageObject):
 
     def set_chirotope(self, indices: list[int], value: Sign) -> None:
         r"""Set the chirotope for the given indices."""
-        self._chirotope_dict[tuple(indices)] = value
+        self._chirotope_dict[tuple(indices)] = Sign(value)
 
     def chirotopes(self) -> list[Sign]:
         r"""
@@ -832,6 +832,45 @@ class OrientedMatroid(SageObject):
             complement = tuple(i for i in range(self._element_length) if i not in indices_set)
             inversions = sum(i < j for i in indices for j in complement)
             om.set_chirotope(complement, -value if inversions & 1 else value) # check last bit
+        return om
+
+    @staticmethod
+    def from_chirotopes(chirotopes: list, rank: int, element_length: int) -> "OrientedMatroid":
+        r"""
+        Create an oriented matroid from a list of chirotopes.
+
+        INPUT:
+
+        - ``chirotopes`` -- a list of chirotopes or maximal minors as integers.
+
+        OUTPUT:
+
+        - An instance of :class:`OrientedMatroid`.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: om = OrientedMatroid.from_chirotopes([1, 2, 3, 4, 6, 0], 2, 4)
+            sage: om
+            OrientedMatroid of dimension 1 with covectors of size 4.
+            sage: om.all_faces()
+            [{(0000)},
+             {(+0--), (-0++), (--00), (++00), (0+++), (0---)},
+             {(-+++), (+---), (--++), (++++), (----), (++--)}]
+
+        ::
+
+            sage: om = OrientedMatroid.from_chirotopes([0, 0, -1, -1, 0, 1, 1, 1, 1, 1], 2, 5)
+            sage: om
+            OrientedMatroid of dimension 1 with covectors of size 5.
+            sage: om.all_faces()
+            [{(00000)},
+             {(-+++0), (+---0), (000++), (-++0-), (+--0+), (000--)},
+             {(-+++-), (-++++), (+--++), (+----), (-++--), (+---+)}]
+        """
+        om = OrientedMatroid(rank=rank, element_length=element_length)
+        for (indices, value) in zip(Combinations(element_length, rank), chirotopes):
+            om.set_chirotope(indices, value)
         return om
 
 
