@@ -278,7 +278,7 @@ class OrientedMatroid(SageObject):
 
         sage: om.chirotopes()
         [0, +, +, +, +, 0, +, +, 0, 0]
-        sage: om.chirotopes_as_string()
+        sage: om.chirotope_string()
         '0++++0++00'
         sage: om.chirotope([0, 1, 2])
         0
@@ -412,7 +412,7 @@ class OrientedMatroid(SageObject):
         """
         return [self.chirotope(indices) for indices in Combinations(self._element_length, self.rank)]
 
-    def chirotopes_as_string(self) -> str:
+    def chirotope_string(self) -> str:
         r"""Represent the chirotopes as a string."""
         return "".join(str(chirotope) for chirotope in self.chirotopes())
 
