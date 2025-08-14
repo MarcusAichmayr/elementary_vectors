@@ -832,51 +832,6 @@ class OrientedMatroid(SageObject):
         return om
 
 
-# TODO redundant
-class Cocircuits(ElementaryVectors):
-    r"""
-    Class used to compute cocircuits and circuits.
-
-    TESTS::
-
-        sage: from sign_vectors.oriented_matroids import *
-        sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
-        sage: cc = Cocircuits(M)
-        sage: cc.element([1, 2, 3])
-        Traceback (most recent call last):
-        ...
-        ValueError: The indices [1, 2, 3] correspond to the zero vector!
-        sage: cc.elements()
-        {(0+-0), (000-), (0-+0), (000+)}
-        sage: cc.minors
-        {(0, 1): 1, (0, 2): 1, (0, 3): 0, (1, 2): 0, (1, 3): 0, (2, 3): 0}
-    """
-    def _compute_minor(self, indices: tuple[int]) -> int:
-        return sign_symbolic(super()._compute_minor(indices))
-
-    def _zero_element(self) -> list[int]:
-        return [0] * self.length
-
-    def _element_kernel(self, indices: list[int], mark_zeros: bool = False) -> SignVector:
-        return sign_vector(super()._element_kernel(indices, mark_zeros=mark_zeros))
-
-    def _element_row_space(self, indices: list[int], mark_zeros: bool = False) -> SignVector:
-        return sign_vector(super()._element_row_space(indices, mark_zeros=mark_zeros))
-
-    def generator(
-        self,
-        dual: bool = True,
-        prevent_multiples: bool = True,
-        reverse: bool = False
-    ) -> Generator[SignVector]:
-        for cocircuit in super().generator(dual=dual, prevent_multiples=prevent_multiples, reverse=reverse):
-            yield cocircuit
-            yield -cocircuit
-
-    def elements(self, dual: bool = True, prevent_multiples: bool = True) -> set[SignVector]:
-        return set(self.generator(dual=dual, prevent_multiples=prevent_multiples))
-
-
 def cocircuits_from_matrix(M) -> set[SignVector]:
     r"""
     Compute a set of cocircuits determined by the matrix ``M``.
