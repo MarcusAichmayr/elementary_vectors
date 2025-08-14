@@ -920,7 +920,7 @@ def circuits_from_matrix(M) -> set[SignVector]:
     return OrientedMatroid(M).circuits()
 
 
-def covectors_from_cocircuits(cocircuits) -> set[SignVector]:
+def covectors_from_cocircuits(cocircuits: set[SignVector]) -> set[SignVector]:
     r"""
     Use an iterable of cocircuits to compute all covectors of the corresponding oriented matroid.
 
@@ -984,7 +984,7 @@ def covectors_from_cocircuits(cocircuits) -> set[SignVector]:
     return covectors
 
 
-def topes_from_cocircuits(cocircuits) -> set[SignVector]:
+def topes_from_cocircuits(cocircuits: set[SignVector]) -> set[SignVector]:
     r"""
     Use the cocircuits of an oriented matroid to compute the topes.
 
@@ -1039,7 +1039,7 @@ def topes_from_cocircuits(cocircuits) -> set[SignVector]:
     return topes
 
 
-def lower_faces(i_faces) -> set[SignVector]:
+def lower_faces(i_faces: set[SignVector]) -> set[SignVector]:
     r"""
     Compute the faces of lower dimension.
 
@@ -1082,7 +1082,7 @@ def lower_faces(i_faces) -> set[SignVector]:
     return output
 
 
-def face_enumeration(i_faces) -> list[set[SignVector]]:
+def face_enumeration(i_faces: set[SignVector]) -> list[set[SignVector]]:
     r"""
     Compute all faces with smaller dimension.
 
