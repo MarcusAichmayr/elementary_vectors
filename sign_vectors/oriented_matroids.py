@@ -248,7 +248,7 @@ class OrientedMatroid(SageObject):
          (+0-++)}
 
     The dual oriented matroid corresponds to the kernel matrix.
-    It is represented by the circuits and vectors.
+    It is represented by the circuits and vectors::
 
         sage: om.circuits()
         {(000-+), (-+-00), (000+-), (+-+00)}
@@ -684,7 +684,7 @@ class OrientedMatroid(SageObject):
         .. SEEALSO::
 
             - :meth:`faces`
-            - :func:`face_enumeration`
+            - :func:`~face_enumeration`
         """
         return [self.faces(d) for d in range(-1, self.dimension + 1)]
 

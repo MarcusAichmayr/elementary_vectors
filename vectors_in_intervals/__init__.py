@@ -25,7 +25,7 @@ from .linear_inequality_systems import (
     LinearInequalitySystem,
     InhomogeneousSystem,
     HomogeneousSystem,
-    HomogeneousSystemCocircuits,
+    # HomogeneousSystemCocircuits,
     homogeneous_from_general,
     inhomogeneous_from_general,
     homogeneous_from_inhomogeneous,

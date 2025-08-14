@@ -69,12 +69,12 @@ In the case of homogeneous systems, we can use cocircuits to certify::
     sage: A = matrix([[1, 2], [0, 1]])
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
-    sage: S = HomogeneousSystemCocircuits(A, B, C)
-    sage: S.solve()
+    sage: S = HomogeneousSystemCocircuits(A, B, C) # TODO not implemented
+    sage: S.solve() # TODO not implemented
     Traceback (most recent call last):
     ...
     ValueError: Can't solve using cocircuits!
-    sage: S.certify_existence()
+    sage: S.certify_existence() # TODO not implemented
     (+++0)
     sage: # S.certify() # TODO
 
@@ -83,8 +83,8 @@ We consider another example::
     sage: A = matrix([[1, 0], [0, 1]])
     sage: B = matrix([[2, -3]])
     sage: C = matrix([[-1, -1]])
-    sage: S = HomogeneousSystemCocircuits(A, B, C)
-    sage: S.certify_nonexistence()
+    sage: S = HomogeneousSystemCocircuits(A, B, C) # TODO not implemented
+    sage: S.certify_nonexistence() # TODO not implemented
     (++0+)
 """
 
@@ -109,7 +109,7 @@ from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
-from sign_vectors.oriented_matroids import Cocircuits
+from sign_vectors.oriented_matroids import OrientedMatroid
 from vectors_in_intervals import exists_orthogonal_vector, Intervals, Interval
 from elementary_vectors.functions import ElementaryVectors
 from .utility import CombinationsIncluding, solve_without_division
@@ -350,62 +350,63 @@ class HomogeneousSystem(LinearInequalitySystem):
         return solve_without_division(self.matrix, self.certify_existence(reverse=reverse, random=random))
 
 
-class HomogeneousSystemCocircuits(HomogeneousSystem):
-    r"""
-    A class for homogeneous linear inequality systems
+# class HomogeneousSystemCocircuits(HomogeneousSystem):
+#     r"""
+#     A class for homogeneous linear inequality systems
 
-    ``A x > 0``, ``B x >= 0``, ``C x = 0``
+#     ``A x > 0``, ``B x >= 0``, ``C x = 0``
 
-    Certifying makes use of cocircuits instead of elementary vectors
-    """
-    def __init__(self, A, B, C, result: bool = None) -> None:
-        super().__init__(A, B, C, result=result)
+#     Certifying makes use of cocircuits instead of elementary vectors
+#     """
+#     def __init__(self, A, B, C, result: bool = None) -> None:
+#         super().__init__(A, B, C, result=result)
 
-        self.evs = Cocircuits(self.matrix.T)
+#         # self.evs = Cocircuits(self.matrix.T)
+#         self.om = OrientedMatroid(self.matrix.T)
 
-        if len(self.positive) == 1:
-            self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
+#         if len(self.positive) == 1:
+#             self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
 
-    def exists_orthogonal_vector(self, v) -> bool:
-        return not (
-            any(v[k] for k in self.positive)
-            and all(v[k] >= 0 for k in self.nonnegative)
-        )
+#     def exists_orthogonal_vector(self, v) -> bool:
+#         return not (
+#             any(v[k] for k in self.positive)
+#             and all(v[k] >= 0 for k in self.nonnegative)
+#         )
 
-    def certify_existence(self, reverse: bool = False, random: bool = False) -> SignVector:
-        r"""
-        Compute a solution if existent.
+#     def certify_existence(self, reverse: bool = False, random: bool = False) -> SignVector:
+#         r"""
+#         Compute a solution if existent.
 
-        This approach sums up positive elementary vectors in the row space.
+#         This approach sums up positive elementary vectors in the row space.
 
-        .. NOTE::
+#         .. NOTE::
 
-            If no solution exists, and ``random`` is true, this method will never finish.
-        """
-        lower = sign_vector(
-            len(self.positive) * [1] + (self.matrix.nrows() - len(self.positive)) * [0]
-        )
-        upper = sign_vector(
-            len(self.nonnegative) * [1] + (self.matrix.nrows() - len(self.nonnegative)) * [0]
-        )
-        result = zero_sign_vector(self.matrix.nrows())
+#             If no solution exists, and ``random`` is true, this method will never finish.
+#         """
+#         lower = sign_vector(
+#             len(self.positive) * [1] + (self.matrix.nrows() - len(self.positive)) * [0]
+#         )
+#         upper = sign_vector(
+#             len(self.nonnegative) * [1] + (self.matrix.nrows() - len(self.nonnegative)) * [0]
+#         )
+#         result = zero_sign_vector(self.matrix.nrows())
 
-        if result >= lower:
-            return result
-        for v in self.candidate_generator(dual=False, reverse=reverse, random=random):
-            if self.solvable is False:
-                raise ValueError("No solution exists!")
-            if v <= upper:
-                result &= v
-                if result >= lower:
-                    self.solvable = True
-                    return result
+#         if result >= lower:
+#             return result
+#         for v in self.candidate_generator(dual=False, reverse=reverse, random=random):
+#             if self.solvable is False:
+#                 raise ValueError("No solution exists!")
+#             if v <= upper:
+#                 result &= v
+#                 if result >= lower:
+#                     self.solvable = True
+#                     return result
 
-        self.solvable = False
-        raise ValueError("No solution exists!")
+#         self.solvable = False
+#         raise ValueError("No solution exists!")
 
-    def solve(self, reverse: bool = False, random: bool = False):
-        raise ValueError("Can't solve using cocircuits!")
+#     def solve(self, reverse: bool = False, random: bool = False):
+#         raise ValueError("Can't solve using cocircuits!")
 
 
 def inhomogeneous_from_general(system: LinearInequalitySystem) -> InhomogeneousSystem:
