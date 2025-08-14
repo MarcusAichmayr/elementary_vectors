@@ -291,6 +291,21 @@ class OrientedMatroid(SageObject):
         {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)}
         sage: om_dual.topes()
         {(-+-+-), (+-+-+), (-+--+), (+-++-)}
+
+    TESTS:
+
+    Trivial oriented matroid::
+
+        sage: M = matrix(ZZ, 0, 3)
+        sage: om = OrientedMatroid(M)
+        sage: om.cocircuits()
+        set()
+        sage: om.circuits()
+        {(-00), (00+), (00-), (0+0), (0-0), (+00)}
+        sage: om.topes()
+        {(000)}
+        sage: om.all_faces()
+        [{(000)}]
     """
     def __init__(self, matrix=None, rank: int = None, element_length: int = None) -> None:
         if matrix is None:
@@ -486,6 +501,8 @@ class OrientedMatroid(SageObject):
 
             - :meth:`cocircuits`
         """
+        if self.rank == 0:
+            return
         for indices in Combinations(self._element_length, self.rank - 1):
             try:
                 yield self.cocircuit(indices)
@@ -523,7 +540,10 @@ class OrientedMatroid(SageObject):
         if 0 not in self._faces_by_dimension:
             if self._debug:
                 print("Computing cocircuits...")
-            self._faces_by_dimension[0] = set(self._cocircuit_generator())
+            result = set(self._cocircuit_generator())
+            if result == set():
+                return
+            self._faces_by_dimension[0] = result
         return self._faces_by_dimension[0]
 
     def _circuit_generator(self) -> Generator[SignVector]:
@@ -588,7 +608,6 @@ class OrientedMatroid(SageObject):
             - :meth:`topes`
             - :meth:`faces`
         """
-        # TODO should store topes?
         return self._covectors_from_cocircuits(self.cocircuits())
 
     def vectors(self) -> list[SignVector]:
