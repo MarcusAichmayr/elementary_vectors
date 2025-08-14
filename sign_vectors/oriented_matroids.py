@@ -329,8 +329,6 @@ class OrientedMatroid(SageObject):
         self._faces_by_dimension = {-1: set([zero_sign_vector(self._element_length)])}
         self._loops = None
 
-        self._debug = False
-
     def _repr_(self) -> str:
         return f"OrientedMatroid of dimension {self.dimension} with covectors of size {self._element_length}."
 
@@ -538,8 +536,6 @@ class OrientedMatroid(SageObject):
             {(+0--), (-0++), (--00), (++00), (0+++), (0---)}
         """
         if 0 not in self._faces_by_dimension:
-            if self._debug:
-                print("Computing cocircuits...")
             result = set(self._cocircuit_generator())
             if result == set():
                 return
@@ -590,8 +586,6 @@ class OrientedMatroid(SageObject):
             sage: om.circuits()
             {(00-+), (+-0+), (-+0-), (00+-), (-+-0), (+-+0)}
         """
-        if self._debug:
-            print("Computing circuits...")
         return set(self._circuit_generator())
 
     def covectors(self) -> list[SignVector]:
@@ -635,8 +629,6 @@ class OrientedMatroid(SageObject):
             - :meth:`cocircuits`
         """
         if self._faces_by_dimension.get(self.dimension) is None:
-            if self._debug:
-                print("Computing topes...")
             self._faces_by_dimension[self.dimension] = self._topes_from_cocircuits()
         return self._faces_by_dimension[self.dimension]
 
@@ -680,8 +672,6 @@ class OrientedMatroid(SageObject):
             - :meth:`covectors`
             - :meth:`topes`
         """
-        if self._debug:
-            print(f"Faces available for: {self._faces_by_dimension.keys()}")
         if dimension < -1 or dimension > self.dimension:
             raise ValueError(f"Dimension should be between -1 and {self.dimension}. Got {dimension}.")
         if dimension in self._faces_by_dimension:
@@ -709,8 +699,6 @@ class OrientedMatroid(SageObject):
 
     def _compute_lower_faces(self, dimension: int) -> None:
         if dimension - 1 not in self._faces_by_dimension:
-            if self._debug:
-                print(f"Computing faces for dimension {dimension - 1}...")
             self._faces_by_dimension[dimension - 1] = self._lower_faces(dimension)
 
     def _lower_faces(self, dimension: int) -> set[SignVector]:
@@ -821,8 +809,6 @@ class OrientedMatroid(SageObject):
             The result is hashed.
         """
         if self._loops is None:
-            if self._debug:
-                print("Computing loops...")
             self._loops = [
                 e for e in range(self._element_length)
                 if all(element[e] == 0 for element in self.cocircuits())
