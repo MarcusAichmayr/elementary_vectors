@@ -877,44 +877,50 @@ class Cocircuits(ElementaryVectors):
         return set(self.generator(dual=dual, prevent_multiples=prevent_multiples))
 
 
-def cocircuits_from_matrix(M, dual: bool = True):
+def cocircuits_from_matrix(M) -> set[SignVector]:
     r"""
     Compute a set of cocircuits determined by the matrix ``M``.
 
     INPUT:
 
-    - ``M`` -- a matrix with real arguments.
-
-    - ``dual`` -- a boolean (default: ``True``)
+    - ``M`` -- a matrix.
 
     OUTPUT:
 
-    - If ``dual`` is true, returns a set of cocircuits determined by the
-      kernel of the matrix ``M``.
-
-    - If ``dual`` is false, returns a set of cocircuits determined by the row
-      space of the matrix ``M``.
+    A set of cocircuits determined by the matrix ``M``.
 
     EXAMPLES::
 
         sage: from sign_vectors.oriented_matroids import *
-        sage: A = matrix([[2, -1, -1]])
-        sage: A
-        [ 2 -1 -1]
+        sage: A = matrix([[1, 0, 2], [0, 1, -1]])
         sage: cocircuits_from_matrix(A)
         {(0+-), (--0), (0-+), (++0), (+0+), (-0-)}
-        sage: B = matrix([[1, 0, 0, 0], [0, 1, 0, 2], [0, 0, 1, -1]])
-        sage: B
-        [ 1  0  0  0]
-        [ 0  1  0  2]
-        [ 0  0  1 -1]
-        sage: cocircuits_from_matrix(B, dual=False)
-        {(-000), (00-+), (0-0-), (0--0), (0+0+), (00+-), (0++0), (+000)}
     """
-    return Cocircuits(M).elements(dual=dual)
+    return OrientedMatroid(M).cocircuits()
+
+def circuits_from_matrix(M) -> set[SignVector]:
+    r"""
+    Compute a set of circuits determined by the matrix ``M``.
+
+    INPUT:
+
+    - ``M`` -- a matrix.
+
+    OUTPUT:
+
+    A set of circuits determined by the matrix ``M``.
+
+    EXAMPLES::
+
+        sage: from sign_vectors.oriented_matroids import *
+        sage: A = matrix([[1, 0, 2], [0, 1, -1]])
+        sage: circuits_from_matrix(A)
+        {(-++), (+--)}
+    """
+    return OrientedMatroid(M).circuits()
 
 
-def covectors_from_cocircuits(cocircuits):
+def covectors_from_cocircuits(cocircuits) -> set[SignVector]:
     r"""
     Use an iterable of cocircuits to compute all covectors of the corresponding oriented matroid.
 
@@ -940,9 +946,7 @@ def covectors_from_cocircuits(cocircuits):
     For this purpose, we compute the cocircuits corresponding to some matrix::
 
         sage: from sign_vectors.oriented_matroids import *
-        sage: A = matrix([[2, -1, -1]])
-        sage: A
-        [ 2 -1 -1]
+        sage: A = matrix([[1, 2, 0], [0, 1, -1]])
         sage: ccA = cocircuits_from_matrix(A)
         sage: ccA
         {(0+-), (--0), (0-+), (++0), (+0+), (-0-)}
@@ -980,7 +984,7 @@ def covectors_from_cocircuits(cocircuits):
     return covectors
 
 
-def topes_from_cocircuits(cocircuits):
+def topes_from_cocircuits(cocircuits) -> set[SignVector]:
     r"""
     Use the cocircuits of an oriented matroid to compute the topes.
 
@@ -1002,9 +1006,7 @@ def topes_from_cocircuits(cocircuits):
     For this purpose, we compute the cocircuits corresponding to some matrix::
 
         sage: from sign_vectors.oriented_matroids import *
-        sage: A = matrix([[2, -1, -1]])
-        sage: A
-        [ 2 -1 -1]
+        sage: A = matrix([[1, 0, 2], [0, 1, -1]])
         sage: ccA = cocircuits_from_matrix(A)
         sage: ccA
         {(0+-), (--0), (0-+), (++0), (+0+), (-0-)}
@@ -1080,7 +1082,7 @@ def lower_faces(i_faces) -> set[SignVector]:
     return output
 
 
-def face_enumeration(i_faces):
+def face_enumeration(i_faces) -> list[set[SignVector]]:
     r"""
     Compute all faces with smaller dimension.
 
@@ -1111,10 +1113,8 @@ def face_enumeration(i_faces):
     oriented matroid::
 
         sage: from sign_vectors.oriented_matroids import *
-        sage: A = matrix([[2, -1, -1]])
-        sage: A
-        [ 2 -1 -1]
-        sage: topes = topes_from_matrix(A)
+        sage: A = matrix([[1, 0, 2], [0, 1, -1]])
+        sage: topes = topes_from_cocircuits(cocircuits_from_matrix(A))
         sage: topes
         {(---), (++-), (--+), (+++), (-+-), (+-+)}
         sage: face_enumeration(topes)
