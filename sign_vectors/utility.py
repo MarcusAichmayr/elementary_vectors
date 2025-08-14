@@ -322,7 +322,7 @@ def adjacent(element1, element2, iterable) -> bool:
         [ 1  2  0]
         [ 0  1 -1]
 
-    By using the function :func:`sign_vectors.oriented_matroids.cocircuits_from_matrix`, we can compute the corresponding cocircuits::
+    We define an :class:`sign_vectors.oriented_matroids.OrientedMatroid` to compute the cocircuits::
 
         sage: from sign_vectors import *
         sage: om = OrientedMatroid(M)

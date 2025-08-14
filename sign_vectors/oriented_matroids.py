@@ -835,49 +835,6 @@ class OrientedMatroid(SageObject):
         return om
 
 
-def cocircuits_from_matrix(M) -> set[SignVector]:
-    r"""
-    Compute a set of cocircuits determined by the matrix ``M``.
-
-    INPUT:
-
-    - ``M`` -- a matrix.
-
-    OUTPUT:
-
-    A set of cocircuits determined by the matrix ``M``.
-
-    EXAMPLES::
-
-        sage: from sign_vectors.oriented_matroids import *
-        sage: A = matrix([[1, 0, 2], [0, 1, -1]])
-        sage: cocircuits_from_matrix(A)
-        {(0+-), (--0), (0-+), (++0), (+0+), (-0-)}
-    """
-    return OrientedMatroid(M).cocircuits()
-
-def circuits_from_matrix(M) -> set[SignVector]:
-    r"""
-    Compute a set of circuits determined by the matrix ``M``.
-
-    INPUT:
-
-    - ``M`` -- a matrix.
-
-    OUTPUT:
-
-    A set of circuits determined by the matrix ``M``.
-
-    EXAMPLES::
-
-        sage: from sign_vectors.oriented_matroids import *
-        sage: A = matrix([[1, 0, 2], [0, 1, -1]])
-        sage: circuits_from_matrix(A)
-        {(-++), (+--)}
-    """
-    return OrientedMatroid(M).circuits()
-
-
 def covectors_from_cocircuits(cocircuits: set[SignVector]) -> set[SignVector]:
     r"""
     Use an iterable of cocircuits to compute all covectors of the corresponding oriented matroid.
@@ -904,11 +861,11 @@ def covectors_from_cocircuits(cocircuits: set[SignVector]) -> set[SignVector]:
     For this purpose, we compute the cocircuits corresponding to some matrix::
 
         sage: from sign_vectors.oriented_matroids import *
-        sage: A = matrix([[1, 2, 0], [0, 1, -1]])
-        sage: ccA = cocircuits_from_matrix(A)
-        sage: ccA
+        sage: M = matrix([[1, 2, 0], [0, 1, -1]])
+        sage: cc = OrientedMatroid(M).cocircuits()
+        sage: cc
         {(0+-), (--0), (0-+), (++0), (+0+), (-0-)}
-        sage: covectors_from_cocircuits(ccA)
+        sage: covectors_from_cocircuits(cc)
         {(000),
          (---),
          (0+-),
@@ -964,11 +921,11 @@ def topes_from_cocircuits(cocircuits: set[SignVector]) -> set[SignVector]:
     For this purpose, we compute the cocircuits corresponding to some matrix::
 
         sage: from sign_vectors.oriented_matroids import *
-        sage: A = matrix([[1, 0, 2], [0, 1, -1]])
-        sage: ccA = cocircuits_from_matrix(A)
-        sage: ccA
+        sage: M = matrix([[1, 0, 2], [0, 1, -1]])
+        sage: cc = OrientedMatroid(M).cocircuits()
+        sage: cc
         {(0+-), (--0), (0-+), (++0), (+0+), (-0-)}
-        sage: topes_from_cocircuits(ccA)
+        sage: topes_from_cocircuits(cc)
         {(---), (++-), (--+), (+++), (-+-), (+-+)}
     """
     if not cocircuits:
