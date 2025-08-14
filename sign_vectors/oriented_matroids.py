@@ -600,7 +600,7 @@ class OrientedMatroid(SageObject):
             - :meth:`topes`
             - :meth:`faces`
         """
-        return self._covectors_from_cocircuits(self.cocircuits())
+        return self._faces_from_vertices(self.cocircuits())
 
     def vectors(self) -> list[SignVector]:
         r"""
@@ -614,7 +614,7 @@ class OrientedMatroid(SageObject):
 
             - :meth:`circuits`
         """
-        return self._covectors_from_cocircuits(self.circuits())
+        return self._faces_from_vertices(self.circuits())
 
     def topes(self) -> list[SignVector]:
         r"""
@@ -738,7 +738,7 @@ class OrientedMatroid(SageObject):
                         output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self._element_length)))
         return output
 
-    def _covectors_from_cocircuits(self, cocircuits: set[SignVector]) -> set[SignVector]:
+    def _faces_from_vertices(self, cocircuits: set[SignVector]) -> set[SignVector]:
         r"""
         Compute the covectors from the cocircuits.
 
@@ -835,9 +835,9 @@ class OrientedMatroid(SageObject):
         return om
 
 
-def covectors_from_cocircuits(cocircuits: set[SignVector]) -> set[SignVector]:
+def faces_from_vertices(cocircuits: set[SignVector]) -> set[SignVector]:
     r"""
-    Use an iterable of cocircuits to compute all covectors of the corresponding oriented matroid.
+    Use an iterable of (co)circuits to compute all (co)vectors of the corresponding oriented matroid.
 
     INPUT:
 
@@ -849,7 +849,7 @@ def covectors_from_cocircuits(cocircuits: set[SignVector]) -> set[SignVector]:
 
     ALGORITHM:
 
-    This function is based on an algorithm in [Fin01]_.
+    This function is based on ``CovectorsFromCocircuits`` from [Fin01]_.
 
     .. [Fin01] Finschi, L.:
        „A graph theoretical approach for reconstruction and generation of oriented matroids“.
@@ -865,7 +865,7 @@ def covectors_from_cocircuits(cocircuits: set[SignVector]) -> set[SignVector]:
         sage: cc = OrientedMatroid(M).cocircuits()
         sage: cc
         {(0+-), (--0), (0-+), (++0), (+0+), (-0-)}
-        sage: covectors_from_cocircuits(cc)
+        sage: faces_from_vertices(cc)
         {(000),
          (---),
          (0+-),
