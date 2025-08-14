@@ -541,9 +541,9 @@ class ElementaryVectors(SageObject):
             self._reset_set_for_preventing_multiples()
         if dual:
             combinations = self._combinations_kernel
+        elif self.rank == 0:
+            return
         else:
-            if self.rank == 0:
-                return
             combinations = self._combinations_row_space
         if reverse:
             combinations = reversed(combinations)
