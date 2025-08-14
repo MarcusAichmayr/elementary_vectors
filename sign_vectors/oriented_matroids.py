@@ -41,6 +41,12 @@ class Sign(IntEnum):
         1
         sage: -Sign(5)
         -
+        sage: Sign("+")
+        +
+        sage: Sign("-")
+        -
+        sage: Sign("0")
+        0
     """
     NEG = -1
     ZERO = 0
@@ -57,6 +63,12 @@ class Sign(IntEnum):
 
     @classmethod
     def _missing_(cls, value):
+        if isinstance(value, str):
+            if value == "+":
+                return cls.POS
+            if value == "-":
+                return cls.NEG
+            return cls.ZERO
         v = sign_symbolic(value)
         if v > 0:
             return cls.POS
