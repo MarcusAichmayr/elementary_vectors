@@ -847,13 +847,15 @@ class OrientedMatroid(SageObject):
         return om
 
     @staticmethod
-    def from_chirotopes(chirotopes: list, rank: int, element_length: int) -> "OrientedMatroid":
+    def from_chirotopes(chirotopes, rank: int, element_length: int) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from a list of chirotopes.
 
         INPUT:
 
         - ``chirotopes`` -- a list of chirotopes or maximal minors as integers.
+
+        The chirotopes can also be specified as a string.
 
         OUTPUT:
 
@@ -879,6 +881,11 @@ class OrientedMatroid(SageObject):
             [{(00000)},
              {(-+++0), (+---0), (000++), (-++0-), (+--0+), (000--)},
              {(-+++-), (-++++), (+--++), (+----), (-++--), (+---+)}]
+
+        Chirotopes can also be specified as a string::
+
+            sage: OrientedMatroid.from_chirotopes("00--0+++++", 2, 5)
+            OrientedMatroid of dimension 1 with covectors of size 5.
         """
         om = OrientedMatroid(rank=rank, element_length=element_length)
         for (indices, value) in zip(Combinations(element_length, rank), chirotopes):
