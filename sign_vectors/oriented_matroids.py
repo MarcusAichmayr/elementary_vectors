@@ -535,11 +535,10 @@ class OrientedMatroid(SageObject):
             sage: om.cocircuits()
             {(+0--), (-0++), (--00), (++00), (0+++), (0---)}
         """
+        if self.dimension == -1:
+            return set()
         if 0 not in self._faces_by_dimension:
-            result = set(self._cocircuit_generator())
-            if result == set():
-                return
-            self._faces_by_dimension[0] = result
+            self._faces_by_dimension[0] = set(self._cocircuit_generator())
         return self._faces_by_dimension[0]
 
     def _circuit_generator(self) -> Generator[SignVector]:
