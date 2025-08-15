@@ -661,11 +661,7 @@ class SignVector(SageObject):
             (++-0+)
         """
         indices = FrozenBitset(indices, capacity=self.length()) & self._support()
-
-        res_psupport = self._positive_support ^ indices
-        res_nsupport = self._negative_support ^ indices
-
-        return SignVector(res_psupport, res_nsupport)
+    def delete_components(self, indices: list[int]) -> SignVector:
 
     def _connecting_elements(self, other) -> FrozenBitset:
         return (self._positive_support & other._positive_support) | (self._negative_support & other._negative_support)
