@@ -149,7 +149,7 @@ from sage.structure.sage_object import SageObject
 from sage.symbolic.ring import SR
 
 
-def sign_vector(iterable) -> SignVector:
+def sign_vector(iterable: list | str) -> SignVector:
     r"""
     Create a sign vector from a list, vector or string.
 
@@ -403,7 +403,7 @@ class SignVector(SageObject):
         """
         return list(self._support())
 
-    def _support(self):
+    def _support(self) -> FrozenBitset:
         return self._positive_support | self._negative_support
 
     def zero_support(self) -> list[int]:
@@ -448,7 +448,7 @@ class SignVector(SageObject):
         """
         return list(self._negative_support)
 
-    def __getitem__(self, e):
+    def __getitem__(self, e: int | slice) -> int | SignVector:
         r"""
         Return the element at position ``e`` of the sign vector.
 
@@ -490,9 +490,9 @@ class SignVector(SageObject):
             return -1
         return 0
 
-    def list_from_positions(self, S) -> list[int]:
+    def list_from_positions(self, positions: list[int]) -> list[int]:
         r"""
-        Return a list of components that are in the list of indices ``S``.
+        Return a list of components that are in the list of indices ``positions``.
 
         EXAMPLES::
 
@@ -502,9 +502,9 @@ class SignVector(SageObject):
             sage: X.list_from_positions([0, 1, 4])
             [-1, 1, 1]
         """
-        return [self[e] for e in S]
+        return [self[e] for e in positions]
 
-    def compose(self, other) -> SignVector:
+    def compose(self, other: SignVector) -> SignVector:
         r"""
         Return the composition of two sign vectors.
 
@@ -538,11 +538,12 @@ class SignVector(SageObject):
             sage: X.compose(Y)
             (0+-+++---)
         """
-        res_psupport = self._positive_support | (other._positive_support & ~self._negative_support)
-        res_nsupport = self._negative_support | (other._negative_support & ~self._positive_support)
-        return SignVector(res_psupport, res_nsupport)
+        return SignVector(
+            self._positive_support | (other._positive_support & ~self._negative_support),
+            self._negative_support | (other._negative_support & ~self._positive_support)
+        )
 
-    def compose_harmonious(self, other) -> SignVector:
+    def compose_harmonious(self, other: SignVector) -> SignVector:
         r"""
         Return the composition of two harmonious sign vectors.
 
@@ -573,11 +574,12 @@ class SignVector(SageObject):
             sage: Y.compose_harmonious(X)
             (+-0)
         """
-        res_psupport = self._positive_support | other._positive_support
-        res_nsupport = self._negative_support | other._negative_support
-        return SignVector(res_psupport, res_nsupport)
+        return SignVector(
+            self._positive_support | other._positive_support,
+            self._negative_support | other._negative_support
+        )
 
-    def __and__(self, other) -> SignVector:
+    def __and__(self, other: SignVector) -> SignVector:
         r"""
         Return the composition of two sign vectors.
 
@@ -601,7 +603,7 @@ class SignVector(SageObject):
         """
         return self.compose(other)
 
-    def __mul__(self, value) -> SignVector:
+    def __mul__(self, value: int) -> SignVector:
         r"""
         Multiplication with a scalar.
 
@@ -639,7 +641,7 @@ class SignVector(SageObject):
         """
         return self * value
 
-    def reverse_signs_in(self, indices) -> SignVector:
+    def reverse_signs_in(self, indices: list[int]) -> SignVector:
         r"""
         Reverses sign of given entries.
 
@@ -661,15 +663,48 @@ class SignVector(SageObject):
             (++-0+)
         """
         indices = FrozenBitset(indices, capacity=self.length()) & self._support()
-    def delete_components(self, indices: list[int]) -> SignVector:
+        return SignVector(self._positive_support ^ indices, self._negative_support ^ indices)
 
-    def _connecting_elements(self, other) -> FrozenBitset:
+    def delete_components(self, indices: list[int]) -> SignVector:
+        r"""
+        Delete the given components from the sign vector.
+
+        INPUT:
+
+        - ``indices`` -- list of indices to delete
+
+        OUTPUT:
+
+        Returns a new sign vector with the specified components removed.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: X = sign_vector('+0-')
+            sage: X
+            (+0-)
+            sage: X.delete_components([1]) # TODO not implemented
+            (+-)
+
+        ::
+
+            sage: X = sign_vector('-+0+0')
+            sage: X
+            (-+0+0)
+            sage: X.delete_components([0, 2]) # TODO not implemented
+            (++0)
+            sage: X.delete_components([1]) # TODO not implemented
+            (-0+0)
+        """
+        raise NotImplementedError
+
+    def _connecting_elements(self, other: SignVector) -> FrozenBitset:
         return (self._positive_support & other._positive_support) | (self._negative_support & other._negative_support)
 
-    def _separating_elements(self, other) -> FrozenBitset:
+    def _separating_elements(self, other: SignVector) -> FrozenBitset:
         return (self._positive_support & other._negative_support) | (self._negative_support & other._positive_support)
 
-    def separating_elements(self, other) -> list[int]:
+    def separating_elements(self, other: SignVector) -> list[int]:
         r"""
         Compute the list of separating elements of two sign vectors.
 
@@ -694,7 +729,7 @@ class SignVector(SageObject):
         """
         return list(self._separating_elements(other))
 
-    def is_orthogonal_to(self, other) -> bool:
+    def is_orthogonal_to(self, other: SignVector) -> bool:
         r"""
         Return whether two sign vectors are orthogonal.
 
@@ -722,7 +757,7 @@ class SignVector(SageObject):
         """
         return not (self._separating_elements(other).isempty() ^ self._connecting_elements(other).isempty())
 
-    def is_harmonious_to(self, other) -> bool:
+    def is_harmonious_to(self, other: SignVector) -> bool:
         r"""
         Check whether these two sign vectors are harmonious.
 
@@ -763,7 +798,7 @@ class SignVector(SageObject):
 
         return self._separating_elements(other).isempty()
 
-    def disjoint_support(self, other) -> bool:
+    def disjoint_support(self, other: SignVector) -> bool:
         r"""
         Return whether these two sign vectors have disjoint support.
 
@@ -792,7 +827,7 @@ class SignVector(SageObject):
             return self._support().isdisjoint(other._support())
         return set(self.support()).isdisjoint(other.support())
 
-    def conforms(self, other) -> bool:
+    def conforms(self, other: SignVector) -> bool:
         r"""
         Conformal relation of two sign vectors.
 
@@ -823,7 +858,7 @@ class SignVector(SageObject):
         """
         return self._positive_support.issubset(other._positive_support) & self._negative_support.issubset(other._negative_support)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: SignVector) -> bool:
         r"""
         Return whether this sign vector is equal to ``other``.
 
@@ -852,7 +887,7 @@ class SignVector(SageObject):
             return not self._support()
         return False
 
-    def __le__(self, other) -> bool:
+    def __le__(self, other: SignVector) -> bool:
         r"""
         Return whether this sign vector is less or equal to ``other``.
 
@@ -887,7 +922,7 @@ class SignVector(SageObject):
             return all(a <= 0 for a in self)
         return False
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: SignVector) -> bool:
         r"""
         Return whether this sign vector is less than ``other``.
 
@@ -918,7 +953,7 @@ class SignVector(SageObject):
         """
         return self != other and self <= other
 
-    def __ge__(self, other) -> bool:
+    def __ge__(self, other: SignVector) -> bool:
         r"""
         Return whether this sign vector is greater or equal to ``other``.
 
@@ -953,7 +988,7 @@ class SignVector(SageObject):
             return all(a >= 0 for a in self)
         return False
 
-    def __gt__(self, other) -> bool:
+    def __gt__(self, other: SignVector) -> bool:
         r"""
         Return whether this sign vector is greater than ``other``.
 
@@ -1036,10 +1071,11 @@ class SignVector(SageObject):
             sage: SignVector.from_string("+-0+0")
             (+-0+0)
         """
-        psupport = [pos for pos, t in enumerate(s) if t == "+"]
-        nsupport = [pos for pos, t in enumerate(s) if t == "-"]
-
-        return SignVector.from_support(psupport, nsupport, len(s))
+        return SignVector.from_support(
+            (pos for pos, t in enumerate(s) if t == "+"),
+            (pos for pos, t in enumerate(s) if t == "-"),
+            len(s)
+        )
 
     @staticmethod
     def from_iterable(iterable) -> SignVector:
@@ -1068,15 +1104,15 @@ class SignVector(SageObject):
         return SignVector.from_support(psupport, nsupport, length)
 
     @staticmethod
-    def from_support(psupport: list, nsupport: list, length: int) -> SignVector:
+    def from_support(psupport: list[int], nsupport: list[int], length: int) -> SignVector:
         r"""
         Return a sign vector that is given by lists representing positive support and negative  support.
 
         INPUT:
 
-        - ``psupport`` -- a list
+        - ``psupport`` -- a list of integers.
 
-        - ``nsupport`` -- a list
+        - ``nsupport`` -- a list of integers.
 
         - ``length`` -- a nonnegative integer
 
