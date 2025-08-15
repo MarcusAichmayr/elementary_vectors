@@ -14,37 +14,6 @@ from sage.modules.free_module_element import vector
 from sign_vectors import SignVector, sign_vector
 
 
-def loops(iterable) -> list[int]:
-    r"""
-    Compute the loops of sign vectors or vectors.
-
-    .. NOTE::
-
-        A loop is a component where every element is zero.
-
-    EXAMPLES::
-
-        sage: from sign_vectors.utility import loops
-        sage: from sign_vectors import sign_vector
-        sage: loops([sign_vector([0, 1, 0]), sign_vector([-1, 0, 0])])
-        [2]
-        sage: loops([sign_vector([1, 0, 0]), sign_vector([-1, 0, 0])])
-        [1, 2]
-
-    Also works for real vectors::
-
-        sage: loops([vector([5, 0, 0, 0]), vector([2, 0, -3, 0])])
-        [1, 3]
-    """
-    if not iterable:
-        raise ValueError("Iterable is empty.")
-    for _ in iterable:
-        length = _.length()
-        break
-
-    return [e for e in range(length) if all(element[e] == 0 for element in iterable)]
-
-
 def is_parallel(iterable, component1, component2, return_ratio: bool = False):
     r"""
     Determine whether two components of sign vectors or vectors are parallel.

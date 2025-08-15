@@ -18,7 +18,7 @@ from sage.structure.sage_object import SageObject
 
 from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vector
 
-from .utility import loops, classes_same_support, parallel_classes
+from .utility import classes_same_support, parallel_classes
 from .functions import plot_sign_vectors
 
 
