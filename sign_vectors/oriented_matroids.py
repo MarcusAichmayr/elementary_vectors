@@ -416,6 +416,23 @@ class OrientedMatroid(SageObject):
         r"""Represent the chirotopes as a string."""
         return "".join(str(chirotope) for chirotope in self.chirotopes())
 
+    def dual(self) -> "OrientedMatroid":
+        r"""
+        Return the dual oriented matroid.
+
+        .. NOTE::
+
+            The dual is determined from the chirotopes.
+        """
+        self.chirotopes() # compute all chirotopes
+        om = OrientedMatroid(rank=self._element_length - self.rank, element_length=self._element_length)
+        for indices, value in self._chirotope_dict.items():
+            indices_set = set(indices)
+            complement = tuple(i for i in range(self._element_length) if i not in indices_set)
+            inversions = sum(i < j for i in indices for j in complement)
+            om.set_chirotope(complement, -value if inversions & 1 else value) # check last bit
+        return om
+
     def cocircuit(self, indices: list[int]) -> SignVector:
         r"""
         Compute a cocircuit for the given indices.
@@ -750,36 +767,6 @@ class OrientedMatroid(SageObject):
                         output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self._element_length)))
         return output
 
-    @staticmethod
-    def faces_from_vertices(vertices: set[SignVector], element_length: int) -> set[SignVector]:
-        r"""
-        Compute the covectors from the cocircuits.
-
-        OUTPUT:
-
-        - a set of all covectors of the oriented matroid.
-
-        ALGORITHM:
-
-        This function is based on an algorithm in [Fin01]_.
-
-        .. [Fin01] Finschi, L.:
-        „A graph theoretical approach for reconstruction and generation of oriented matroids“.
-        PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
-        """
-        covectors = {zero_sign_vector(element_length)}
-        covectors_new = {zero_sign_vector(element_length)}
-        while covectors_new:
-            element1 = covectors_new.pop()
-            for element2 in vertices:
-                if element2 <= element1:
-                    continue
-                new_element = element2.compose(element1)
-                if new_element not in covectors:
-                    covectors.add(new_element)
-                    covectors_new.add(new_element)
-        return covectors
-
     def _topes_from_cocircuits(self) -> set[SignVector]:
         r"""
         Compute the topes from the cocircuits.
@@ -840,22 +827,35 @@ class OrientedMatroid(SageObject):
         """
         plot_sign_vectors(set().union(*self.all_faces()), **kwargs)
 
-    def dual(self) -> "OrientedMatroid":
+    @staticmethod
+    def faces_from_vertices(vertices: set[SignVector], element_length: int) -> set[SignVector]:
         r"""
-        Return the dual oriented matroid.
+        Compute the covectors from the cocircuits.
 
-        .. NOTE::
+        OUTPUT:
 
-            The dual is determined from the chirotopes.
+        - a set of all covectors of the oriented matroid.
+
+        ALGORITHM:
+
+        This function is based on an algorithm in [Fin01]_.
+
+        .. [Fin01] Finschi, L.:
+        „A graph theoretical approach for reconstruction and generation of oriented matroids“.
+        PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
         """
-        self.chirotopes() # compute all chirotopes
-        om = OrientedMatroid(rank=self._element_length - self.rank, element_length=self._element_length)
-        for indices, value in self._chirotope_dict.items():
-            indices_set = set(indices)
-            complement = tuple(i for i in range(self._element_length) if i not in indices_set)
-            inversions = sum(i < j for i in indices for j in complement)
-            om.set_chirotope(complement, -value if inversions & 1 else value) # check last bit
-        return om
+        covectors = {zero_sign_vector(element_length)}
+        covectors_new = {zero_sign_vector(element_length)}
+        while covectors_new:
+            element1 = covectors_new.pop()
+            for element2 in vertices:
+                if element2 <= element1:
+                    continue
+                new_element = element2.compose(element1)
+                if new_element not in covectors:
+                    covectors.add(new_element)
+                    covectors_new.add(new_element)
+        return covectors
 
     @staticmethod
     def from_chirotopes(chirotopes: list[int] | str, rank: int, element_length: int) -> "OrientedMatroid":
