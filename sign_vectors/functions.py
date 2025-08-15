@@ -224,8 +224,20 @@ def deletion(iterable, indices: list[int]) -> set:
     return set(exclude_indices(iterable, indices)(X) for X in iterable)
 
 
-def plot_sign_vectors(iterable, vertex_size: int = 600, figsize: int = None, aspect_ratio = None):
-    r"""Plot the Hasse Diagram of sign vectors using the conformal relation."""
+def plot_sign_vectors(iterable, vertex_size: int = 600, figsize: int = None, aspect_ratio=None):
+    r"""
+    Plot the Hasse Diagram of sign vectors using the conformal relation.
+
+    INPUT:
+
+    - ``iterable`` -- an iterable of sign vectors
+
+    - ``vertex_size`` -- the size of the vertices in the plot (default: 600)
+
+    - ``figsize`` -- the size of the figure (default: None)
+
+    - ``aspect_ratio`` -- the aspect ratio of the plot (default: None)
+    """
     Poset((iterable, lambda X, Y: X.conforms(Y))).plot(
         vertex_size=vertex_size,
         element_color="white",

@@ -418,7 +418,7 @@ class OrientedMatroid(SageObject):
 
     def cocircuit(self, indices: list[int]) -> SignVector:
         r"""
-        Compute the cocircuit for the given indices.
+        Compute a cocircuit for the given indices.
 
         Cocircuits correspond to the elements in the row space of the matrix.
 
@@ -460,7 +460,7 @@ class OrientedMatroid(SageObject):
 
     def circuit(self, indices: list[int]) -> SignVector:
         r"""
-        Compute the circuit for the given indices.
+        Compute a circuit for the given indices.
 
         Circuits correspond to the elements in the kernel of the matrix.
 
@@ -598,7 +598,7 @@ class OrientedMatroid(SageObject):
         """
         return set(self._circuit_generator())
 
-    def covectors(self) -> list[SignVector]:
+    def covectors(self) -> set[SignVector]:
         r"""
         Compute the covectors of the oriented matroid.
 
@@ -612,9 +612,9 @@ class OrientedMatroid(SageObject):
             - :meth:`topes`
             - :meth:`faces`
         """
-        return self._faces_from_vertices(self.cocircuits())
+        return self.faces_from_vertices(self.cocircuits(), self._element_length)
 
-    def vectors(self) -> list[SignVector]:
+    def vectors(self) -> set[SignVector]:
         r"""
         Compute the vectors of the oriented matroid.
 
@@ -626,9 +626,9 @@ class OrientedMatroid(SageObject):
 
             - :meth:`circuits`
         """
-        return self._faces_from_vertices(self.circuits())
+        return self.faces_from_vertices(self.circuits(), self._element_length)
 
-    def topes(self) -> list[SignVector]:
+    def topes(self) -> set[SignVector]:
         r"""
         Compute the topes of the oriented matroid.
 
@@ -675,7 +675,7 @@ class OrientedMatroid(SageObject):
 
         .. NOTE::
 
-            The results are hashed.
+            The result is hashed.
 
         .. SEEALSO::
 
@@ -750,7 +750,8 @@ class OrientedMatroid(SageObject):
                         output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self._element_length)))
         return output
 
-    def _faces_from_vertices(self, cocircuits: set[SignVector]) -> set[SignVector]:
+    @staticmethod
+    def faces_from_vertices(vertices: set[SignVector], element_length: int) -> set[SignVector]:
         r"""
         Compute the covectors from the cocircuits.
 
@@ -766,11 +767,11 @@ class OrientedMatroid(SageObject):
         „A graph theoretical approach for reconstruction and generation of oriented matroids“.
         PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
         """
-        covectors = {zero_sign_vector(self._element_length)}
-        covectors_new = {zero_sign_vector(self._element_length)}
+        covectors = {zero_sign_vector(element_length)}
+        covectors_new = {zero_sign_vector(element_length)}
         while covectors_new:
             element1 = covectors_new.pop()
-            for element2 in cocircuits:
+            for element2 in vertices:
                 if element2 <= element1:
                     continue
                 new_element = element2.compose(element1)
@@ -829,6 +830,10 @@ class OrientedMatroid(SageObject):
         r"""
         Plot the big face lattice of the oriented matroid.
 
+        INPUT:
+
+        For arguments, see :func:`.functions.plot_sign_vectors`.
+
         .. NOTE::
 
             Only works well for small length and dimension.
@@ -836,7 +841,13 @@ class OrientedMatroid(SageObject):
         plot_sign_vectors(set().union(*self.all_faces()), **kwargs)
 
     def dual(self) -> "OrientedMatroid":
-        r"""Return the dual oriented matroid."""
+        r"""
+        Return the dual oriented matroid.
+
+        .. NOTE::
+
+            The dual is determined from the chirotopes.
+        """
         self.chirotopes() # compute all chirotopes
         om = OrientedMatroid(rank=self._element_length - self.rank, element_length=self._element_length)
         for indices, value in self._chirotope_dict.items():
@@ -847,15 +858,13 @@ class OrientedMatroid(SageObject):
         return om
 
     @staticmethod
-    def from_chirotopes(chirotopes, rank: int, element_length: int) -> "OrientedMatroid":
+    def from_chirotopes(chirotopes: list[int] | str, rank: int, element_length: int) -> "OrientedMatroid":
         r"""
-        Create an oriented matroid from a list of chirotopes.
+        Create an oriented matroid from chirotopes.
 
         INPUT:
 
-        - ``chirotopes`` -- a list of chirotopes or maximal minors as integers.
-
-        The chirotopes can also be specified as a string.
+        - ``chirotopes`` -- a list of integers or a string of ``+``, ``-``, ``0``.
 
         OUTPUT:
 
