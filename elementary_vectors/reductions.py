@@ -178,7 +178,7 @@ def reduce_vector(element, equalities: list = None, cancel_factor: bool = True):
 
 def reduce_vectors_support(vectors, generator: bool = False):
     r"""
-    Return a ist of vectors where each element has distinct support.
+    Return a list of vectors where each element has distinct support.
 
     INPUT:
 
@@ -202,7 +202,7 @@ def reduce_vectors_support(vectors, generator: bool = False):
     """
 
     def reduce_vectors_support_generator(vectors) -> Generator:
-        r"""Return a generator of vectors where elements with same support are removed."""
+        r"""Return a generator of vectors where only the first element with a given support is kept."""
         checked_supports = set()
         for element in vectors:
             support = frozenset(element.support())

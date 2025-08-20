@@ -2,7 +2,7 @@
 Constructing vectors with components in intervals
 
 The core function of this module is :func:`~construct_vector`.
-Most other functions here are auxiliary function but can be used for special cases.
+Most other functions here are auxiliary functions but can be used for special cases.
 """
 
 #############################################################################
@@ -17,22 +17,20 @@ Most other functions here are auxiliary function but can be used for special cas
 
 from collections.abc import Generator
 
-from sage.categories.sets_cat import EmptySetError
 from sage.calculus.var import var
 from sage.matrix.constructor import matrix
 from sage.misc.mrange import cartesian_product_iterator
 from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
-from sage.sets.real_set import RealSet
 from sage.symbolic.relation import solve
-from sign_vectors import sign_vector
+from sign_vectors import sign_vector, SignVector
 from elementary_vectors.functions import ElementaryVectors
 from .existence import exists_orthogonal_vector, exists_vector
 from .utility import solve_left_for_roots
 from . import Intervals, Interval
 
 
-def multiple_in_intervals_candidates(v, intervals: Intervals):
+def multiple_in_intervals_candidates(v, intervals: Intervals) -> Interval:
     r"""
     Return the largest interval where the vector, when multiplied with elements of this interval, lies in given intervals.
 
@@ -43,7 +41,7 @@ def multiple_in_intervals_candidates(v, intervals: Intervals):
     - ``intervals`` -- a list of intervals
 
     OUTPUT:
-    Return the largest interval ``J`` such that ``a v`` lies in given intervals for all ``a`` in ``J``.
+    Return the largest interval ``J`` such that for all ``a`` in ``J``, ``a v`` lies in the given intervals.
 
     .. SEEALSO::
 
@@ -78,7 +76,7 @@ def multiple_in_intervals_candidates(v, intervals: Intervals):
         if not entry:
             if 0 in interval:
                 continue
-            return RealSet()
+            return Interval.empty()
 
         val_inf = interval.infimum() / entry
         val_sup = interval.supremum() / entry
@@ -105,12 +103,12 @@ def multiple_in_intervals_candidates(v, intervals: Intervals):
             elif val_inf == a_sup:
                 upper_bound_closed = interval.infimum() in interval and upper_bound_closed
         if a_inf > a_sup:
-            return RealSet()
+            return Interval.empty()
 
     return Interval(a_inf, a_sup, lower_bound_closed, upper_bound_closed)
 
 
-def multiple_in_intervals(v, intervals: Intervals):
+def multiple_in_intervals(v: vector, intervals: Intervals) -> vector:
     r"""
     Return a multiple of a vector that lies in given intervals if possible.
 
@@ -139,10 +137,7 @@ def multiple_in_intervals(v, intervals: Intervals):
         ValueError: There is no multiple in given intervals.
     """
     try:
-        return (
-            Interval.simplest_element(multiple_in_intervals_candidates(v, intervals))
-            * v
-        )
+        return Interval.simplest_element(multiple_in_intervals_candidates(v, intervals)) * v
     except ValueError as exc:
         raise ValueError("There is no multiple in given intervals.") from exc
 
@@ -255,7 +250,7 @@ def vector_between_sign_vectors(data, lower, upper):
     raise ValueError("Cannot find vector corresponding to given sign vectors.")
 
 
-def sign_vectors_in_intervals(intervals: Intervals, generator: bool = False):
+def sign_vectors_in_intervals(intervals: Intervals, generator: bool = False) -> list[SignVector] | Generator[SignVector]:
     r"""
     Compute all sign vectors that correspond to a vector with components in given intervals.
 
@@ -311,7 +306,7 @@ def sign_vectors_in_intervals(intervals: Intervals, generator: bool = False):
     return [sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs)]
 
 
-def construct_orthogonal_vector(v, intervals: Intervals):
+def construct_orthogonal_vector(v: vector, intervals: Intervals) -> vector:
     r"""
     Construct a vector, orthogonal to a given vector, with components in specified intervals.
 
@@ -479,7 +474,7 @@ def construct_orthogonal_vector(v, intervals: Intervals):
     return (product_max * z_min - product_min * z_max) / (product_max - product_min)
 
 
-def construct_vector(M, intervals: Intervals, evs=None):
+def construct_vector(M: matrix, intervals: Intervals, evs=None) -> vector:
     r"""
     Construct a vector of a given vector space with components in given intervals.
 
@@ -487,14 +482,13 @@ def construct_vector(M, intervals: Intervals, evs=None):
 
     - ``M`` -- a matrix with ``m`` columns
 
-    - ``intervals`` -- a list of ``m`` intervals
+    - ``intervals`` -- an ``intervals`` object
 
     - ``evs`` -- an optional iterable of elementary vectors
 
     OUTPUT:
 
-    Return a vector in the row space of ``M`` such that each component lies
-    in the respective interval of the list ``intervals``.
+    Return a vector in the row space of ``M`` that lies in given intervals.
     If no such vector exists, raises a ``ValueError`` instead.
 
     .. SEEALSO::

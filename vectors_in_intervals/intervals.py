@@ -167,9 +167,11 @@ class Interval(SageObject):
     def is_pointed(self) -> bool:
         r"""
         Return whether the interval is a point.
-        
+
+        An interval is pointed if it has the same lower and upper bound, and both are closed.
+
         EXAMPLES::
-        
+
             sage: from vectors_in_intervals import *
             sage: Interval(0, 0).is_pointed()
             True
@@ -202,7 +204,7 @@ class Interval(SageObject):
     def supremum(self):
         r"""
         Return the supremum of the interval.
-        
+
         EXAMPLES::
 
             sage: from vectors_in_intervals import *
@@ -222,7 +224,7 @@ class Interval(SageObject):
         Return an element of the interval.
 
         EXAMPLES::
-        
+
             sage: from vectors_in_intervals import *
             sage: Interval(0, 1).an_element()
             0

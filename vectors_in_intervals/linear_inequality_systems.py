@@ -78,7 +78,7 @@ In the case of homogeneous systems, we can use cocircuits to certify::
     (+++0)
     sage: # S.certify() # TODO
 
-We consider another example::
+Now, we consider the example::
 
     sage: A = matrix([[1, 0], [0, 1]])
     sage: B = matrix([[2, -3]])

@@ -15,7 +15,7 @@ from sage.modules.free_module_element import vector
 
 def kernel_vector_support_given(M, indices: list):
     r"""
-    Return a right kernel vector such that the support is a subset of given indices.
+    Return a right kernel vector such that the support is contained in the given indices.
 
     INPUT:
 

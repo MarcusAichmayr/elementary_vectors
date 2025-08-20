@@ -31,7 +31,7 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
     OUTPUT:
 
     Returns a boolean.
-    If ``return_ratio`` is true, a boolean and the ratio will be returned instead.
+    If ``return_ratio`` is true, a tuple of a boolean and the ratio will be returned instead.
 
     .. NOTE::
 

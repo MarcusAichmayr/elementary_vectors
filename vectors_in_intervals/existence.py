@@ -29,8 +29,8 @@ def exists_orthogonal_vector(v, intervals: Intervals) -> bool:
 
     OUTPUT:
 
-    Return whether there exists an orthogonal vector to ``v``
-    such that the components of this vector lie in ``intervals``.
+    Return whether there exists a vector orthogonal to ``v``
+    whose components lie in ``intervals``.
 
     EXAMPLES:
 
