@@ -12,12 +12,12 @@ r"""Functions for working with oriented matroids"""
 
 from sage.combinat.posets.posets import Poset
 
-from sign_vectors import sign_vector, zero_sign_vector
+from sign_vectors import SignVector, sign_vector, zero_sign_vector
 
 from .utility import exclude_indices
 
 
-def closure(iterable, separate: bool = False):
+def closure(iterable) -> set[SignVector]:
     r"""
     Compute the closure of given sign vectors.
 
@@ -25,14 +25,8 @@ def closure(iterable, separate: bool = False):
 
     - ``iterable`` -- an iterable of sign vectors
 
-    - ``separate`` -- boolean (default: ``False``)
-
     OUTPUT:
-
-    If ``separate`` is false, return the closure of ``iterable``. (default)
-
-    If ``separate`` is true, separate the closure into sets, where each element
-    has the same number of zero entries.
+    Return the closure of ``iterable``.
 
     .. NOTE::
 
@@ -51,13 +45,6 @@ def closure(iterable, separate: bool = False):
         sage: closure(W)
         {(000), (+00), (0-0), (+-0)}
 
-    With the optional argument ``separate=True``, we can separate the resulting
-    list into three sets.
-    Each sign vector in such a set has the same number of zero entries::
-
-        sage: closure(W, separate=True)
-        [{(000)}, {(+00), (0-0)}, {(+-0)}]
-
     Now, we consider a list of three sign vectors::
 
         sage: W = [sign_vector("++-"), sign_vector("-00"), sign_vector("0--")]
@@ -65,11 +52,6 @@ def closure(iterable, separate: bool = False):
         [(++-), (-00), (0--)]
         sage: closure(W)
         {(000), (-00), (00-), (0+0), (0+-), (+00), (+0-), (++0), (++-), (0-0), (0--)}
-        sage: closure(W, separate=True)
-        [{(000)},
-         {(-00), (00-), (0+0), (0-0), (+00)},
-         {(0+-), (++0), (+0-), (0--)},
-         {(++-)}]
 
     TESTS::
 
@@ -110,7 +92,7 @@ def closure(iterable, separate: bool = False):
         output.append(new_elements)
         if len(new_elements) == 1:
             break
-    return output if separate else set().union(*output)
+    return set().union(*output)
 
 
 def contraction(iterable, indices: list[int], keep_components: bool = False) -> set:
