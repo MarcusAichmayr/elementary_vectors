@@ -79,7 +79,7 @@ class Sign(IntEnum):
 
 class OrientedMatroid(SageObject):
     r"""
-    Class representing a (realizable) oriented matroid.
+    Class representing an oriented matroid.
 
     EXAMPLES:
 
@@ -97,7 +97,7 @@ class OrientedMatroid(SageObject):
         sage: om.rank
         3
 
-    We can easily compute the cocircuits and topes::
+    We compute the cocircuits and topes::
 
         sage: om.cocircuits()
         {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)}
@@ -155,7 +155,7 @@ class OrientedMatroid(SageObject):
          (--0++),
          (--0--)}
 
-    We can easily compute the faces of the same dimension::
+    Next, we compute the faces of given dimensions::
 
         sage: om.faces(-1)
         {(00000)}
@@ -287,7 +287,7 @@ class OrientedMatroid(SageObject):
         sage: om.circuit([0, 1, 2, 3])
         (+-+00)
 
-    We compute the dual oriented matroid::
+    Now, we compute the dual oriented matroid::
 
         sage: om_dual = om.dual()
         sage: om_dual
@@ -360,7 +360,7 @@ class OrientedMatroid(SageObject):
 
         OUTPUT:
 
-        - The chirotope value as a Sign.
+        - The chirotope value as a ``Sign``.
 
         .. SEEALSO::
 
@@ -395,7 +395,7 @@ class OrientedMatroid(SageObject):
 
         OUTPUT:
 
-        - A list of chirotopes as Sign values.
+        - A list of chirotopes as ``Sign`` values.
 
         .. SEEALSO::
 
@@ -696,8 +696,10 @@ class OrientedMatroid(SageObject):
 
         .. SEEALSO::
 
-            - :meth:`covectors`
+
+            - :meth:`cocircuits`
             - :meth:`topes`
+            - :meth:`all_faces`
         """
         if dimension < -1 or dimension > self.dimension:
             raise ValueError(f"Dimension should be between -1 and {self.dimension}. Got {dimension}.")
@@ -720,7 +722,6 @@ class OrientedMatroid(SageObject):
         .. SEEALSO::
 
             - :meth:`faces`
-            - :func:`~face_enumeration`
         """
         return [self.faces(d) for d in range(-1, self.dimension + 1)]
 
@@ -752,7 +753,6 @@ class OrientedMatroid(SageObject):
         .. SEEALSO::
 
             - :meth:`faces`
-            - :func:`~face_enumeration`
         """
         if not self._faces_by_dimension.get(dimension):
             raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {self._faces_by_dimension.keys()}.")
@@ -775,7 +775,6 @@ class OrientedMatroid(SageObject):
         A set of topes of the oriented matroid.
 
         ALGORITHM:
-
         This function is based on an algorithm in [Fin01]_.
         """
         covectors = {zero_sign_vector(self._element_length)}
