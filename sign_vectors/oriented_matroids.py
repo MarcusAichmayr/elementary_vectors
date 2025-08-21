@@ -755,7 +755,7 @@ class OrientedMatroid(SageObject):
             - :meth:`faces`
         """
         if not self._faces_by_dimension.get(dimension):
-            raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {self._faces_by_dimension.keys()}.")
+            raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
         output = set()
         for same_support_faces in classes_same_support(self._faces_by_dimension[dimension]):
             p_classes = parallel_classes(same_support_faces, self._element_length)
