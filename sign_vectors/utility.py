@@ -334,6 +334,7 @@ def adjacent(element1, element2, iterable) -> bool:
     return not any(Z < composition for Z in iterable if not Z in [element1, element2])
 
 
+# TODO remove and replace method of SignVector
 def exclude_indices(vectors, indices: list[int]):
     r"""
     Return a function that returns a sign vector or vector with entries not in given indices.

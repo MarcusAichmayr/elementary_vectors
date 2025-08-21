@@ -72,7 +72,7 @@ def closure(iterable) -> set[SignVector]:
             if X <= Z:
                 new_elements.add(X)
                 break
-        Y = sign_vector(-1 if k == i else 0 for k in range(length))
+        Y = -X
         for Z in iterable:
             if Y <= Z:
                 new_elements.add(Y)
