@@ -84,7 +84,7 @@ def closure(iterable) -> set[SignVector]:
             for Y in output[i]:
                 # TODO: utilize that the supports are sorted
                 if len(set(X.support() + Y.support())) == i + 1:
-                    Z = X.compose(Y)
+                    Z = X.compose_harmonious(Y)
                     if Z not in new_elements and any(Z <= V for V in iterable):
                         new_elements.add(Z)
         if not new_elements:
