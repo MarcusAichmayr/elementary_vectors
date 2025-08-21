@@ -10,6 +10,8 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from collections.abc import Generator
+
 from sage.modules.free_module_element import vector
 from sign_vectors import SignVector, sign_vector
 
@@ -235,7 +237,7 @@ def positive_parallel_classes(iterable, length: int) -> list[list[int]]:
     return result
 
 
-def classes_same_support(iterable) -> list[set[SignVector]]:
+def classes_same_support(iterable) -> Generator[set[SignVector]]:
     r"""
     Compute the classes with same support of given sign vectors.
 
@@ -243,14 +245,15 @@ def classes_same_support(iterable) -> list[set[SignVector]]:
 
     - ``iterable`` -- an iterable of sign vectors
 
+    OUTPUT:
+    A generator yielding sets of sign vectors with the same support.
+
     EXAMPLES::
 
         sage: from sign_vectors.utility import classes_same_support
         sage: from sign_vectors import sign_vector
         sage: L = [sign_vector("++0-"), sign_vector("+-0+"), sign_vector("-0+0")]
-        sage: L
-        [(++0-), (+-0+), (-0+0)]
-        sage: classes_same_support(L)
+        sage: list(classes_same_support(L))
         [{(++0-), (+-0+)}, {(-0+0)}]
     """
     support_dict = {}
@@ -260,7 +263,7 @@ def classes_same_support(iterable) -> list[set[SignVector]]:
             support_dict[support] = {element}
         else:
             support_dict[support].add(element)
-    return list(support_dict.values())
+    yield from support_dict.values()
 
 
 def adjacent(element1, element2, iterable) -> bool:
