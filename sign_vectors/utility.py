@@ -266,7 +266,7 @@ def classes_same_support(iterable) -> Generator[set[SignVector]]:
     yield from support_dict.values()
 
 
-def adjacent(element1, element2, iterable) -> bool:
+def adjacent(element1: SignVector, element2: SignVector, iterable) -> bool:
     r"""
     Return whether two sign vectors are adjacent over given sign vectors.
 
@@ -330,7 +330,7 @@ def adjacent(element1, element2, iterable) -> bool:
         sage: adjacent(Y, Z, om.cocircuits())
         False
     """
-    composition = element1 & element2
+    composition = element1.compose(element2)
     return not any(Z < composition for Z in iterable if not Z in [element1, element2])
 
 

@@ -14,6 +14,7 @@ from collections.abc import Generator
 from enum import IntEnum
 
 from sage.combinat.combination import Combinations
+from sage.combinat.posets.posets import Poset
 from sage.structure.sage_object import SageObject
 
 from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vector
@@ -818,7 +819,7 @@ class OrientedMatroid(SageObject):
             ]
         return self._loops
 
-    def plot(self, **kwargs) -> None:
+    def plot(self, vertex_size: int = 600, figsize: int = None, aspect_ratio=None) -> None:
         r"""
         Plot the big face lattice of the oriented matroid.
 
@@ -830,7 +831,7 @@ class OrientedMatroid(SageObject):
 
             Only works well for small length and dimension.
         """
-        plot_sign_vectors(set().union(*self.all_faces()), **kwargs)
+        plot_sign_vectors(set().union(*self.all_faces()), vertex_size=vertex_size, figsize=figsize, aspect_ratio=aspect_ratio)
 
     @staticmethod
     def faces_from_vertices(vertices: set[SignVector], element_length: int) -> set[SignVector]:
@@ -905,3 +906,73 @@ class OrientedMatroid(SageObject):
         for (indices, value) in zip(Combinations(element_length, rank), chirotopes):
             om.set_chirotope(indices, value)
         return om
+
+
+class OrientedMatroidWithLattice(OrientedMatroid):
+    r"""
+    An oriented matroid that keeps track of the underlying lattice.
+    """
+    def __init__(self, matrix=None, rank: int = None, element_length: int = None) -> None:
+        super().__init__(matrix=matrix, rank=rank, element_length=element_length)
+        self.above = {}
+        self.below = {}
+        self._connected_dimensions = set()  # faces of this dimensions are already connected with lower faces
+
+    def _connect(self, lower_face: SignVector, upper_face: SignVector):
+        r"""Connect two faces."""
+        if lower_face not in self.above:
+            self.above[lower_face] = set()
+        self.above[lower_face].add(upper_face)
+        if upper_face not in self.below:
+            self.below[upper_face] = set()
+        self.below[upper_face].add(lower_face)
+
+    def cocircuits(self):
+        result = super().cocircuits()
+        if 0 not in self._connected_dimensions:
+            zero = zero_sign_vector(self._element_length)
+            for face in result:
+                self._connect(zero, face)
+            self._connected_dimensions.add(0)
+        return result
+
+    def _lower_faces(self, dimension: int):
+        if not self._faces_by_dimension.get(dimension):
+            raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
+        if dimension == -1:
+            return set()
+        output = set()
+        for same_support_faces in classes_same_support(self._faces_by_dimension[dimension]):
+            p_classes = parallel_classes(same_support_faces, self._element_length)
+            while same_support_faces:
+                face = same_support_faces.pop()
+                for parallel_class in p_classes:
+                    if all(face[i] == 0 for i in parallel_class):
+                        continue
+                    flipped_face = face.flip_signs(parallel_class)
+                    if flipped_face in same_support_faces:
+                        lower_face = face.set_to_zero(parallel_class)
+                        output.add(lower_face)
+                        output.add(-lower_face)
+                        if dimension not in self._connected_dimensions:
+                            self._connect(lower_face, face)
+                            self._connect(-lower_face, -face)
+                            self._connect(lower_face, flipped_face)
+                            self._connect(-lower_face, -flipped_face)
+                same_support_faces.remove(-face)
+        self._connected_dimensions.add(dimension)
+        return output
+
+    def _connect_missing(self):
+        self.all_faces()
+        for dimension in range(self.rank):
+            if dimension not in self._connected_dimensions:
+                self._lower_faces(dimension)
+
+    def plot(self, vertex_size: int = 600, figsize: int = None, aspect_ratio=None) -> None:
+        self._connect_missing()
+        Poset(self.above).plot(
+            vertex_size=vertex_size,
+            element_color="white",
+            vertex_shape="",
+        ).show(figsize=figsize, aspect_ratio=aspect_ratio)
