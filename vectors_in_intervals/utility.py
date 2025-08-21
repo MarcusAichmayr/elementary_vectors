@@ -23,7 +23,7 @@ from elementary_vectors.functions import ElementaryVectors
 
 def solve_left_for_roots(A, b):
     r"""
-    Find a solution for ``x*A = b`` that works for matrices with roots.
+    Find a solution for ``x*A = b`` that works for matrices whose entries are roots.
 
     INPUT:
 

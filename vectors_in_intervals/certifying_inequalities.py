@@ -16,7 +16,7 @@ Homogeneous systems
 ~~~~~~~~~~~~~~~~~~~
 
 There is also a homogeneous version of Motzkin's transposition theorem.
-Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deals with the system
+Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deal with the system
 :math:`A x > 0, B x \geq 0, C x = 0`::
 
     sage: from vectors_in_intervals import *
