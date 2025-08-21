@@ -194,7 +194,7 @@ class OrientedMatroid(SageObject):
          (--+--),
          (-++--),
          (+++--)}
-        sage: om.all_faces()
+        sage: om.faces_all()
         [{(00000)},
          {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)},
          {(+0---),
@@ -316,7 +316,7 @@ class OrientedMatroid(SageObject):
         {(-00), (00+), (00-), (0+0), (0-0), (+00)}
         sage: om.topes()
         {(000)}
-        sage: om.all_faces()
+        sage: om.faces_all()
         [{(000)}]
     """
     def __init__(self, matrix=None, rank: int = None, element_length: int = None) -> None:
@@ -697,10 +697,9 @@ class OrientedMatroid(SageObject):
 
         .. SEEALSO::
 
-
             - :meth:`cocircuits`
             - :meth:`topes`
-            - :meth:`all_faces`
+            - :meth:`faces_all`
         """
         if dimension < -1 or dimension > self.dimension:
             raise ValueError(f"Dimension should be between -1 and {self.dimension}. Got {dimension}.")
@@ -716,7 +715,7 @@ class OrientedMatroid(SageObject):
             current_dimension -= 1
         return self._faces_by_dimension[dimension]
 
-    def all_faces(self) -> list[set[SignVector]]:
+    def faces_all(self) -> list[set[SignVector]]:
         r"""
         Return all faces of the oriented matroid separated by dimension.
 
@@ -831,7 +830,7 @@ class OrientedMatroid(SageObject):
 
             Only works well for small length and dimension.
         """
-        plot_sign_vectors(set().union(*self.all_faces()), vertex_size=vertex_size, figsize=figsize, aspect_ratio=aspect_ratio)
+        plot_sign_vectors(set().union(*self.faces_all()), vertex_size=vertex_size, figsize=figsize, aspect_ratio=aspect_ratio)
 
     @staticmethod
     def faces_from_vertices(vertices: set[SignVector], element_length: int) -> set[SignVector]:
@@ -882,7 +881,7 @@ class OrientedMatroid(SageObject):
             sage: om = OrientedMatroid.from_chirotopes([1, 2, 3, 4, 6, 0], 2, 4)
             sage: om
             Oriented matroid of dimension 1 with elements of size 4.
-            sage: om.all_faces()
+            sage: om.faces_all()
             [{(0000)},
              {(+0--), (-0++), (--00), (++00), (0+++), (0---)},
              {(-+++), (+---), (--++), (++++), (----), (++--)}]
@@ -892,7 +891,7 @@ class OrientedMatroid(SageObject):
             sage: om = OrientedMatroid.from_chirotopes([0, 0, -1, -1, 0, 1, 1, 1, 1, 1], 2, 5)
             sage: om
             Oriented matroid of dimension 1 with elements of size 5.
-            sage: om.all_faces()
+            sage: om.faces_all()
             [{(00000)},
              {(-+++0), (+---0), (000++), (-++0-), (+--0+), (000--)},
              {(-+++-), (-++++), (+--++), (+----), (-++--), (+---+)}]
@@ -964,7 +963,7 @@ class OrientedMatroidWithLattice(OrientedMatroid):
         return output
 
     def _connect_missing(self):
-        self.all_faces()
+        self.faces_all()
         for dimension in range(self.rank):
             if dimension not in self._connected_dimensions:
                 self._lower_faces(dimension)
