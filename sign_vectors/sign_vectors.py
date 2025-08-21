@@ -673,6 +673,38 @@ class SignVector(SageObject):
         indices = FrozenBitset(indices) & self._support()
         return SignVector(self._positive_support ^ indices, self._negative_support ^ indices)
 
+    def set_to_zero(self, indices: list[int]) -> SignVector:
+        r"""
+        Set given entries to zero.
+
+        INPUT:
+
+        - ``indices`` -- list of indices
+
+        OUTPUT:
+        Returns a new sign vector of same length. Components with indices in
+        ``indices`` are multiplied by ``-1``.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: X = sign_vector('-++0+')
+            sage: X
+            (-++0+)
+            sage: X.set_to_zero([0, 2, 3])
+            (0+00+)
+
+        ::
+
+            sage: X = sign_vector('+-+0+0')
+            sage: X
+            (+-+0+0)
+            sage: X.set_to_zero([0, 1, 4])
+            (00+000)
+        """
+        indices = FrozenBitset(indices)
+        return SignVector(self._positive_support - indices, self._negative_support - indices)
+
     def delete_components(self, indices: list[int]) -> SignVector:
         r"""
         Delete the given components from the sign vector.
