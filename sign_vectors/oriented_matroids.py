@@ -767,7 +767,7 @@ class OrientedMatroid(SageObject):
                     if all(face[i] == 0 for i in parallel_class):
                         continue
                     if face.flip_signs(parallel_class) in same_support_faces:
-                        lower_face = sign_vector(0 if i in parallel_class else face[i] for i in range(self._element_length))
+                        lower_face = face.set_to_zero(parallel_class)
                         output.add(lower_face)
                         output.add(-lower_face)
                 same_support_faces.remove(-face)
