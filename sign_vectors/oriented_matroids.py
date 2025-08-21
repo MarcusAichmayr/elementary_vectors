@@ -163,14 +163,14 @@ class OrientedMatroid(SageObject):
         {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)}
         sage: om.faces(1)
         {(+0---),
-         (---00),
-         (-0+++),
-         (0----),
          (++0--),
+         (---00),
+         (0----),
+         (-0+++),
          (++-00),
          (--+00),
-         (-++00),
          (0++--),
+         (-++00),
          (+++00),
          (0--++),
          (0++++),
@@ -197,14 +197,14 @@ class OrientedMatroid(SageObject):
         [{(00000)},
          {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)},
          {(+0---),
-          (---00),
-          (-0+++),
-          (0----),
           (++0--),
+          (---00),
+          (0----),
+          (-0+++),
           (++-00),
           (--+00),
-          (-++00),
           (0++--),
+          (-++00),
           (+++00),
           (0--++),
           (0++++),
@@ -240,14 +240,14 @@ class OrientedMatroid(SageObject):
          (-0+00)}
         sage: om.edges()
         {(+0---),
-         (---00),
-         (-0+++),
-         (0----),
          (++0--),
+         (---00),
+         (0----),
+         (-0+++),
          (++-00),
          (--+00),
-         (-++00),
          (0++--),
+         (-++00),
          (+++00),
          (0--++),
          (0++++),
@@ -756,15 +756,21 @@ class OrientedMatroid(SageObject):
         """
         if not self._faces_by_dimension.get(dimension):
             raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
+        if dimension == -1:
+            return set()
         output = set()
         for same_support_faces in classes_same_support(self._faces_by_dimension[dimension]):
             p_classes = parallel_classes(same_support_faces, self._element_length)
-            for face in same_support_faces:
+            while same_support_faces:
+                face = same_support_faces.pop()
                 for parallel_class in p_classes:
                     if all(face[i] == 0 for i in parallel_class):
                         continue
                     if face.reverse_signs_in(parallel_class) in same_support_faces:
-                        output.add(sign_vector(0 if i in parallel_class else face[i] for i in range(self._element_length)))
+                        lower_face = sign_vector(0 if i in parallel_class else face[i] for i in range(self._element_length))
+                        output.add(lower_face)
+                        output.add(-lower_face)
+                same_support_faces.remove(-face)
         return output
 
     def _topes_from_cocircuits(self) -> set[SignVector]:
