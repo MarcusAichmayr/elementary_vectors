@@ -661,8 +661,16 @@ class SignVector(SageObject):
             (-++0+)
             sage: X.reverse_signs_in([0, 2, 3])
             (++-0+)
+
+        ::
+
+            sage: X = sign_vector('+-0+0')
+            sage: X
+            (+-0+0)
+            sage: X.reverse_signs_in([0, 3, 4])
+            (--0-0)
         """
-        indices = FrozenBitset(indices, capacity=self.length()) & self._support()
+        indices = FrozenBitset(indices) & self._support()
         return SignVector(self._positive_support ^ indices, self._negative_support ^ indices)
 
     def delete_components(self, indices: list[int]) -> SignVector:
