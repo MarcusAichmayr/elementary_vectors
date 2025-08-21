@@ -641,17 +641,16 @@ class SignVector(SageObject):
         """
         return self * value
 
-    def reverse_signs_in(self, indices: list[int]) -> SignVector:
+    def flip_signs(self, indices: list[int]) -> SignVector:
         r"""
-        Reverses sign of given entries.
+        Flips entries of given indices.
 
         INPUT:
 
         - ``indices`` -- list of indices
 
         OUTPUT:
-        Returns a new sign vector of same length. Components with indices in
-        ``indices`` are multiplied by ``-1``.
+        Returns a new sign vector. Components of ``indices`` are multiplied by ``-1``.
 
         EXAMPLES::
 
@@ -659,7 +658,7 @@ class SignVector(SageObject):
             sage: X = sign_vector('-++0+')
             sage: X
             (-++0+)
-            sage: X.reverse_signs_in([0, 2, 3])
+            sage: X.flip_signs([0, 2, 3])
             (++-0+)
 
         ::
@@ -667,7 +666,7 @@ class SignVector(SageObject):
             sage: X = sign_vector('+-0+0')
             sage: X
             (+-0+0)
-            sage: X.reverse_signs_in([0, 3, 4])
+            sage: X.flip_signs([0, 3, 4])
             (--0-0)
         """
         indices = FrozenBitset(indices) & self._support()
