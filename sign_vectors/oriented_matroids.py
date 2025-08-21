@@ -228,6 +228,11 @@ class OrientedMatroid(SageObject):
           (-++--),
           (+++--)}]
 
+    We count the number of faces::
+
+        sage: om.num_faces()
+        39
+
     Geometrically, the cocircuits are the vertices and the edges are the faces of dimension 1::
 
         sage: om.vertices()
@@ -724,6 +729,10 @@ class OrientedMatroid(SageObject):
             - :meth:`faces`
         """
         return [self.faces(d) for d in range(-1, self.dimension + 1)]
+
+    def num_faces(self) -> int:
+        r"""Return the total number of faces (covectors) of the oriented matroid."""
+        return sum(len(faces) for faces in self.faces_all())
 
     def _compute_lower_faces(self, dimension: int) -> None:
         if dimension - 1 not in self._faces_by_dimension:
