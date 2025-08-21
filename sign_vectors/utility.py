@@ -115,7 +115,7 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
     return (True, ratio) if return_ratio else True
 
 
-def parallel_classes(iterable, length: int) -> list[list[int]]:
+def parallel_classes(iterable, length: int) -> list[set[int]]:
     r"""
     Compute the parallel classes of given sign vectors or vectors.
 
@@ -142,7 +142,7 @@ def parallel_classes(iterable, length: int) -> list[list[int]]:
         sage: L
         [(++0-), (+-0+), (-0+0)]
         sage: parallel_classes(L, 4)
-        [[0], [1, 3], [2]]
+        [{0}, {1, 3}, {2}]
 
     Now, we compute the parallel classes of a list of real vectors::
 
@@ -150,7 +150,7 @@ def parallel_classes(iterable, length: int) -> list[list[int]]:
         sage: L
         [(1, 1, 2, 3, 0, 0), (-2, 1, -4, 3, 3, -17), (0, 1, 0, 1, 0, 0)]
         sage: parallel_classes(L, 6)
-        [[0, 2], [1], [3], [4, 5]]
+        [{0, 2}, {1}, {3}, {4, 5}]
 
     Let us compute the parallel classes of the rows of a matrix::
 
@@ -160,28 +160,28 @@ def parallel_classes(iterable, length: int) -> list[list[int]]:
         [ 1  0  0  0  1]
         [ 1  1 -3  6  1]
         sage: parallel_classes(M, 5)
-        [[0, 4], [1], [2, 3]]
+        [{0, 4}, {1}, {2, 3}]
 
     TESTS::
 
         sage: parallel_classes([], 5)
-        [[0, 1, 2, 3, 4]]
+        [{0, 1, 2, 3, 4}]
     """
     result = []
     indices_to_check = set(range(length))
 
     while indices_to_check:
         component1 = indices_to_check.pop()
-        parallel_class = [component1]
+        parallel_class = {component1}
         for component2 in indices_to_check.copy():
             if is_parallel(iterable, component1, component2):
-                parallel_class.append(component2)
+                parallel_class.add(component2)
                 indices_to_check.remove(component2)
         result.append(parallel_class)
     return result
 
 
-def positive_parallel_classes(iterable, length: int) -> list[list[int]]:
+def positive_parallel_classes(iterable, length: int) -> list[set[int]]:
     r"""
     Compute the positive parallel classes of given sign vectors or vectors.
 
@@ -197,7 +197,7 @@ def positive_parallel_classes(iterable, length: int) -> list[list[int]]:
         sage: L
         [(++0-), (--0+), (00+0)]
         sage: positive_parallel_classes(L, 4)
-        [[0, 1], [2], [3]]
+        [{0, 1}, {2}, {3}]
 
     Now, we compute the positive parallel classes of a list of real vectors::
 
@@ -205,7 +205,7 @@ def positive_parallel_classes(iterable, length: int) -> list[list[int]]:
         sage: L
         [(1, 1, 2, 3, 0, 0), (-2, 1, -4, 3, 3, -17), (0, 1, 0, 1, 0, 0)]
         sage: positive_parallel_classes(L, 6)
-        [[0, 2], [1], [3], [4], [5]]
+        [{0, 2}, {1}, {3}, {4}, {5}]
 
     Let us compute the positive parallel classes of the rows of a matrix::
 
@@ -215,23 +215,23 @@ def positive_parallel_classes(iterable, length: int) -> list[list[int]]:
         [ 1  0  0  0  1]
         [ 1  1 -3  6  1]
         sage: positive_parallel_classes(M, 5)
-        [[0, 4], [1], [2], [3]]
+        [{0, 4}, {1}, {2}, {3}]
 
     TESTS::
 
         sage: positive_parallel_classes([], 5)
-        [[0, 1, 2, 3, 4]]
+        [{0, 1, 2, 3, 4}]
     """
     result = []
     indices_to_check = set(range(length))
 
     while indices_to_check:
         component1 = indices_to_check.pop()
-        parallel_class = [component1]
+        parallel_class = {component1}
         for component2 in indices_to_check.copy():
             value, ratio = is_parallel(iterable, component1, component2, return_ratio=True)
             if value and ratio >= 0:
-                parallel_class.append(component2)
+                parallel_class.add(component2)
                 indices_to_check.remove(component2)
         result.append(parallel_class)
     return result
