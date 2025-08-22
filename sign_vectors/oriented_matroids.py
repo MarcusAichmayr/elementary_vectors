@@ -128,14 +128,13 @@ class OrientedMatroid(SageObject):
          (0++++),
          (++---),
          (+--00),
-         (000--),
          (--+--),
          (+0-++),
          (+----),
          (++000),
          (++0++),
-         (---00),
          (++0--),
+         (---00),
          (---++),
          (-0+00),
          (0++00),
@@ -143,6 +142,7 @@ class OrientedMatroid(SageObject):
          (+--++),
          (+++00),
          (+++++),
+         (000--),
          (-----),
          (-0+--),
          (-++--),
@@ -635,6 +635,8 @@ class OrientedMatroid(SageObject):
             - :meth:`topes`
             - :meth:`faces`
         """
+        if self._topes_computed():
+            return set().union(*self.faces_all())
         return self.faces_from_vertices(self.cocircuits(), self._element_length)
 
     def vectors(self) -> set[SignVector]:
@@ -733,6 +735,9 @@ class OrientedMatroid(SageObject):
     def num_faces(self) -> int:
         r"""Return the total number of faces (covectors) of the oriented matroid."""
         return sum(len(faces) for faces in self.faces_all())
+
+    def _topes_computed(self) -> bool:
+        return self.dimension in self._faces_by_dimension
 
     def _compute_lower_faces(self, dimension: int) -> None:
         if dimension - 1 not in self._faces_by_dimension:
