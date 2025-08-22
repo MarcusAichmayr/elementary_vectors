@@ -230,6 +230,8 @@ class OrientedMatroid(SageObject):
 
     We count the number of faces::
 
+        sage: om.f_vector()
+        [1, 8, 18, 12]
         sage: om.num_faces()
         39
 
@@ -733,8 +735,28 @@ class OrientedMatroid(SageObject):
         return [self.faces(d) for d in range(-1, self.dimension + 1)]
 
     def num_faces(self) -> int:
-        r"""Return the total number of faces (covectors) of the oriented matroid."""
+        r"""
+        Return the total number of faces (covectors) of the oriented matroid.
+
+        .. SEEALSO::
+
+            - :meth:`f_vector`
+            - :meth:`faces_all`
+        """
         return sum(len(faces) for faces in self.faces_all())
+
+    def f_vector(self) -> list[int]:
+        r"""
+        Compute the f-vector of the oriented matroid.
+
+        The f-vector (face vector) is a list where the ``i``-th entry is the number of faces of dimension ``i``.
+
+        .. SEEALSO::
+
+            - :meth:`num_faces`
+            - :meth:`faces`
+        """
+        return [len(faces) for faces in self.faces_all()]
 
     def _topes_computed(self) -> bool:
         return self.dimension in self._faces_by_dimension
