@@ -538,7 +538,7 @@ class SignVector(SageObject):
             sage: X.compose(Y)
             (0+-+++---)
         """
-        return SignVector(
+        return self.__class__(
             self._positive_support | (other._positive_support & ~self._negative_support),
             self._negative_support | (other._negative_support & ~self._positive_support)
         )
@@ -574,7 +574,7 @@ class SignVector(SageObject):
             sage: Y.compose_harmonious(X)
             (+-0)
         """
-        return SignVector(
+        return self.__class__(
             self._positive_support | other._positive_support,
             self._negative_support | other._negative_support
         )
@@ -670,7 +670,7 @@ class SignVector(SageObject):
             (--0-0)
         """
         indices = FrozenBitset(indices) & self._support()
-        return SignVector(self._positive_support ^ indices, self._negative_support ^ indices)
+        return self.__class__(self._positive_support ^ indices, self._negative_support ^ indices)
 
     def set_to_zero(self, indices: list[int]) -> SignVector:
         r"""
@@ -702,7 +702,7 @@ class SignVector(SageObject):
             (00+000)
         """
         indices = FrozenBitset(indices)
-        return SignVector(self._positive_support - indices, self._negative_support - indices)
+        return self.__class__(self._positive_support - indices, self._negative_support - indices)
 
     def delete_components(self, indices: list[int]) -> SignVector:
         r"""
@@ -1073,7 +1073,7 @@ class SignVector(SageObject):
             sage: -X
             (0-+)
         """
-        return SignVector(self._negative_support, self._positive_support)
+        return self.__class__(self._negative_support, self._positive_support)
 
     def __pos__(self) -> SignVector:
         r"""
@@ -1088,7 +1088,7 @@ class SignVector(SageObject):
             sage: +X
             (0+-)
         """
-        return SignVector(self._positive_support, self._negative_support)
+        return self.__class__(self._positive_support, self._negative_support)
 
     def is_vector(self) -> bool:
         r"""Return ``False`` since sign vectors are not vectors."""
