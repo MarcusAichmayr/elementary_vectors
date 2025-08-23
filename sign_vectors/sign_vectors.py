@@ -216,7 +216,7 @@ def zero_sign_vector(length: int) -> SignVector:
         sage: zero_sign_vector(4)
         (0000)
     """
-    return SignVector(FrozenBitset([], capacity=length), FrozenBitset([], capacity=length))
+    return SignVector.zero(length)
 
 
 def random_sign_vector(length: int) -> SignVector:
@@ -1099,6 +1099,19 @@ class SignVector(SageObject):
         r"""Return the hash value of this sign vector."""
 
         return hash((self._positive_support, self._negative_support))
+
+    @classmethod
+    def zero(cls, length: int) -> Self:
+        r"""
+        Create a zero sign vector of a given length.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: SignVector.zero(5)
+            (00000)
+        """
+        return cls(FrozenBitset([], capacity=length), FrozenBitset([], capacity=length))
 
     @classmethod
     def from_string(cls, s: str) -> Self:
