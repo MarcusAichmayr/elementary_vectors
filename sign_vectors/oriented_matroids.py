@@ -79,8 +79,17 @@ class Sign(IntEnum):
 
 
 class OrientedMatroid(SageObject):
-    r"""
-    Class representing an oriented matroid.
+    r"""Class representing an oriented matroid.
+
+    This class provides methods to work with oriented matroids, including
+    computing their faces, cocircuits, and topes.
+
+    INPUT:
+
+    - ``matrix``: A matrix representing the oriented matroid.
+    - ``rank``: The rank of the oriented matroid. Only required if ``matrix`` is not provided.
+    - ``element_length``: The length of the elements in the oriented matroid. Only required if ``matrix`` is not provided.
+    - ``connect_faces``: Whether to keep track of connections between the faces of the oriented matroid.
 
     EXAMPLES:
 
@@ -347,6 +356,10 @@ class OrientedMatroid(SageObject):
         self._chirotope_dict = {}
         self._faces_by_dimension = {-1: set([zero_sign_vector(self._element_length)])}
         self._loops = None
+
+        self._connect_faces = True
+        self._above = {}
+        self._connected_with_lower_dimension = set()  # faces of this dimensions are already connected with faces below
 
     def _repr_(self) -> str:
         return f"Oriented matroid of dimension {self.dimension} with elements of size {self._element_length}."
@@ -806,11 +819,19 @@ class OrientedMatroid(SageObject):
                 for parallel_class in p_classes:
                     if all(face[i] == 0 for i in parallel_class):
                         continue
-                    if face.flip_signs(parallel_class) in same_support_faces:
+                    flipped_face = face.flip_signs(parallel_class)
+                    if flipped_face in same_support_faces:
                         lower_face = face.set_to_zero(parallel_class)
                         output.add(lower_face)
                         output.add(-lower_face)
+                        if self._connect_faces and dimension not in self._connected_with_lower_dimension:
+                            self._connect(lower_face, face)
+                            self._connect(-lower_face, -face)
+                            self._connect(lower_face, flipped_face)
+                            self._connect(-lower_face, -flipped_face)
                 same_support_faces.remove(-face)
+        if self._connect_faces:
+            self._connected_with_lower_dimension.add(dimension)
         return output
 
     def _topes_from_cocircuits(self) -> set[SignVector]:
@@ -858,6 +879,53 @@ class OrientedMatroid(SageObject):
             ]
         return self._loops
 
+    def set_face_connections(self, value: bool = True) -> None:
+        """
+        Keep track of connections between faces.
+
+        If this is set to true, the object will keep track of connections between faces while computing.
+        This improves performance for plotting but slightly slows down other computations.
+        """
+        self._connect_faces = value
+
+    def _connect(self, lower_face: SignVector, upper_face: SignVector):
+        r"""Connect two faces."""
+        if lower_face not in self._above:
+            self._above[lower_face] = set()
+        self._above[lower_face].add(upper_face)
+
+    def _connect_below(self, dimension: int) -> None:
+        if dimension in self._connected_with_lower_dimension:
+            return
+        if dimension not in self._faces_by_dimension:
+            raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension} is not available.")
+        if dimension - 1 not in self._faces_by_dimension:
+            raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension - 1} is not available.")
+        if dimension == 0:
+            zero = zero_sign_vector(self._element_length)
+            for face in self._faces_by_dimension[0]:
+                self._connect(zero, face)
+        elif dimension == 1:
+            for face in self._faces_by_dimension[1]:
+                connection_count = 0
+                for cocircuit in self._faces_by_dimension[0]:
+                    if cocircuit <= face:
+                        self._connect(cocircuit, face)
+                        connection_count += 1
+                        if connection_count == 2: # diamond property
+                            break
+        else:
+            for face in self._faces_by_dimension[dimension]:
+                for lower_face in self._faces_by_dimension[dimension - 1]:
+                    if lower_face <= face:
+                        self._connect(lower_face, face)
+        self._connected_with_lower_dimension.add(dimension)
+
+    def _connect_all(self):
+        self._all_faces()
+        for dimension in range(self.rank):
+            self._connect_below(dimension)
+
     def plot(self, vertex_size: int = 600, figsize: int = None, aspect_ratio=None) -> None:
         r"""
         Plot the big face lattice of the oriented matroid.
@@ -870,7 +938,13 @@ class OrientedMatroid(SageObject):
 
             Only works well for small length and dimension.
         """
-        plot_sign_vectors(set().union(*self._all_faces()), vertex_size=vertex_size, figsize=figsize, aspect_ratio=aspect_ratio)
+        self._connect_faces = True
+        self._connect_all()
+        Poset(self._above).plot(
+            vertex_size=vertex_size,
+            element_color="white",
+            vertex_shape="",
+        ).show(figsize=figsize, aspect_ratio=aspect_ratio)
 
     @staticmethod
     def faces_from_vertices(vertices: set[SignVector], element_length: int) -> set[SignVector]:
@@ -945,87 +1019,3 @@ class OrientedMatroid(SageObject):
         for (indices, value) in zip(Combinations(element_length, rank), chirotopes):
             om.set_chirotope(indices, value)
         return om
-
-
-class OrientedMatroidWithLattice(OrientedMatroid):
-    r"""
-    An oriented matroid that keeps track of the underlying lattice.
-    """
-    def __init__(self, matrix=None, rank: int = None, element_length: int = None) -> None:
-        super().__init__(matrix=matrix, rank=rank, element_length=element_length)
-        self._above = {}
-        self._connected_with_lower_dimension = set()  # faces of this dimensions are already connected with faces below
-
-    def _connect(self, lower_face: SignVector, upper_face: SignVector):
-        r"""Connect two faces."""
-        if lower_face not in self._above:
-            self._above[lower_face] = set()
-        self._above[lower_face].add(upper_face)
-
-    def _lower_faces(self, dimension: int):
-        if not self._faces_by_dimension.get(dimension):
-            raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
-        if dimension == -1:
-            return set()
-        output = set()
-        for same_support_faces in classes_same_support(self._faces_by_dimension[dimension]):
-            p_classes = parallel_classes(same_support_faces, self._element_length)
-            while same_support_faces:
-                face = same_support_faces.pop()
-                for parallel_class in p_classes:
-                    if all(face[i] == 0 for i in parallel_class):
-                        continue
-                    flipped_face = face.flip_signs(parallel_class)
-                    if flipped_face in same_support_faces:
-                        lower_face = face.set_to_zero(parallel_class)
-                        output.add(lower_face)
-                        output.add(-lower_face)
-                        if dimension not in self._connected_with_lower_dimension:
-                            self._connect(lower_face, face)
-                            self._connect(-lower_face, -face)
-                            self._connect(lower_face, flipped_face)
-                            self._connect(-lower_face, -flipped_face)
-                same_support_faces.remove(-face)
-        self._connected_with_lower_dimension.add(dimension)
-        return output
-
-    def _connect_below(self, dimension: int) -> None:
-        if dimension in self._connected_with_lower_dimension:
-            return
-        if dimension not in self._faces_by_dimension:
-            raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension} is not available.")
-        if dimension - 1 not in self._faces_by_dimension:
-            raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension - 1} is not available.")
-        if dimension == 0:
-            zero = zero_sign_vector(self._element_length)
-            for face in self._faces_by_dimension[0]:
-                self._connect(zero, face)
-        elif dimension == 1:
-            for face in self._faces_by_dimension[1]:
-                connection_count = 0
-                for cocircuit in self._faces_by_dimension[0]:
-                    if cocircuit <= face:
-                        self._connect(cocircuit, face)
-                        connection_count += 1
-                        if connection_count == 2: # diamond property
-                            break
-        else:
-            # TODO is lower faces faster here?
-            for face in self._faces_by_dimension[dimension]:
-                for lower_face in self._faces_by_dimension[dimension - 1]:
-                    if lower_face <= face:
-                        self._connect(lower_face, face)
-        self._connected_with_lower_dimension.add(dimension)
-
-    def _connect_all(self):
-        self._all_faces()
-        for dimension in range(self.rank):
-            self._connect_below(dimension)
-
-    def plot(self, vertex_size: int = 600, figsize: int = None, aspect_ratio=None) -> None:
-        self._connect_all()
-        Poset(self._above).plot(
-            vertex_size=vertex_size,
-            element_color="white",
-            vertex_shape="",
-        ).show(figsize=figsize, aspect_ratio=aspect_ratio)
