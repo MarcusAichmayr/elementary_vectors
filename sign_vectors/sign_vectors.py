@@ -141,6 +141,7 @@ sign vectors are also orthogonal::
 #############################################################################
 
 from __future__ import annotations
+from typing import Self
 import warnings
 from random import choices
 
@@ -504,7 +505,7 @@ class SignVector(SageObject):
         """
         return [self[e] for e in positions]
 
-    def compose(self, other: SignVector) -> SignVector:
+    def compose(self, other: SignVector) -> Self:
         r"""
         Return the composition of two sign vectors.
 
@@ -543,7 +544,7 @@ class SignVector(SageObject):
             self._negative_support | (other._negative_support & ~self._positive_support)
         )
 
-    def compose_harmonious(self, other: SignVector) -> SignVector:
+    def compose_harmonious(self, other: SignVector) -> Self:
         r"""
         Return the composition of two harmonious sign vectors.
 
@@ -579,7 +580,7 @@ class SignVector(SageObject):
             self._negative_support | other._negative_support
         )
 
-    def __and__(self, other: SignVector) -> SignVector:
+    def __and__(self, other: SignVector) -> Self:
         r"""
         Return the composition of two sign vectors.
 
@@ -603,7 +604,7 @@ class SignVector(SageObject):
         """
         return self.compose(other)
 
-    def __mul__(self, value: int) -> SignVector:
+    def __mul__(self, value: int) -> Self:
         r"""
         Multiplication with a scalar.
 
@@ -624,7 +625,7 @@ class SignVector(SageObject):
             return -self
         return zero_sign_vector(self.length())
 
-    def __rmul__(self, value) -> SignVector:
+    def __rmul__(self, value) -> Self:
         r"""
         Right multiplication with a scalar.
 
@@ -641,7 +642,7 @@ class SignVector(SageObject):
         """
         return self * value
 
-    def flip_signs(self, indices: list[int]) -> SignVector:
+    def flip_signs(self, indices: list[int]) -> Self:
         r"""
         Flips entries of given indices.
 
@@ -672,7 +673,7 @@ class SignVector(SageObject):
         indices = FrozenBitset(indices) & self._support()
         return self.__class__(self._positive_support ^ indices, self._negative_support ^ indices)
 
-    def set_to_zero(self, indices: list[int]) -> SignVector:
+    def set_to_zero(self, indices: list[int]) -> Self:
         r"""
         Set given entries to zero.
 
@@ -704,7 +705,7 @@ class SignVector(SageObject):
         indices = FrozenBitset(indices)
         return self.__class__(self._positive_support - indices, self._negative_support - indices)
 
-    def delete_components(self, indices: list[int]) -> SignVector:
+    def delete_components(self, indices: list[int]) -> Self:
         r"""
         Delete the given components from the sign vector.
 
@@ -1061,7 +1062,7 @@ class SignVector(SageObject):
     def __bool__(self) -> bool:
         return self != 0
 
-    def __neg__(self) -> SignVector:
+    def __neg__(self) -> Self:
         r"""
         Return the sign vectors multiplied by ``-1``.
 
@@ -1075,7 +1076,7 @@ class SignVector(SageObject):
         """
         return self.__class__(self._negative_support, self._positive_support)
 
-    def __pos__(self) -> SignVector:
+    def __pos__(self) -> Self:
         r"""
         Return the sign vectors multiplied by ``1`` which is a copy of this sign vector.
 
@@ -1100,7 +1101,7 @@ class SignVector(SageObject):
         return hash((self._positive_support, self._negative_support))
 
     @classmethod
-    def from_string(cls, s: str) -> SignVector:
+    def from_string(cls, s: str) -> Self:
         r"""
         Create a sign vector from a string.
 
@@ -1117,7 +1118,7 @@ class SignVector(SageObject):
         )
 
     @classmethod
-    def from_iterable(cls, iterable) -> SignVector:
+    def from_iterable(cls, iterable) -> Self:
         r"""
         Create a sign vector from an iterable.
 
@@ -1143,7 +1144,7 @@ class SignVector(SageObject):
         return cls.from_support(psupport, nsupport, length)
 
     @classmethod
-    def from_support(cls, psupport: list[int], nsupport: list[int], length: int) -> SignVector:
+    def from_support(cls, psupport: list[int], nsupport: list[int], length: int) -> Self:
         r"""
         Return a sign vector that is given by lists representing positive support and negative  support.
 
