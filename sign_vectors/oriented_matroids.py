@@ -16,8 +16,8 @@ from enum import IntEnum
 from sage.combinat.combination import Combinations
 from sage.combinat.posets.lattices import LatticePoset
 from sage.structure.sage_object import SageObject
-from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vector
 
+from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vector
 from .utility import classes_same_support, parallel_classes
 
 
@@ -655,7 +655,7 @@ class OrientedMatroid(SageObject):
         """
         if self._topes_computed():
             return set().union(*self._all_faces())
-        return self.faces_from_vertices(self.cocircuits(), self._element_length)
+        return self._faces_from_vertices(self.cocircuits())
 
     def vectors(self) -> set[SignVector]:
         r"""
@@ -669,7 +669,7 @@ class OrientedMatroid(SageObject):
 
             - :meth:`circuits`
         """
-        return self.faces_from_vertices(self.circuits(), self._element_length)
+        return self._faces_from_vertices(self.circuits())
 
     def topes(self) -> set[SignVector]:
         r"""
@@ -967,8 +967,7 @@ class OrientedMatroid(SageObject):
             vertex_shape="",
         ).show(figsize=figsize, aspect_ratio=aspect_ratio)
 
-    @staticmethod
-    def faces_from_vertices(vertices: set[SignVector], element_length: int) -> set[SignVector]:
+    def _faces_from_vertices(self, vertices: set[SignVector]) -> set[SignVector]:
         r"""
         Compute the covectors from the cocircuits.
 
@@ -984,8 +983,8 @@ class OrientedMatroid(SageObject):
         „A graph theoretical approach for reconstruction and generation of oriented matroids“.
         PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
         """
-        covectors = {zero_sign_vector(element_length)}
-        covectors_new = {zero_sign_vector(element_length)}
+        covectors = {zero_sign_vector(self._element_length)}
+        covectors_new = {zero_sign_vector(self._element_length)}
         while covectors_new:
             element1 = covectors_new.pop()
             for element2 in vertices:
