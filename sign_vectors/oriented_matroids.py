@@ -12,6 +12,7 @@ r"""Oriented matroids"""
 
 from collections.abc import Generator
 from enum import IntEnum
+from random import choice
 
 from sage.combinat.combination import Combinations
 from sage.combinat.posets.lattices import LatticePoset
@@ -638,6 +639,16 @@ class OrientedMatroid(SageObject):
             {(00-+), (+-0+), (-+0-), (00+-), (-+-0), (+-+0)}
         """
         return set(self._circuit_generator())
+
+    def an_element(self) -> SignVector:
+        r"""
+        Compute a random element of the oriented matroid.
+
+        .. SEEALSO::
+
+            - :meth:`elements`
+        """
+        return choice(list(self.elements()))
 
     def elements(self) -> set[SignVector]:
         r"""
