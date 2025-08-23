@@ -362,8 +362,8 @@ class Interval(SageObject):
             else:
                 cfl = sb_child(cfl, left=True)
 
-    @staticmethod
-    def random(ring=QQ, allow_infinity: bool = True, allow_empty: bool = False) -> Interval:
+    @classmethod
+    def random(cls, ring=QQ, allow_infinity: bool = True, allow_empty: bool = False) -> Interval:
         r"""
         Generate a random interval.
 
@@ -386,13 +386,13 @@ class Interval(SageObject):
         lower_closed = bool(getrandbits(1))
         upper_closed = bool(getrandbits(1))
 
-        interval = Interval(lower, upper, lower_closed, upper_closed)
+        interval = cls(lower, upper, lower_closed, upper_closed)
         if not allow_empty and interval.is_empty():
-            return Interval.random(ring, allow_infinity, allow_empty)
+            return cls.random(ring, allow_infinity, allow_empty)
         return interval
 
-    @staticmethod
-    def open(lower, upper) -> Interval:
+    @classmethod
+    def open(cls, lower, upper) -> Interval:
         r"""
         Return an open interval.
 
@@ -402,10 +402,10 @@ class Interval(SageObject):
             sage: Interval.open(0, 1)
             (0, 1)
         """
-        return Interval(lower, upper, False, False)
+        return cls(lower, upper, False, False)
 
-    @staticmethod
-    def closed(lower, upper) -> Interval:
+    @classmethod
+    def closed(cls, lower, upper) -> Interval:
         r"""
         Return a closed interval.
 
@@ -415,10 +415,10 @@ class Interval(SageObject):
             sage: Interval.closed(0, 1)
             [0, 1]
         """
-        return Interval(lower, upper, True, True)
+        return cls(lower, upper, True, True)
 
-    @staticmethod
-    def empty() -> Interval:
+    @classmethod
+    def empty(cls) -> Interval:
         r"""
         Return the empty interval.
 
@@ -428,7 +428,7 @@ class Interval(SageObject):
             sage: Interval.empty()
             {}
         """
-        return Interval(0, 0, False, False)
+        return cls(0, 0, False, False)
 
 
 class Intervals(SageObject):
@@ -522,8 +522,8 @@ class Intervals(SageObject):
     def __iter__(self):
         return iter(self.intervals)
 
-    @staticmethod
-    def random(length: int, ring=QQ) -> Intervals:
+    @classmethod
+    def random(cls, length: int, ring=QQ) -> Intervals:
         r"""
         Generate a random list of intervals.
 
@@ -533,10 +533,10 @@ class Intervals(SageObject):
             sage: Intervals.random(3) # random
             [0, +oo) x (-5, 2) x (0, 1]
         """
-        return Intervals([Interval.random(ring) for _ in range(length)])
+        return cls([Interval.random(ring) for _ in range(length)])
 
-    @staticmethod
-    def from_bounds(lower_bounds: list, upper_bounds: list, lower_bounds_closed: bool = True, upper_bounds_closed: bool = True) -> Intervals:
+    @classmethod
+    def from_bounds(cls, lower_bounds: list, upper_bounds: list, lower_bounds_closed: bool = True, upper_bounds_closed: bool = True) -> Intervals:
         r"""
         Return intervals that are determined by bounds.
 
@@ -563,15 +563,15 @@ class Intervals(SageObject):
         elif upper_bounds_closed is False:
             upper_bounds_closed = [False] * length
 
-        return Intervals([
+        return cls([
             Interval(*bounds)
             for bounds in zip(
                 lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed
             )
         ])
 
-    @staticmethod
-    def from_sign_vector(sv: SignVector) -> Intervals:
+    @classmethod
+    def from_sign_vector(cls, sv: SignVector) -> Intervals:
         r"""
         Return intervals that are determined by a sign vector.
 
@@ -583,7 +583,7 @@ class Intervals(SageObject):
             sage: Intervals.from_sign_vector(sv)
             (0, +oo) x {0} x (-oo, 0)
         """
-        return Intervals([
+        return cls([
             Interval(
                 0 if element > 0 else (minus_infinity if element < 0 else 0),
                 Infinity if element > 0 else (0 if element < 0 else 0),

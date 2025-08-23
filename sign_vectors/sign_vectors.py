@@ -1099,8 +1099,8 @@ class SignVector(SageObject):
 
         return hash((self._positive_support, self._negative_support))
 
-    @staticmethod
-    def from_string(s: str) -> SignVector:
+    @classmethod
+    def from_string(cls, s: str) -> SignVector:
         r"""
         Create a sign vector from a string.
 
@@ -1110,14 +1110,14 @@ class SignVector(SageObject):
             sage: SignVector.from_string("+-0+0")
             (+-0+0)
         """
-        return SignVector.from_support(
+        return cls.from_support(
             (pos for pos, t in enumerate(s) if t == "+"),
             (pos for pos, t in enumerate(s) if t == "-"),
             len(s)
         )
 
-    @staticmethod
-    def from_iterable(iterable) -> SignVector:
+    @classmethod
+    def from_iterable(cls, iterable) -> SignVector:
         r"""
         Create a sign vector from an iterable.
 
@@ -1140,10 +1140,10 @@ class SignVector(SageObject):
             elif sign_entry < 0:
                 nsupport.append(length)
             length += 1
-        return SignVector.from_support(psupport, nsupport, length)
+        return cls.from_support(psupport, nsupport, length)
 
-    @staticmethod
-    def from_support(psupport: list[int], nsupport: list[int], length: int) -> SignVector:
+    @classmethod
+    def from_support(cls, psupport: list[int], nsupport: list[int], length: int) -> SignVector:
         r"""
         Return a sign vector that is given by lists representing positive support and negative  support.
 
@@ -1169,4 +1169,4 @@ class SignVector(SageObject):
             sage: SignVector.from_support([1, 4], [2], 6)
             (0+-0+0)
         """
-        return SignVector(FrozenBitset(psupport, capacity=length), FrozenBitset(nsupport, capacity=length))
+        return cls(FrozenBitset(psupport, capacity=length), FrozenBitset(nsupport, capacity=length))

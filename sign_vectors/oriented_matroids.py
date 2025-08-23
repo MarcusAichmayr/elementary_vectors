@@ -1007,8 +1007,8 @@ class OrientedMatroid(SageObject):
                     covectors_new.add(new_element)
         return covectors
 
-    @staticmethod
-    def from_chirotopes(chirotopes: list[int] | str, rank: int, element_length: int) -> "OrientedMatroid":
+    @classmethod
+    def from_chirotopes(cls, chirotopes: list[int] | str, rank: int, element_length: int) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from chirotopes.
 
@@ -1046,7 +1046,7 @@ class OrientedMatroid(SageObject):
             sage: OrientedMatroid.from_chirotopes("00--0+++++", 2, 5)
             Oriented matroid of dimension 1 with elements of size 5.
         """
-        om = OrientedMatroid(rank=rank, element_length=element_length)
+        om = cls(rank=rank, element_length=element_length)
         for (indices, value) in zip(Combinations(element_length, rank), chirotopes):
             om.set_chirotope(indices, value)
         return om
