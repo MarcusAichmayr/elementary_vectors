@@ -556,7 +556,7 @@ class OrientedMatroid(SageObject):
 
         .. NOTE::
 
-            The result is hashed.
+            The result is cached.
 
         .. SEEALSO::
 
@@ -702,7 +702,7 @@ class OrientedMatroid(SageObject):
 
         .. NOTE::
 
-            The result is hashed.
+            The result is cached.
 
         .. SEEALSO::
 
@@ -845,7 +845,7 @@ class OrientedMatroid(SageObject):
 
         .. NOTE::
 
-            The result is hashed.
+            The result is cached.
         """
         if self._loops is None:
             self._loops = [
