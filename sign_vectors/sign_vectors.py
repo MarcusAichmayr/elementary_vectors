@@ -722,7 +722,7 @@ class SignVector(SageObject):
             sage: X = sign_vector('+0-')
             sage: X
             (+0-)
-            sage: X.delete_components([1]) # TODO not implemented
+            sage: X.delete_components([1]) # TODO: not implemented
             (+-)
 
         ::
@@ -730,9 +730,9 @@ class SignVector(SageObject):
             sage: X = sign_vector('-+0+0')
             sage: X
             (-+0+0)
-            sage: X.delete_components([0, 2]) # TODO not implemented
+            sage: X.delete_components([0, 2]) # TODO: not implemented
             (++0)
-            sage: X.delete_components([1]) # TODO not implemented
+            sage: X.delete_components([1]) # TODO: not implemented
             (-0+0)
         """
         raise NotImplementedError
