@@ -954,7 +954,6 @@ class OrientedMatroidWithLattice(OrientedMatroid):
     def __init__(self, matrix=None, rank: int = None, element_length: int = None) -> None:
         super().__init__(matrix=matrix, rank=rank, element_length=element_length)
         self._above = {}
-        self._below = {}
         self._connected_with_lower_dimension = set()  # faces of this dimensions are already connected with faces below
 
     def _connect(self, lower_face: SignVector, upper_face: SignVector):
@@ -962,9 +961,6 @@ class OrientedMatroidWithLattice(OrientedMatroid):
         if lower_face not in self._above:
             self._above[lower_face] = set()
         self._above[lower_face].add(upper_face)
-        if upper_face not in self._below:
-            self._below[upper_face] = set()
-        self._below[upper_face].add(lower_face)
 
     def _lower_faces(self, dimension: int):
         if not self._faces_by_dimension.get(dimension):
