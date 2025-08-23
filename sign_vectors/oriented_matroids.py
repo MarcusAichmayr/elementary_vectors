@@ -953,27 +953,18 @@ class OrientedMatroidWithLattice(OrientedMatroid):
     """
     def __init__(self, matrix=None, rank: int = None, element_length: int = None) -> None:
         super().__init__(matrix=matrix, rank=rank, element_length=element_length)
-        self.above = {}
-        self.below = {}
-        self._connected_dimensions = set()  # faces of this dimensions are already connected with lower faces
+        self._above = {}
+        self._below = {}
+        self._connected_with_lower_dimension = set()  # faces of this dimensions are already connected with faces below
 
     def _connect(self, lower_face: SignVector, upper_face: SignVector):
         r"""Connect two faces."""
-        if lower_face not in self.above:
-            self.above[lower_face] = set()
-        self.above[lower_face].add(upper_face)
-        if upper_face not in self.below:
-            self.below[upper_face] = set()
-        self.below[upper_face].add(lower_face)
-
-    def cocircuits(self):
-        result = super().cocircuits()
-        if 0 not in self._connected_dimensions:
-            zero = zero_sign_vector(self._element_length)
-            for face in result:
-                self._connect(zero, face)
-            self._connected_dimensions.add(0)
-        return result
+        if lower_face not in self._above:
+            self._above[lower_face] = set()
+        self._above[lower_face].add(upper_face)
+        if upper_face not in self._below:
+            self._below[upper_face] = set()
+        self._below[upper_face].add(lower_face)
 
     def _lower_faces(self, dimension: int):
         if not self._faces_by_dimension.get(dimension):
@@ -993,24 +984,51 @@ class OrientedMatroidWithLattice(OrientedMatroid):
                         lower_face = face.set_to_zero(parallel_class)
                         output.add(lower_face)
                         output.add(-lower_face)
-                        if dimension not in self._connected_dimensions:
+                        if dimension not in self._connected_with_lower_dimension:
                             self._connect(lower_face, face)
                             self._connect(-lower_face, -face)
                             self._connect(lower_face, flipped_face)
                             self._connect(-lower_face, -flipped_face)
                 same_support_faces.remove(-face)
-        self._connected_dimensions.add(dimension)
+        self._connected_with_lower_dimension.add(dimension)
         return output
 
-    def _connect_missing(self):
+    def _connect_below(self, dimension: int) -> None:
+        if dimension in self._connected_with_lower_dimension:
+            return
+        if dimension not in self._faces_by_dimension:
+            raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension} is not available.")
+        if dimension - 1 not in self._faces_by_dimension:
+            raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension - 1} is not available.")
+        if dimension == 0:
+            zero = zero_sign_vector(self._element_length)
+            for face in self._faces_by_dimension[0]:
+                self._connect(zero, face)
+        elif dimension == 1:
+            for face in self._faces_by_dimension[1]:
+                connection_count = 0
+                for cocircuit in self._faces_by_dimension[0]:
+                    if cocircuit <= face:
+                        self._connect(cocircuit, face)
+                        connection_count += 1
+                        if connection_count == 2: # diamond property
+                            break
+        else:
+            # TODO is lower faces faster here?
+            for face in self._faces_by_dimension[dimension]:
+                for lower_face in self._faces_by_dimension[dimension - 1]:
+                    if lower_face <= face:
+                        self._connect(lower_face, face)
+        self._connected_with_lower_dimension.add(dimension)
+
+    def _connect_all(self):
         self._all_faces()
         for dimension in range(self.rank):
-            if dimension not in self._connected_dimensions:
-                self._lower_faces(dimension)
+            self._connect_below(dimension)
 
     def plot(self, vertex_size: int = 600, figsize: int = None, aspect_ratio=None) -> None:
-        self._connect_missing()
-        Poset(self.above).plot(
+        self._connect_all()
+        Poset(self._above).plot(
             vertex_size=vertex_size,
             element_color="white",
             vertex_shape="",
