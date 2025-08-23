@@ -914,6 +914,9 @@ class OrientedMatroid(SageObject):
                         connection_count += 1
                         if connection_count == 2: # diamond property
                             break
+        elif dimension == self.rank:
+            for tope in self.topes():
+                self._connect(tope, 1)
         else:
             for face in self._faces_by_dimension[dimension]:
                 for lower_face in self._faces_by_dimension[dimension - 1]:
@@ -923,7 +926,8 @@ class OrientedMatroid(SageObject):
 
     def _connect_all(self):
         self._all_faces()
-        for dimension in range(self.rank):
+        self._faces_by_dimension[self.rank] = 1 # lattice top
+        for dimension in range(self.rank + 1):
             self._connect_below(dimension)
 
     def plot(self, vertex_size: int = 600, figsize: int = None, aspect_ratio=None) -> None:
