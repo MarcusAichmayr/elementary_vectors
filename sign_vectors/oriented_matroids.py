@@ -14,13 +14,11 @@ from collections.abc import Generator
 from enum import IntEnum
 
 from sage.combinat.combination import Combinations
-from sage.combinat.posets.posets import Poset
+from sage.combinat.posets.lattices import LatticePoset
 from sage.structure.sage_object import SageObject
-
 from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vector
 
 from .utility import classes_same_support, parallel_classes
-from .functions import plot_sign_vectors
 
 
 class Sign(IntEnum):
@@ -319,6 +317,11 @@ class OrientedMatroid(SageObject):
         {(--000), (000++), (+0-00), (0--00), (++000), (0++00), (000--), (-0+00)}
         sage: om_dual.topes()
         {(-+-+-), (+-+-+), (-+--+), (+-++-)}
+
+    We compute the face lattice::
+
+        sage: om.face_lattice()
+        Finite lattice containing 40 elements
 
     TESTS:
 
@@ -930,21 +933,35 @@ class OrientedMatroid(SageObject):
         for dimension in range(self.rank + 1):
             self._connect_below(dimension)
 
+    def face_lattice(self) -> LatticePoset:
+        r"""
+        Return the face lattice of the oriented matroid.
+
+        OUTPUT:
+
+        - A lattice representing the face lattice.
+        """
+        self.set_face_connections(True)
+        self._connect_all()
+        return LatticePoset(self._above)
+
     def plot(self, vertex_size: int = 600, figsize: int = None, aspect_ratio=None) -> None:
         r"""
         Plot the big face lattice of the oriented matroid.
 
         INPUT:
 
-        For arguments, see :func:`.functions.plot_sign_vectors`.
+        - ``vertex_size`` -- the size of the vertices in the plot.
+
+        - ``figsize`` -- the size of the figure.
+
+        - ``aspect_ratio`` -- the aspect ratio of the plot.
 
         .. NOTE::
 
             Only works well for small length and dimension.
         """
-        self._connect_faces = True
-        self._connect_all()
-        Poset(self._above).plot(
+        self.face_lattice().plot(
             vertex_size=vertex_size,
             element_color="white",
             vertex_shape="",
