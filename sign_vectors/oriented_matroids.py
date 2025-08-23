@@ -700,6 +700,9 @@ class OrientedMatroid(SageObject):
         r"""
         Compute the faces of the same level of the oriented matroid.
 
+        OUTPUT:
+        If ``dimension`` is not specified, return all faces separated by dimension.
+
         .. NOTE::
 
             The result is cached.
