@@ -122,7 +122,7 @@ class OrientedMatroid(SageObject):
          (--+--),
          (-++--),
          (+++--)}
-        sage: om.covectors()
+        sage: om.elements()
         {(00000),
          (+0---),
          (0----),
@@ -639,7 +639,7 @@ class OrientedMatroid(SageObject):
         """
         return set(self._circuit_generator())
 
-    def covectors(self) -> set[SignVector]:
+    def elements(self) -> set[SignVector]:
         r"""
         Compute the covectors of the oriented matroid.
 
