@@ -13,7 +13,7 @@ LICENSE file), either version 3 or (at your option) any later version
 
 ## Requirements
 
-Sage 9.0 or later is recommended.
+Sage 10.0 or later is recommended.
 
 ## Installation
 
