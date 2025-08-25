@@ -304,19 +304,19 @@ class SignVector(SageObject):
 
     __slots__ = ("_positive_support", "_negative_support")
 
-    def __init__(self, psupport: FrozenBitset, nsupport: FrozenBitset) -> None:
+    def __init__(self, positive_support: FrozenBitset, negative_support: FrozenBitset) -> None:
         r"""
         Create a sign vector object.
 
         INPUT:
 
-        - ``psupport`` -- a ``FrozenBitset`` representing the positive support.
+        - ``positive_support`` -- a ``FrozenBitset`` representing the positive support.
 
-        - ``nsupport`` -- a ``FrozenBitset`` representing the negative support.
+        - ``negative_support`` -- a ``FrozenBitset`` representing the negative support.
 
         .. NOTE::
 
-            The ``psupport`` and ``nsupport`` should be disjoined.
+            The ``positive_support`` and ``negative_support`` should be disjoined.
             For efficiency, this is not checked when creating a sign vector object.
 
         .. SEEALSO::
@@ -329,8 +329,8 @@ class SignVector(SageObject):
             sage: SignVector(FrozenBitset([1, 3], capacity=4), FrozenBitset([0], capacity=4))
             (-+0+)
         """
-        self._positive_support = psupport
-        self._negative_support = nsupport
+        self._positive_support = positive_support
+        self._negative_support = negative_support
 
     def _repr_(self) -> str:
         return str(self)
@@ -1143,28 +1143,28 @@ class SignVector(SageObject):
             sage: SignVector.from_iterable(v)
             (+0-0+)
         """
-        psupport = []
-        nsupport = []
+        positive_support = []
+        negative_support = []
         length = 0
         for entry in iterable:
             sign_entry = sign_symbolic(entry)
             if sign_entry > 0:
-                psupport.append(length)
+                positive_support.append(length)
             elif sign_entry < 0:
-                nsupport.append(length)
+                negative_support.append(length)
             length += 1
-        return cls.from_support(psupport, nsupport, length)
+        return cls.from_support(positive_support, negative_support, length)
 
     @classmethod
-    def from_support(cls, psupport: list[int], nsupport: list[int], length: int) -> SignVector:
+    def from_support(cls, positive_support: list[int], negative_support: list[int], length: int) -> SignVector:
         r"""
         Return a sign vector that is given by lists representing positive support and negative  support.
 
         INPUT:
 
-        - ``psupport`` -- a list of integers.
+        - ``positive_support`` -- a list of integers.
 
-        - ``nsupport`` -- a list of integers.
+        - ``negative_support`` -- a list of integers.
 
         - ``length`` -- a nonnegative integer
 
@@ -1173,7 +1173,7 @@ class SignVector(SageObject):
 
         .. NOTE::
 
-            The list ``psupport`` and ``nsupport`` should be disjoint.
+            The list ``positive_support`` and ``negative_support`` should be disjoint.
             For efficiency, this is not checked.
 
         EXAMPLES::
@@ -1182,4 +1182,4 @@ class SignVector(SageObject):
             sage: SignVector.from_support([1, 4], [2], 6)
             (0+-0+0)
         """
-        return cls(FrozenBitset(psupport, capacity=length), FrozenBitset(nsupport, capacity=length))
+        return cls(FrozenBitset(positive_support, capacity=length), FrozenBitset(negative_support, capacity=length))
