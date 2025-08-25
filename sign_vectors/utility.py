@@ -16,7 +16,7 @@ from sage.modules.free_module_element import vector
 from sign_vectors import SignVector, sign_vector
 
 
-def is_parallel(iterable, component1, component2, return_ratio: bool = False):
+def are_parallel(iterable, component1, component2, return_ratio: bool = False):
     r"""
     Determine whether two components of sign vectors or vectors are parallel.
 
@@ -42,16 +42,16 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
 
     EXAMPLES::
 
-        sage: from sign_vectors.utility import is_parallel
+        sage: from sign_vectors.utility import are_parallel
         sage: from sign_vectors import sign_vector
         sage: L = [sign_vector("++0-"), sign_vector("+-0+"), sign_vector("-0+0")]
         sage: L
         [(++0-), (+-0+), (-0+0)]
-        sage: is_parallel(L, 0, 1)
+        sage: are_parallel(L, 0, 1)
         False
-        sage: is_parallel(L, 1, 2)
+        sage: are_parallel(L, 1, 2)
         False
-        sage: is_parallel(L, 1, 3)
+        sage: are_parallel(L, 1, 3)
         True
 
     Now, we consider some real vectors::
@@ -59,55 +59,55 @@ def is_parallel(iterable, component1, component2, return_ratio: bool = False):
         sage: L = [vector([1, 1, 2, 3, 0, 0]), vector([-2, 1, -4, 3, 3, -17]), vector([0, 1, 0, 1, 0, 0])]
         sage: L
         [(1, 1, 2, 3, 0, 0), (-2, 1, -4, 3, 3, -17), (0, 1, 0, 1, 0, 0)]
-        sage: is_parallel(L, 0, 2)
+        sage: are_parallel(L, 0, 2)
         True
-        sage: is_parallel(L, 0, 1)
+        sage: are_parallel(L, 0, 1)
         False
-        sage: is_parallel(L, 1, 3)
+        sage: are_parallel(L, 1, 3)
         False
-        sage: is_parallel(L, 4, 5)
+        sage: are_parallel(L, 4, 5)
         True
 
     We can also return the ratio of the two components::
 
-        sage: is_parallel(L, 0, 2, return_ratio=True)
+        sage: are_parallel(L, 0, 2, return_ratio=True)
         (True, 1/2)
-        sage: is_parallel(L, 2, 0, return_ratio=True)
+        sage: are_parallel(L, 2, 0, return_ratio=True)
         (True, 2)
-        sage: is_parallel(L, 0, 1, return_ratio=True)
+        sage: are_parallel(L, 0, 1, return_ratio=True)
         (False, None)
 
     Also works for matrices::
 
         sage: M = matrix([[0, 0, 1, -1, 0], [1, 0, 0, 0, 1], [1, 1, 1, 1, 1]])
-        sage: is_parallel(M, 0, 4)
+        sage: are_parallel(M, 0, 4)
         True
-        sage: is_parallel(M, 0, 1)
+        sage: are_parallel(M, 0, 1)
         False
 
     TESTS::
 
-        sage: is_parallel([], 0, 1)
+        sage: are_parallel([], 0, 1)
         True
-        sage: is_parallel([], 0, 1, return_ratio=True)
+        sage: are_parallel([], 0, 1, return_ratio=True)
         (True, 0)
     """
     ratio = 0
 
     for element in iterable:
-        a = element[component1]
-        b = element[component2]
+        value1 = element[component1]
+        value2 = element[component2]
         if ratio == 0:
-            if a == 0 and b == 0:
+            if value1 == 0 and value2 == 0:
                 continue
-            if a == 0 and b != 0:
+            if value1 == 0 and value2 != 0:
                 ratio = None
                 break
-            if a != 0 and b == 0:
+            if value1 != 0 and value2 == 0:
                 ratio = None
                 break
-            ratio = a / b
-        elif a != ratio * b:
+            ratio = value1 / value2
+        elif value1 != ratio * value2:
             ratio = None
             break
     if ratio is None:
@@ -174,7 +174,7 @@ def parallel_classes(iterable, length: int) -> list[set[int]]:
         component1 = indices_to_check.pop()
         parallel_class = {component1}
         for component2 in indices_to_check.copy():
-            if is_parallel(iterable, component1, component2):
+            if are_parallel(iterable, component1, component2):
                 parallel_class.add(component2)
                 indices_to_check.remove(component2)
         result.append(parallel_class)
@@ -229,7 +229,7 @@ def positive_parallel_classes(iterable, length: int) -> list[set[int]]:
         component1 = indices_to_check.pop()
         parallel_class = {component1}
         for component2 in indices_to_check.copy():
-            value, ratio = is_parallel(iterable, component1, component2, return_ratio=True)
+            value, ratio = are_parallel(iterable, component1, component2, return_ratio=True)
             if value and ratio >= 0:
                 parallel_class.add(component2)
                 indices_to_check.remove(component2)
