@@ -18,7 +18,7 @@ from sage.combinat.combination import Combinations
 from sage.combinat.posets.lattices import LatticePoset
 from sage.structure.sage_object import SageObject
 
-from sign_vectors import sign_symbolic, SignVector
+from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vector
 from .utility import classes_same_support, parallel_classes
 
 
@@ -75,23 +75,6 @@ class Sign(IntEnum):
         if v < 0:
             return cls.NEG
         return cls.ZERO
-
-
-class Face(SignVector):
-    r"""
-    Class representing a face of an oriented matroid.
-    """
-    _parent: "OrientedMatroid"
-
-    def register_parent(self, parent: "OrientedMatroid") -> None:
-        r"""Register the parent oriented matroid."""
-        self._parent = parent
-
-    def parent(self) -> "OrientedMatroid":
-        r"""Return the parent oriented matroid."""
-        if hasattr(self, "_parent"):
-            return self._parent
-        raise ValueError("Face is not registered to any oriented matroid.")
 
 
 class OrientedMatroid(SageObject):
@@ -374,7 +357,7 @@ class OrientedMatroid(SageObject):
         self.dimension = self.rank - 1
 
         self._chirotope_dict = {}
-        self._faces_by_dimension = {-1: set([self._zero_face()])}
+        self._faces_by_dimension = {-1: set([zero_sign_vector(self._element_length)])}
         self._loops = None
 
         self._connect_faces = True
@@ -474,7 +457,7 @@ class OrientedMatroid(SageObject):
             om.set_chirotope(complement, -value if inversions & 1 else value) # check last bit
         return om
 
-    def cocircuit(self, indices: list[int]) -> Face:
+    def cocircuit(self, indices: list[int]) -> SignVector:
         r"""
         Compute a cocircuit for the given indices.
 
@@ -511,12 +494,12 @@ class OrientedMatroid(SageObject):
             if chirotope != 0:
                 # check oddness of last bit of pos
                 element[i] = -chirotope if (pos & 1) else chirotope
-        result = self._face_from_iterable(element)
+        result = sign_vector(element)
         if result == 0:
             raise ValueError("Computed zero cocircuit.")
         return result
 
-    def circuit(self, indices: list[int]) -> Face:
+    def circuit(self, indices: list[int]) -> SignVector:
         r"""
         Compute a circuit for the given indices.
 
@@ -551,12 +534,12 @@ class OrientedMatroid(SageObject):
             if chirotope != 0:
                 # check oddness of last bit of pos
                 element[i] = -chirotope if (pos & 1) else chirotope
-        result = self._face_from_iterable(element)
+        result = sign_vector(element)
         if result == 0:
             raise ValueError("Computed zero circuit.")
         return result
 
-    def _cocircuit_generator(self) -> Generator[Face]:
+    def _cocircuit_generator(self) -> Generator[SignVector]:
         if self.rank == 0:
             return
         for indices in Combinations(self._element_length, self.rank - 1):
@@ -566,7 +549,7 @@ class OrientedMatroid(SageObject):
             except ValueError:
                 continue
 
-    def cocircuits(self) -> set[Face]:
+    def cocircuits(self) -> set[SignVector]:
         r"""
         Compute the cocircuits of the oriented matroid.
 
@@ -599,7 +582,7 @@ class OrientedMatroid(SageObject):
             self._faces_by_dimension[0] = set(self._cocircuit_generator())
         return self._faces_by_dimension[0]
 
-    def _circuit_generator(self) -> Generator[Face]:
+    def _circuit_generator(self) -> Generator[SignVector]:
         for indices in Combinations(self._element_length, self.rank + 1):
             try:
                 yield self.circuit(indices)
@@ -607,7 +590,7 @@ class OrientedMatroid(SageObject):
             except ValueError:
                 continue
 
-    def circuits(self) -> set[Face]:
+    def circuits(self) -> set[SignVector]:
         r"""
         Compute the circuits of the oriented matroid.
 
@@ -634,7 +617,7 @@ class OrientedMatroid(SageObject):
         """
         return set(self._circuit_generator())
 
-    def an_element(self) -> Face:
+    def an_element(self) -> SignVector:
         r"""
         Compute a random element of the oriented matroid.
 
@@ -644,7 +627,7 @@ class OrientedMatroid(SageObject):
         """
         return choice(list(self.elements()))
 
-    def elements(self) -> set[Face]:
+    def covectors(self) -> set[SignVector]:
         r"""
         Compute the covectors of the oriented matroid.
 
@@ -662,7 +645,17 @@ class OrientedMatroid(SageObject):
             return set().union(*self._all_faces())
         return self._faces_from_vertices(self.cocircuits())
 
-    def vectors(self) -> set[Face]:
+    def elements(self) -> set[SignVector]:
+        r"""
+        Compute the covectors of the oriented matroid.
+
+        .. SEEALSO::
+
+            - :meth:`covectors`
+        """
+        return self.covectors()
+
+    def vectors(self) -> set[SignVector]:
         r"""
         Compute the vectors of the oriented matroid.
 
@@ -676,7 +669,7 @@ class OrientedMatroid(SageObject):
         """
         return self._faces_from_vertices(self.circuits())
 
-    def topes(self) -> set[Face]:
+    def topes(self) -> set[SignVector]:
         r"""
         Compute the topes of the oriented matroid.
 
@@ -690,7 +683,7 @@ class OrientedMatroid(SageObject):
             self._faces_by_dimension[self.dimension] = self._topes_from_cocircuits()
         return self._faces_by_dimension[self.dimension]
 
-    def vertices(self) -> set[Face]:
+    def vertices(self) -> set[SignVector]:
         r"""
         Return the vertices (cocircuits) of the oriented matroid.
 
@@ -703,7 +696,7 @@ class OrientedMatroid(SageObject):
         """
         return self.cocircuits()
 
-    def edges(self) -> set[Face]:
+    def edges(self) -> set[SignVector]:
         r"""
         Return the edges of the oriented matroid.
 
@@ -717,7 +710,7 @@ class OrientedMatroid(SageObject):
         """
         return self.faces(1)
 
-    def faces(self, dimension: int = None) -> set[Face] | list[set[Face]]:
+    def faces(self, dimension: int = None) -> set[SignVector] | list[set[SignVector]]:
         r"""
         Compute the faces of the same level of the oriented matroid.
 
@@ -749,7 +742,7 @@ class OrientedMatroid(SageObject):
             current_dimension -= 1
         return self._faces_by_dimension[dimension]
 
-    def _all_faces(self) -> list[set[Face]]:
+    def _all_faces(self) -> list[set[SignVector]]:
         r"""
         Return all faces of the oriented matroid separated by dimension.
 
@@ -790,7 +783,7 @@ class OrientedMatroid(SageObject):
         if dimension - 1 not in self._faces_by_dimension:
             self._faces_by_dimension[dimension - 1] = self._lower_faces(dimension)
 
-    def _lower_faces(self, dimension: int) -> set[Face]:
+    def _lower_faces(self, dimension: int) -> set[SignVector]:
         r"""
         Compute the faces of lower dimension.
 
@@ -842,7 +835,7 @@ class OrientedMatroid(SageObject):
             self._connected_with_lower_dimension.add(dimension)
         return output
 
-    def _topes_from_cocircuits(self) -> set[Face]:
+    def _topes_from_cocircuits(self) -> set[SignVector]:
         r"""
         Compute the topes from the cocircuits.
 
@@ -852,8 +845,8 @@ class OrientedMatroid(SageObject):
         ALGORITHM:
         This function is based on an algorithm in [Fin01]_.
         """
-        covectors = {self._zero_face()}
-        covectors_new = {self._zero_face()}
+        covectors = {zero_sign_vector(self._element_length)}
+        covectors_new = {zero_sign_vector(self._element_length)}
         topes = set()
 
         while covectors_new:
@@ -896,7 +889,7 @@ class OrientedMatroid(SageObject):
         """
         self._connect_faces = value
 
-    def _connect(self, lower_face: Face, upper_face: Face):
+    def _connect(self, lower_face: SignVector, upper_face: SignVector):
         r"""Connect two faces."""
         if lower_face not in self._above:
             self._above[lower_face] = set()
@@ -910,7 +903,7 @@ class OrientedMatroid(SageObject):
         if dimension - 1 not in self._faces_by_dimension:
             raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension - 1} is not available.")
         if dimension == 0:
-            zero = self._zero_face()
+            zero = zero_sign_vector(self._element_length)
             for face in self._faces_by_dimension[0]:
                 self._connect(zero, face)
         elif dimension == 1:
@@ -972,7 +965,7 @@ class OrientedMatroid(SageObject):
             vertex_shape="",
         ).show(figsize=figsize, aspect_ratio=aspect_ratio)
 
-    def _faces_from_vertices(self, vertices: set[Face]) -> set[Face]:
+    def _faces_from_vertices(self, vertices: set[SignVector]) -> set[SignVector]:
         r"""
         Compute the covectors from the cocircuits.
 
@@ -988,8 +981,8 @@ class OrientedMatroid(SageObject):
         „A graph theoretical approach for reconstruction and generation of oriented matroids“.
         PhD thesis. Zurich: ETH Zurich, 2001. doi: 10.3929/ethz-a-004255224.
         """
-        covectors = {self._zero_face()}
-        covectors_new = {self._zero_face()}
+        covectors = {zero_sign_vector(self._element_length)}
+        covectors_new = {zero_sign_vector(self._element_length)}
         while covectors_new:
             element1 = covectors_new.pop()
             for element2 in vertices:
@@ -1000,16 +993,6 @@ class OrientedMatroid(SageObject):
                     covectors.add(new_element)
                     covectors_new.add(new_element)
         return covectors
-
-    def _face_from_iterable(self, iterable) -> Face:
-        face = Face.from_iterable(iterable)
-        face.register_parent(self)
-        return face
-
-    def _zero_face(self) -> Face:
-        face = Face.zero(self._element_length)
-        face.register_parent(self)
-        return face
 
     @classmethod
     def from_chirotopes(cls, chirotopes: list[int] | str, rank: int, element_length: int) -> "OrientedMatroid":
