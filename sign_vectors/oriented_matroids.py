@@ -979,6 +979,9 @@ class OrientedMatroid(SageObject):
             zero = zero_sign_vector(self.ground_set_size)
             for face in self._faces_by_dimension[0]:
                 self._connect(zero, face)
+        elif dimension == self.rank:
+            for tope in self.topes():
+                self._connect(tope, 1)
         elif dimension == 1:
             for face in self._faces_by_dimension[1]:
                 connection_count = 0
@@ -988,9 +991,6 @@ class OrientedMatroid(SageObject):
                         connection_count += 1
                         if connection_count == 2: # diamond property
                             break
-        elif dimension == self.rank:
-            for tope in self.topes():
-                self._connect(tope, 1)
         else:
             for face in self._faces_by_dimension[dimension]:
                 for lower_face in self._faces_by_dimension[dimension - 1]:
@@ -1000,7 +1000,7 @@ class OrientedMatroid(SageObject):
 
     def _connect_all(self):
         self._all_faces()
-        self._faces_by_dimension[self.rank] = 1 # lattice top
+        self._faces_by_dimension[self.rank] = {1} # lattice top
         for dimension in range(self.rank + 1):
             self._connect_below(dimension)
 
@@ -1011,6 +1011,28 @@ class OrientedMatroid(SageObject):
         OUTPUT:
 
         - A lattice representing the face lattice.
+
+        TESTS::
+
+            sage: from sign_vectors import *
+            sage: M = matrix([[1, 1, 1]])
+            sage: om = OrientedMatroid(M)
+            sage: om.face_lattice()
+            Finite lattice containing 4 elements
+
+        ::
+
+            sage: M = matrix(0, 3)
+            sage: om = OrientedMatroid(M)
+            sage: om.face_lattice()
+            Finite lattice containing 2 elements
+
+        ::
+
+            sage: M = matrix([[1, 0], [0, 1]])
+            sage: om = OrientedMatroid(M)
+            sage: om.face_lattice()
+            Finite lattice containing 10 elements
         """
         self.set_face_connections(True)
         self._connect_all()
