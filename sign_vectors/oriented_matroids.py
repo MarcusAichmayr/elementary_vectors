@@ -344,7 +344,7 @@ class OrientedMatroid(SageObject):
                 raise ValueError("Provide either a matrix or both rank and ground_set_size.")
             self._matrix = None
             self._rank = rank
-            self.ground_set_size = ground_set_size
+            self._ground_set_size = ground_set_size
         else:
             try:
                 self._matrix = matrix.matrix_from_rows(matrix.pivot_rows())
@@ -352,7 +352,7 @@ class OrientedMatroid(SageObject):
                 if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
                     raise ValueError("Provide a matrix with maximal rank.") from exc
                 self._matrix = matrix
-            self._rank, self.ground_set_size = self._matrix.dimensions()
+            self._rank, self._ground_set_size = self._matrix.dimensions()
 
         self._chirotope_dict = {}
         self._faces_by_dimension = {-1: set([zero_sign_vector(self.ground_set_size)])}
@@ -429,6 +429,11 @@ class OrientedMatroid(SageObject):
     def dimension(self) -> int:
         r"""The dimension of this oriented matroid."""
         return self._rank - 1
+
+    @property
+    def ground_set_size(self) -> int:
+        r"""The size of the ground set of this oriented matroid."""
+        return self._ground_set_size
 
     @property
     def ground_set(self) -> set[int]:
