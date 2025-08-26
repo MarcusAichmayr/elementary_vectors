@@ -485,6 +485,10 @@ class OrientedMatroid(SageObject):
         r"""Set the chirotope for the given indices."""
         self._chirotope_dict[tuple(indices)] = Sign(value)
 
+    def _compute_chirotopes(self) -> None:
+        for indices in Combinations(self.ground_set_size, self.rank):
+            self.chirotope(indices)
+
     def chirotopes(self) -> list[Sign]:
         r"""
         Compute all chirotopes of the oriented matroid.
@@ -520,7 +524,7 @@ class OrientedMatroid(SageObject):
 
             The dual is determined from the chirotopes.
         """
-        self.chirotopes() # compute all chirotopes
+        self._compute_chirotopes()
         om = OrientedMatroid(rank=self.ground_set_size - self.rank, ground_set_size=self.ground_set_size)
         for indices, value in self._chirotope_dict.items():
             indices_set = set(indices)
