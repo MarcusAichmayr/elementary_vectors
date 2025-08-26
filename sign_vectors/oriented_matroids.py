@@ -931,11 +931,16 @@ class OrientedMatroid(SageObject):
 
     def _set_faces_from_topes(self, topes: set[SignVector]) -> None:
         r"""
-        Use the topes to set the faces of the oriented matroid.
+        Use the topes to set all faces of the oriented matroid.
 
         INPUT:
 
         - ``topes`` -- a set of topes of the oriented matroid
+
+        ALGORITHM:
+
+        This function is based on an algorithm in [FST91]_.
+        See also [Fin01]_.
         """
         all_faces = [set(topes)]
 
