@@ -87,7 +87,7 @@ class OrientedMatroid(SageObject):
 
     - ``matrix``: A matrix representing the oriented matroid.
     - ``rank``: The rank of the oriented matroid. Only required if ``matrix`` is not provided.
-    - ``element_length``: The length of the elements in the oriented matroid. Only required if ``matrix`` is not provided.
+    - ``ground_set_size``: The length of the elements in the oriented matroid. Only required if ``matrix`` is not provided.
 
     EXAMPLES:
 
@@ -338,13 +338,13 @@ class OrientedMatroid(SageObject):
         sage: om.faces()
         [{(000)}]
     """
-    def __init__(self, matrix=None, rank: int = None, element_length: int = None) -> None:
+    def __init__(self, matrix=None, rank: int = None, ground_set_size: int = None) -> None:
         if matrix is None:
-            if rank is None or element_length is None:
-                raise ValueError("Provide either a matrix or both rank and element_length.")
+            if rank is None or ground_set_size is None:
+                raise ValueError("Provide either a matrix or both rank and ground_set_size.")
             self._matrix = None
             self.rank = rank
-            self.ground_set_size = element_length
+            self.ground_set_size = ground_set_size
         else:
             try:
                 self._matrix = matrix.matrix_from_rows(matrix.pivot_rows())
@@ -368,7 +368,7 @@ class OrientedMatroid(SageObject):
         return f"Oriented matroid of dimension {self.dimension} with elements of size {self.ground_set_size}."
 
     @classmethod
-    def from_chirotopes(cls, chirotopes: list[int] | str, rank: int, element_length: int) -> "OrientedMatroid":
+    def from_chirotopes(cls, chirotopes: list[int] | str, rank: int, ground_set_size: int) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from chirotopes.
 
@@ -406,10 +406,21 @@ class OrientedMatroid(SageObject):
             sage: OrientedMatroid.from_chirotopes("00--0+++++", 2, 5)
             Oriented matroid of dimension 1 with elements of size 5.
         """
-        om = cls(rank=rank, element_length=element_length)
-        for (indices, value) in zip(Combinations(element_length, rank), chirotopes):
+        om = cls(rank=rank, ground_set_size=ground_set_size)
+        for (indices, value) in zip(Combinations(ground_set_size, rank), chirotopes):
             om.set_chirotope(indices, value)
         return om
+
+    @classmethod
+    def from_cocircuits(cls, iterable: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
+        # compute chirotopes
+        raise NotImplementedError
+
+    @classmethod
+    def from_topes(cls, iterable: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
+        # compute cocircuits
+        # compute chirotopes
+        raise NotImplementedError
 
     @property
     def ground_set(self) -> set[int]:
@@ -510,7 +521,7 @@ class OrientedMatroid(SageObject):
             The dual is determined from the chirotopes.
         """
         self.chirotopes() # compute all chirotopes
-        om = OrientedMatroid(rank=self.ground_set_size - self.rank, element_length=self.ground_set_size)
+        om = OrientedMatroid(rank=self.ground_set_size - self.rank, ground_set_size=self.ground_set_size)
         for indices, value in self._chirotope_dict.items():
             indices_set = set(indices)
             complement = tuple(i for i in range(self.ground_set_size) if i not in indices_set)
