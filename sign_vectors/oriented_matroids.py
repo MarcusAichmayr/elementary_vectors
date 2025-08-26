@@ -929,6 +929,26 @@ class OrientedMatroid(SageObject):
             if connect_faces:
                 self._connected_with_lower_dimension.add(dimension)
 
+    def _set_faces_from_topes(self, topes: set[SignVector]) -> None:
+        r"""
+        Use the topes to set the faces of the oriented matroid.
+
+        INPUT:
+
+        - ``topes`` -- a set of topes of the oriented matroid
+        """
+        all_faces = [set(topes)]
+
+        current = 0
+        while len(all_faces[current]) > 1:
+            all_faces.append(self._lower_faces(all_faces[current], self._connect_faces))
+            current += 1
+
+        dimension = -1
+        while all_faces:
+            self._faces_by_dimension[dimension] = all_faces.pop()
+            dimension += 1
+
     def _lower_faces(self, faces: set[SignVector], connect_faces: bool) -> set[SignVector]:
         r"""
         Compute the faces of lower dimension.
