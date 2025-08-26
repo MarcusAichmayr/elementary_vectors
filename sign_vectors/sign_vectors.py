@@ -729,7 +729,7 @@ class SignVector(SageObject):
             sage: X = sign_vector('+0-')
             sage: X
             (+0-)
-            sage: X.delete_components([1]) # TODO: not implemented
+            sage: X.delete_components([1])
             (+-)
 
         ::
@@ -737,13 +737,14 @@ class SignVector(SageObject):
             sage: X = sign_vector('-+0+0')
             sage: X
             (-+0+0)
-            sage: X.delete_components([0, 2]) # TODO: not implemented
+            sage: X.delete_components([0, 2])
             (++0)
-            sage: X.delete_components([1]) # TODO: not implemented
+            sage: X.delete_components([1])
             (-0+0)
         """
-        not_deleted = list(~ FrozenBitset(indices,capacity=self.length()))
-        return SignVector.from_string([self.to_string()[i] for i in not_deleted])
+        return self.__class__.from_iterable(
+            [self[i] for i in ~FrozenBitset(indices, capacity=self.length())]
+        )
 
     def _connecting_elements(self, other: SignVector) -> FrozenBitset:
         return (self._positive_support & other._positive_support) | (self._negative_support & other._negative_support)
