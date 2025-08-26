@@ -822,7 +822,7 @@ class OrientedMatroid(SageObject):
         self.topes()
         current_dimension = self.dimension
         while current_dimension > dimension:
-            self._compute_lower_faces(current_dimension)
+            self._set_lower_faces(current_dimension)
             current_dimension -= 1
         return self._faces_by_dimension[dimension]
 
@@ -920,7 +920,7 @@ class OrientedMatroid(SageObject):
                     covectors_new.add(new_element)
         return covectors
 
-    def _compute_lower_faces(self, dimension: int) -> None:
+    def _set_lower_faces(self, dimension: int) -> None:
         if not self._faces_by_dimension.get(dimension):
             raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
         if dimension - 1 not in self._faces_by_dimension:
