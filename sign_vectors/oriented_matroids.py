@@ -408,9 +408,34 @@ class OrientedMatroid(SageObject):
         return om
 
     @classmethod
-    def from_cocircuits(cls, iterable: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
-        # compute chirotopes
-        raise NotImplementedError
+    def from_cocircuits(cls, cocircuits: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
+        r"""
+        Create an oriented matroid from a cocircuit set.
+
+        INPUT:
+
+        - ``cocircuits`` -- a list or set of sign vectors or strings representing the cocircuits.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: om = OrientedMatroid.from_cocircuits({"0+", "+0"})
+            sage: om
+            Oriented matroid of dimension 1 with elements of size 2.
+            sage: om.faces()
+            [{(00)}, {(+0), (0-), (0+), (-0)}, {(--), (+-), (-+), (++)}]
+        """
+        def create_cocircuits(iterable):
+            for element in iterable:
+                yield sign_vector(element)
+                yield -sign_vector(element)
+
+        om = cls()
+        cocircuits = set(create_cocircuits(cocircuits))
+        om._faces_by_dimension[0] = cocircuits
+        om._set_faces_from_topes(om._topes_from_cocircuits(cocircuits))
+        om._rank = max(om._faces_by_dimension) + 1
+        return om
 
     @classmethod
     def from_topes(cls, topes: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
@@ -493,11 +518,15 @@ class OrientedMatroid(SageObject):
             The result is cached.
         """
         if self._loops is None:
-            self._loops = [
-                e for e in range(self.ground_set_size)
-                if all(element[e] == 0 for element in self.cocircuits())
-            ]
+            self._set_loops(self.covectors())
         return self._loops
+
+    def _set_loops(self, sign_vectors: set[SignVector]) -> None:
+        r"""Set the loops of this oriented matroid."""
+        self._loops = [
+            e for e in range(self.ground_set_size)
+            if all(element[e] == 0 for element in sign_vectors)
+        ]
 
     def chirotope(self, indices: list[int]) -> Sign:
         r"""
@@ -818,7 +847,7 @@ class OrientedMatroid(SageObject):
             if self.dimension == -1:
                 self._set_zero_face()
             else:
-                self._faces_by_dimension[self.dimension] = self._topes_from_cocircuits()
+                self._faces_by_dimension[self.dimension] = self._topes_from_cocircuits(self.cocircuits())
         return self._faces_by_dimension[self.dimension]
 
     def vertices(self) -> set[SignVector]:
@@ -917,7 +946,7 @@ class OrientedMatroid(SageObject):
     def _topes_computed(self) -> bool:
         return self.dimension in self._faces_by_dimension
 
-    def _topes_from_cocircuits(self) -> set[SignVector]:
+    def _topes_from_cocircuits(self, cocircuits: set[SignVector]) -> set[SignVector]:
         r"""
         Compute the topes from the cocircuits.
 
@@ -931,15 +960,19 @@ class OrientedMatroid(SageObject):
         covectors_new = {zero_sign_vector(self.ground_set_size)}
         topes = set()
 
+        if self._loops is None:
+            self._set_loops(cocircuits)
+        loops = self.loops()
+
         while covectors_new:
             element1 = covectors_new.pop()
-            for element2 in self.cocircuits():
+            for element2 in cocircuits:
                 if element2 <= element1:
                     continue
                 new_element = element2.compose(element1)
                 if new_element not in covectors:
                     covectors.add(new_element)
-                    if new_element.zero_support() == self.loops():
+                    if new_element.zero_support() == loops:
                         topes.add(new_element)
                     else:
                         covectors_new.add(new_element)
