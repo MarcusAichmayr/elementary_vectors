@@ -355,7 +355,7 @@ class OrientedMatroid(SageObject):
             self._rank, self._ground_set_size = self._matrix.dimensions()
 
         self._chirotope_dict = {}
-        self._faces_by_dimension = {-1: set([zero_sign_vector(self.ground_set_size)])}
+        self._faces_by_dimension = {}
         self._loops = None
 
         self._connect_faces = True
@@ -545,6 +545,10 @@ class OrientedMatroid(SageObject):
             inversions = sum(i < j for i in indices for j in complement)
             om.set_chirotope(complement, -value if inversions & 1 else value) # check last bit
         return om
+
+    def _set_zero_face(self) -> None:
+        r"""Set the zero face of the oriented matroid."""
+        self._faces_by_dimension[-1] = {zero_sign_vector(self.ground_set_size)}
 
     def cocircuit(self, indices: list[int]) -> SignVector:
         r"""
@@ -769,7 +773,10 @@ class OrientedMatroid(SageObject):
             - :meth:`cocircuits`
         """
         if not self._topes_computed():
-            self._faces_by_dimension[self.dimension] = self._topes_from_cocircuits()
+            if self.dimension == -1:
+                self._set_zero_face()
+            else:
+                self._faces_by_dimension[self.dimension] = self._topes_from_cocircuits()
         return self._faces_by_dimension[self.dimension]
 
     def vertices(self) -> set[SignVector]:
@@ -926,13 +933,18 @@ class OrientedMatroid(SageObject):
         return covectors
 
     def _set_lower_faces(self, dimension: int) -> None:
+        r"""Set faces for one lower dimension."""
         if not self._faces_by_dimension.get(dimension):
             raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
-        if dimension - 1 not in self._faces_by_dimension:
-            connect_faces = self._connect_faces and dimension not in self._connected_with_lower_dimension
-            self._faces_by_dimension[dimension - 1] = self._lower_faces(self._faces_by_dimension[dimension], connect_faces)
-            if connect_faces:
-                self._connected_with_lower_dimension.add(dimension)
+        if dimension - 1 in self._faces_by_dimension:
+            return
+        if dimension == 0:
+            self._set_zero_face()
+            return
+        connect_faces = self._connect_faces and dimension not in self._connected_with_lower_dimension
+        self._faces_by_dimension[dimension - 1] = self._lower_faces(self._faces_by_dimension[dimension], connect_faces)
+        if connect_faces:
+            self._connected_with_lower_dimension.add(dimension)
 
     def _set_faces_from_topes(self, topes: set[SignVector]) -> None:
         r"""
