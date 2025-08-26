@@ -14,8 +14,6 @@ from sage.combinat.posets.posets import Poset
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
 
-from .utility import exclude_indices
-
 
 def closure(iterable) -> set[SignVector]:
     r"""
@@ -95,7 +93,7 @@ def closure(iterable) -> set[SignVector]:
     return set().union(*output)
 
 
-def contraction(iterable, indices: list[int], keep_components: bool = False) -> set:
+def contraction(iterable: set[SignVector], indices: list[int]) -> set[SignVector]:
     r"""
     Return all sign vectors or vectors that are zero on given components.
 
@@ -104,8 +102,6 @@ def contraction(iterable, indices: list[int], keep_components: bool = False) -> 
     - ``iterable`` -- an iterable of sign vectors or vectors
 
     - ``indices`` -- a list of indices.
-
-    - ``keep_components`` -- a boolean
 
     OUTPUT:
 
@@ -134,47 +130,17 @@ def contraction(iterable, indices: list[int], keep_components: bool = False) -> 
 
         sage: contraction(W, [1, 2])
         {(-)}
-
-    We take the examples from before. With ``keep_components=True``, we keep the
-    zero components of the appropriate sign vectors::
-
-        sage: contraction(W, [0], keep_components=True)
-        {(00+)}
-        sage: contraction(W, [1], keep_components=True)
-        {(-00), (00+)}
-        sage: contraction(W, [2], keep_components=True)
-        {(-00), (++0)}
-        sage: contraction(W, [1, 2], keep_components=True)
-        {(-00)}
-
-    This function also works for matrices or lists of vectors::
-
-        sage: l = [vector([0, 0, 1]), vector([0, 2, 1]), vector([-1, 0, 1])]
-        sage: contraction(l, [0])
-        {(0, 1), (2, 1)}
-        sage: A = matrix([[1, 1, 0], [0, 1, 0]])
-        sage: contraction(A, [2])
-        {(0, 1), (1, 1)}
     """
-    if not iterable:
-        return iterable
-    if keep_components:
-
-        def vec(iterable):
-            return iterable
-    else:
-        vec = exclude_indices(iterable, indices)
-
-    return set(vec(X) for X in iterable if not any(e in indices for e in X.support()))
+    return set(X.delete_components(indices) for X in iterable if not any(e in indices for e in X.support()))
 
 
-def deletion(iterable, indices: list[int]) -> set:
+def deletion(iterable: set[SignVector], indices: list[int]) -> set[SignVector]:
     r"""
-    Remove given components from an iterable of sign vectors or vectors.
+    Remove given components from an iterable of sign vectors
 
     INPUT:
 
-    - ``iterable`` -- an iterable of sign vectors or vectors
+    - ``iterable`` -- an iterable of sign vectors
 
     - ``indices`` -- a list of indices
 
@@ -193,17 +159,8 @@ def deletion(iterable, indices: list[int]) -> set:
         {(+0), (0-)}
         sage: deletion(W, [1, 2])
         {(0), (+)}
-
-    This function also works for lists of vectors::
-
-        sage: l = [vector([0, 0, 1]), vector([0, 2, 1]), vector([-1, 0, 1])]
-        sage: deletion(l, [1])
-        {(-1, 1), (0, 1)}
     """
-    if not iterable:
-        return iterable
-
-    return set(exclude_indices(iterable, indices)(X) for X in iterable)
+    return set(X.delete_components(indices) for X in iterable)
 
 
 def plot_sign_vectors(iterable, vertex_size: int = 600, figsize: int = None, aspect_ratio=None):
