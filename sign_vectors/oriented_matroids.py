@@ -863,62 +863,6 @@ class OrientedMatroid(SageObject):
     def _topes_computed(self) -> bool:
         return self.dimension in self._faces_by_dimension
 
-    def _compute_lower_faces(self, dimension: int) -> None:
-        if dimension - 1 not in self._faces_by_dimension:
-            self._faces_by_dimension[dimension - 1] = self._lower_faces(dimension)
-
-    def _lower_faces(self, dimension: int) -> set[SignVector]:
-        r"""
-        Compute the faces of lower dimension.
-
-        INPUT:
-
-        - ``dimension`` -- the dimension ``i``
-
-        OUTPUT:
-        Return a set of faces of dimension ``i - 1`` of the oriented matroid.
-
-        ALGORITHM:
-
-        This function is based on an algorithm in [FST91]_.
-        See also [Fin01]_.
-
-        .. [FST91] Fukuda, K., Saito, S., and Tamura, A.:
-        "Combinatorial face enumeration in arrangements and oriented matroids".
-        In: Discrete Applied Mathematics 31.2 (1991), pp. 141-149.
-        doi: 10.1016/0166-218X(91)90066-6.
-
-        .. SEEALSO::
-
-            - :meth:`faces`
-        """
-        if not self._faces_by_dimension.get(dimension):
-            raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
-        if dimension == -1:
-            return set()
-        output = set()
-        for same_support_faces in classes_same_support(self._faces_by_dimension[dimension]):
-            p_classes = parallel_classes(same_support_faces, self.ground_set_size)
-            while same_support_faces:
-                face = same_support_faces.pop()
-                for parallel_class in p_classes:
-                    if all(face[i] == 0 for i in parallel_class):
-                        continue
-                    flipped_face = face.flip_signs(parallel_class)
-                    if flipped_face in same_support_faces:
-                        lower_face = face.set_to_zero(parallel_class)
-                        output.add(lower_face)
-                        output.add(-lower_face)
-                        if self._connect_faces and dimension not in self._connected_with_lower_dimension:
-                            self._connect(lower_face, face)
-                            self._connect(-lower_face, -face)
-                            self._connect(lower_face, flipped_face)
-                            self._connect(-lower_face, -flipped_face)
-                same_support_faces.remove(-face)
-        if self._connect_faces:
-            self._connected_with_lower_dimension.add(dimension)
-        return output
-
     def _topes_from_cocircuits(self) -> set[SignVector]:
         r"""
         Compute the topes from the cocircuits.
@@ -976,6 +920,61 @@ class OrientedMatroid(SageObject):
                     covectors_new.add(new_element)
         return covectors
 
+    def _compute_lower_faces(self, dimension: int) -> None:
+        if not self._faces_by_dimension.get(dimension):
+            raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
+        if dimension - 1 not in self._faces_by_dimension:
+            connect_faces = self._connect_faces and dimension not in self._connected_with_lower_dimension
+            self._faces_by_dimension[dimension - 1] = self._lower_faces(self._faces_by_dimension[dimension], connect_faces)
+            if connect_faces:
+                self._connected_with_lower_dimension.add(dimension)
+
+    def _lower_faces(self, faces: set[SignVector], connect_faces: bool) -> set[SignVector]:
+        r"""
+        Compute the faces of lower dimension.
+
+        INPUT:
+
+        - ``dimension`` -- the dimension ``i``
+
+        OUTPUT:
+        Return a set of faces of dimension ``i - 1`` of the oriented matroid.
+
+        ALGORITHM:
+
+        This function is based on an algorithm in [FST91]_.
+        See also [Fin01]_.
+
+        .. [FST91] Fukuda, K., Saito, S., and Tamura, A.:
+        "Combinatorial face enumeration in arrangements and oriented matroids".
+        In: Discrete Applied Mathematics 31.2 (1991), pp. 141-149.
+        doi: 10.1016/0166-218X(91)90066-6.
+
+        .. SEEALSO::
+
+            - :meth:`faces`
+        """
+        output = set()
+        for same_support_faces in classes_same_support(faces):
+            p_classes = parallel_classes(same_support_faces, self.ground_set_size)
+            while same_support_faces:
+                face = same_support_faces.pop()
+                for parallel_class in p_classes:
+                    if all(face[i] == 0 for i in parallel_class):
+                        continue
+                    flipped_face = face.flip_signs(parallel_class)
+                    if flipped_face in same_support_faces:
+                        lower_face = face.set_to_zero(parallel_class)
+                        output.add(lower_face)
+                        output.add(-lower_face)
+                        if connect_faces:
+                            self._connect(lower_face, face)
+                            self._connect(-lower_face, -face)
+                            self._connect(lower_face, flipped_face)
+                            self._connect(-lower_face, -flipped_face)
+                same_support_faces.remove(-face)
+        return output
+
     def set_face_connections(self, value: bool = True) -> None:
         """
         Keep track of connections between faces.
@@ -1022,6 +1021,97 @@ class OrientedMatroid(SageObject):
         self._connected_with_lower_dimension.add(dimension)
 
     def _connect_all(self):
+        r"""
+        Connect all faces of the oriented matroid.
+
+        TESTS::
+
+            sage: from sign_vectors import *
+            sage: M = matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]])
+            sage: om = OrientedMatroid(M)
+            sage: om.faces(2)
+            {(---0), (++-0), (--+0), (-++0), (+++0), (+--0), (-+-0), (+-+0)}
+            sage: om._above
+            {}
+            sage: om.faces(1)
+            {(0+-0),
+             (+-00),
+             (-+00),
+             (--00),
+             (0-+0),
+             (0--0),
+             (++00),
+             (+0-0),
+             (+0+0),
+             (-0-0),
+             (0++0),
+             (-0+0)}
+            sage: om._above
+            {(0--0): {(---0), (+--0)},
+             (0++0): {(-++0), (+++0)},
+             (-0-0): {(---0), (-+-0)},
+             (+0+0): {(+++0), (+-+0)},
+             (--00): {(---0), (--+0)},
+             (++00): {(+++0), (++-0)},
+             (0+-0): {(-+-0), (++-0)},
+             (0-+0): {(+-+0), (--+0)},
+             (+0-0): {(+--0), (++-0)},
+             (-0+0): {(-++0), (--+0)},
+             (-+00): {(-++0), (-+-0)},
+             (+-00): {(+--0), (+-+0)}}
+            sage: om._connect_all()
+            sage: om._above
+            {(0000): {(-000), (00+0), (00-0), (0+00), (0-00), (+000)},
+             (0--0): {(---0), (+--0)},
+             (00+0): {(-0+0), (+0+0), (0-+0), (0++0)},
+             (0++0): {(-++0), (+++0)},
+             (-0-0): {(---0), (-+-0)},
+             (+0+0): {(+++0), (+-+0)},
+             (--00): {(---0), (--+0)},
+             (0+00): {(0+-0), (0++0), (-+00), (++00)},
+             (++00): {(+++0), (++-0)},
+             (0+-0): {(-+-0), (++-0)},
+             (0-+0): {(+-+0), (--+0)},
+             (+0-0): {(+--0), (++-0)},
+             (-0+0): {(-++0), (--+0)},
+             (-+00): {(-++0), (-+-0)},
+             (0-00): {(+-00), (0--0), (0-+0), (--00)},
+             (+000): {(+-00), (+0+0), (+0-0), (++00)},
+             (+-00): {(+--0), (+-+0)},
+             (00-0): {(0+-0), (-0-0), (+0-0), (0--0)},
+             (-000): {(--00), (-0+0), (-+00), (-0-0)},
+             (---0): {1},
+             (++-0): {1},
+             (--+0): {1},
+             (-++0): {1},
+             (+++0): {1},
+             (+--0): {1},
+             (-+-0): {1},
+             (+-+0): {1}}
+
+        ::
+
+            sage: om = OrientedMatroid(M)
+            sage: om.set_face_connections(False)
+            sage: om.faces()
+            [{(0000)},
+             {(-000), (00+0), (00-0), (0+00), (0-00), (+000)},
+             {(0+-0),
+              (+-00),
+              (-+00),
+              (--00),
+              (0-+0),
+              (0--0),
+              (++00),
+              (+0-0),
+              (+0+0),
+              (-0-0),
+              (0++0),
+              (-0+0)},
+             {(---0), (++-0), (--+0), (-++0), (+++0), (+--0), (-+-0), (+-+0)}]
+            sage: om._above
+            {}
+        """
         self._all_faces()
         self._faces_by_dimension[self.rank] = {1} # lattice top
         for dimension in range(self.rank + 1):
