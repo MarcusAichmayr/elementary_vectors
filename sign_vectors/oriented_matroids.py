@@ -413,17 +413,51 @@ class OrientedMatroid(SageObject):
         raise NotImplementedError
 
     @classmethod
-    def from_topes(cls, iterable: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
+    def from_topes(cls, topes: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
+        r"""
+        Create an oriented matroid from a tope set.
+
+        INPUT:
+
+        - ``topes`` -- a list or set of sign vectors or strings representing the topes.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: om = OrientedMatroid.from_topes({"+++"})
+            sage: om
+            Oriented matroid of dimension 0 with elements of size 3.
+            sage: om.faces()
+            [{(000)}, {(---), (+++)}]
+
+        ::
+
+            sage: om = OrientedMatroid.from_topes([[-1, 1, -1, 1], [-1, -1, -1, 1], [-1, 1, -1, -1], [-1, -1, 1, 1]])
+            sage: om
+            Oriented matroid of dimension 1 with elements of size 4.
+            sage: om.faces()
+            [{(0000)},
+             {(++0-), (+0+-), (--0+), (0-++), (0+--), (-+-0), (-0-+), (+-+0)},
+             {(-+-+), (---+), (-+--), (--++), (+-+-), (++--), (+-++), (+++-)}]
+        """
         # compute cocircuits
         # compute chirotopes
-        raise NotImplementedError
+        def create_topes(iterable):
+            for element in iterable:
+                yield sign_vector(element)
+                yield -sign_vector(element)
+
+        topes = set(create_topes(topes))
+
+        om = cls()
+        om._ground_set_size = next(iter(topes)).length()
+        om._set_faces_from_topes(topes)
+        om._rank = max(om._faces_by_dimension) + 1
+        return om
 
     @property
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
-        if self._rank is None:
-            self.faces()
-            self._rank = max(self._faces_by_dimension) + 1
         return self._rank
 
     @property
