@@ -149,7 +149,7 @@ from sage.structure.sage_object import SageObject
 from sage.symbolic.ring import SR
 
 
-def sign_vector(iterable: list | str) -> SignVector:
+def sign_vector(iterable: list[int] | str | SignVector) -> SignVector:
     r"""
     Create a sign vector from a list, vector or string.
 
@@ -195,7 +195,14 @@ def sign_vector(iterable: list | str) -> SignVector:
         sage: sign_vector(v)
         (++-)
         sage: forget()
+
+    TESTS::
+
+        sage: sign_vector(sign_vector("+-+"))
+        (+-+)
     """
+    if isinstance(iterable, SignVector):
+        return iterable
     if isinstance(iterable, str):
         return SignVector.from_string(iterable)
     return SignVector.from_iterable(iterable)
