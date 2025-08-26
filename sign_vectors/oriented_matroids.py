@@ -340,8 +340,6 @@ class OrientedMatroid(SageObject):
     """
     def __init__(self, matrix=None, rank: int = None, ground_set_size: int = None) -> None:
         if matrix is None:
-            if rank is None or ground_set_size is None:
-                raise ValueError("Provide either a matrix or both rank and ground_set_size.")
             self._matrix = None
             self._rank = rank
             self._ground_set_size = ground_set_size
@@ -423,6 +421,9 @@ class OrientedMatroid(SageObject):
     @property
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
+        if self._rank is None:
+            self.faces()
+            self._rank = max(self._faces_by_dimension) + 1
         return self._rank
 
     @property
@@ -433,6 +434,13 @@ class OrientedMatroid(SageObject):
     @property
     def ground_set_size(self) -> int:
         r"""The size of the ground set of this oriented matroid."""
+        if self._ground_set_size is None:
+            if not self._faces_by_dimension:
+                raise ValueError("Couldn't determine ground set size.")
+            for faces in self._faces_by_dimension.values():
+                if faces:
+                    self._ground_set_size = next(iter(faces)).length()
+                    break
         return self._ground_set_size
 
     @property
