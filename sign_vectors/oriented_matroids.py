@@ -343,7 +343,7 @@ class OrientedMatroid(SageObject):
             if rank is None or ground_set_size is None:
                 raise ValueError("Provide either a matrix or both rank and ground_set_size.")
             self._matrix = None
-            self.rank = rank
+            self._rank = rank
             self.ground_set_size = ground_set_size
         else:
             try:
@@ -352,9 +352,7 @@ class OrientedMatroid(SageObject):
                 if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
                     raise ValueError("Provide a matrix with maximal rank.") from exc
                 self._matrix = matrix
-            self.rank, self.ground_set_size = self._matrix.dimensions()
-
-        self.dimension = self.rank - 1
+            self._rank, self.ground_set_size = self._matrix.dimensions()
 
         self._chirotope_dict = {}
         self._faces_by_dimension = {-1: set([zero_sign_vector(self.ground_set_size)])}
@@ -421,6 +419,16 @@ class OrientedMatroid(SageObject):
         # compute cocircuits
         # compute chirotopes
         raise NotImplementedError
+
+    @property
+    def rank(self) -> int:
+        r"""The rank of this oriented matroid."""
+        return self._rank
+
+    @property
+    def dimension(self) -> int:
+        r"""The dimension of this oriented matroid."""
+        return self._rank - 1
 
     @property
     def ground_set(self) -> set[int]:
@@ -616,7 +624,7 @@ class OrientedMatroid(SageObject):
         return result
 
     def _cocircuit_generator(self) -> Generator[SignVector]:
-        if self.rank == 0:
+        if self._rank == 0:
             return
         for indices in Combinations(self.ground_set_size, self.rank - 1):
             try:
