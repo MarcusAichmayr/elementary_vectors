@@ -1,7 +1,7 @@
 .PHONY: install test
 
 install:
-	sage -pip install --upgrade --no-index .
+	sage -pip install --upgrade .
 
 test:
 	sage -t elementary_vectors/ sign_vectors/ vectors_in_intervals/

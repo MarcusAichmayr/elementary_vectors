@@ -18,7 +18,7 @@ setup(
     author_email="aichmayr@mathematik.uni-kassel.de",
     license="GPLv3",
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
