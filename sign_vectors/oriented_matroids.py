@@ -425,6 +425,16 @@ class OrientedMatroid(SageObject):
             Oriented matroid of dimension 1 with elements of size 2.
             sage: om.faces()
             [{(00)}, {(+0), (0-), (0+), (-0)}, {(--), (+-), (-+), (++)}]
+
+        TESTS::
+
+            sage: om = OrientedMatroid.from_cocircuits({"0++", "+00"})
+            sage: om
+            Oriented matroid of dimension 1 with elements of size 3.
+            sage: sorted(om.faces(0), key=lambda X: hash(X))
+            [(0++), (+00), (-00), (0--)]
+            sage: om.faces(1)
+            {(---), (+--), (+++), (-++)}
         """
         def create_cocircuits(iterable):
             for element in iterable:
@@ -480,8 +490,16 @@ class OrientedMatroid(SageObject):
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
         if self._rank is None:
-            self._rank = max((len(c.support()) for c in self._faces_by_dimension[0]), default=-1) + 1
+            self._rank = self._rank_from_cocircuits()
         return self._rank
+
+    def _rank_from_cocircuits(self) -> int:
+        return (
+            len(parallel_classes(self._faces_by_dimension[0], self.ground_set_size))
+            -
+            min((len(c.zero_support()) for c in self._faces_by_dimension[0]), default=-1)
+            + 1
+        )
 
     @property
     def dimension(self) -> int:
