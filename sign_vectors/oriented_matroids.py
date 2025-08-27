@@ -352,6 +352,7 @@ class OrientedMatroid(SageObject):
                 self._matrix = matrix
             self._rank, self._ground_set_size = self._matrix.dimensions()
 
+        self._dimension = None
         self._chirotope_dict = {}
         self._faces_by_dimension = {}
         self._loops = None
@@ -462,8 +463,6 @@ class OrientedMatroid(SageObject):
              {(++0-), (+0+-), (--0+), (0-++), (0+--), (-+-0), (-0-+), (+-+0)},
              {(-+-+), (---+), (-+--), (--++), (+-+-), (++--), (+-++), (+++-)}]
         """
-        # compute cocircuits
-        # compute chirotopes
         def create_topes(iterable):
             for element in iterable:
                 yield sign_vector(element)
@@ -487,7 +486,9 @@ class OrientedMatroid(SageObject):
     @property
     def dimension(self) -> int:
         r"""The dimension of this oriented matroid."""
-        return self.rank - 1
+        if self._dimension is None:
+            self._dimension = self.rank - 1
+        return self._dimension
 
     @property
     def ground_set_size(self) -> int:
