@@ -487,6 +487,13 @@ class OrientedMatroid(SageObject):
         return om
 
     @property
+    def matrix(self):
+        r"""The underlying matrix if available."""
+        if self._matrix is None:
+            raise ValueError("There is no matrix associated with this oriented matroid.")
+        return self._matrix
+
+    @property
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
         if self._rank is None:
