@@ -431,10 +431,7 @@ class OrientedMatroid(SageObject):
                 yield -sign_vector(element)
 
         om = cls()
-        cocircuits = set(create_cocircuits(cocircuits))
-        om._faces_by_dimension[0] = cocircuits
-        om._set_faces_from_topes(om._topes_from_cocircuits(cocircuits))
-        om._rank = max(om._faces_by_dimension) + 1
+        om._faces_by_dimension[0] = set(create_cocircuits(cocircuits))
         return om
 
     @classmethod
@@ -483,12 +480,14 @@ class OrientedMatroid(SageObject):
     @property
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
+        if self._rank is None:
+            self._rank = max((len(c.support()) for c in self._faces_by_dimension[0]), default=-1) + 1
         return self._rank
 
     @property
     def dimension(self) -> int:
         r"""The dimension of this oriented matroid."""
-        return self._rank - 1
+        return self.rank - 1
 
     @property
     def ground_set_size(self) -> int:
@@ -518,15 +517,11 @@ class OrientedMatroid(SageObject):
             The result is cached.
         """
         if self._loops is None:
-            self._set_loops(self.covectors())
+            self._loops = [
+                e for e in range(self.ground_set_size)
+                if all(element[e] == 0 for element in self.cocircuits())
+            ]
         return self._loops
-
-    def _set_loops(self, sign_vectors: set[SignVector]) -> None:
-        r"""Set the loops of this oriented matroid."""
-        self._loops = [
-            e for e in range(self.ground_set_size)
-            if all(element[e] == 0 for element in sign_vectors)
-        ]
 
     def chirotope(self, indices: list[int]) -> Sign:
         r"""
@@ -704,7 +699,7 @@ class OrientedMatroid(SageObject):
         return result
 
     def _cocircuit_generator(self) -> Generator[SignVector]:
-        if self._rank == 0:
+        if self.rank == 0:
             return
         for indices in Combinations(self.ground_set_size, self.rank - 1):
             try:
@@ -960,10 +955,6 @@ class OrientedMatroid(SageObject):
         covectors_new = {zero_sign_vector(self.ground_set_size)}
         topes = set()
 
-        if self._loops is None:
-            self._set_loops(cocircuits)
-        loops = self.loops()
-
         while covectors_new:
             element1 = covectors_new.pop()
             for element2 in cocircuits:
@@ -972,7 +963,7 @@ class OrientedMatroid(SageObject):
                 new_element = element2.compose(element1)
                 if new_element not in covectors:
                     covectors.add(new_element)
-                    if new_element.zero_support() == loops:
+                    if new_element.zero_support() == self.loops():
                         topes.add(new_element)
                     else:
                         covectors_new.add(new_element)
