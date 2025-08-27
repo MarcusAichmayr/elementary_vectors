@@ -1120,17 +1120,18 @@ class OrientedMatroid(SageObject):
     def _connect_below(self, dimension: int) -> None:
         if dimension in self._connected_with_lower_dimension:
             return
-        if dimension not in self._faces_by_dimension:
-            raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension} is not available.")
         if dimension - 1 not in self._faces_by_dimension:
             raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension - 1} is not available.")
+        if dimension == self.dimension + 1:
+            for tope in self.topes():
+                self._connect(tope, 1)
+            return
+        if dimension not in self._faces_by_dimension:
+            raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension} is not available.")
         if dimension == 0:
             zero = zero_sign_vector(self.ground_set_size)
             for face in self._faces_by_dimension[0]:
                 self._connect(zero, face)
-        elif dimension == self.rank:
-            for tope in self.topes():
-                self._connect(tope, 1)
         elif dimension == 1:
             for face in self._faces_by_dimension[1]:
                 connection_count = 0
@@ -1216,6 +1217,11 @@ class OrientedMatroid(SageObject):
              (-+-0): {1},
              (+-+0): {1}}
 
+        For type consistency, the top element ``1`` should not appear in the faces::
+
+            sage: len(om._faces_by_dimension)
+            4
+
         ::
 
             sage: om = OrientedMatroid(M)
@@ -1240,7 +1246,6 @@ class OrientedMatroid(SageObject):
             {}
         """
         self._all_faces()
-        self._faces_by_dimension[self.rank] = {1} # lattice top
         for dimension in range(self.rank + 1):
             self._connect_below(dimension)
 
