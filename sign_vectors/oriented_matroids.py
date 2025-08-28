@@ -477,30 +477,6 @@ class OrientedMatroid(SageObject):
             + 1
         )
 
-    @property
-    def dimension(self) -> int:
-        r"""The dimension of this oriented matroid."""
-        if self._dimension is None:
-            self._dimension = self.rank - 1
-        return self._dimension
-
-    @property
-    def ground_set_size(self) -> int:
-        r"""The size of the ground set of this oriented matroid."""
-        if self._ground_set_size is None:
-            if not self._faces_by_dimension:
-                raise ValueError("Couldn't determine ground set size.")
-            for faces in self._faces_by_dimension.values():
-                if faces:
-                    self._ground_set_size = next(iter(faces)).length()
-                    break
-        return self._ground_set_size
-
-    @property
-    def ground_set(self) -> set[int]:
-        r"""The ground set of this oriented matroid."""
-        return set(range(self.ground_set_size))
-
     def loops(self) -> list[int]:
         r"""
         Compute the loops of this oriented matroid.
@@ -906,9 +882,6 @@ class OrientedMatroid(SageObject):
         """
         return [len(faces) for faces in self._all_faces()]
 
-    def _topes_computed(self) -> bool:
-        return self.dimension in self._faces_by_dimension
-
     def _topes_from_cocircuits(self, cocircuits: set[SignVector]) -> set[SignVector]:
         r"""
         Compute the topes from the cocircuits.
@@ -937,9 +910,12 @@ class OrientedMatroid(SageObject):
                         covectors_new.add(new_element)
         return topes
 
+    def _topes_computed(self) -> bool:
+        return self.dimension in self._faces_by_dimension
+
     def _faces_from_vertices(self, vertices: set[SignVector]) -> set[SignVector]:
         r"""
-        Compute the covectors from the cocircuits.
+        Compute the covectors from the cocircuits (vertices).
 
         OUTPUT:
 
@@ -947,7 +923,7 @@ class OrientedMatroid(SageObject):
 
         ALGORITHM:
 
-        This function is based on an algorithm in [Fin01]_.
+        This function is based on ``CovectorsFromCocircuits`` from [Fin01]_.
 
         .. [Fin01] Finschi, L.:
         „A graph theoretical approach for reconstruction and generation of oriented matroids“.
@@ -965,20 +941,6 @@ class OrientedMatroid(SageObject):
                     covectors.add(new_element)
                     covectors_new.add(new_element)
         return covectors
-
-    def _set_lower_faces(self, dimension: int) -> None:
-        r"""Set faces for one lower dimension."""
-        if not self._faces_by_dimension.get(dimension):
-            raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
-        if dimension - 1 in self._faces_by_dimension:
-            return
-        if dimension == 0:
-            self._set_zero_face()
-            return
-        connect_faces = self._connect_faces and dimension not in self._connected_with_lower_dimension
-        self._faces_by_dimension[dimension - 1] = self._lower_faces(self._faces_by_dimension[dimension], connect_faces)
-        if connect_faces:
-            self._connected_with_lower_dimension.add(dimension)
 
     def _set_faces_from_topes(self, topes: set[SignVector]) -> None:
         r"""
@@ -1050,6 +1012,20 @@ class OrientedMatroid(SageObject):
                             self._connect(-lower_face, -flipped_face)
                 same_support_faces.remove(-face)
         return output
+
+    def _set_lower_faces(self, dimension: int) -> None:
+        r"""Set faces for one lower dimension."""
+        if not self._faces_by_dimension.get(dimension):
+            raise ValueError(f"Dimension {dimension} is not available. Available dimensions: {sorted(self._faces_by_dimension.keys())}.")
+        if dimension - 1 in self._faces_by_dimension:
+            return
+        if dimension == 0:
+            self._set_zero_face()
+            return
+        connect_faces = self._connect_faces and dimension not in self._connected_with_lower_dimension
+        self._faces_by_dimension[dimension - 1] = self._lower_faces(self._faces_by_dimension[dimension], connect_faces)
+        if connect_faces:
+            self._connected_with_lower_dimension.add(dimension)
 
     def set_face_connections(self, value: bool = True) -> None:
         """
