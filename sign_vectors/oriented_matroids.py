@@ -242,37 +242,6 @@ class OrientedMatroid(SageObject):
         sage: om.num_faces()
         39
 
-    Geometrically, the cocircuits are the vertices and the edges are the faces of dimension 1::
-
-        sage: om.vertices()
-        {(--000),
-         (000++),
-         (+0-00),
-         (0--00),
-         (++000),
-         (0++00),
-         (000--),
-         (-0+00)}
-        sage: om.edges()
-        {(+0---),
-         (++0--),
-         (---00),
-         (0----),
-         (-0+++),
-         (++-00),
-         (--+00),
-         (0++--),
-         (-++00),
-         (+++00),
-         (0--++),
-         (0++++),
-         (-0+--),
-         (--0++),
-         (++0++),
-         (+--00),
-         (--0--),
-         (+0-++)}
-
     The dual oriented matroid corresponds to the kernel matrix.
     It is represented by the circuits and vectors::
 
@@ -870,33 +839,6 @@ class OrientedMatroid(SageObject):
             else:
                 self._faces_by_dimension[self.dimension] = self._topes_from_cocircuits(self.cocircuits())
         return self._faces_by_dimension[self.dimension]
-
-    def vertices(self) -> set[SignVector]:
-        r"""
-        Return the vertices (cocircuits) of the oriented matroid.
-
-        .. SEEALSO::
-
-            - :meth:`cocircuits`
-            - :meth:`edges`
-            - :meth:`topes`
-            - :meth:`faces`
-        """
-        return self.cocircuits()
-
-    def edges(self) -> set[SignVector]:
-        r"""
-        Return the edges of the oriented matroid.
-
-        Those are the elements of dimension 1.
-
-        .. SEEALSO::
-
-            - :meth:`vertices`
-            - :meth:`topes`
-            - :meth:`faces`
-        """
-        return self.faces(1)
 
     def faces(self, dimension: int = None) -> set[SignVector] | list[set[SignVector]]:
         r"""
