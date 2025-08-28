@@ -549,10 +549,12 @@ class OrientedMatroid(SageObject):
         chirotope = self._chirotope_dict.get(indices)
         if chirotope is None:
             try:
-                chirotope = Sign(self._matrix.matrix_from_columns(indices).det())
+                chirotope = Sign(self.matrix.matrix_from_columns(indices).det())
                 self._chirotope_dict[indices] = chirotope
             except ValueError as e:
-                raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
+                if len(indices) != self.rank:
+                    raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
+                raise e
         return chirotope
 
     def set_chirotope(self, indices: list[int], value: Sign) -> None:
