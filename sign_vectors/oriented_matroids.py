@@ -470,12 +470,7 @@ class OrientedMatroid(SageObject):
         return self._rank
 
     def _rank_from_cocircuits(self) -> int:
-        return (
-            len(parallel_classes(self._faces_by_dimension[0], self.ground_set_size))
-            -
-            min((len(c.zero_support()) for c in self._faces_by_dimension[0]), default=-1)
-            + 1
-        )
+        raise NotImplementedError
 
     @property
     def dimension(self) -> int:
