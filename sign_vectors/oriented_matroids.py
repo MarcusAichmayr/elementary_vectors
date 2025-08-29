@@ -518,6 +518,10 @@ class OrientedMatroid(SageObject):
             ]
         return self._loops
 
+    def parallel_classes(self) -> list[set[int]]:
+        r"""Compute the parallel classes of this oriented matroid."""
+        return parallel_classes(self.cocircuits(), self.ground_set_size)
+
     def chirotope(self, indices: list[int]) -> Sign:
         r"""
         Compute the chirotope for the given indices.
