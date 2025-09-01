@@ -378,13 +378,15 @@ class OrientedMatroid(SageObject):
         return om
 
     @classmethod
-    def from_cocircuits(cls, cocircuits: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
+    def from_cocircuits(cls, cocircuits: set[SignVector | str], rank: int = None) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from a cocircuit set.
 
         INPUT:
 
-        - ``cocircuits`` -- a list or set of sign vectors or strings representing the cocircuits.
+        - ``cocircuits`` -- a set (or list) of sign vectors or strings representing the cocircuits.
+
+        - ``rank`` -- the rank of the oriented matroid (optional).
 
         EXAMPLES::
 
@@ -395,9 +397,25 @@ class OrientedMatroid(SageObject):
             sage: om.faces()
             [{(00)}, {(+0), (0-), (0+), (-0)}, {(--), (+-), (-+), (++)}]
 
+        Specify `rank` to speed up computations::
+
+            sage: om = OrientedMatroid.from_cocircuits({"0+", "+0"}, rank=2)
+            sage: om
+            Oriented matroid of dimension 1 with elements of size 2.
+            sage: om.faces()
+            [{(00)}, {(+0), (0-), (0+), (-0)}, {(--), (+-), (-+), (++)}]
+
+        You can also use sign vector objects as input::
+
+            sage: om = OrientedMatroid.from_cocircuits({sign_vector("0+"), sign_vector("+0")})
+            sage: om
+            Oriented matroid of dimension 1 with elements of size 2.
+            sage: om.faces()
+            [{(00)}, {(+0), (0-), (0+), (-0)}, {(--), (+-), (-+), (++)}]
+
         TESTS::
 
-            sage: om = OrientedMatroid.from_cocircuits({"0++", "+00"})
+            sage: om = OrientedMatroid.from_cocircuits(["0++", "+00"])
             sage: om
             Oriented matroid of dimension 1 with elements of size 3.
             sage: sorted(om.faces(0), key=lambda X: hash(X))
@@ -411,6 +429,9 @@ class OrientedMatroid(SageObject):
                 yield -sign_vector(element)
 
         om = cls()
+        om._ground_set_size = len(next(iter(cocircuits)))
+        if rank is not None:
+            om._rank = rank
         om._faces_by_dimension[0] = set(create_cocircuits(cocircuits))
         return om
 
@@ -466,11 +487,12 @@ class OrientedMatroid(SageObject):
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
         if self._rank is None:
-            self._rank = self._rank_from_cocircuits()
+            self._rank = self._rank_from_cocircuits(self.cocircuits())
         return self._rank
 
-    def _rank_from_cocircuits(self) -> int:
-        raise NotImplementedError
+    def _rank_from_cocircuits(self, cocircuits: set[SignVector]) -> int:
+        self._set_faces_from_topes(self._topes_from_cocircuits(cocircuits))
+        return max(self._faces_by_dimension) + 1
 
     @property
     def dimension(self) -> int:
@@ -739,6 +761,8 @@ class OrientedMatroid(SageObject):
             sage: om.cocircuits()
             {(+0--), (-0++), (--00), (++00), (0+++), (0---)}
         """
+        if self._rank is None:
+            return self._faces_by_dimension[0]
         if self.dimension == -1:
             return set()
         if 0 not in self._faces_by_dimension:
@@ -1080,12 +1104,12 @@ class OrientedMatroid(SageObject):
             raise ValueError(f"Trying to connect faces of dimension {dimension - 1} and {dimension}, but dimension {dimension} is not available.")
         if dimension == 0:
             zero = zero_sign_vector(self.ground_set_size)
-            for face in self._faces_by_dimension[0]:
+            for face in self.cocircuits():
                 self._connect(zero, face)
         elif dimension == 1:
             for face in self._faces_by_dimension[1]:
                 connection_count = 0
-                for cocircuit in self._faces_by_dimension[0]:
+                for cocircuit in self.cocircuits():
                     if cocircuit <= face:
                         self._connect(cocircuit, face)
                         connection_count += 1
