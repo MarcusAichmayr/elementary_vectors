@@ -380,7 +380,7 @@ class OrientedMatroid(SageObject):
     @classmethod
     def from_cocircuits(cls, cocircuits: set[SignVector | str], rank: int = None) -> "OrientedMatroid":
         r"""
-        Create an oriented matroid from a cocircuit set.
+        Create an oriented matroid from cocircuits.
 
         INPUT:
 
@@ -432,7 +432,7 @@ class OrientedMatroid(SageObject):
         om._ground_set_size = len(next(iter(cocircuits)))
         if rank is not None:
             om._rank = rank
-        om._faces_by_dimension[0] = set(create_cocircuits(cocircuits))
+        om._set_cocircuits(set(create_cocircuits(cocircuits)))
         return om
 
     @classmethod
@@ -761,13 +761,15 @@ class OrientedMatroid(SageObject):
             sage: om.cocircuits()
             {(+0--), (-0++), (--00), (++00), (0+++), (0---)}
         """
-        if self._rank is None:
-            return self._faces_by_dimension[0]
-        if self.dimension == -1:
-            return set()
-        if 0 not in self._faces_by_dimension:
-            self._faces_by_dimension[0] = set(self._cocircuit_generator())
+        if self._rank is not None:
+            if self.dimension == -1:
+                return set()
+            if 0 not in self._faces_by_dimension:
+                self._set_cocircuits(set(self._cocircuit_generator()))
         return self._faces_by_dimension[0]
+
+    def _set_cocircuits(self, cocircuits: set[SignVector]) -> None:
+        self._faces_by_dimension[0] = cocircuits
 
     def circuits(self) -> set[SignVector]:
         r"""
