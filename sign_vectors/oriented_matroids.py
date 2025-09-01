@@ -632,7 +632,7 @@ class OrientedMatroid(SageObject):
 
     def _set_zero_face(self) -> None:
         r"""Set the zero face of the oriented matroid."""
-        self._faces_by_dimension[-1] = {zero_sign_vector(self.ground_set_size)}
+        self._set_faces(-1, {zero_sign_vector(self.ground_set_size)})
 
     def cocircuit(self, indices: list[int]) -> SignVector:
         r"""
@@ -769,7 +769,7 @@ class OrientedMatroid(SageObject):
         return self._faces_by_dimension[0]
 
     def _set_cocircuits(self, cocircuits: set[SignVector]) -> None:
-        self._faces_by_dimension[0] = cocircuits
+        self._set_faces(0, cocircuits)
 
     def circuits(self) -> set[SignVector]:
         r"""
@@ -864,7 +864,7 @@ class OrientedMatroid(SageObject):
             if self.dimension == -1:
                 self._set_zero_face()
             else:
-                self._faces_by_dimension[self.dimension] = self._topes_from_cocircuits(self.cocircuits())
+                self._set_faces(self.dimension, self._topes_from_cocircuits(self.cocircuits()))
         return self._faces_by_dimension[self.dimension]
 
     def faces(self, dimension: int = None) -> set[SignVector] | list[set[SignVector]]:
@@ -898,6 +898,9 @@ class OrientedMatroid(SageObject):
             self._set_lower_faces(current_dimension)
             current_dimension -= 1
         return self._faces_by_dimension[dimension]
+
+    def _set_faces(self, dimension: int, faces: set[SignVector]) -> None:
+        self._faces_by_dimension[dimension] = faces
 
     def _all_faces(self) -> list[set[SignVector]]:
         r"""
@@ -1015,7 +1018,7 @@ class OrientedMatroid(SageObject):
 
         dimension = -1
         while all_faces:
-            self._faces_by_dimension[dimension] = all_faces.pop()
+            self._set_faces(dimension, all_faces.pop())
             dimension += 1
 
     def _lower_faces(self, faces: set[SignVector], connect_faces: bool) -> set[SignVector]:
@@ -1074,7 +1077,7 @@ class OrientedMatroid(SageObject):
             self._set_zero_face()
             return
         connect_faces = self._connect_faces and dimension not in self._connected_with_lower_dimension
-        self._faces_by_dimension[dimension - 1] = self._lower_faces(self._faces_by_dimension[dimension], connect_faces)
+        self._set_faces(dimension - 1, self._lower_faces(self._faces_by_dimension[dimension], connect_faces))
         if connect_faces:
             self._connected_with_lower_dimension.add(dimension)
 
