@@ -374,7 +374,7 @@ class OrientedMatroid(SageObject):
         """
         om = cls(rank=rank, ground_set_size=ground_set_size)
         for (indices, value) in zip(Combinations(ground_set_size, rank), chirotopes):
-            om.set_chirotope(indices, value)
+            om._set_chirotope(tuple(indices), Sign(value))
         return om
 
     @classmethod
@@ -571,16 +571,24 @@ class OrientedMatroid(SageObject):
         if chirotope is None:
             try:
                 chirotope = Sign(self.matrix.matrix_from_columns(indices).det())
-                self._chirotope_dict[indices] = chirotope
+                self._set_chirotope(indices, chirotope)
             except ValueError as e:
                 if len(indices) != self.rank:
                     raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
                 raise e
         return chirotope
 
-    def set_chirotope(self, indices: list[int], value: Sign) -> None:
-        r"""Set the chirotope for the given indices."""
-        self._chirotope_dict[tuple(indices)] = Sign(value)
+    def _set_chirotope(self, indices: tuple[int], value: Sign) -> None:
+        r"""
+        Set the chirotope for the given indices.
+        
+        INPUT:
+
+        - ``indices`` -- a sorted tuple of integers
+
+        - ``value`` -- the chirotope value as a ``Sign``.
+        """
+        self._chirotope_dict[indices] = value
 
     def _compute_chirotopes(self) -> None:
         for indices in Combinations(self.ground_set_size, self.rank):
@@ -627,7 +635,7 @@ class OrientedMatroid(SageObject):
             indices_set = set(indices)
             complement = tuple(i for i in range(self.ground_set_size) if i not in indices_set)
             inversions = sum(i < j for i in indices for j in complement)
-            om.set_chirotope(complement, -value if inversions & 1 else value) # check last bit
+            om._set_chirotope(complement, Sign(-value if inversions & 1 else value)) # check last bit
         return om
 
     def _set_zero_face(self) -> None:
