@@ -11,7 +11,7 @@ r"""Reducing and simplifying lists of vectors"""
 #############################################################################
 
 import operator
-from collections.abc import Generator
+from typing import Iterator
 
 from sage.arith.misc import gcd
 from sage.modules.free_module_element import vector
@@ -201,7 +201,7 @@ def reduce_vectors_support(vectors, generator: bool = False):
         [(0, 0, 0, 0, 0)]
     """
 
-    def reduce_vectors_support_generator(vectors) -> Generator:
+    def reduce_vectors_support_generator(vectors) -> Iterator:
         r"""Return a generator of vectors where only the first element with a given support is kept."""
         checked_supports = set()
         for element in vectors:

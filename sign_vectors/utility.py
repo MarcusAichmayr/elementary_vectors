@@ -10,7 +10,7 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from collections.abc import Generator
+from typing import Iterator
 
 from sage.modules.free_module_element import vector
 from sign_vectors import SignVector, sign_vector
@@ -237,7 +237,7 @@ def positive_parallel_classes(iterable, length: int) -> list[set[int]]:
     return result
 
 
-def classes_same_support(iterable) -> Generator[set[SignVector]]:
+def classes_same_support(iterable) -> Iterator[set[SignVector]]:
     r"""
     Compute the classes with same support of given sign vectors.
 
