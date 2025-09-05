@@ -11,70 +11,15 @@ r"""Oriented matroids"""
 #############################################################################
 
 from typing import Iterator
-from enum import IntEnum
 from random import choice
 
 from sage.combinat.combination import Combinations
 from sage.combinat.posets.lattices import LatticePoset
 from sage.structure.sage_object import SageObject
 
-from sign_vectors import sign_symbolic, SignVector, sign_vector, zero_sign_vector
+from sign_vectors import SignVector, sign_vector, zero_sign_vector
+from .chirotope import Sign
 from .utility import classes_same_support, parallel_classes
-
-
-class Sign(IntEnum):
-    r"""
-    Auxiliary class for chirotopes.
-
-    EXAMPLES::
-
-        sage: from sign_vectors.oriented_matroids import Sign
-        sage: Sign(1)
-        +
-        sage: Sign(-1)
-        -
-        sage: Sign(0)
-        0
-        sage: Sign(5)
-        +
-        sage: Sign(5).value
-        1
-        sage: -Sign(5)
-        -
-        sage: Sign("+")
-        +
-        sage: Sign("-")
-        -
-        sage: Sign("0")
-        0
-    """
-    NEG = -1
-    ZERO = 0
-    POS = 1
-
-    def __str__(self):
-        return {self.NEG: "-", self.ZERO: "0", self.POS: "+"}[self]
-
-    def __repr__(self):
-        return str(self)
-
-    def __neg__(self):
-        return Sign(-self.value) if self.value != 0 else Sign.ZERO
-
-    @classmethod
-    def _missing_(cls, value):
-        if isinstance(value, str):
-            if value == "+":
-                return cls.POS
-            if value == "-":
-                return cls.NEG
-            return cls.ZERO
-        v = sign_symbolic(value)
-        if v > 0:
-            return cls.POS
-        if v < 0:
-            return cls.NEG
-        return cls.ZERO
 
 
 class OrientedMatroid(SageObject):
