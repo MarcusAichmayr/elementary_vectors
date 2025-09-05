@@ -932,6 +932,8 @@ class OrientedMatroid(SageObject):
         return self._faces_by_dimension[dimension]
 
     def _set_faces(self, dimension: int, faces: set[SignVector]) -> None:
+        if faces == set():
+            raise ValueError("Attempting to set empty face set.")
         self._faces_by_dimension[dimension] = faces
 
     def _all_faces(self) -> list[set[SignVector]]:
