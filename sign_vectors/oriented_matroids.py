@@ -323,7 +323,7 @@ class OrientedMatroid(SageObject):
         return om
 
     @classmethod
-    def from_cocircuits(cls, cocircuits: set[SignVector | str], rank: int = None) -> "OrientedMatroid":
+    def from_cocircuits(cls, cocircuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from cocircuits.
 
@@ -332,6 +332,8 @@ class OrientedMatroid(SageObject):
         - ``cocircuits`` -- a set (or list) of sign vectors or strings representing the cocircuits.
 
         - ``rank`` -- the rank of the oriented matroid (optional).
+
+        - ``ground_set_size`` -- the size of the ground set (optional).
 
         EXAMPLES::
 
@@ -344,7 +346,7 @@ class OrientedMatroid(SageObject):
 
         Specify `rank` to speed up computations::
 
-            sage: om = OrientedMatroid.from_cocircuits({"0+", "+0"}, rank=2)
+            sage: om = OrientedMatroid.from_cocircuits({"0+", "+0"}, rank=2, ground_set_size=2)
             sage: om
             Oriented matroid of dimension 1 with elements of size 2.
             sage: om.faces()
@@ -374,10 +376,39 @@ class OrientedMatroid(SageObject):
                 yield -sign_vector(element)
 
         om = cls()
-        om._ground_set_size = len(next(iter(cocircuits)))
+        if ground_set_size is None:
+            om._ground_set_size = len(next(iter(cocircuits)))
+        else:
+            om._ground_set_size = ground_set_size
         if rank is not None:
             om._rank = rank
         om._set_cocircuits(set(create_cocircuits(cocircuits)))
+        return om
+
+    @classmethod
+    def from_circuits(cls, circuits: set[SignVector | str], rank: int, ground_set_size: int) -> "OrientedMatroid":
+        r"""
+        Create an oriented matroid from circuits.
+
+        INPUT:
+
+        - ``circuits`` -- a set (or list) of sign vectors or strings representing the circuits.
+
+        - ``rank`` -- the rank of the oriented matroid.
+
+        - ``ground_set_size`` -- the size of the ground set.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: om = OrientedMatroid.from_circuits({"0+0", "+00"}, 1, 3)
+            sage: om
+            Oriented matroid of dimension 0 with elements of size 3.
+            sage: om.chirotope()
+            [0, 0, +]
+        """
+        om = cls(rank=rank, ground_set_size=ground_set_size)
+        om._set_chirotope_entries_from_circuits([sign_vector(element) for element in circuits])
         return om
 
     @classmethod
@@ -510,16 +541,20 @@ class OrientedMatroid(SageObject):
             +
         """
         indices = tuple(indices)
-        entry = self._chirotope_dict.get(indices)
-        if entry is None:
+        if self._chirotope_dict.get(indices) is None:
             try:
-                entry = Sign(self.matrix.matrix_from_columns(indices).det())
-                self._set_chirotope_entry(indices, entry)
+                if self._matrix is None:
+                    self._set_chirotope_entries_from_cocircuits()
+                else:
+                    self._set_chirotope_entry(
+                        indices,
+                        Sign(self.matrix.matrix_from_columns(indices).det())
+                    )
             except ValueError as e:
                 if len(indices) != self.rank:
                     raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
                 raise e
-        return entry
+        return self._chirotope_dict.get(indices)
 
     def _set_chirotope_entry(self, indices: tuple[int], value: Sign) -> None:
         r"""
@@ -532,6 +567,18 @@ class OrientedMatroid(SageObject):
         - ``value`` -- the chirotope value as a ``Sign``.
         """
         self._chirotope_dict[indices] = value
+
+    def _set_chirotope_entries_from_cocircuits(self) -> None:
+        chirotope = ChirotopeFromCocircuits(self.cocircuits(), self.rank, self.ground_set_size)
+        for rset in Combinations(self.ground_set_size, self.rank):
+            value = chirotope.entry(rset)
+            self._set_chirotope_entry(tuple(rset), value)
+
+    def _set_chirotope_entries_from_circuits(self, circuits: set[SignVector]) -> None:
+        chirotope = ChirotopeFromCircuits(circuits, self.rank, self.ground_set_size)
+        for rset in Combinations(self.ground_set_size, self.rank):
+            value = chirotope.entry(rset)
+            self._set_chirotope_entry(tuple(rset), value)
 
     def _compute_chirotope_entries(self) -> None:
         for indices in Combinations(self.ground_set_size, self.rank):
