@@ -55,6 +55,7 @@ Therefore, we need to sort indices::
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
+from bisect import bisect_left
 from enum import IntEnum
 from typing import Iterator
 
@@ -229,10 +230,10 @@ class _Chirotope:
             face_indices = self._connecting_face_indices(rset, adjacent_rset)
             face = self._faces_dict[face_indices]
 
-            # sort because when iterating over {7, 8}, we get 8 first
-            i, j = sorted(set(rset).symmetric_difference(adjacent_rset))
+            i, j = set(rset).symmetric_difference(adjacent_rset)
             new_value = Sign(value * face[i] * face[j])
-            if sum(i <= k < j for k in face_indices) & 1:
+            # fix sign depending on positions of i and j
+            if (bisect_left(face_indices, i) + bisect_left(face_indices, j)) & 1:
                 new_value = -new_value
             self._set_entry(adjacent_rset, new_value)
             self._set_other_nonzero_entries_from(adjacent_rset)
