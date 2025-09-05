@@ -36,8 +36,10 @@ EXAMPLES::
 
 TESTS::
 
-    sage: ChirotopeFromCircuits([sign_vector("-0++-00--+")], 1, 10).entries()
-    [+, 0, -, -, +, 0, 0, +, +, -]
+    sage: M = matrix.ones(1, 9)
+    sage: om = OrientedMatroid(M)
+    sage: ChirotopeFromCircuits(om.circuits(), 1, 9).entries()
+    [+, +, +, +, +, +, +, +, +]
 """
 
 #############################################################################
@@ -224,9 +226,7 @@ class _Chirotope:
             face_indices = self._connecting_face_indices(rset, adjacent_rset)
             face = self._faces_dict[face_indices]
 
-            i, j = set(rset).symmetric_difference(adjacent_rset)
-            # TODO i < j
-
+            i, j = sorted(set(rset).symmetric_difference(adjacent_rset))
             new_value = Sign(value * face[i] * face[j])
             if sum(i <= k < j for k in face_indices) & 1:
                 new_value = -new_value
