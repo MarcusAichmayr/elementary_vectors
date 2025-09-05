@@ -10,7 +10,7 @@ r"""Oriented matroids"""
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from collections.abc import Generator
+from typing import Iterator
 from enum import IntEnum
 from random import choice
 
@@ -724,7 +724,7 @@ class OrientedMatroid(SageObject):
             raise ValueError("Computed zero circuit.")
         return result
 
-    def _cocircuit_generator(self) -> Generator[SignVector]:
+    def _cocircuit_generator(self) -> Iterator[SignVector]:
         if self.rank == 0:
             return
         for indices in Combinations(self.ground_set_size, self.rank - 1):
@@ -734,7 +734,7 @@ class OrientedMatroid(SageObject):
             except ValueError:
                 continue
 
-    def _circuit_generator(self) -> Generator[SignVector]:
+    def _circuit_generator(self) -> Iterator[SignVector]:
         for indices in Combinations(self.ground_set_size, self.rank + 1):
             try:
                 yield self.circuit(indices)

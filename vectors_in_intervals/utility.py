@@ -10,7 +10,7 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from collections.abc import Generator
+from typing import Iterator
 
 from sage.combinat.combination import Combinations
 from sage.functions.generalized import sign
@@ -92,11 +92,11 @@ class CombinationsIncluding(SageObject):
         else:
             self.elements = elements
 
-    def __iter__(self) -> Generator[list]:
+    def __iter__(self) -> Iterator[list]:
         for combination in self.combinations:
             yield sorted(list(self.elements) + combination)
     
-    def __reversed__(self) -> Generator[list]:
+    def __reversed__(self) -> Iterator[list]:
         for combination in reversed(self.combinations):
             yield sorted(list(self.elements) + combination)
 

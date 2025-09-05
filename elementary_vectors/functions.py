@@ -10,7 +10,7 @@ r"""Computing elementary vectors"""
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from typing import Optional, Union, List, Generator as Generator
+from typing import Optional, Union, List, Iterator
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import matrix
 from sage.modules.free_module_element import zero_vector, vector
@@ -77,7 +77,7 @@ def cocircuits(M: matrix) -> List[vector]:
     return elementary_vectors(M, dual=False)
 
 
-def elementary_vectors(M: matrix, dual: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Generator[vector, None, None]]:
+def elementary_vectors(M: matrix, dual: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
     r"""
     Compute elementary vectors of a subspace determined by a matrix.
 
@@ -525,7 +525,7 @@ class ElementaryVectors(SageObject):
     def _clear_zero_minors(self) -> None:
         self._zero_minors.clear()
 
-    def _index_sets_from_minor(self, indices_minor: List[int], dual: bool = True) -> Generator[List[int], None, None]:
+    def _index_sets_from_minor(self, indices_minor: List[int], dual: bool = True) -> Iterator[List[int]]:
         r"""Generator of index sets corresponding to elementary vectors involving given minor."""
         if dual:
             for i in range(self.length):
@@ -535,7 +535,7 @@ class ElementaryVectors(SageObject):
         else:
             yield from Combinations(indices_minor, self.rank - 1)
 
-    def generator(self, dual: bool = True, prevent_multiples: bool = True, reverse: bool = False) -> Generator[vector, None, None]:
+    def generator(self, dual: bool = True, prevent_multiples: bool = True, reverse: bool = False) -> Iterator[vector]:
         r"""Return a generator of elementary vectors"""
         if prevent_multiples:
             self._reset_set_for_preventing_multiples()
@@ -557,7 +557,7 @@ class ElementaryVectors(SageObject):
         r"""Return a list of elementary vectors"""
         return list(self.generator(dual=dual, prevent_multiples=prevent_multiples))
 
-    def degenerate_elements(self, dual: bool = True) -> Generator[vector, None, None]:
+    def degenerate_elements(self, dual: bool = True) -> Iterator[vector]:
         r"""
         Generator of elementary vectors with smaller-than-usual support.
 
