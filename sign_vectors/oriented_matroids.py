@@ -377,7 +377,10 @@ class OrientedMatroid(SageObject):
 
         om = cls()
         if ground_set_size is None:
-            om._ground_set_size = len(next(iter(cocircuits)))
+            try:
+                om._ground_set_size = len(next(iter(cocircuits)))
+            except StopIteration as e:
+                raise ValueError("Could not determine 'ground_set_size'.") from e
         else:
             om._ground_set_size = ground_set_size
         if rank is not None:
@@ -386,7 +389,7 @@ class OrientedMatroid(SageObject):
         return om
 
     @classmethod
-    def from_circuits(cls, circuits: set[SignVector | str], rank: int, ground_set_size: int) -> "OrientedMatroid":
+    def from_circuits(cls, circuits: set[SignVector | str], rank: int, ground_set_size: int = None) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from circuits.
 
@@ -407,7 +410,15 @@ class OrientedMatroid(SageObject):
             sage: om.chirotope()
             [0, 0, +]
         """
-        om = cls(rank=rank, ground_set_size=ground_set_size)
+        om = cls()
+        if ground_set_size is None:
+            try:
+                om._ground_set_size = len(next(iter(circuits)))
+            except StopIteration as e:
+                raise ValueError("Could not determine 'ground_set_size'.") from e
+        else:
+            om._ground_set_size = ground_set_size
+        om._rank = rank
         om._set_chirotope_entries_from_circuits([sign_vector(element) for element in circuits])
         return om
 
