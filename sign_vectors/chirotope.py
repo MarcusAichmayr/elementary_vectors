@@ -231,11 +231,11 @@ class _Chirotope:
             face = self._faces_dict[face_indices]
 
             i, j = set(rset).symmetric_difference(adjacent_rset)
-            new_value = Sign(value * face[i] * face[j])
-            # fix sign depending on positions of i and j
+            adjacent_value = Sign(value * face[i] * face[j])
+            # set sign depending on positions of i and j
             if (bisect_left(face_indices, i) + bisect_left(face_indices, j)) & 1:
-                new_value = -new_value
-            self._set_entry(adjacent_rset, new_value)
+                adjacent_value = -adjacent_value
+            self._set_entry(adjacent_rset, adjacent_value)
             self._set_other_nonzero_entries_from(adjacent_rset)
 
 
