@@ -699,7 +699,7 @@ class OrientedMatroid(SageObject):
                 continue
             value = self.chirotope_entry(sorted(indices + [i]))
             if value != 0:
-                # check oddness of last bit of pos
+                # check whether pos is even or odd
                 element[i] = -value if (pos & 1) else value
         result = sign_vector(element)
         if result == 0:
@@ -739,7 +739,7 @@ class OrientedMatroid(SageObject):
             i = rset.pop(pos)
             value = self.chirotope_entry(rset)
             if value != 0:
-                # check oddness of last bit of pos
+                # check whether pos is even or odd
                 element[i] = -value if (pos & 1) else value
         result = sign_vector(element)
         if result == 0:
