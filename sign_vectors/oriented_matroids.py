@@ -346,7 +346,7 @@ class OrientedMatroid(SageObject):
 
         Specify `rank` to speed up computations::
 
-            sage: om = OrientedMatroid.from_cocircuits({"0+", "+0"}, rank=2, ground_set_size=2)
+            sage: om = OrientedMatroid.from_cocircuits({"0+", "+0"}, rank=2)
             sage: om
             Oriented matroid of dimension 1 with elements of size 2.
             sage: om.faces()
@@ -369,6 +369,22 @@ class OrientedMatroid(SageObject):
             [(0++), (+00), (-00), (0--)]
             sage: om.faces(1)
             {(---), (+--), (+++), (-++)}
+
+        ::
+
+            sage: om = OrientedMatroid.from_cocircuits([], ground_set_size=3)
+            sage: om
+            Oriented matroid of dimension -1 with elements of size 3.
+            sage: om.faces()
+            [{(000)}]
+            sage: om.circuits()
+            {(-00), (00+), (00-), (0+0), (0-0), (+00)}
+            sage: om.chirotope()
+            [+]
+            sage: om.dual()
+            Oriented matroid of dimension 2 with elements of size 3.
+            sage: om.dual().cocircuits()
+            {(-00), (00+), (00-), (0+0), (0-0), (+00)}
         """
         def create_cocircuits(iterable):
             for element in iterable:
@@ -383,7 +399,10 @@ class OrientedMatroid(SageObject):
                 raise ValueError("Could not determine 'ground_set_size'.") from e
         else:
             om._ground_set_size = ground_set_size
-        if rank is not None:
+        if rank is None:
+            if len(cocircuits) == 0:
+                om._rank = 0
+        else:
             om._rank = rank
         om._set_cocircuits(set(create_cocircuits(cocircuits)))
         return om
@@ -404,11 +423,13 @@ class OrientedMatroid(SageObject):
         EXAMPLES::
 
             sage: from sign_vectors import *
-            sage: om = OrientedMatroid.from_circuits({"0+0", "+00"}, 1, 3)
+            sage: om = OrientedMatroid.from_circuits({"0+0", "+00"}, 1)
             sage: om
             Oriented matroid of dimension 0 with elements of size 3.
             sage: om.chirotope()
             [0, 0, +]
+            sage: om.faces()
+            [{(000)}, {(00+), (00-)}]
         """
         om = cls()
         if ground_set_size is None:
@@ -778,6 +799,8 @@ class OrientedMatroid(SageObject):
         return self._faces_by_dimension[0]
 
     def _set_cocircuits(self, cocircuits: set[SignVector]) -> None:
+        if len(cocircuits) == 0:
+            return
         self._set_faces(0, cocircuits)
 
     def circuits(self) -> set[SignVector]:
