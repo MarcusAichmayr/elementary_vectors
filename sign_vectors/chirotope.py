@@ -34,7 +34,10 @@ EXAMPLES::
     sage: c.entries()
     [0, 0, 0, +, +, +]
 
-TESTS::
+TESTS:
+
+When iterating over ``{7, 8}``, we obtain ``8`` first.
+Therefore, we need to sort indices::
 
     sage: M = matrix.ones(1, 9)
     sage: om = OrientedMatroid(M)
@@ -226,6 +229,7 @@ class _Chirotope:
             face_indices = self._connecting_face_indices(rset, adjacent_rset)
             face = self._faces_dict[face_indices]
 
+            # sort because when iterating over {7, 8}, we get 8 first
             i, j = sorted(set(rset).symmetric_difference(adjacent_rset))
             new_value = Sign(value * face[i] * face[j])
             if sum(i <= k < j for k in face_indices) & 1:
