@@ -222,36 +222,26 @@ class _Chirotope:
         r"""
         Set all missing nonzero entries of the chirotope using the Grassmann-Plücker relations.
         """
-        value = self.entry(rset)
         pending_entries: dict[tuple[int], tuple[int]] = {}
+        while True:
+            for adjacent_rset in self._get_adjacent_rsets(rset):
+                if self._has_entry(adjacent_rset):
+                    continue
+                if adjacent_rset not in pending_entries:
+                    pending_entries[adjacent_rset] = rset
+            if not pending_entries:
+                return
 
-        for adjacent_rset in self._get_adjacent_rsets(rset):
-            if self._has_entry(adjacent_rset):
-                continue
-            pending_entries[adjacent_rset] = rset
-
-        while pending_entries:
             adjacent_rset, rset = pending_entries.popitem()
-            if self._has_entry(adjacent_rset):
-                continue
-            value = self.entry(rset)
-
             face_indices = self._connecting_face_indices(rset, adjacent_rset)
             face = self._faces_dict[face_indices]
-
             i, j = set(rset).symmetric_difference(adjacent_rset)
-            adjacent_value = Sign(value * face[i] * face[j])
+            adjacent_value = Sign(self.entry(rset) * face[i] * face[j])
             # set sign depending on positions of i and j
             if (bisect_left(face_indices, i) + bisect_left(face_indices, j)) & 1:
                 adjacent_value = -adjacent_value
             self._set_entry(adjacent_rset, adjacent_value)
-
-            for next_rset in self._get_adjacent_rsets(adjacent_rset):
-                if self._has_entry(next_rset):
-                    continue
-                if next_rset in pending_entries:
-                    continue
-                pending_entries[next_rset] = adjacent_rset
+            rset = adjacent_rset
 
 
 class ChirotopeFromCircuits(_Chirotope):
