@@ -138,7 +138,7 @@ class Chirotope:
         r"""Return a string representation of the chirotope."""
         return f"Chirotope of rank {self.rank} on ground set of size {self.ground_set_size}"
 
-    def chirotope_string(self) -> str:
+    def as_string(self) -> str:
         r"""Represent the chirotope as a string."""
         return "".join(str(value) for value in self.entries())
 
@@ -150,11 +150,11 @@ class Chirotope:
 
     def entry(self, rset: list[int]) -> Sign:
         r"""Return the chirotope entry given by ``indices``."""
-        return self._chirotope_dict.get(tuple(rset))
+        return self._chirotope_dict[tuple(rset)]
 
     def entries(self) -> list[Sign]:
         r"""Return all chirotope entries in lexicographic order."""
-        return [self.entry(rset) for rset in Combinations(self.ground_set_size, self.rank)]
+        return [self.entry(tuple(rset)) for rset in Combinations(self.ground_set_size, self.rank)]
 
     def _set_entries(self) -> None:
         for rset in Combinations(self.ground_set_size, self.rank):
@@ -168,6 +168,15 @@ class Chirotope:
             complement = tuple(i for i in range(self.ground_set_size) if i not in indices)
             inversions = sum(i < j for i in indices for j in complement)
             dual_chirotope._set_entry(complement, Sign(-value if inversions & 1 else value)) # check last bit
+        return dual_chirotope
+
+    @classmethod
+    def from_entries(cls, entries: list[Sign], rank: int, ground_set_size: int) -> "Chirotope":
+        r"""Construct a chirotope from its entries."""
+        chirotope = cls(rank, ground_set_size)
+        for indices, value in zip(Combinations(ground_set_size, rank), entries):
+            chirotope._set_entry(tuple(indices), Sign(value))
+        return chirotope
 
 
 class ChirotopeFromMatrix(Chirotope):

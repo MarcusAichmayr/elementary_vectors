@@ -18,7 +18,7 @@ from sage.combinat.posets.lattices import LatticePoset
 from sage.structure.sage_object import SageObject
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
-from .chirotope import Sign, ChirotopeFromCircuits, ChirotopeFromCocircuits
+from .chirotope import Chirotope, ChirotopeFromMatrix, Sign, ChirotopeFromCircuits, ChirotopeFromCocircuits
 from .utility import classes_same_support, parallel_classes
 
 
@@ -257,6 +257,7 @@ class OrientedMatroid(SageObject):
             self._matrix = None
             self._rank = rank
             self._ground_set_size = ground_set_size
+            self._chirotope_cls: Chirotope = None
         else:
             try:
                 self._matrix = matrix.matrix_from_rows(matrix.pivot_rows())
@@ -265,9 +266,9 @@ class OrientedMatroid(SageObject):
                     raise ValueError("Provide a matrix with maximal rank.") from exc
                 self._matrix = matrix
             self._rank, self._ground_set_size = self._matrix.dimensions()
+            self._chirotope_cls = ChirotopeFromMatrix(self._matrix)
 
         self._dimension = None
-        self._chirotope_dict: dict[tuple[int], Sign] = {}
         self._faces_by_dimension: dict[int, set[SignVector]] = {}
         self._loops: set[int] = None
 
@@ -279,13 +280,13 @@ class OrientedMatroid(SageObject):
         return f"Oriented matroid of dimension {self.dimension} with elements of size {self.ground_set_size}."
 
     @classmethod
-    def from_chirotope(cls, chirotope: list[int] | str, rank: int, ground_set_size: int) -> "OrientedMatroid":
+    def from_chirotope(cls, entries: list[int] | str, rank: int, ground_set_size: int) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from a chirotope.
 
         INPUT:
 
-        - ``chirotope`` -- a list of integers or a string of ``+``, ``-``, ``0``.
+        - ``entries`` -- a list of integers or a string of ``+``, ``-``, ``0``.
 
         OUTPUT:
 
@@ -318,8 +319,20 @@ class OrientedMatroid(SageObject):
             Oriented matroid of dimension 1 with elements of size 5.
         """
         om = cls(rank=rank, ground_set_size=ground_set_size)
-        for (indices, value) in zip(Combinations(ground_set_size, rank), chirotope):
-            om._set_chirotope_entry(tuple(indices), Sign(value))
+        om._chirotope_cls = Chirotope.from_entries(entries, rank, ground_set_size)
+        return om
+
+    @classmethod
+    def from_chirotope_class(cls, chirotope: Chirotope) -> "OrientedMatroid":
+        r"""
+        Create an oriented matroid from a chirotope instance.
+
+        INPUT:
+
+        - ``chirotope`` -- an instance of :class:`Chirotope`.
+        """
+        om = cls(rank=chirotope.rank, ground_set_size=chirotope.ground_set_size)
+        om._chirotope_cls = chirotope
         return om
 
     @classmethod
@@ -405,6 +418,7 @@ class OrientedMatroid(SageObject):
         else:
             om._rank = rank
         om._set_cocircuits(set(create_cocircuits(cocircuits)))
+        om._chirotope_cls = ChirotopeFromCocircuits(om.cocircuits(), om.rank, om.ground_set_size)
         return om
 
     @classmethod
@@ -444,7 +458,7 @@ class OrientedMatroid(SageObject):
             om._rank = om._rank_from_circuits(circuits)
         else:
             om._rank = rank
-        om._set_chirotope_entries_from_circuits(circuits)
+        om._chirotope_cls = ChirotopeFromCircuits(circuits, om.rank, om.ground_set_size)
         return om
 
     @classmethod
@@ -464,6 +478,8 @@ class OrientedMatroid(SageObject):
             Oriented matroid of dimension 0 with elements of size 3.
             sage: om.faces()
             [{(000)}, {(---), (+++)}]
+            sage: om.chirotope()
+            [+, +, +]
 
         ::
 
@@ -486,6 +502,7 @@ class OrientedMatroid(SageObject):
         om._ground_set_size = next(iter(topes)).length()
         om._set_faces_from_topes(topes)
         om._rank = max(om._faces_by_dimension) + 1
+        om._chirotope_cls = ChirotopeFromCocircuits(om.cocircuits(), om.rank, om.ground_set_size)
         return om
 
     @property
@@ -595,48 +612,7 @@ class OrientedMatroid(SageObject):
             +
         """
         indices = tuple(indices)
-        if self._chirotope_dict.get(indices) is None:
-            try:
-                if self._matrix is None:
-                    self._set_chirotope_entries_from_cocircuits()
-                else:
-                    self._set_chirotope_entry(
-                        indices,
-                        Sign(self.matrix.matrix_from_columns(indices).det())
-                    )
-            except ValueError as e:
-                if len(indices) != self.rank:
-                    raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
-                raise e
-        return self._chirotope_dict.get(indices)
-
-    def _set_chirotope_entry(self, indices: tuple[int], value: Sign) -> None:
-        r"""
-        Set the chirotope for the given indices.
-        
-        INPUT:
-
-        - ``indices`` -- a sorted tuple of integers
-
-        - ``value`` -- the chirotope value as a ``Sign``.
-        """
-        self._chirotope_dict[indices] = value
-
-    def _set_chirotope_entries_from_cocircuits(self) -> None:
-        chirotope = ChirotopeFromCocircuits(self.cocircuits(), self.rank, self.ground_set_size)
-        for rset in Combinations(self.ground_set_size, self.rank):
-            value = chirotope.entry(rset)
-            self._set_chirotope_entry(tuple(rset), value)
-
-    def _set_chirotope_entries_from_circuits(self, circuits: set[SignVector]) -> None:
-        chirotope = ChirotopeFromCircuits(circuits, self.rank, self.ground_set_size)
-        for rset in Combinations(self.ground_set_size, self.rank):
-            value = chirotope.entry(rset)
-            self._set_chirotope_entry(tuple(rset), value)
-
-    def _compute_chirotope_entries(self) -> None:
-        for indices in Combinations(self.ground_set_size, self.rank):
-            self.chirotope_entry(indices)
+        return self._chirotope_cls.entry(indices)
 
     def chirotope(self) -> list[Sign]:
         r"""
@@ -659,11 +635,11 @@ class OrientedMatroid(SageObject):
             sage: om.chirotope()
             [+, +, +, +, +, 0]
         """
-        return [self.chirotope_entry(indices) for indices in Combinations(self.ground_set_size, self.rank)]
+        return self._chirotope_cls.entries()
 
     def chirotope_string(self) -> str:
         r"""Represent the chirotope as a string."""
-        return "".join(str(value) for value in self.chirotope())
+        return self._chirotope_cls.as_string()
 
     def dual(self) -> "OrientedMatroid":
         r"""
@@ -673,13 +649,7 @@ class OrientedMatroid(SageObject):
 
             The dual is determined from the chirotope.
         """
-        self._compute_chirotope_entries()
-        om = OrientedMatroid(rank=self.ground_set_size - self.rank, ground_set_size=self.ground_set_size)
-        for indices, value in self._chirotope_dict.items():
-            indices_set = set(indices)
-            complement = tuple(i for i in range(self.ground_set_size) if i not in indices_set)
-            inversions = sum(i < j for i in indices for j in complement)
-            om._set_chirotope_entry(complement, Sign(-value if inversions & 1 else value)) # check last bit
+        om = OrientedMatroid.from_chirotope_class(self._chirotope_cls.dual())
         return om
 
     def _set_zero_face(self) -> None:
