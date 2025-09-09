@@ -119,11 +119,74 @@ class Sign(IntEnum):
         return cls.ZERO
 
 
-class _Chirotope:
-    def __init__(self, faces: set[SignVector], rank: int, ground_set_size: int):
+class Chirotope:
+    r"""
+    A chirotope of given rank and ground set size.
+
+    .. SEEALSO::
+
+        - :class:`ChirotopeFromMatrix`
+        - :class:`ChirotopeFromCircuits`
+        - :class:`ChirotopeFromCocircuits`
+    """
+    def __init__(self, rank: int, ground_set_size: int) -> None:
         self.rank = rank
         self.ground_set_size = ground_set_size
         self._chirotope_dict: dict[tuple[int], Sign] = {}
+
+    def _repr_(self) -> str:
+        r"""Return a string representation of the chirotope."""
+        return f"Chirotope of rank {self.rank} on ground set of size {self.ground_set_size}"
+
+    def chirotope_string(self) -> str:
+        r"""Represent the chirotope as a string."""
+        return "".join(str(value) for value in self.entries())
+
+    def _set_entry(self, rset: tuple[int], value: Sign) -> None:
+        self._chirotope_dict[rset] = value
+
+    def _has_entry(self, rset: list[int]) -> bool:
+        return tuple(rset) in self._chirotope_dict
+
+    def entry(self, rset: list[int]) -> Sign:
+        r"""Return the chirotope entry given by ``indices``."""
+        return self._chirotope_dict.get(tuple(rset))
+
+    def entries(self) -> list[Sign]:
+        r"""Return all chirotope entries in lexicographic order."""
+        return [self.entry(rset) for rset in Combinations(self.ground_set_size, self.rank)]
+
+    def _set_entries(self) -> None:
+        for rset in Combinations(self.ground_set_size, self.rank):
+            self.entry(rset)
+
+    def dual(self) -> "Chirotope":
+        r"""Return the dual chirotope."""
+        self._set_entries()
+        dual_chirotope = Chirotope(self.ground_set_size - self.rank, self.ground_set_size)
+        for indices, value in self._chirotope_dict.items():
+            complement = tuple(i for i in range(self.ground_set_size) if i not in indices)
+            inversions = sum(i < j for i in indices for j in complement)
+            dual_chirotope._set_entry(complement, Sign(-value if inversions & 1 else value)) # check last bit
+
+
+class ChirotopeFromMatrix(Chirotope):
+    r"""A chirotope constructed from a matrix."""
+    def __init__(self, matrix) -> None:
+        # TODO pivot rows
+        super().__init__(matrix.rank(), matrix.ncols())
+        self.matrix = matrix
+
+    def entry(self, rset: list[int]) -> Sign:
+        r"""Return the chirotope entry given by ``indices``."""
+        if not self._has_entry(rset):
+            self._set_entry(rset, Sign(self.matrix.matrix_from_columns(rset).det()))
+        return super().entry(rset)
+
+
+class _ChirotopeFromFaces(Chirotope):
+    def __init__(self, faces: set[SignVector], rank: int, ground_set_size: int) -> None:
+        super().__init__(rank, ground_set_size)
         self._faces_dict: dict[tuple[int], SignVector] = {}
         self._set_faces_dict(faces)
 
@@ -160,21 +223,11 @@ class _Chirotope:
             for indices in self._corresponding_indices_for_face(support):
                 self._faces_dict[indices] = face
 
-    def _set_entry(self, rset: tuple[int], value: Sign) -> None:
-        self._chirotope_dict[rset] = value
-
-    def _has_entry(self, rset: list[int]) -> bool:
-        return tuple(rset) in self._chirotope_dict
-
     def entry(self, rset: list[int]) -> Sign:
         r"""Return the chirotope entry given by ``indices``."""
         if self._chirotope_dict.get(tuple(rset)) is None:
             self._set_entries()
         return self._chirotope_dict.get(tuple(rset))
-
-    def entries(self) -> list[Sign]:
-        r"""Return all chirotope entries in lexicographic order."""
-        return [self.entry(rset) for rset in Combinations(self.ground_set_size, self.rank)]
 
     def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
         r"""
@@ -244,7 +297,7 @@ class _Chirotope:
             rset = adjacent_rset
 
 
-class ChirotopeFromCircuits(_Chirotope):
+class ChirotopeFromCircuits(_ChirotopeFromFaces):
     r"""A chirotope constructed from its circuits."""
     def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
         complement = set(range(self.ground_set_size)) - support
@@ -264,7 +317,7 @@ class ChirotopeFromCircuits(_Chirotope):
         return False
 
 
-class ChirotopeFromCocircuits(_Chirotope):
+class ChirotopeFromCocircuits(_ChirotopeFromFaces):
     r"""A chirotope constructed from its cocircuits."""
     def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
         complement = set(range(self.ground_set_size)) - support
