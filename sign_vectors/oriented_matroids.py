@@ -267,12 +267,12 @@ class OrientedMatroid(SageObject):
             self._rank, self._ground_set_size = self._matrix.dimensions()
 
         self._dimension = None
-        self._chirotope_dict = {}
-        self._faces_by_dimension = {}
-        self._loops = None
+        self._chirotope_dict: dict[tuple[int], Sign] = {}
+        self._faces_by_dimension: dict[int, set[SignVector]] = {}
+        self._loops: set[int] = None
 
         self._connect_faces = True
-        self._above = {}
+        self._above: dict[SignVector, set[SignVector]] = {}
         self._connected_with_lower_dimension = set()  # faces of this dimensions are already connected with faces below
 
     def _repr_(self) -> str:
@@ -408,7 +408,7 @@ class OrientedMatroid(SageObject):
         return om
 
     @classmethod
-    def from_circuits(cls, circuits: set[SignVector | str], rank: int, ground_set_size: int = None) -> "OrientedMatroid":
+    def from_circuits(cls, circuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from circuits.
 
@@ -416,14 +416,14 @@ class OrientedMatroid(SageObject):
 
         - ``circuits`` -- a set (or list) of sign vectors or strings representing the circuits.
 
-        - ``rank`` -- the rank of the oriented matroid.
+        - ``rank`` -- the rank of the oriented matroid (optional).
 
-        - ``ground_set_size`` -- the size of the ground set.
+        - ``ground_set_size`` -- the size of the ground set (optional).
 
         EXAMPLES::
 
             sage: from sign_vectors import *
-            sage: om = OrientedMatroid.from_circuits({"0+0", "+00"}, 1)
+            sage: om = OrientedMatroid.from_circuits({"0+0", "+00"})
             sage: om
             Oriented matroid of dimension 0 with elements of size 3.
             sage: om.chirotope()
@@ -439,8 +439,12 @@ class OrientedMatroid(SageObject):
                 raise ValueError("Could not determine 'ground_set_size'.") from e
         else:
             om._ground_set_size = ground_set_size
-        om._rank = rank
-        om._set_chirotope_entries_from_circuits([sign_vector(element) for element in circuits])
+        circuits = {sign_vector(element) for element in circuits}
+        if rank is None:
+            om._rank = om._rank_from_circuits(circuits)
+        else:
+            om._rank = rank
+        om._set_chirotope_entries_from_circuits(circuits)
         return om
 
     @classmethod
@@ -498,9 +502,24 @@ class OrientedMatroid(SageObject):
             self._rank = self._rank_from_cocircuits(self.cocircuits())
         return self._rank
 
+    def _rank_from_circuits(self, circuits: set[SignVector]) -> int:
+        def is_entry_zero_from_circuits(supports: set[SignVector], rset: tuple[int]) -> bool:
+            return any(support.issubset(rset) for support in supports)
+
+        supports = {frozenset(circuit.support()) for circuit in circuits}
+        self._loops_from_circuit_supports(supports)
+        for candidate in range(self.ground_set_size - len(self.loops()), -1, -1):
+            if not all(is_entry_zero_from_circuits(supports, rset) for rset in Combinations(self.ground_set_size, candidate)):
+                return candidate
+
     def _rank_from_cocircuits(self, cocircuits: set[SignVector]) -> int:
-        self._set_faces_from_topes(self._topes_from_cocircuits(cocircuits))
-        return max(self._faces_by_dimension) + 1
+        def is_entry_zero_from_cocircuits(zero_supports: set[SignVector], rset: tuple[int]) -> bool:
+            return any(zero_support.issuperset(rset) for zero_support in zero_supports)
+
+        zero_supports = {frozenset(cocircuit.zero_support()) for cocircuit in cocircuits}
+        for candidate in range(self.ground_set_size + 1):
+            if not all(is_entry_zero_from_cocircuits(zero_supports, rset) for rset in Combinations(self.ground_set_size, candidate)):
+                return candidate
 
     @property
     def dimension(self) -> int:
@@ -537,11 +556,14 @@ class OrientedMatroid(SageObject):
             The result is cached.
         """
         if self._loops is None:
-            self._loops = [
+            self._loops = set(
                 e for e in range(self.ground_set_size)
                 if all(element[e] == 0 for element in self.cocircuits())
-            ]
+            )
         return self._loops
+
+    def _loops_from_circuit_supports(self, supports: set[frozenset[int]]) -> None:
+        self._loops = set(next(iter(support)) for support in supports if len(support) == 1)
 
     def parallel_classes(self) -> list[set[int]]:
         r"""Compute the parallel classes of this oriented matroid."""
@@ -992,7 +1014,7 @@ class OrientedMatroid(SageObject):
                 new_element = element2.compose(element1)
                 if new_element not in covectors:
                     covectors.add(new_element)
-                    if new_element.zero_support() == self.loops():
+                    if set(new_element.zero_support()) == self.loops():
                         topes.add(new_element)
                     else:
                         covectors_new.add(new_element)
