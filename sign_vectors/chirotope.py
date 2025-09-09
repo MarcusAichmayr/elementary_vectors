@@ -86,7 +86,6 @@ class Chirotope:
         - :class:`ChirotopeFromCircuits`
         - :class:`ChirotopeFromCocircuits`
 
-
     EXAMPLES::
 
         sage: from sign_vectors.chirotope import *
@@ -258,9 +257,9 @@ class _ChirotopeFromFaces(Chirotope):
 
     def entry(self, rset: list[int]) -> Sign:
         r"""Return the chirotope entry given by ``indices``."""
-        if self._chirotope_dict.get(tuple(rset)) is None:
+        if not self._has_entry(rset):
             self._set_entries()
-        return self._chirotope_dict.get(tuple(rset))
+        return super().entry(rset)
 
     def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
         r"""
