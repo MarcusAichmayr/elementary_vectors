@@ -321,7 +321,7 @@ class OrientedMatroid(SageObject):
 
         INPUT:
 
-        - ``chirotope`` -- an instance of :class:`Chirotope`.
+        - ``chirotope`` -- an instance of :class:`sign_vectors.chirotopes.Chirotope`.
         """
         om = cls(rank=chirotope.rank, ground_set_size=chirotope.ground_set_size)
         om._chirotope_cls = chirotope
@@ -581,12 +581,12 @@ class OrientedMatroid(SageObject):
 
         OUTPUT:
 
-        - The chirotope value as a ``Sign``.
+        - The chirotope value as a :class:`sign_vectors.chirotopes.Sign`.
 
         .. SEEALSO::
 
-            - :meth:`chirotopes`
-            - :class:`Sign`
+            - :meth:`chirotope`
+            - :class:`sign_vectors.chirotopes.Sign`
 
         EXAMPLES::
 
@@ -605,13 +605,13 @@ class OrientedMatroid(SageObject):
 
         OUTPUT:
 
-        - A list of chirotope entries as ``Sign`` values.
+        - A list of chirotope entries as :class:`sign_vectors.chirotopes.Sign` values.
 
         .. SEEALSO::
 
             - :meth:`chirotope_entry`
-            - :class:`Sign`
-            - :class:`Chirotope`
+            - :class:`sign_vectors.chirotopes.Sign`
+            - :class:`sign_vectors.chirotopes.Chirotope`
 
         EXAMPLES::
 
