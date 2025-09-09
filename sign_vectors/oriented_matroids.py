@@ -26,13 +26,7 @@ class OrientedMatroid(SageObject):
     r"""Class representing an oriented matroid.
 
     This class provides methods to work with oriented matroids, including
-    computing their faces, cocircuits, and topes.
-
-    INPUT:
-
-    - ``matrix``: A matrix representing the oriented matroid.
-    - ``rank``: The rank of the oriented matroid. Only required if ``matrix`` is not provided.
-    - ``ground_set_size``: The length of the elements in the oriented matroid. Only required if ``matrix`` is not provided.
+    computing their faces, cocircuits, topes, and chirotope.
 
     EXAMPLES:
 
@@ -254,19 +248,17 @@ class OrientedMatroid(SageObject):
     """
     def __init__(self, matrix=None, rank: int = None, ground_set_size: int = None) -> None:
         if matrix is None:
-            self._matrix = None
             self._rank = rank
             self._ground_set_size = ground_set_size
             self._chirotope_cls: Chirotope = None
         else:
             try:
-                self._matrix = matrix.matrix_from_rows(matrix.pivot_rows())
+                matrix = matrix.matrix_from_rows(matrix.pivot_rows())
             except NotImplementedError as exc:
                 if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
                     raise ValueError("Provide a matrix with maximal rank.") from exc
-                self._matrix = matrix
-            self._rank, self._ground_set_size = self._matrix.dimensions()
-            self._chirotope_cls = ChirotopeFromMatrix(self._matrix)
+            self._rank, self._ground_set_size = matrix.dimensions()
+            self._chirotope_cls = ChirotopeFromMatrix(matrix)
 
         self._dimension = None
         self._faces_by_dimension: dict[int, set[SignVector]] = {}
@@ -506,13 +498,6 @@ class OrientedMatroid(SageObject):
         return om
 
     @property
-    def matrix(self):
-        r"""The underlying matrix if available."""
-        if self._matrix is None:
-            raise ValueError("There is no matrix associated with this oriented matroid.")
-        return self._matrix
-
-    @property
     def ground_set_size(self) -> int:
         r"""The size of the ground set of this oriented matroid."""
         if self._ground_set_size is None:
@@ -626,6 +611,7 @@ class OrientedMatroid(SageObject):
 
             - :meth:`chirotope_entry`
             - :class:`Sign`
+            - :class:`Chirotope`
 
         EXAMPLES::
 
@@ -659,8 +645,6 @@ class OrientedMatroid(SageObject):
     def cocircuit(self, indices: list[int]) -> SignVector:
         r"""
         Compute a cocircuit for the given indices.
-
-        Cocircuits correspond to the elements in the row space of the matrix.
 
         INPUT:
 
@@ -701,8 +685,6 @@ class OrientedMatroid(SageObject):
     def circuit(self, indices: list[int]) -> SignVector:
         r"""
         Compute a circuit for the given indices.
-
-        Circuits correspond to the elements in the kernel of the matrix.
 
         INPUT:
 
