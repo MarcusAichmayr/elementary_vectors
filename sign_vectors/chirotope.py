@@ -265,7 +265,7 @@ class _ChirotopeFromMatrix(Chirotope):
         return super().entry(rset)
 
 
-class _ChirotopeFromFaces(Chirotope):
+class _ChirotopeFromMinimalSupportElements(Chirotope):
     def __init__(self, faces: set[SignVector], rank: int, ground_set_size: int) -> None:
         super().__init__(rank, ground_set_size)
         self._faces_dict: dict[tuple[int], SignVector] = {}
@@ -378,7 +378,7 @@ class _ChirotopeFromFaces(Chirotope):
             rset = adjacent_rset
 
 
-class _ChirotopeFromCircuits(_ChirotopeFromFaces):
+class _ChirotopeFromCircuits(_ChirotopeFromMinimalSupportElements):
     r"""
     A chirotope constructed from its circuits.
 
@@ -412,7 +412,7 @@ class _ChirotopeFromCircuits(_ChirotopeFromFaces):
         return False
 
 
-class _ChirotopeFromCocircuits(_ChirotopeFromFaces):
+class _ChirotopeFromCocircuits(_ChirotopeFromMinimalSupportElements):
     r"""A chirotope constructed from its cocircuits."""
     def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
         complement = set(range(self.ground_set_size)) - support
