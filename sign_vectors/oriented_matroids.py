@@ -18,7 +18,7 @@ from sage.combinat.posets.lattices import LatticePoset
 from sage.structure.sage_object import SageObject
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
-from .chirotope import Sign, Chirotope, ChirotopeFromMatrix, ChirotopeFromCircuits, ChirotopeFromCocircuits
+from .chirotope import Sign, Chirotope
 from .utility import classes_same_support, parallel_classes
 
 
@@ -258,7 +258,7 @@ class OrientedMatroid(SageObject):
                 if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
                     raise ValueError("Provide a matrix with maximal rank.") from exc
             self._rank, self._ground_set_size = matrix.dimensions()
-            self._chirotope_cls = ChirotopeFromMatrix(matrix)
+            self._chirotope_cls = Chirotope.from_matrix(matrix)
 
         self._dimension = None
         self._faces_by_dimension: dict[int, set[SignVector]] = {}
@@ -410,7 +410,7 @@ class OrientedMatroid(SageObject):
         else:
             om._rank = rank
         om._set_cocircuits(set(create_cocircuits(cocircuits)))
-        om._chirotope_cls = ChirotopeFromCocircuits(om.cocircuits(), om.rank, om.ground_set_size)
+        om._chirotope_cls = Chirotope.from_cocircuits(om.cocircuits(), om.rank, om.ground_set_size)
         return om
 
     @classmethod
@@ -450,7 +450,7 @@ class OrientedMatroid(SageObject):
             om._rank = om._rank_from_circuits(circuits)
         else:
             om._rank = rank
-        om._chirotope_cls = ChirotopeFromCircuits(circuits, om.rank, om.ground_set_size)
+        om._chirotope_cls = Chirotope.from_circuits(circuits, om.rank, om.ground_set_size)
         return om
 
     @classmethod
@@ -494,7 +494,7 @@ class OrientedMatroid(SageObject):
         om._ground_set_size = next(iter(topes)).length()
         om._set_faces_from_topes(topes)
         om._rank = max(om._faces_by_dimension) + 1
-        om._chirotope_cls = ChirotopeFromCocircuits(om.cocircuits(), om.rank, om.ground_set_size)
+        om._chirotope_cls = Chirotope.from_cocircuits(om.cocircuits(), om.rank, om.ground_set_size)
         return om
 
     @property
