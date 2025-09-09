@@ -507,7 +507,7 @@ class OrientedMatroid(SageObject):
             return any(support.issubset(rset) for support in supports)
 
         supports = {frozenset(circuit.support()) for circuit in circuits}
-        self._loops_from_circuit_supports(supports)
+        self._set_loops_from_circuit_supports(supports)
         for candidate in range(self.ground_set_size - len(self.loops()), -1, -1):
             if not all(is_entry_zero_from_circuits(supports, rset) for rset in Combinations(self.ground_set_size, candidate)):
                 return candidate
@@ -562,7 +562,7 @@ class OrientedMatroid(SageObject):
             )
         return self._loops
 
-    def _loops_from_circuit_supports(self, supports: set[frozenset[int]]) -> None:
+    def _set_loops_from_circuit_supports(self, supports: set[frozenset[int]]) -> None:
         self._loops = set(next(iter(support)) for support in supports if len(support) == 1)
 
     def parallel_classes(self) -> list[set[int]]:
