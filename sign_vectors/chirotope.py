@@ -176,12 +176,6 @@ class Chirotope:
         r"""Represent the chirotope as a string."""
         return "".join(str(value) for value in self.entries())
 
-    def _set_entry(self, rset: tuple[int], value: Sign) -> None:
-        self._chirotope_dict[rset] = value
-
-    def _has_entry(self, rset: list[int]) -> bool:
-        return tuple(rset) in self._chirotope_dict
-
     def entry(self, rset: list[int]) -> Sign:
         r"""Return the chirotope entry given by ``indices``."""
         return self._chirotope_dict[tuple(rset)]
@@ -189,6 +183,12 @@ class Chirotope:
     def entries(self) -> list[Sign]:
         r"""Return all chirotope entries in lexicographic order."""
         return [self.entry(tuple(rset)) for rset in Combinations(self.ground_set_size, self.rank)]
+
+    def _set_entry(self, rset: tuple[int], value: Sign) -> None:
+        self._chirotope_dict[rset] = value
+
+    def _has_entry(self, rset: list[int]) -> bool:
+        return tuple(rset) in self._chirotope_dict
 
     def _set_entries(self) -> None:
         for rset in Combinations(self.ground_set_size, self.rank):
@@ -310,20 +310,6 @@ class _ChirotopeFromMinimalSupportElements(Chirotope):
             self._set_entries()
         return super().entry(rset)
 
-    def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
-        r"""
-        Generate all possible index sets that correspond to the face given by its support.
-
-        For instance, ``{0, 1, 2}`` corresponds to the circuit ``(+++0)``.
-        Also ``{0, 1, 2}`` would also correspond to the circuit ``(++00)``.
-
-        On the other hand, ``{3}`` would correspond to the cocircuit ``(+++0)``.
-        """
-        raise NotImplementedError
-
-    def _connecting_face_indices(self, rset1: tuple[int], rset2: tuple[int]) -> tuple[int]:
-        raise NotImplementedError
-
     def _set_entries(self) -> None:
         self._set_other_nonzero_entries_from(self._set_zero_entries_and_first_nonzero())
 
@@ -339,18 +325,6 @@ class _ChirotopeFromMinimalSupportElements(Chirotope):
                 nonzero_rset = tuple(rset)
                 self._set_entry(nonzero_rset, Sign.POS)
         return nonzero_rset
-
-    def _is_entry_zero(self, rset: list[int]) -> bool:
-        r"""Return whether the entry of the chirotope given by ``rset`` is zero using (co)circuits."""
-        raise NotImplementedError
-
-    def _get_adjacent_rsets(self, rset: tuple[int]) -> Iterator[tuple[int]]:
-        if self.rank == 0:
-            return
-        complement = [i for i in range(self.ground_set_size) if i not in rset]
-        for subset in Combinations(rset, self.rank - 1):
-            for i in complement:
-                yield tuple(sorted(subset + [i]))
 
     def _set_other_nonzero_entries_from(self, rset: tuple[int]) -> None:
         r"""
@@ -371,11 +345,37 @@ class _ChirotopeFromMinimalSupportElements(Chirotope):
             face = self._faces_dict[face_indices]
             i, j = set(rset).symmetric_difference(adjacent_rset)
             adjacent_value = Sign(self.entry(rset) * face[i] * face[j])
-            # set sign depending on positions of i and j
+            # set sign depending on positions of i and j in face_indices
             if (bisect_left(face_indices, i) + bisect_left(face_indices, j)) & 1:
                 adjacent_value = -adjacent_value
             self._set_entry(adjacent_rset, adjacent_value)
             rset = adjacent_rset
+
+    def _get_adjacent_rsets(self, rset: tuple[int]) -> Iterator[tuple[int]]:
+        if self.rank == 0:
+            return
+        complement = [i for i in range(self.ground_set_size) if i not in rset]
+        for subset in Combinations(rset, self.rank - 1):
+            for i in complement:
+                yield tuple(sorted(subset + [i]))
+
+    def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
+        r"""
+        Generate all possible index sets that correspond to the face given by its support.
+
+        For instance, ``{0, 1, 2}`` corresponds to the circuit ``(+++0)``.
+        Also ``{0, 1, 2}`` would also correspond to the circuit ``(++00)``.
+
+        On the other hand, ``{3}`` would correspond to the cocircuit ``(+++0)``.
+        """
+        raise NotImplementedError
+
+    def _connecting_face_indices(self, rset1: tuple[int], rset2: tuple[int]) -> tuple[int]:
+        raise NotImplementedError
+
+    def _is_entry_zero(self, rset: list[int]) -> bool:
+        r"""Return whether the entry of the chirotope given by ``rset`` is zero using (co)circuits."""
+        raise NotImplementedError
 
 
 class _ChirotopeFromCircuits(_ChirotopeFromMinimalSupportElements):
