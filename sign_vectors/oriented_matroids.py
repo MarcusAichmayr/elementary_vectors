@@ -496,6 +496,23 @@ class OrientedMatroid(SageObject):
         return self._matrix
 
     @property
+    def ground_set_size(self) -> int:
+        r"""The size of the ground set of this oriented matroid."""
+        if self._ground_set_size is None:
+            if not self._faces_by_dimension:
+                raise ValueError("Couldn't determine ground set size.")
+            for faces in self._faces_by_dimension.values():
+                if faces:
+                    self._ground_set_size = next(iter(faces)).length()
+                    break
+        return self._ground_set_size
+
+    @property
+    def ground_set(self) -> set[int]:
+        r"""The ground set of this oriented matroid."""
+        return set(range(self.ground_set_size))
+
+    @property
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
         if self._rank is None:
@@ -527,23 +544,6 @@ class OrientedMatroid(SageObject):
         if self._dimension is None:
             self._dimension = self.rank - 1
         return self._dimension
-
-    @property
-    def ground_set_size(self) -> int:
-        r"""The size of the ground set of this oriented matroid."""
-        if self._ground_set_size is None:
-            if not self._faces_by_dimension:
-                raise ValueError("Couldn't determine ground set size.")
-            for faces in self._faces_by_dimension.values():
-                if faces:
-                    self._ground_set_size = next(iter(faces)).length()
-                    break
-        return self._ground_set_size
-
-    @property
-    def ground_set(self) -> set[int]:
-        r"""The ground set of this oriented matroid."""
-        return set(range(self.ground_set_size))
 
     def loops(self) -> list[int]:
         r"""
