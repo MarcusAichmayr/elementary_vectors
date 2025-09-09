@@ -1,48 +1,5 @@
 r"""
-Chirotopes constructed from (co)circuits.
-
-EXAMPLES::
-
-    sage: from sign_vectors import *
-    sage: from sign_vectors.chirotope import *
-    sage: c = ChirotopeFromCircuits([sign_vector("00+0"), sign_vector("000+")], 2, 4)
-    sage: c.entry([0, 1])
-    +
-    sage: c.entry([0, 2])
-    0
-    sage: c.entry([1, 2])
-    0
-    sage: c = ChirotopeFromCircuits([sign_vector("00+0"), sign_vector("000+")], 2, 4)
-    sage: c.entries()
-    [+, 0, 0, 0, 0, 0]
-
-::
-
-    sage: c = ChirotopeFromCocircuits([sign_vector("00+0"), sign_vector("000+")], 2, 4)
-    sage: c.entries()
-    [0, 0, 0, 0, 0, +]
-
-::
-
-    sage: c = ChirotopeFromCircuits([sign_vector("++0--"), sign_vector("+0--0"), sign_vector("-0++0"), sign_vector("0--0+"), sign_vector("--0++"), sign_vector("0++0-")], 3, 5)
-    sage: c.entries()
-    [+, -, +, 0, -, +, +, 0, -, +]
-
-::
-
-    sage: c = ChirotopeFromCocircuits([sign_vector("00++"), sign_vector("0++0"), sign_vector("0+0-")], 2, 4)
-    sage: c.entries()
-    [0, 0, 0, +, +, +]
-
-TESTS:
-
-When iterating over ``{7, 8}``, we obtain ``8`` first.
-Therefore, we need to sort indices::
-
-    sage: M = matrix.ones(1, 9)
-    sage: om = OrientedMatroid(M)
-    sage: ChirotopeFromCircuits(om.circuits(), 1, 9).entries()
-    [+, +, +, +, +, +, +, +, +]
+Chirotopes.
 """
 
 #############################################################################
@@ -128,13 +85,31 @@ class Chirotope:
         - :class:`ChirotopeFromMatrix`
         - :class:`ChirotopeFromCircuits`
         - :class:`ChirotopeFromCocircuits`
+
+
+    EXAMPLES::
+
+        sage: from sign_vectors.chirotope import *
+        sage: c = Chirotope.from_entries([0, 0, -1, 1, 0, 1, -1, 1, -1, -1], 2, 5)
+        sage: c
+        Chirotope of rank 2 on ground set of size 5
+        sage: c.entry((0, 3))
+        -
+        sage: c.entries()
+        [0, 0, -, +, 0, +, -, +, -, -]
+        sage: c.as_string()
+        '00-+0+-+--'
+        sage: c.dual()
+        Chirotope of rank 3 on ground set of size 5
+        sage: c.dual().entries()
+        [-, +, +, -, -, 0, -, -, 0, 0]
     """
     def __init__(self, rank: int, ground_set_size: int) -> None:
         self.rank = rank
         self.ground_set_size = ground_set_size
         self._chirotope_dict: dict[tuple[int], Sign] = {}
 
-    def _repr_(self) -> str:
+    def __repr__(self) -> str:
         r"""Return a string representation of the chirotope."""
         return f"Chirotope of rank {self.rank} on ground set of size {self.ground_set_size}"
 
@@ -170,20 +145,69 @@ class Chirotope:
             dual_chirotope._set_entry(complement, Sign(-value if inversions & 1 else value)) # check last bit
         return dual_chirotope
 
-    @classmethod
-    def from_entries(cls, entries: list[Sign], rank: int, ground_set_size: int) -> "Chirotope":
+    @staticmethod
+    def from_entries(entries: list[Sign], rank: int, ground_set_size: int) -> "Chirotope":
         r"""Construct a chirotope from its entries."""
-        chirotope = cls(rank, ground_set_size)
+        chirotope = Chirotope(rank, ground_set_size)
         for indices, value in zip(Combinations(ground_set_size, rank), entries):
             chirotope._set_entry(tuple(indices), Sign(value))
         return chirotope
 
 
 class ChirotopeFromMatrix(Chirotope):
-    r"""A chirotope constructed from a matrix."""
+    r"""
+    A chirotope constructed from a matrix.
+
+    .. NOTE::
+
+        Pass a matrix with full rank.
+        Otherwise, all entries of the chirotope will be zero.
+
+    EXAMPLES::
+
+        sage: from sign_vectors.chirotope import *
+        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: c = ChirotopeFromMatrix(M)
+        sage: c.entry((0, 1))
+        +
+        sage: c.entries()
+        [+, +, +, +, +, 0]
+        sage: c.dual()
+        Chirotope of rank 2 on ground set of size 4
+        sage: c.dual().entries()
+        [0, -, +, +, -, +]
+
+    ::
+
+        sage: M = matrix([[1, 0, 0, 1], [0, 1, 0, 1], [0, 0, 1, 1]])
+        sage: c = ChirotopeFromMatrix(M)
+        sage: c
+        Chirotope of rank 3 on ground set of size 4
+        sage: c.entries()
+        [+, +, -, +]
+        sage: c.dual()
+        Chirotope of rank 1 on ground set of size 4
+        sage: c.dual().entries()
+        [+, +, +, -]
+
+    TESTS::
+
+        sage: M = matrix(ZZ, 0, 3)
+        sage: c = ChirotopeFromMatrix(M)
+        sage: c.entries()
+        [+]
+
+    ::
+
+        sage: M = zero_matrix(ZZ, 1, 2)
+        sage: c = ChirotopeFromMatrix(M)
+        sage: c.entries()
+        [0, 0]
+        sage: c.dual().entries()
+        [0, 0]
+    """
     def __init__(self, matrix) -> None:
-        # TODO pivot rows
-        super().__init__(matrix.rank(), matrix.ncols())
+        super().__init__(matrix.nrows(), matrix.ncols())
         self.matrix = matrix
 
     def entry(self, rset: list[int]) -> Sign:
@@ -241,7 +265,7 @@ class _ChirotopeFromFaces(Chirotope):
     def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
         r"""
         Generate all possible index sets that correspond to the face given by its support.
-        
+
         For instance, ``{0, 1, 2}`` corresponds to the circuit ``(+++0)``.
         Also ``{0, 1, 2}`` would also correspond to the circuit ``(++00)``.
 
@@ -307,7 +331,48 @@ class _ChirotopeFromFaces(Chirotope):
 
 
 class ChirotopeFromCircuits(_ChirotopeFromFaces):
-    r"""A chirotope constructed from its circuits."""
+    r"""
+    A chirotope constructed from its circuits.
+
+    EXAMPLES::
+
+        sage: from sign_vectors import *
+        sage: from sign_vectors.chirotope import *
+        sage: c = ChirotopeFromCircuits([sign_vector("00+0"), sign_vector("000+")], 2, 4)
+        sage: c.entry([0, 1])
+        +
+        sage: c.entry([0, 2])
+        0
+        sage: c.entry([1, 2])
+        0
+        sage: c = ChirotopeFromCircuits([sign_vector("00+0"), sign_vector("000+")], 2, 4)
+        sage: c.entries()
+        [+, 0, 0, 0, 0, 0]
+        sage: c.dual()
+        Chirotope of rank 2 on ground set of size 4
+        sage: c.dual().entries()
+        [0, 0, 0, 0, 0, +]
+        sage: c.as_string()
+        '+00000'
+
+    ::
+
+        sage: c = ChirotopeFromCircuits([sign_vector("++0--"), sign_vector("+0--0"), sign_vector("-0++0"), sign_vector("0--0+"), sign_vector("--0++"), sign_vector("0++0-")], 3, 5)
+        sage: c.entries()
+        [+, -, +, 0, -, +, +, 0, -, +]
+        sage: c.dual().entries()
+        [+, +, 0, -, +, +, 0, +, +, +]
+
+    TESTS:
+
+    When iterating over ``{7, 8}``, we obtain ``8`` first.
+    Therefore, we need to sort indices::
+
+        sage: M = matrix.ones(1, 9)
+        sage: om = OrientedMatroid(M)
+        sage: ChirotopeFromCircuits(om.circuits(), 1, 9).entries()
+        [+, +, +, +, +, +, +, +, +]
+    """
     def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
         complement = set(range(self.ground_set_size)) - support
         for indices in Combinations(complement, self.rank + 1 - len(support)):
@@ -327,7 +392,23 @@ class ChirotopeFromCircuits(_ChirotopeFromFaces):
 
 
 class ChirotopeFromCocircuits(_ChirotopeFromFaces):
-    r"""A chirotope constructed from its cocircuits."""
+    r"""
+    A chirotope constructed from its cocircuits.
+
+    EXAMPLES::
+
+        sage: from sign_vectors import *
+        sage: from sign_vectors.chirotope import *
+        sage: c = ChirotopeFromCocircuits([sign_vector("00+0"), sign_vector("000+")], 2, 4)
+        sage: c.entries()
+        [0, 0, 0, 0, 0, +]
+
+    ::
+
+        sage: c = ChirotopeFromCocircuits([sign_vector("00++"), sign_vector("0++0"), sign_vector("0+0-")], 2, 4)
+        sage: c.entries()
+        [0, 0, 0, +, +, +]
+    """
     def _corresponding_indices_for_face(self, support: set[int]) -> Iterator[tuple[int]]:
         complement = set(range(self.ground_set_size)) - support
         for indices in Combinations(complement, self.rank - 1):

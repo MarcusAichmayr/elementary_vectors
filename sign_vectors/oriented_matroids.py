@@ -18,7 +18,7 @@ from sage.combinat.posets.lattices import LatticePoset
 from sage.structure.sage_object import SageObject
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
-from .chirotope import Chirotope, ChirotopeFromMatrix, Sign, ChirotopeFromCircuits, ChirotopeFromCocircuits
+from .chirotope import Sign, Chirotope, ChirotopeFromMatrix, ChirotopeFromCircuits, ChirotopeFromCocircuits
 from .utility import classes_same_support, parallel_classes
 
 
