@@ -20,6 +20,7 @@ To install this SageMath package, visit the `repository on GitHub <https://githu
 
     sign_vectors.sign_vectors
     sign_vectors.oriented_matroids
+    sign_vectors.chirotopes
     sign_vectors.functions
     sign_vectors.utility
 
