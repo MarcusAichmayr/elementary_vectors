@@ -272,10 +272,6 @@ class OrientedMatroid(SageObject):
         return obj
 
     @staticmethod
-    def from_matrix(matrix) -> "OrientedMatroid":
-        return _OrientedMatroidFromMatrix(matrix)
-
-    @staticmethod
     def from_chirotope(entries: list[int] | str, rank: int, ground_set_size: int) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from a chirotope.
