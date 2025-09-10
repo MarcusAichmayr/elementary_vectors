@@ -450,13 +450,6 @@ class OrientedMatroid(SageObject):
     @property
     def ground_set_size(self) -> int:
         r"""The size of the ground set of this oriented matroid."""
-        if self._ground_set_size is None:
-            if not self._faces_by_dimension:
-                raise ValueError("Couldn't determine ground set size.")
-            for faces in self._faces_by_dimension.values():
-                if faces:
-                    self._ground_set_size = next(iter(faces)).length()
-                    break
         return self._ground_set_size
 
     @property
@@ -1216,12 +1209,6 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
                 yield sign_vector(element)
                 yield -sign_vector(element)
 
-        if ground_set_size is None:
-            try:
-                self._ground_set_size = len(next(iter(cocircuits)))
-            except StopIteration as e:
-                raise ValueError("Could not determine 'ground_set_size'.") from e
-
         if rank is None:
             if len(cocircuits) == 0:
                 rank = 0
@@ -1236,6 +1223,15 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
         if self._rank is None:
             self._compute_rank()
         return self._rank
+
+    @property
+    def ground_set_size(self) -> int:
+        if self._ground_set_size is None:
+            try:
+                self._ground_set_size = len(next(iter(self.cocircuits())))
+            except StopIteration as e:
+                raise ValueError("Could not determine 'ground_set_size'.") from e
+        return self._ground_set_size
 
     def _compute_rank(self) -> None:
         def is_entry_zero_from_cocircuits(zero_supports: set[SignVector], rset: tuple[int]) -> bool:
