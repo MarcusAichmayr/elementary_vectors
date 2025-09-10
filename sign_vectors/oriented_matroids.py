@@ -1225,8 +1225,7 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
         if rank is None:
             if len(cocircuits) == 0:
                 rank = 0
-            else:
-                rank = self._rank_from_cocircuits(set(create_cocircuits(cocircuits)))
+
         super().__init__(rank=rank, ground_set_size=ground_set_size)
         self._set_cocircuits(set(create_cocircuits(cocircuits)))
         self._chirotope_cls = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
@@ -1235,17 +1234,18 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
         if self._rank is None:
-            self._rank = self._rank_from_cocircuits(self.cocircuits())
+            self._compute_rank()
         return self._rank
 
-    def _rank_from_cocircuits(self, cocircuits: set[SignVector]) -> int:
+    def _compute_rank(self) -> None:
         def is_entry_zero_from_cocircuits(zero_supports: set[SignVector], rset: tuple[int]) -> bool:
             return any(zero_support.issuperset(rset) for zero_support in zero_supports)
 
-        zero_supports = {frozenset(cocircuit.zero_support()) for cocircuit in cocircuits}
+        zero_supports = {frozenset(cocircuit.zero_support()) for cocircuit in self.cocircuits()}
         for candidate in range(self.ground_set_size + 1):
             if not all(is_entry_zero_from_cocircuits(zero_supports, rset) for rset in Combinations(self.ground_set_size, candidate)):
-                return candidate
+                self._rank = candidate
+                return
 
 class _OrientedMatroidFromCircuits(OrientedMatroid):
     def __init__(self, circuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> None:
@@ -1263,27 +1263,24 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
                 raise ValueError("Could not determine 'ground_set_size'.") from e
 
         super().__init__(rank=rank, ground_set_size=ground_set_size)
-
-        if self._rank is None:
-            self._rank = self._rank_from_circuit_supports()
-
         self._chirotope_cls = Chirotope.from_circuits(create_circuits(circuits), self.rank, self.ground_set_size)
 
     @property
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
         if self._rank is None:
-            self._rank = self._rank_from_circuit_supports()
+            self._compute_rank()
         return self._rank
 
-    def _rank_from_circuit_supports(self) -> int:
+    def _compute_rank(self) -> None:
         def is_entry_zero(rset: tuple[int]) -> bool:
             return any(support.issubset(rset) for support in self._circuit_supports)
 
         self._set_loops_from_circuit_supports()
         for candidate in range(self.ground_set_size - len(self.loops()), -1, -1):
             if not all(is_entry_zero(rset) for rset in Combinations(self.ground_set_size, candidate)):
-                return candidate
+                self._rank = candidate
+                return
 
     def loops(self) -> set[int]:
         if self._loops is None:
