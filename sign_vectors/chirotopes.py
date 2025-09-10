@@ -205,7 +205,7 @@ class Chirotope:
         return dual_chirotope
 
     @staticmethod
-    def from_entries(entries: list[Sign], rank: int, ground_set_size: int) -> "Chirotope":
+    def from_list(entries: list[Sign], rank: int, ground_set_size: int) -> "Chirotope":
         r"""Construct a chirotope from its entries."""
         chirotope = Chirotope(rank, ground_set_size)
         for indices, value in zip(Combinations(ground_set_size, rank), entries):
@@ -390,7 +390,7 @@ class _ChirotopeFromCircuits(_ChirotopeFromMinimalSupportElements):
         sage: from sign_vectors import *
         sage: from sign_vectors.chirotope import Chirotope
         sage: M = matrix.ones(1, 9)
-        sage: om = OrientedMatroid(M)
+        sage: om = OrientedMatroid.from_matrix(M)
         sage: Chirotope.from_circuits(om.circuits(), 1, 9).entries()
         [+, +, +, +, +, +, +, +, +]
     """

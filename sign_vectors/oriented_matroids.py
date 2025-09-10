@@ -34,7 +34,7 @@ class OrientedMatroid(SageObject):
 
         sage: from sign_vectors import *
         sage: M = matrix([[1, 2, 0, 0, 0], [0, 1, 2, 0, 0], [0, 0, 0, 1, 1]])
-        sage: om = OrientedMatroid(M)
+        sage: om = OrientedMatroid.from_matrix(M)
         sage: om
         Oriented matroid of dimension 2 with elements of size 5.
         sage: om.ground_set
@@ -236,7 +236,7 @@ class OrientedMatroid(SageObject):
     Trivial oriented matroid::
 
         sage: M = matrix(ZZ, 0, 3)
-        sage: om = OrientedMatroid(M)
+        sage: om = OrientedMatroid.from_matrix(M)
         sage: om.cocircuits()
         set()
         sage: om.circuits()
@@ -246,19 +246,10 @@ class OrientedMatroid(SageObject):
         sage: om.faces()
         [{(000)}]
     """
-    def __init__(self, matrix=None, rank: int = None, ground_set_size: int = None) -> None:
-        if matrix is None:
-            self._rank = rank
-            self._ground_set_size = ground_set_size
-            self._chirotope_cls: Chirotope = None
-        else:
-            try:
-                matrix = matrix.matrix_from_rows(matrix.pivot_rows())
-            except NotImplementedError as exc:
-                if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
-                    raise ValueError("Provide a matrix with maximal rank.") from exc
-            self._rank, self._ground_set_size = matrix.dimensions()
-            self._chirotope_cls = Chirotope.from_matrix(matrix)
+    def __init__(self, rank: int = None, ground_set_size: int = None, chirotope_cls: Chirotope = None) -> None:
+        self._rank = rank
+        self._ground_set_size = ground_set_size
+        self._chirotope_cls = chirotope_cls
 
         self._dimension = None
         self._faces_by_dimension: dict[int, set[SignVector]] = {}
@@ -271,8 +262,21 @@ class OrientedMatroid(SageObject):
     def _repr_(self) -> str:
         return f"Oriented matroid of dimension {self.dimension} with elements of size {self.ground_set_size}."
 
-    @classmethod
-    def from_chirotope(cls, entries: list[int] | str, rank: int, ground_set_size: int) -> "OrientedMatroid":
+    # def __new__(cls, *args, **kwargs) -> "OrientedMatroid":
+    #     if cls is OrientedMatroid:
+    #         if args and hasattr(args[0], "nrows") and hasattr(args[0], "ncols"):
+    #             matrix = args[0]
+    #             return _OrientedMatroidFromMatrix(matrix)
+    #     obj = super().__new__(cls, *args, **kwargs)
+    #     obj.__init__(*args, **kwargs)
+    #     return obj
+
+    @staticmethod
+    def from_matrix(matrix) -> "OrientedMatroid":
+        return _OrientedMatroidFromMatrix(matrix)
+
+    @staticmethod
+    def from_chirotope(entries: list[int] | str, rank: int, ground_set_size: int) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from a chirotope.
 
@@ -310,12 +314,10 @@ class OrientedMatroid(SageObject):
             sage: OrientedMatroid.from_chirotope("00--0+++++", 2, 5)
             Oriented matroid of dimension 1 with elements of size 5.
         """
-        om = cls(rank=rank, ground_set_size=ground_set_size)
-        om._chirotope_cls = Chirotope.from_entries(entries, rank, ground_set_size)
-        return om
+        return _OrientedMatroidFromChirotope(Chirotope.from_list(entries, rank, ground_set_size))
 
-    @classmethod
-    def from_chirotope_class(cls, chirotope: Chirotope) -> "OrientedMatroid":
+    @staticmethod
+    def from_chirotope_class(chirotope: Chirotope) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from a chirotope instance.
 
@@ -323,12 +325,10 @@ class OrientedMatroid(SageObject):
 
         - ``chirotope`` -- an instance of :class:`sign_vectors.chirotopes.Chirotope`.
         """
-        om = cls(rank=chirotope.rank, ground_set_size=chirotope.ground_set_size)
-        om._chirotope_cls = chirotope
-        return om
+        return _OrientedMatroidFromChirotope(chirotope)
 
-    @classmethod
-    def from_cocircuits(cls, cocircuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "OrientedMatroid":
+    @staticmethod
+    def from_cocircuits(cocircuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from cocircuits.
 
@@ -391,30 +391,10 @@ class OrientedMatroid(SageObject):
             sage: om.dual().cocircuits()
             {(-00), (00+), (00-), (0+0), (0-0), (+00)}
         """
-        def create_cocircuits(iterable):
-            for element in iterable:
-                yield sign_vector(element)
-                yield -sign_vector(element)
+        return _OrientedMatroidFromCocircuits(cocircuits, rank=rank, ground_set_size=ground_set_size)
 
-        om = cls()
-        if ground_set_size is None:
-            try:
-                om._ground_set_size = len(next(iter(cocircuits)))
-            except StopIteration as e:
-                raise ValueError("Could not determine 'ground_set_size'.") from e
-        else:
-            om._ground_set_size = ground_set_size
-        if rank is None:
-            if len(cocircuits) == 0:
-                om._rank = 0
-        else:
-            om._rank = rank
-        om._set_cocircuits(set(create_cocircuits(cocircuits)))
-        om._chirotope_cls = Chirotope.from_cocircuits(om.cocircuits(), om.rank, om.ground_set_size)
-        return om
-
-    @classmethod
-    def from_circuits(cls, circuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "OrientedMatroid":
+    @staticmethod
+    def from_circuits(circuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from circuits.
 
@@ -437,24 +417,10 @@ class OrientedMatroid(SageObject):
             sage: om.faces()
             [{(000)}, {(00+), (00-)}]
         """
-        om = cls()
-        if ground_set_size is None:
-            try:
-                om._ground_set_size = len(next(iter(circuits)))
-            except StopIteration as e:
-                raise ValueError("Could not determine 'ground_set_size'.") from e
-        else:
-            om._ground_set_size = ground_set_size
-        circuits = {sign_vector(element) for element in circuits}
-        if rank is None:
-            om._rank = om._rank_from_circuits(circuits)
-        else:
-            om._rank = rank
-        om._chirotope_cls = Chirotope.from_circuits(circuits, om.rank, om.ground_set_size)
-        return om
+        return _OrientedMatroidFromCircuits(circuits, rank=rank, ground_set_size=ground_set_size)
 
-    @classmethod
-    def from_topes(cls, topes: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
+    @staticmethod
+    def from_topes(topes: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
         r"""
         Create an oriented matroid from a tope set.
 
@@ -483,19 +449,7 @@ class OrientedMatroid(SageObject):
              {(++0-), (+0+-), (--0+), (0-++), (0+--), (-+-0), (-0-+), (+-+0)},
              {(-+-+), (---+), (-+--), (--++), (+-+-), (++--), (+-++), (+++-)}]
         """
-        def create_topes(iterable):
-            for element in iterable:
-                yield sign_vector(element)
-                yield -sign_vector(element)
-
-        topes = set(create_topes(topes))
-
-        om = cls()
-        om._ground_set_size = next(iter(topes)).length()
-        om._set_faces_from_topes(topes)
-        om._rank = max(om._faces_by_dimension) + 1
-        om._chirotope_cls = Chirotope.from_cocircuits(om.cocircuits(), om.rank, om.ground_set_size)
-        return om
+        return _OrientedMatroidFromTopes(topes)
 
     @property
     def ground_set_size(self) -> int:
@@ -517,28 +471,7 @@ class OrientedMatroid(SageObject):
     @property
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
-        if self._rank is None:
-            self._rank = self._rank_from_cocircuits(self.cocircuits())
         return self._rank
-
-    def _rank_from_circuits(self, circuits: set[SignVector]) -> int:
-        def is_entry_zero_from_circuits(supports: set[SignVector], rset: tuple[int]) -> bool:
-            return any(support.issubset(rset) for support in supports)
-
-        supports = {frozenset(circuit.support()) for circuit in circuits}
-        self._set_loops_from_circuit_supports(supports)
-        for candidate in range(self.ground_set_size - len(self.loops()), -1, -1):
-            if not all(is_entry_zero_from_circuits(supports, rset) for rset in Combinations(self.ground_set_size, candidate)):
-                return candidate
-
-    def _rank_from_cocircuits(self, cocircuits: set[SignVector]) -> int:
-        def is_entry_zero_from_cocircuits(zero_supports: set[SignVector], rset: tuple[int]) -> bool:
-            return any(zero_support.issuperset(rset) for zero_support in zero_supports)
-
-        zero_supports = {frozenset(cocircuit.zero_support()) for cocircuit in cocircuits}
-        for candidate in range(self.ground_set_size + 1):
-            if not all(is_entry_zero_from_cocircuits(zero_supports, rset) for rset in Combinations(self.ground_set_size, candidate)):
-                return candidate
 
     @property
     def dimension(self) -> int:
@@ -547,7 +480,7 @@ class OrientedMatroid(SageObject):
             self._dimension = self.rank - 1
         return self._dimension
 
-    def loops(self) -> list[int]:
+    def loops(self) -> set[int]:
         r"""
         Compute the loops of this oriented matroid.
 
@@ -563,9 +496,6 @@ class OrientedMatroid(SageObject):
                 if all(element[e] == 0 for element in self.cocircuits())
             )
         return self._loops
-
-    def _set_loops_from_circuit_supports(self, supports: set[frozenset[int]]) -> None:
-        self._loops = set(next(iter(support)) for support in supports if len(support) == 1)
 
     def parallel_classes(self) -> list[set[int]]:
         r"""Compute the parallel classes of this oriented matroid."""
@@ -592,7 +522,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.chirotope_entry([1, 2])
             +
         """
@@ -617,7 +547,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.chirotope()
             [+, +, +, +, +, 0]
         """
@@ -663,7 +593,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.cocircuit([0])
             (0---)
         """
@@ -703,7 +633,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.circuit([0, 1, 2])
             (+-+0)
         """
@@ -761,7 +691,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.cocircuits()
             {(+0--), (-0++), (--00), (++00), (0+++), (0---)}
         """
@@ -798,7 +728,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.circuits()
             {(00-+), (+-0+), (-+0-), (00+-), (-+-0), (+-+0)}
         """
@@ -1004,31 +934,6 @@ class OrientedMatroid(SageObject):
                     covectors_new.add(new_element)
         return covectors
 
-    def _set_faces_from_topes(self, topes: set[SignVector]) -> None:
-        r"""
-        Use the topes to set all faces of the oriented matroid.
-
-        INPUT:
-
-        - ``topes`` -- a set of topes of the oriented matroid
-
-        ALGORITHM:
-
-        This function is based on an algorithm in [FST91]_.
-        See also [Fin01]_.
-        """
-        all_faces = [set(topes)]
-
-        current = 0
-        while len(all_faces[current]) > 1:
-            all_faces.append(self._lower_faces(all_faces[current], self._connect_faces))
-            current += 1
-
-        dimension = -1
-        while all_faces:
-            self._set_faces(dimension, all_faces.pop())
-            dimension += 1
-
     def _lower_faces(self, faces: set[SignVector], connect_faces: bool) -> set[SignVector]:
         r"""
         Compute the faces of lower dimension.
@@ -1143,7 +1048,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]])
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.faces(2)
             {(---0), (++-0), (--+0), (-++0), (+++0), (+--0), (-+-0), (+-+0)}
             sage: om._above
@@ -1211,7 +1116,7 @@ class OrientedMatroid(SageObject):
 
         ::
 
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.set_face_connections(False)
             sage: om.faces()
             [{(0000)},
@@ -1248,21 +1153,21 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 1, 1]])
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.face_lattice()
             Finite lattice containing 4 elements
 
         ::
 
             sage: M = matrix(0, 3)
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.face_lattice()
             Finite lattice containing 2 elements
 
         ::
 
             sage: M = matrix([[1, 0], [0, 1]])
-            sage: om = OrientedMatroid(M)
+            sage: om = OrientedMatroid.from_matrix(M)
             sage: om.face_lattice()
             Finite lattice containing 10 elements
         """
@@ -1291,3 +1196,149 @@ class OrientedMatroid(SageObject):
             element_color="white",
             vertex_shape="",
         ).show(figsize=figsize, aspect_ratio=aspect_ratio)
+
+
+class _OrientedMatroidFromMatrix(OrientedMatroid):
+    def __init__(self, matrix) -> None:
+        try:
+            matrix = matrix.matrix_from_rows(matrix.pivot_rows())
+        except NotImplementedError as exc:
+            if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
+                raise ValueError("Provide a matrix with maximal rank.") from exc
+        super().__init__(rank=matrix.nrows(), ground_set_size=matrix.ncols(), chirotope_cls=Chirotope.from_matrix(matrix))
+
+
+class _OrientedMatroidFromChirotope(OrientedMatroid):
+    def __init__(self, chirotope: Chirotope) -> None:
+        super().__init__(rank=chirotope.rank, ground_set_size=chirotope.ground_set_size, chirotope_cls=chirotope)
+
+
+class _OrientedMatroidFromCocircuits(OrientedMatroid):
+    def __init__(self, cocircuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> None:
+        def create_cocircuits(iterable):
+            for element in iterable:
+                yield sign_vector(element)
+                yield -sign_vector(element)
+
+        if ground_set_size is None:
+            try:
+                self._ground_set_size = len(next(iter(cocircuits)))
+            except StopIteration as e:
+                raise ValueError("Could not determine 'ground_set_size'.") from e
+
+        if rank is None:
+            if len(cocircuits) == 0:
+                rank = 0
+            else:
+                rank = self._rank_from_cocircuits(set(create_cocircuits(cocircuits)))
+        super().__init__(rank=rank, ground_set_size=ground_set_size)
+        self._set_cocircuits(set(create_cocircuits(cocircuits)))
+        self._chirotope_cls = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
+
+    @property
+    def rank(self) -> int:
+        r"""The rank of this oriented matroid."""
+        if self._rank is None:
+            self._rank = self._rank_from_cocircuits(self.cocircuits())
+        return self._rank
+
+    def _rank_from_cocircuits(self, cocircuits: set[SignVector]) -> int:
+        def is_entry_zero_from_cocircuits(zero_supports: set[SignVector], rset: tuple[int]) -> bool:
+            return any(zero_support.issuperset(rset) for zero_support in zero_supports)
+
+        zero_supports = {frozenset(cocircuit.zero_support()) for cocircuit in cocircuits}
+        for candidate in range(self.ground_set_size + 1):
+            if not all(is_entry_zero_from_cocircuits(zero_supports, rset) for rset in Combinations(self.ground_set_size, candidate)):
+                return candidate
+
+class _OrientedMatroidFromCircuits(OrientedMatroid):
+    def __init__(self, circuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> None:
+        self._circuit_supports = {frozenset(sign_vector(circuit).support()) for circuit in circuits}
+
+        def create_circuits(iterable):
+            for element in iterable:
+                yield sign_vector(element)
+                yield -sign_vector(element)
+
+        if ground_set_size is None:
+            try:
+                ground_set_size = len(next(iter(circuits)))
+            except StopIteration as e:
+                raise ValueError("Could not determine 'ground_set_size'.") from e
+
+        super().__init__(rank=rank, ground_set_size=ground_set_size)
+
+        if self._rank is None:
+            self._rank = self._rank_from_circuit_supports()
+
+        self._chirotope_cls = Chirotope.from_circuits(create_circuits(circuits), self.rank, self.ground_set_size)
+
+    @property
+    def rank(self) -> int:
+        r"""The rank of this oriented matroid."""
+        if self._rank is None:
+            self._rank = self._rank_from_circuit_supports()
+        return self._rank
+
+    def _rank_from_circuit_supports(self) -> int:
+        def is_entry_zero(rset: tuple[int]) -> bool:
+            return any(support.issubset(rset) for support in self._circuit_supports)
+
+        self._set_loops_from_circuit_supports()
+        for candidate in range(self.ground_set_size - len(self.loops()), -1, -1):
+            if not all(is_entry_zero(rset) for rset in Combinations(self.ground_set_size, candidate)):
+                return candidate
+
+    def loops(self) -> set[int]:
+        if self._loops is None:
+            self._set_loops_from_circuit_supports()
+        return self._loops
+
+    def _set_loops_from_circuit_supports(self) -> None:
+        self._loops = set(next(iter(support)) for support in self._circuit_supports if len(support) == 1)
+
+
+class _OrientedMatroidFromTopes(OrientedMatroid):
+    def __init__(self, topes: set[SignVector | str]) -> None:
+        def create_topes(iterable):
+            for element in iterable:
+                yield sign_vector(element)
+                yield -sign_vector(element)
+
+        topes = set(create_topes(topes))
+        try:
+            ground_set_size = len(next(iter(topes)))
+        except StopIteration as e:
+            raise ValueError("Could not determine 'ground_set_size'.") from e
+
+        super().__init__(ground_set_size=ground_set_size)
+        self._set_faces_from_topes(topes)
+        self._rank = max(self._faces_by_dimension) + 1
+
+        self._chirotope_cls = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
+
+    def _set_faces_from_topes(self, topes: set[SignVector]) -> None:
+        r"""
+        Use the topes to set all faces of the oriented matroid.
+
+        INPUT:
+
+        - ``topes`` -- a set of topes of the oriented matroid
+
+        ALGORITHM:
+
+        This function is based on an algorithm in [FST91]_.
+        See also [Fin01]_.
+        """
+        all_faces = [set(topes)]
+
+        current = 0
+        while len(all_faces[current]) > 1:
+            all_faces.append(self._lower_faces(all_faces[current], self._connect_faces))
+            current += 1
+
+        dimension = -1
+        while all_faces:
+            self._set_faces(dimension, all_faces.pop())
+            dimension += 1
+
