@@ -390,7 +390,7 @@ class _ChirotopeFromCircuits(_ChirotopeFromMinimalSupportElements):
         sage: from sign_vectors import *
         sage: from sign_vectors.chirotope import Chirotope
         sage: M = matrix.ones(1, 9)
-        sage: om = OrientedMatroid.from_matrix(M)
+        sage: om = OrientedMatroid(M)
         sage: Chirotope.from_circuits(om.circuits(), 1, 9).entries()
         [+, +, +, +, +, +, +, +, +]
     """

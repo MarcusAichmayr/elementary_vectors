@@ -34,7 +34,7 @@ class OrientedMatroid(SageObject):
 
         sage: from sign_vectors import *
         sage: M = matrix([[1, 2, 0, 0, 0], [0, 1, 2, 0, 0], [0, 0, 0, 1, 1]])
-        sage: om = OrientedMatroid.from_matrix(M)
+        sage: om = OrientedMatroid(M)
         sage: om
         Oriented matroid of dimension 2 with elements of size 5.
         sage: om.ground_set
@@ -236,7 +236,7 @@ class OrientedMatroid(SageObject):
     Trivial oriented matroid::
 
         sage: M = matrix(ZZ, 0, 3)
-        sage: om = OrientedMatroid.from_matrix(M)
+        sage: om = OrientedMatroid(M)
         sage: om.cocircuits()
         set()
         sage: om.circuits()
@@ -262,14 +262,14 @@ class OrientedMatroid(SageObject):
     def _repr_(self) -> str:
         return f"Oriented matroid of dimension {self.dimension} with elements of size {self.ground_set_size}."
 
-    # def __new__(cls, *args, **kwargs) -> "OrientedMatroid":
-    #     if cls is OrientedMatroid:
-    #         if args and hasattr(args[0], "nrows") and hasattr(args[0], "ncols"):
-    #             matrix = args[0]
-    #             return _OrientedMatroidFromMatrix(matrix)
-    #     obj = super().__new__(cls, *args, **kwargs)
-    #     obj.__init__(*args, **kwargs)
-    #     return obj
+    def __new__(cls, *args, **kwargs) -> "OrientedMatroid":
+        if cls is OrientedMatroid:
+            if args and hasattr(args[0], "nrows") and hasattr(args[0], "ncols"):
+                matrix = args[0]
+                return _OrientedMatroidFromMatrix(matrix)
+        obj = super().__new__(cls, *args, **kwargs)
+        obj.__init__(*args, **kwargs)
+        return obj
 
     @staticmethod
     def from_matrix(matrix) -> "OrientedMatroid":
@@ -522,7 +522,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.chirotope_entry([1, 2])
             +
         """
@@ -547,7 +547,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.chirotope()
             [+, +, +, +, +, 0]
         """
@@ -593,7 +593,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.cocircuit([0])
             (0---)
         """
@@ -633,7 +633,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.circuit([0, 1, 2])
             (+-+0)
         """
@@ -691,7 +691,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.cocircuits()
             {(+0--), (-0++), (--00), (++00), (0+++), (0---)}
         """
@@ -728,7 +728,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.circuits()
             {(00-+), (+-0+), (-+0-), (00+-), (-+-0), (+-+0)}
         """
@@ -1048,7 +1048,7 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]])
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.faces(2)
             {(---0), (++-0), (--+0), (-++0), (+++0), (+--0), (-+-0), (+-+0)}
             sage: om._above
@@ -1116,7 +1116,7 @@ class OrientedMatroid(SageObject):
 
         ::
 
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.set_face_connections(False)
             sage: om.faces()
             [{(0000)},
@@ -1153,21 +1153,21 @@ class OrientedMatroid(SageObject):
 
             sage: from sign_vectors import *
             sage: M = matrix([[1, 1, 1]])
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.face_lattice()
             Finite lattice containing 4 elements
 
         ::
 
             sage: M = matrix(0, 3)
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.face_lattice()
             Finite lattice containing 2 elements
 
         ::
 
             sage: M = matrix([[1, 0], [0, 1]])
-            sage: om = OrientedMatroid.from_matrix(M)
+            sage: om = OrientedMatroid(M)
             sage: om.face_lattice()
             Finite lattice containing 10 elements
         """
