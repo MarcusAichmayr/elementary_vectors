@@ -1306,6 +1306,11 @@ class _OrientedMatroidFromTopes(OrientedMatroid):
 
         self._chirotope_cls = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
 
+    def loops(self) -> set[int]:
+        if self._loops is None:
+            self._loops = set(next(iter(self.topes())).zero_support())
+        return self._loops
+
     def _set_faces_from_topes(self, topes: set[SignVector]) -> None:
         r"""
         Use the topes to set all faces of the oriented matroid.
@@ -1330,4 +1335,3 @@ class _OrientedMatroidFromTopes(OrientedMatroid):
         while all_faces:
             self._set_faces(dimension, all_faces.pop())
             dimension += 1
-
