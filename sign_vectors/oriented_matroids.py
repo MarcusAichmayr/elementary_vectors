@@ -1272,7 +1272,6 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
         def is_entry_zero(rset: tuple[int]) -> bool:
             return any(support.issubset(rset) for support in self._circuit_supports)
 
-        self._set_loops_from_circuit_supports()
         for candidate in range(self.ground_set_size - len(self.loops()), -1, -1):
             if not all(is_entry_zero(rset) for rset in Combinations(self.ground_set_size, candidate)):
                 self._rank = candidate
@@ -1280,11 +1279,8 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
 
     def loops(self) -> set[int]:
         if self._loops is None:
-            self._set_loops_from_circuit_supports()
+            self._loops = set(next(iter(support)) for support in self._circuit_supports if len(support) == 1)
         return self._loops
-
-    def _set_loops_from_circuit_supports(self) -> None:
-        self._loops = set(next(iter(support)) for support in self._circuit_supports if len(support) == 1)
 
 
 class _OrientedMatroidFromTopes(OrientedMatroid):
