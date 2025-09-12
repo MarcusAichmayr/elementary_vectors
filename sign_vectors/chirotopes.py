@@ -178,6 +178,8 @@ class Chirotope:
 
     def entry(self, rset: list[int]) -> Sign:
         r"""Return the chirotope entry given by ``indices``."""
+        if not isinstance(rset, tuple):
+            rset = tuple(rset)
         if not self._has_entry(rset):
             self._set_entry(rset, self._compute_entry(rset))
         return self._chirotope_dict[tuple(rset)]
