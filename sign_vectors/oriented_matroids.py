@@ -362,11 +362,14 @@ class OrientedMatroid(SageObject):
             The result is cached.
         """
         if self._loops is None:
-            self._loops = set(
-                e for e in range(self.ground_set_size)
-                if all(element[e] == 0 for element in self.cocircuits())
-            )
+            self._loops = self._compute_loops()
         return self._loops
+
+    def _compute_loops(self) -> set[int]:
+        return set(
+            e for e in range(self.ground_set_size)
+            if all(element[e] == 0 for element in self.cocircuits())
+        )
 
     def parallel_classes(self) -> list[set[int]]:
         r"""Compute the parallel classes of this oriented matroid."""
@@ -1077,6 +1080,13 @@ class _OrientedMatroidFromMatrix(OrientedMatroid):
             if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
                 raise ValueError("Provide a matrix with maximal rank.") from exc
         super().__init__(rank=matrix.nrows(), ground_set_size=matrix.ncols(), chirotope_cls=Chirotope.from_matrix(matrix))
+        self._matrix = matrix
+
+    def _compute_loops(self):
+        return set(
+            e for e in range(self.ground_set_size)
+            if all(row[e] == 0 for row in self._matrix.rows())
+        )
 
 
 class _OrientedMatroidFromChirotope(OrientedMatroid):
@@ -1159,10 +1169,8 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
                 self._rank = candidate
                 return
 
-    def loops(self) -> set[int]:
-        if self._loops is None:
-            self._loops = set(next(iter(support)) for support in self._circuit_supports if len(support) == 1)
-        return self._loops
+    def _compute_loops(self) -> set[int]:
+        return set(next(iter(support)) for support in self._circuit_supports if len(support) == 1)
 
 
 class _OrientedMatroidFromTopes(OrientedMatroid):
@@ -1187,10 +1195,8 @@ class _OrientedMatroidFromTopes(OrientedMatroid):
 
         self._chirotope = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
 
-    def loops(self) -> set[int]:
-        if self._loops is None:
-            self._loops = set(next(iter(self.topes())).zero_support())
-        return self._loops
+    def _compute_loops(self) -> set[int]:
+        return set(next(iter(self.topes())).zero_support())
 
     def _set_faces_from_topes(self, topes: set[SignVector]) -> None:
         r"""
