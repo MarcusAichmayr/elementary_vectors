@@ -174,7 +174,7 @@ class Chirotope:
 
     def as_string(self) -> str:
         r"""Represent the chirotope as a string."""
-        return "".join(str(value) for value in self.entries())
+        return "".join(str(self.entry(tuple(rset))) for rset in Combinations(self.ground_set_size, self.rank))
 
     def entry(self, rset: list[int]) -> Sign:
         r"""Return the chirotope entry given by ``indices``."""
@@ -204,19 +204,16 @@ class Chirotope:
         r"""Return the dual chirotope."""
         self._set_entries()
         dual_chirotope = Chirotope(self.ground_set_size - self.rank, self.ground_set_size)
-        for indices, value in self._chirotope_dict.items():
-            complement = tuple(i for i in range(self.ground_set_size) if i not in indices)
-            inversions = sum(i < j for i in indices for j in complement)
+        for rset, value in self._chirotope_dict.items():
+            complement = tuple(i for i in range(self.ground_set_size) if i not in rset)
+            inversions = sum(i < j for i in rset for j in complement)
             dual_chirotope._set_entry(complement, Sign(-value if inversions & 1 else value)) # check last bit
         return dual_chirotope
 
     @staticmethod
     def from_list(entries: list[Sign], rank: int, ground_set_size: int) -> "Chirotope":
         r"""Construct a chirotope from its entries."""
-        chirotope = Chirotope(rank, ground_set_size)
-        for indices, value in zip(Combinations(ground_set_size, rank), entries):
-            chirotope._set_entry(tuple(indices), Sign(value))
-        return chirotope
+        return _ChirotopeFromEntries(entries, rank, ground_set_size)
 
     @staticmethod
     def from_matrix(matrix) -> "Chirotope":
@@ -232,6 +229,16 @@ class Chirotope:
     def from_cocircuits(cocircuits: set[SignVector], rank: int, ground_set_size: int) -> "Chirotope":
         r"""Construct a chirotope from its cocircuits."""
         return _ChirotopeFromCocircuits(cocircuits, rank, ground_set_size)
+
+
+class _ChirotopeFromEntries(Chirotope):
+    def __init__(self, entries: list[Sign], rank: int, ground_set_size: int) -> None:
+        super().__init__(rank, ground_set_size)
+        for rset, value in zip(Combinations(ground_set_size, rank), entries):
+            self._set_entry(tuple(rset), Sign(value))
+
+    def _compute_entry(self, rset: list[int]) -> Sign:
+        raise NotImplementedError("All entries are already set.")
 
 
 class _ChirotopeFromMatrix(Chirotope):
