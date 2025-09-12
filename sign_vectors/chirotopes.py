@@ -93,6 +93,8 @@ class Chirotope:
         [0, 0, -, +, 0, +, -, +, -, -]
         sage: c.as_string()
         '00-+0+-+--'
+        sage: c.oriented_matroid()
+        Oriented matroid of dimension 1 with elements of size 5.
         sage: c.dual()
         Chirotope of rank 3 on ground set of size 5
         sage: c.dual().entries()
@@ -211,6 +213,11 @@ class Chirotope:
             inversions = sum(i < j for i in rset for j in complement)
             dual_chirotope._set_entry(complement, Sign(-value if inversions & 1 else value)) # check last bit
         return dual_chirotope
+
+    def oriented_matroid(self) -> "OrientedMatroid":
+        r"""Return the oriented matroid corresponding to the chirotope."""
+        from sign_vectors import OrientedMatroid  # avoid circular import
+        return OrientedMatroid.from_chirotope_class(self)
 
     @staticmethod
     def from_list(entries: list[Sign], rank: int, ground_set_size: int) -> "Chirotope":
