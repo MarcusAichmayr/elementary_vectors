@@ -120,9 +120,9 @@ class OrientedMatroid(SageObject):
         sage: om.f_vector()
         [1, 8, 24, 32, 16]
     """
-    def __init__(self, rank: int = None, ground_set_size: int = None, chirotope_cls: Chirotope = None) -> None:
-        self._rank = rank
+    def __init__(self, ground_set_size: int, rank: int = None, chirotope_cls: Chirotope = None) -> None:
         self._ground_set_size = ground_set_size
+        self._rank = rank
         self._chirotope = chirotope_cls
 
         self._dimension = None
@@ -1099,24 +1099,30 @@ class _OrientedMatroidFromMatrix(OrientedMatroid):
 
 class _OrientedMatroidFromChirotope(OrientedMatroid):
     def __init__(self, chirotope: Chirotope) -> None:
-        super().__init__(rank=chirotope.rank, ground_set_size=chirotope.ground_set_size, chirotope_cls=chirotope)
+        super().__init__(ground_set_size=chirotope.ground_set_size, rank=chirotope.rank, chirotope_cls=chirotope)
 
     def _compute_rank(self) -> None:
         self._rank = self._chirotope.rank()
 
 
 class _OrientedMatroidFromCocircuits(OrientedMatroid):
-    def __init__(self, cocircuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> None:
+    def __init__(self, cocircuits: set[SignVector | str], ground_set_size: int = None, rank: int = None) -> None:
         def create_cocircuits(iterable):
             for element in iterable:
                 yield sign_vector(element)
                 yield -sign_vector(element)
 
+        if ground_set_size is None:
+            try:
+                ground_set_size = len(next(iter(cocircuits)))
+            except StopIteration as e:
+                raise ValueError("Could not determine 'ground_set_size'.") from e
+
         if rank is None:
             if len(cocircuits) == 0:
                 rank = 0
 
-        super().__init__(rank=rank, ground_set_size=ground_set_size)
+        super().__init__(ground_set_size=ground_set_size, rank=rank)
         self._set_cocircuits(set(create_cocircuits(cocircuits)))
         self._chirotope = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
 
@@ -1130,17 +1136,9 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
                 self._rank = candidate
                 return
 
-    @property
-    def ground_set_size(self) -> int:
-        if self._ground_set_size is None:
-            try:
-                self._ground_set_size = len(next(iter(self.cocircuits())))
-            except StopIteration as e:
-                raise ValueError("Could not determine 'ground_set_size'.") from e
-        return self._ground_set_size
 
 class _OrientedMatroidFromCircuits(OrientedMatroid):
-    def __init__(self, circuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> None:
+    def __init__(self, circuits: set[SignVector | str], ground_set_size: int = None, rank: int = None) -> None:
         self._circuit_supports = {frozenset(sign_vector(circuit).support()) for circuit in circuits}
 
         def create_circuits(iterable):
@@ -1154,7 +1152,7 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
             except StopIteration as e:
                 raise ValueError("Could not determine 'ground_set_size'.") from e
 
-        super().__init__(rank=rank, ground_set_size=ground_set_size)
+        super().__init__(ground_set_size=ground_set_size, rank=rank)
         self._chirotope = Chirotope.from_circuits(create_circuits(circuits), self.rank, self.ground_set_size)
 
     def _compute_rank(self) -> None:
@@ -1180,14 +1178,8 @@ class _OrientedMatroidFromTopes(OrientedMatroid):
                 yield sign_vector(element)
                 yield -sign_vector(element)
 
-        topes = set(create_topes(topes))
-        try:
-            ground_set_size = len(next(iter(topes)))
-        except StopIteration as e:
-            raise ValueError("Could not determine 'ground_set_size'.") from e
-
-        super().__init__(ground_set_size=ground_set_size)
-        self._set_faces_from_topes(topes)
+        super().__init__(ground_set_size=len(next(iter(topes))))
+        self._set_faces_from_topes(set(create_topes(topes)))
         self._compute_rank()
         self._chirotope = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
 
