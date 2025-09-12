@@ -204,6 +204,22 @@ class Chirotope:
         for rset in Combinations(self.ground_set_size, self.rank):
             self.entry(rset)
 
+    def __eq__(self, other: object) -> bool:
+        r"""
+        Return whether two chirotopes are equal.
+
+        EXAMPLES::
+
+            sage: from sign_vectors.chirotopes import *
+            sage: c = Chirotope.from_matrix(random_matrix(ZZ, 3, 5))
+            sage: d = Chirotope.from_list(c.entries(), c.rank, c.ground_set_size)
+            sage: c == d
+            True
+        """
+        if not isinstance(other, Chirotope):
+            return NotImplemented
+        return self.as_string() == other.as_string()
+
     def dual(self) -> "Chirotope":
         r"""Return the dual chirotope."""
         self._set_entries()
@@ -405,7 +421,7 @@ class _ChirotopeFromCircuits(_ChirotopeFromMinimalSupportElements):
     Therefore, we need to sort indices::
 
         sage: from sign_vectors import *
-        sage: from sign_vectors.chirotope import Chirotope
+        sage: from sign_vectors.chirotopes import Chirotope
         sage: M = matrix.ones(1, 9)
         sage: om = OrientedMatroid(M)
         sage: Chirotope.from_circuits(om.circuits(), 1, 9).entries()
