@@ -24,7 +24,7 @@ def closure(iterable) -> set[SignVector]:
     - ``iterable`` -- an iterable of sign vectors
 
     OUTPUT:
-    Return the closure of ``iterable`` as a set of sign vectors.
+    Return the (lower) closure of ``iterable`` as a set of sign vectors.
 
     .. NOTE::
 
