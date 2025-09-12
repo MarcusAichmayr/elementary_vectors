@@ -331,6 +331,16 @@ class OrientedMatroid(SageObject):
             [{(0000)},
              {(++0-), (+0+-), (--0+), (0-++), (0+--), (-+-0), (-0-+), (+-+0)},
              {(-+-+), (---+), (-+--), (--++), (+-+-), (++--), (+-++), (+++-)}]
+
+        TESTS::
+
+            sage: om = OrientedMatroid.from_topes(["000"])
+            sage: om
+            Oriented matroid of dimension -1 with elements of size 3.
+            sage: OrientedMatroid.from_topes([])
+            Traceback (most recent call last):
+            ...
+            ValueError: Tope set must not be empty.
         """
         return _OrientedMatroidFromTopes(topes)
 
@@ -428,6 +438,8 @@ class OrientedMatroid(SageObject):
             sage: om = OrientedMatroid(M)
             sage: om.chirotope()
             [+, +, +, +, +, 0]
+            sage: om.chirotopes_as_string()
+            '+++++0'
         """
         return self._chirotope_cls.entries()
 
@@ -651,6 +663,7 @@ class OrientedMatroid(SageObject):
         .. SEEALSO::
 
             - :meth:`covectors`
+            - :meth:`faces`
         """
         return self.covectors()
 
@@ -1178,6 +1191,9 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
 
 class _OrientedMatroidFromTopes(OrientedMatroid):
     def __init__(self, topes: set[SignVector | str]) -> None:
+        if len(topes) == 0:
+            raise ValueError("Tope set must not be empty.")
+
         def create_topes(iterable):
             for element in iterable:
                 yield sign_vector(element)
