@@ -362,11 +362,11 @@ class OrientedMatroid(SageObject):
             The result is cached.
         """
         if self._loops is None:
-            self._loops = self._compute_loops()
+            self._compute_loops()
         return self._loops
 
-    def _compute_loops(self) -> set[int]:
-        return set(
+    def _compute_loops(self) -> None:
+        self._loops = set(
             e for e in range(self.ground_set_size)
             if all(element[e] == 0 for element in self.cocircuits())
         )
@@ -1082,8 +1082,8 @@ class _OrientedMatroidFromMatrix(OrientedMatroid):
         super().__init__(rank=matrix.nrows(), ground_set_size=matrix.ncols(), chirotope_cls=Chirotope.from_matrix(matrix))
         self._matrix = matrix
 
-    def _compute_loops(self):
-        return set(
+    def _compute_loops(self) -> None:
+        self._loops = set(
             e for e in range(self.ground_set_size)
             if all(row[e] == 0 for row in self._matrix.rows())
         )
@@ -1169,8 +1169,8 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
                 self._rank = candidate
                 return
 
-    def _compute_loops(self) -> set[int]:
-        return set(next(iter(support)) for support in self._circuit_supports if len(support) == 1)
+    def _compute_loops(self) -> None:
+        self._loops = set(next(iter(support)) for support in self._circuit_supports if len(support) == 1)
 
 
 class _OrientedMatroidFromTopes(OrientedMatroid):
@@ -1195,8 +1195,8 @@ class _OrientedMatroidFromTopes(OrientedMatroid):
 
         self._chirotope = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
 
-    def _compute_loops(self) -> set[int]:
-        return set(next(iter(self.topes())).zero_support())
+    def _compute_loops(self) -> None:
+        self._loops = set(next(iter(self.topes())).zero_support())
 
     def _set_faces_from_topes(self, topes: set[SignVector]) -> None:
         r"""
