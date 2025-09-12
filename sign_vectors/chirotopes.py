@@ -178,17 +178,23 @@ class Chirotope:
 
     def entry(self, rset: list[int]) -> Sign:
         r"""Return the chirotope entry given by ``indices``."""
+        if not self._has_entry(rset):
+            self._set_entry(rset, self._compute_entry(rset))
         return self._chirotope_dict[tuple(rset)]
 
-    def entries(self) -> list[Sign]:
-        r"""Return all chirotope entries in lexicographic order."""
-        return [self.entry(tuple(rset)) for rset in Combinations(self.ground_set_size, self.rank)]
+    def _has_entry(self, rset: list[int]) -> bool:
+        return tuple(rset) in self._chirotope_dict
 
     def _set_entry(self, rset: tuple[int], value: Sign) -> None:
         self._chirotope_dict[rset] = value
 
-    def _has_entry(self, rset: list[int]) -> bool:
-        return tuple(rset) in self._chirotope_dict
+    def _compute_entry(self, rset: list[int]) -> Sign:
+        r"""Compute the chirotope entry given by ``indices``."""
+        raise NotImplementedError
+
+    def entries(self) -> list[Sign]:
+        r"""Return all chirotope entries in lexicographic order."""
+        return [self.entry(tuple(rset)) for rset in Combinations(self.ground_set_size, self.rank)]
 
     def _set_entries(self) -> None:
         for rset in Combinations(self.ground_set_size, self.rank):
@@ -258,11 +264,8 @@ class _ChirotopeFromMatrix(Chirotope):
         super().__init__(matrix.nrows(), matrix.ncols())
         self.matrix = matrix
 
-    def entry(self, rset: list[int]) -> Sign:
-        r"""Return the chirotope entry given by ``indices``."""
-        if not self._has_entry(rset):
-            self._set_entry(rset, Sign(self.matrix.matrix_from_columns(rset).det()))
-        return super().entry(rset)
+    def _compute_entry(self, rset: list[int]) -> Sign:
+        return Sign(self.matrix.matrix_from_columns(rset).det())
 
 
 class _ChirotopeFromMinimalSupportElements(Chirotope):
@@ -304,10 +307,8 @@ class _ChirotopeFromMinimalSupportElements(Chirotope):
             for indices in self._corresponding_indices_for_face(support):
                 self._faces_dict[indices] = face
 
-    def entry(self, rset: list[int]) -> Sign:
-        r"""Return the chirotope entry given by ``indices``."""
-        if not self._has_entry(rset):
-            self._set_entries()
+    def _compute_entry(self, rset: list[int]) -> Sign:
+        self._set_entries()
         return super().entry(rset)
 
     def _set_entries(self) -> None:
