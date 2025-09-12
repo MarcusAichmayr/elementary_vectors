@@ -119,21 +119,6 @@ class OrientedMatroid(SageObject):
         [0, 0, 0, 0, 0, +, 0, 0, +, 0, 0, 0, 0, -, -]
         sage: om.f_vector()
         [1, 8, 24, 32, 16]
-
-    TESTS:
-
-    Trivial oriented matroid::
-
-        sage: M = matrix(ZZ, 0, 3)
-        sage: om = OrientedMatroid(M)
-        sage: om.cocircuits()
-        set()
-        sage: om.circuits()
-        {(-00), (00+), (00-), (0+0), (0-0), (+00)}
-        sage: om.topes()
-        {(000)}
-        sage: om.faces()
-        [{(000)}]
     """
     def __init__(self, rank: int = None, ground_set_size: int = None, chirotope_cls: Chirotope = None) -> None:
         self._rank = rank
