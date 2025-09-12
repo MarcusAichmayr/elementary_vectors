@@ -413,7 +413,7 @@ class OrientedMatroid(SageObject):
             sage: om = OrientedMatroid(M)
             sage: om.chirotope()
             [+, +, +, +, +, 0]
-            sage: om.chirotopes_as_string()
+            sage: om.chirotope_as_string()
             '+++++0'
         """
         return self._chirotope_cls.entries()
