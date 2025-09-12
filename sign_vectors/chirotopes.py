@@ -27,7 +27,7 @@ class Sign(IntEnum):
 
     EXAMPLES::
 
-        sage: from sign_vectors.oriented_matroids import Sign
+        sage: from sign_vectors.chirotopes import Sign
         sage: Sign(1)
         +
         sage: Sign(-1)
@@ -83,8 +83,8 @@ class Chirotope:
     EXAMPLES::
 
         sage: from sign_vectors import *
-        sage: from sign_vectors.chirotope import *
-        sage: c = Chirotope.from_entries([0, 0, -1, 1, 0, 1, -1, 1, -1, -1], 2, 5)
+        sage: from sign_vectors.chirotopes import *
+        sage: c = Chirotope.from_list([0, 0, -1, 1, 0, 1, -1, 1, -1, -1], 2, 5)
         sage: c
         Chirotope of rank 2 on ground set of size 5
         sage: c.entry((0, 3))
@@ -254,7 +254,7 @@ class _ChirotopeFromMatrix(Chirotope):
 
     TESTS::
 
-        sage: from sign_vectors.chirotope import Chirotope
+        sage: from sign_vectors.chirotopes import Chirotope
         sage: M = matrix(ZZ, 0, 3)
         sage: c = Chirotope.from_matrix(M)
         sage: c.entries()
@@ -292,7 +292,7 @@ class _ChirotopeFromMinimalSupportElements(Chirotope):
         TESTS::
 
             sage: from sign_vectors import *
-            sage: from sign_vectors.chirotope import *
+            sage: from sign_vectors.chirotopes import *
             sage: c = Chirotope.from_circuits([sign_vector("00+0"), sign_vector("000+")], 2, 4)
             sage: c._faces_dict
             {(0, 1, 2): (00+0), (0, 1, 3): (000+), (0, 2, 3): (000+), (1, 2, 3): (000+)}
