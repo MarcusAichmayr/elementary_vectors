@@ -123,7 +123,7 @@ class OrientedMatroid(SageObject):
     def __init__(self, rank: int = None, ground_set_size: int = None, chirotope_cls: Chirotope = None) -> None:
         self._rank = rank
         self._ground_set_size = ground_set_size
-        self._chirotope_cls = chirotope_cls
+        self._chirotope = chirotope_cls
 
         self._dimension = None
         self._faces_by_dimension: dict[int, set[SignVector]] = {}
@@ -395,7 +395,7 @@ class OrientedMatroid(SageObject):
             0
         """
         indices = tuple(indices)
-        return self._chirotope_cls.entry(indices)
+        return self._chirotope.entry(indices)
 
     def chirotope(self) -> list[Sign]:
         r"""
@@ -416,11 +416,11 @@ class OrientedMatroid(SageObject):
             sage: om.chirotope_as_string()
             '+++++0'
         """
-        return self._chirotope_cls.entries()
+        return self._chirotope.entries()
 
     def chirotope_as_string(self) -> str:
         r"""Represent the chirotope as a string."""
-        return self._chirotope_cls.as_string()
+        return self._chirotope.as_string()
 
     def dual(self) -> "OrientedMatroid":
         r"""
@@ -430,7 +430,7 @@ class OrientedMatroid(SageObject):
 
             The dual is determined from the chirotope.
         """
-        om = OrientedMatroid.from_chirotope_class(self._chirotope_cls.dual())
+        om = OrientedMatroid.from_chirotope_class(self._chirotope.dual())
         return om
 
     def _set_zero_face(self) -> None:
@@ -1097,7 +1097,7 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
 
         super().__init__(rank=rank, ground_set_size=ground_set_size)
         self._set_cocircuits(set(create_cocircuits(cocircuits)))
-        self._chirotope_cls = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
+        self._chirotope = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
 
     @property
     def rank(self) -> int:
@@ -1141,7 +1141,7 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
                 raise ValueError("Could not determine 'ground_set_size'.") from e
 
         super().__init__(rank=rank, ground_set_size=ground_set_size)
-        self._chirotope_cls = Chirotope.from_circuits(create_circuits(circuits), self.rank, self.ground_set_size)
+        self._chirotope = Chirotope.from_circuits(create_circuits(circuits), self.rank, self.ground_set_size)
 
     @property
     def rank(self) -> int:
@@ -1185,7 +1185,7 @@ class _OrientedMatroidFromTopes(OrientedMatroid):
         self._set_faces_from_topes(topes)
         self._rank = max(self._faces_by_dimension) + 1
 
-        self._chirotope_cls = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
+        self._chirotope = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
 
     def loops(self) -> set[int]:
         if self._loops is None:
