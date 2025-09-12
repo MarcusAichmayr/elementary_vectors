@@ -380,14 +380,9 @@ class OrientedMatroid(SageObject):
 
         - ``indices`` -- a list of indices.
 
-        OUTPUT:
-
-        - The chirotope value as a :class:`sign_vectors.chirotopes.Sign`.
-
         .. SEEALSO::
 
             - :meth:`chirotope`
-            - :class:`sign_vectors.chirotopes.Sign`
 
         EXAMPLES::
 
@@ -406,14 +401,9 @@ class OrientedMatroid(SageObject):
         r"""
         Compute all chirotope entries of the oriented matroid.
 
-        OUTPUT:
-
-        - A list of chirotope entries as :class:`sign_vectors.chirotopes.Sign` values.
-
         .. SEEALSO::
 
             - :meth:`chirotope_entry`
-            - :class:`sign_vectors.chirotopes.Sign`
             - :class:`sign_vectors.chirotopes.Chirotope`
 
         EXAMPLES::
@@ -620,6 +610,7 @@ class OrientedMatroid(SageObject):
         .. SEEALSO::
 
             - :meth:`elements`
+            - :meth:`faces`
         """
         return choice(list(self.elements()))
 
