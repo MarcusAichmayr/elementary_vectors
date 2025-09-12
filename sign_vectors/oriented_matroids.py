@@ -342,7 +342,12 @@ class OrientedMatroid(SageObject):
     @property
     def rank(self) -> int:
         r"""The rank of this oriented matroid."""
+        if self._rank is None:
+            self._compute_rank()
         return self._rank
+
+    def _compute_rank(self) -> None:
+        raise NotImplementedError
 
     @property
     def dimension(self) -> int:
@@ -1082,6 +1087,9 @@ class _OrientedMatroidFromMatrix(OrientedMatroid):
         super().__init__(rank=matrix.nrows(), ground_set_size=matrix.ncols(), chirotope_cls=Chirotope.from_matrix(matrix))
         self._matrix = matrix
 
+    def _compute_rank(self) -> None:
+        self._rank = self._matrix.nrows()
+
     def _compute_loops(self) -> None:
         self._loops = set(
             e for e in range(self.ground_set_size)
@@ -1092,6 +1100,9 @@ class _OrientedMatroidFromMatrix(OrientedMatroid):
 class _OrientedMatroidFromChirotope(OrientedMatroid):
     def __init__(self, chirotope: Chirotope) -> None:
         super().__init__(rank=chirotope.rank, ground_set_size=chirotope.ground_set_size, chirotope_cls=chirotope)
+
+    def _compute_rank(self) -> None:
+        self._rank = self._chirotope.rank()
 
 
 class _OrientedMatroidFromCocircuits(OrientedMatroid):
@@ -1109,22 +1120,6 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
         self._set_cocircuits(set(create_cocircuits(cocircuits)))
         self._chirotope = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
 
-    @property
-    def rank(self) -> int:
-        r"""The rank of this oriented matroid."""
-        if self._rank is None:
-            self._compute_rank()
-        return self._rank
-
-    @property
-    def ground_set_size(self) -> int:
-        if self._ground_set_size is None:
-            try:
-                self._ground_set_size = len(next(iter(self.cocircuits())))
-            except StopIteration as e:
-                raise ValueError("Could not determine 'ground_set_size'.") from e
-        return self._ground_set_size
-
     def _compute_rank(self) -> None:
         def is_entry_zero_from_cocircuits(zero_supports: set[SignVector], rset: tuple[int]) -> bool:
             return any(zero_support.issuperset(rset) for zero_support in zero_supports)
@@ -1134,6 +1129,15 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
             if not all(is_entry_zero_from_cocircuits(zero_supports, rset) for rset in Combinations(self.ground_set_size, candidate)):
                 self._rank = candidate
                 return
+
+    @property
+    def ground_set_size(self) -> int:
+        if self._ground_set_size is None:
+            try:
+                self._ground_set_size = len(next(iter(self.cocircuits())))
+            except StopIteration as e:
+                raise ValueError("Could not determine 'ground_set_size'.") from e
+        return self._ground_set_size
 
 class _OrientedMatroidFromCircuits(OrientedMatroid):
     def __init__(self, circuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> None:
@@ -1152,13 +1156,6 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
 
         super().__init__(rank=rank, ground_set_size=ground_set_size)
         self._chirotope = Chirotope.from_circuits(create_circuits(circuits), self.rank, self.ground_set_size)
-
-    @property
-    def rank(self) -> int:
-        r"""The rank of this oriented matroid."""
-        if self._rank is None:
-            self._compute_rank()
-        return self._rank
 
     def _compute_rank(self) -> None:
         def is_entry_zero(rset: tuple[int]) -> bool:
@@ -1191,9 +1188,11 @@ class _OrientedMatroidFromTopes(OrientedMatroid):
 
         super().__init__(ground_set_size=ground_set_size)
         self._set_faces_from_topes(topes)
-        self._rank = max(self._faces_by_dimension) + 1
-
+        self._compute_rank()
         self._chirotope = Chirotope.from_cocircuits(self.cocircuits(), self.rank, self.ground_set_size)
+
+    def _compute_rank(self) -> None:
+        self._rank = max(self._faces_by_dimension) + 1
 
     def _compute_loops(self) -> None:
         self._loops = set(next(iter(self.topes())).zero_support())
