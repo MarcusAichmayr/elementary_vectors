@@ -974,13 +974,16 @@ class _OrientedMatroid(SageObject):
 class _OrientedMatroidFromMatrix(_OrientedMatroid):
     r"""
     Create an oriented matroid from a matrix.
-    
+
     TESTS::
 
         sage: from sign_vectors import *
         sage: M = matrix([[1, 0], [1, 0]])
-        sage: OrientedMatroid(M)
+        sage: om = OrientedMatroid(M)
+        sage: om
         Oriented matroid of dimension 0 with elements of size 2.
+        sage: om.chirotope()
+        [+, 0]
     """
     def __init__(self, matrix) -> None:
         try:
@@ -1043,7 +1046,8 @@ class _OrientedMatroidFromCocircuits(_OrientedMatroid):
 
 class _OrientedMatroidFromCircuits(_OrientedMatroid):
     r"""
-    
+    Create an oriented matroid from a set of circuits.
+
     TESTS::
 
         sage: from sign_vectors import *
