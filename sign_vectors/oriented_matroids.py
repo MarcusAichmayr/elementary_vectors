@@ -1091,8 +1091,8 @@ class _OrientedMatroidFromCircuits(_OrientedMatroid):
         self._loops = set()
         for support in self._circuit_supports:
             if len(support) == 1:
-                self._loops.add(next(iter(support)))
-            checked_indices = checked_indices.union(support)
+                self._loops.update(support)
+            checked_indices.update(support)
             if len(checked_indices) == self.ground_set_size:
                 return
 
