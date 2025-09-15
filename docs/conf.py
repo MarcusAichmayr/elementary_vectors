@@ -47,6 +47,12 @@ extensions = [
     'sphinx.ext.autosummary',
 ]
 
+# Ensure inherited members and docstrings are included in autodoc
+autodoc_default_options = {
+    # 'members': True,
+    'inherited-members': True,
+}
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['templates']
 

@@ -1150,7 +1150,7 @@ class _OrientedMatroidFromTopes(_OrientedMatroid):
 
 class OrientedMatroid(_OrientedMatroidFromMatrix):
     r"""
-    Class representing an oriented matroid.
+    An oriented matroid.
 
     This class provides methods to work with oriented matroids, including
     computing their faces, cocircuits, topes, and chirotope.

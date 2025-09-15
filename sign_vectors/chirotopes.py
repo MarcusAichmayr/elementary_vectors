@@ -324,7 +324,7 @@ class _ChirotopeFromMinimalSupportElements(Chirotope):
 
         Note that the corresponding chirotopes are ``+00000``.
         Hence, ``(0, 2, 3)`` and ``(1, 2, 3)`` produce the zero face contrary to what is stored.
-        However, this doesn't matter for the algorithm since these index sets connect two zero minors.
+        However, this does not matter for the algorithm since these index sets connect two zero minors.
 
         We do the same for the cocircuits::
 
