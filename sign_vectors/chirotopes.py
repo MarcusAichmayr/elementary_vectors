@@ -1,6 +1,4 @@
-r"""
-Chirotopes.
-"""
+r"""Chirotopes: An auxiliary module for oriented matroids."""
 
 #############################################################################
 #  Copyright (C) 2025                                                       #
@@ -23,7 +21,7 @@ from sign_vectors import sign_symbolic, SignVector
 
 class Sign(IntEnum):
     r"""
-    Auxiliary class for chirotopes.
+    Class for chirotope entries.
 
     EXAMPLES::
 
@@ -52,7 +50,11 @@ class Sign(IntEnum):
     POS = 1
 
     def __str__(self):
-        return {self.NEG: "-", self.ZERO: "0", self.POS: "+"}[self]
+        if self.value > 0:
+            return "+"
+        if self.value < 0:
+            return "-"
+        return "0"
 
     def __repr__(self):
         return str(self)
