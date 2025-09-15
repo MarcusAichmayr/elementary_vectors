@@ -22,104 +22,7 @@ from .chirotopes import Sign, Chirotope
 from .utility import classes_same_support, parallel_classes
 
 
-class OrientedMatroid(SageObject):
-    r"""
-    Class representing an oriented matroid.
-
-    This class provides methods to work with oriented matroids, including
-    computing their faces, cocircuits, topes, and chirotope.
-
-    EXAMPLES:
-
-    There are several ways to initialize an oriented matroid.
-    First, we define an oriented matroid from a matrix::
-
-        sage: from sign_vectors import *
-        sage: M = matrix([[1, 1, 0, 0], [0, 1, 1, -1]])
-        sage: om = OrientedMatroid(M)
-        sage: om
-        Oriented matroid of dimension 1 with elements of size 4.
-        sage: om.ground_set
-        {0, 1, 2, 3}
-        sage: om.rank
-        2
-
-    We compute the chirotope::
-
-        sage: om.chirotope()
-        [+, +, -, +, -, 0]
-        sage: om.chirotope_as_string()
-        '++-+-0'
-
-    Next, we count the number of faces::
-
-        sage: om.num_faces()
-        13
-        sage: om.f_vector()
-        [1, 6, 6]
-
-    We compute the faces explicitly::
-
-        sage: om.cocircuits()
-        {(-0+-), (0++-), (--00), (++00), (0--+), (+0-+)}
-        sage: om.topes()
-        {(---+), (+--+), (--+-), (-++-), (++-+), (+++-)}
-        sage: om.faces()
-        [{(0000)},
-         {(-0+-), (0++-), (--00), (++00), (0--+), (+0-+)},
-         {(---+), (+--+), (--+-), (-++-), (++-+), (+++-)}]
-
-    To compute the faces of a given dimension, we call::
-
-        sage: om.faces(0)
-        {(-0+-), (0++-), (--00), (++00), (0--+), (+0-+)}
-
-    We compute the face lattice which we can also plot::
-
-        sage: om.face_lattice()
-        Finite lattice containing 14 elements
-        sage: om.plot() # not tested
-        Graphics object consisting of 39 graphics primitives
-
-    The dual oriented matroid is represented by the circuits and vectors::
-
-        sage: om.circuits()
-        {(00++), (-+0+), (00--), (+-0-), (-+-0), (+-+0)}
-        sage: om.vectors()
-        {(0000),
-         (-+-+),
-         (00++),
-         (-+0+),
-         (-+++),
-         (00--),
-         (+---),
-         (-+--),
-         (+-0-),
-         (+-+0),
-         (+-+-),
-         (+-++),
-         (-+-0)}
-
-    We can directly compute the dual oriented matroid::
-
-        sage: om_dual = om.dual()
-        sage: om_dual
-        Oriented matroid of dimension 1 with elements of size 4.
-        sage: om_dual.faces()
-        [{(0000)},
-         {(00++), (-+0+), (00--), (+-0-), (-+-0), (+-+0)},
-         {(-+-+), (-+++), (+---), (-+--), (+-+-), (+-++)}]
-
-    Now, we consider an oriented matroid given by its circuits::
-
-        sage: om = OrientedMatroid.from_circuits({"0+-000", "+00-00", "0-+000", "-00+00"})
-        sage: om
-        Oriented matroid of dimension 3 with elements of size 6.
-        sage: om.chirotope()
-        [0, 0, 0, 0, 0, +, 0, 0, +, 0, 0, 0, 0, -, -]
-        sage: om.f_vector()
-        [1, 8, 24, 32, 16]
-    """
+class _OrientedMatroid(SageObject):
     def __init__(self, ground_set_size: int, rank: int = None, chirotope_cls: Chirotope = None) -> None:
         self._ground_set_size = ground_set_size
         self._rank = rank
@@ -136,17 +39,8 @@ class OrientedMatroid(SageObject):
     def _repr_(self) -> str:
         return f"Oriented matroid of dimension {self.dimension} with elements of size {self.ground_set_size}."
 
-    def __new__(cls, *args, **kwargs) -> "OrientedMatroid":
-        if cls is OrientedMatroid:
-            if args and hasattr(args[0], "nrows") and hasattr(args[0], "ncols"):
-                matrix = args[0]
-                return _OrientedMatroidFromMatrix(matrix)
-        obj = super().__new__(cls, *args, **kwargs)
-        obj.__init__(*args, **kwargs)
-        return obj
-
     @staticmethod
-    def from_chirotope(entries: list[int] | str, rank: int, ground_set_size: int) -> "OrientedMatroid":
+    def from_chirotope(entries: list[int] | str, rank: int, ground_set_size: int) -> "_OrientedMatroid":
         r"""
         Create an oriented matroid from a chirotope.
 
@@ -179,7 +73,7 @@ class OrientedMatroid(SageObject):
         return _OrientedMatroidFromChirotope(Chirotope.from_list(entries, rank, ground_set_size))
 
     @staticmethod
-    def from_chirotope_class(chirotope: Chirotope) -> "OrientedMatroid":
+    def from_chirotope_class(chirotope: Chirotope) -> "_OrientedMatroid":
         r"""
         Create an oriented matroid from a chirotope instance.
 
@@ -190,7 +84,7 @@ class OrientedMatroid(SageObject):
         return _OrientedMatroidFromChirotope(chirotope)
 
     @staticmethod
-    def from_cocircuits(cocircuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "OrientedMatroid":
+    def from_cocircuits(cocircuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "_OrientedMatroid":
         r"""
         Create an oriented matroid from cocircuits.
 
@@ -256,7 +150,7 @@ class OrientedMatroid(SageObject):
         return _OrientedMatroidFromCocircuits(cocircuits, rank=rank, ground_set_size=ground_set_size)
 
     @staticmethod
-    def from_circuits(circuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "OrientedMatroid":
+    def from_circuits(circuits: set[SignVector | str], rank: int = None, ground_set_size: int = None) -> "_OrientedMatroid":
         r"""
         Create an oriented matroid from circuits.
 
@@ -288,7 +182,7 @@ class OrientedMatroid(SageObject):
         return _OrientedMatroidFromCircuits(circuits, rank=rank, ground_set_size=ground_set_size)
 
     @staticmethod
-    def from_topes(topes: list[SignVector | str] | set[SignVector | str]) -> "OrientedMatroid":
+    def from_topes(topes: list[SignVector | str] | set[SignVector | str]) -> "_OrientedMatroid":
         r"""
         Create an oriented matroid from a tope set.
 
@@ -430,7 +324,7 @@ class OrientedMatroid(SageObject):
         r"""Represent the chirotope as a string."""
         return self._chirotope.as_string()
 
-    def dual(self) -> "OrientedMatroid":
+    def dual(self) -> "_OrientedMatroid":
         r"""
         Return the dual oriented matroid.
 
@@ -438,7 +332,7 @@ class OrientedMatroid(SageObject):
 
             The dual is determined from the chirotope.
         """
-        om = OrientedMatroid.from_chirotope_class(self._chirotope.dual())
+        om = _OrientedMatroid.from_chirotope_class(self._chirotope.dual())
         return om
 
     def _set_zero_face(self) -> None:
@@ -1077,7 +971,7 @@ class OrientedMatroid(SageObject):
         ).show(figsize=figsize, aspect_ratio=aspect_ratio)
 
 
-class _OrientedMatroidFromMatrix(OrientedMatroid):
+class _OrientedMatroidFromMatrix(_OrientedMatroid):
     r"""
     Create an oriented matroid from a matrix.
     
@@ -1107,7 +1001,7 @@ class _OrientedMatroidFromMatrix(OrientedMatroid):
         )
 
 
-class _OrientedMatroidFromChirotope(OrientedMatroid):
+class _OrientedMatroidFromChirotope(_OrientedMatroid):
     def __init__(self, chirotope: Chirotope) -> None:
         super().__init__(ground_set_size=chirotope.ground_set_size, rank=chirotope.rank, chirotope_cls=chirotope)
 
@@ -1115,7 +1009,7 @@ class _OrientedMatroidFromChirotope(OrientedMatroid):
         self._rank = self._chirotope.rank()
 
 
-class _OrientedMatroidFromCocircuits(OrientedMatroid):
+class _OrientedMatroidFromCocircuits(_OrientedMatroid):
     def __init__(self, cocircuits: set[SignVector | str], ground_set_size: int = None, rank: int = None) -> None:
         def create_cocircuits(iterable):
             for element in iterable:
@@ -1147,7 +1041,7 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
                 return
 
 
-class _OrientedMatroidFromCircuits(OrientedMatroid):
+class _OrientedMatroidFromCircuits(_OrientedMatroid):
     r"""
     
     TESTS::
@@ -1203,7 +1097,7 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
                 return
 
 
-class _OrientedMatroidFromTopes(OrientedMatroid):
+class _OrientedMatroidFromTopes(_OrientedMatroid):
     def __init__(self, topes: set[SignVector | str]) -> None:
         if len(topes) == 0:
             raise ValueError("Tope set must not be empty.")
@@ -1248,3 +1142,103 @@ class _OrientedMatroidFromTopes(OrientedMatroid):
         while all_faces:
             self._set_faces(dimension, all_faces.pop())
             dimension += 1
+
+
+class OrientedMatroid(_OrientedMatroidFromMatrix):
+    r"""
+    Class representing an oriented matroid.
+
+    This class provides methods to work with oriented matroids, including
+    computing their faces, cocircuits, topes, and chirotope.
+
+    EXAMPLES:
+
+    There are several ways to initialize an oriented matroid.
+    First, we define an oriented matroid from a matrix::
+
+        sage: from sign_vectors import *
+        sage: M = matrix([[1, 1, 0, 0], [0, 1, 1, -1]])
+        sage: om = OrientedMatroid(M)
+        sage: om
+        Oriented matroid of dimension 1 with elements of size 4.
+        sage: om.ground_set
+        {0, 1, 2, 3}
+        sage: om.rank
+        2
+
+    We compute the chirotope::
+
+        sage: om.chirotope()
+        [+, +, -, +, -, 0]
+        sage: om.chirotope_as_string()
+        '++-+-0'
+
+    Next, we count the number of faces::
+
+        sage: om.num_faces()
+        13
+        sage: om.f_vector()
+        [1, 6, 6]
+
+    We compute the faces explicitly::
+
+        sage: om.cocircuits()
+        {(-0+-), (0++-), (--00), (++00), (0--+), (+0-+)}
+        sage: om.topes()
+        {(---+), (+--+), (--+-), (-++-), (++-+), (+++-)}
+        sage: om.faces()
+        [{(0000)},
+         {(-0+-), (0++-), (--00), (++00), (0--+), (+0-+)},
+         {(---+), (+--+), (--+-), (-++-), (++-+), (+++-)}]
+
+    To compute the faces of a given dimension, we call::
+
+        sage: om.faces(0)
+        {(-0+-), (0++-), (--00), (++00), (0--+), (+0-+)}
+
+    We compute the face lattice which we can also plot::
+
+        sage: om.face_lattice()
+        Finite lattice containing 14 elements
+        sage: om.plot() # not tested
+        Graphics object consisting of 39 graphics primitives
+
+    The dual oriented matroid is represented by the circuits and vectors::
+
+        sage: om.circuits()
+        {(00++), (-+0+), (00--), (+-0-), (-+-0), (+-+0)}
+        sage: om.vectors()
+        {(0000),
+         (-+-+),
+         (00++),
+         (-+0+),
+         (-+++),
+         (00--),
+         (+---),
+         (-+--),
+         (+-0-),
+         (+-+0),
+         (+-+-),
+         (+-++),
+         (-+-0)}
+
+    We can directly compute the dual oriented matroid::
+
+        sage: om_dual = om.dual()
+        sage: om_dual
+        Oriented matroid of dimension 1 with elements of size 4.
+        sage: om_dual.faces()
+        [{(0000)},
+         {(00++), (-+0+), (00--), (+-0-), (-+-0), (+-+0)},
+         {(-+-+), (-+++), (+---), (-+--), (+-+-), (+-++)}]
+
+    Now, we consider an oriented matroid given by its circuits::
+
+        sage: om = OrientedMatroid.from_circuits({"0+-000", "+00-00", "0-+000", "-00+00"})
+        sage: om
+        Oriented matroid of dimension 3 with elements of size 6.
+        sage: om.chirotope()
+        [0, 0, 0, 0, 0, +, 0, 0, +, 0, 0, 0, 0, -, -]
+        sage: om.f_vector()
+        [1, 8, 24, 32, 16]
+    """
