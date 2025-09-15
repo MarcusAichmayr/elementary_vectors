@@ -1078,6 +1078,16 @@ class OrientedMatroid(SageObject):
 
 
 class _OrientedMatroidFromMatrix(OrientedMatroid):
+    r"""
+    Create an oriented matroid from a matrix.
+    
+    TESTS::
+
+        sage: from sign_vectors import *
+        sage: M = matrix([[1, 0], [1, 0]])
+        sage: OrientedMatroid(M)
+        Oriented matroid of dimension 0 with elements of size 2.
+    """
     def __init__(self, matrix) -> None:
         try:
             matrix = matrix.matrix_from_rows(matrix.pivot_rows())
