@@ -1148,6 +1148,24 @@ class _OrientedMatroidFromCocircuits(OrientedMatroid):
 
 
 class _OrientedMatroidFromCircuits(OrientedMatroid):
+    r"""
+    
+    TESTS::
+
+        sage: from sign_vectors import *
+        sage: om = OrientedMatroid.from_circuits({"+00", "0+-"})
+        sage: om
+        Oriented matroid of dimension 0 with elements of size 3.
+        sage: om._compute_loops()
+        sage: om.loops()
+        {0}
+        sage: om = OrientedMatroid.from_circuits({"++0", "+0+", "0+-"})
+        sage: om
+        Oriented matroid of dimension 0 with elements of size 3.
+        sage: om._compute_loops()
+        sage: om.loops()
+        set()
+    """
     def __init__(self, circuits: set[SignVector | str], ground_set_size: int = None, rank: int = None) -> None:
         self._circuit_supports = {frozenset(sign_vector(circuit).support()) for circuit in circuits}
 
@@ -1175,7 +1193,14 @@ class _OrientedMatroidFromCircuits(OrientedMatroid):
                 return
 
     def _compute_loops(self) -> None:
-        self._loops = set(next(iter(support)) for support in self._circuit_supports if len(support) == 1)
+        checked_indices = set()
+        self._loops = set()
+        for support in self._circuit_supports:
+            if len(support) == 1:
+                self._loops.add(next(iter(support)))
+            checked_indices = checked_indices.union(support)
+            if len(checked_indices) == self.ground_set_size:
+                return
 
 
 class _OrientedMatroidFromTopes(OrientedMatroid):
