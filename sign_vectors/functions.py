@@ -94,14 +94,14 @@ def closure(iterable) -> set[SignVector]:
 
 def lower_closure(iterable) -> set[SignVector]:
     r"""
-    Compute the closure of given sign vectors.
+    Compute the lower closure of given sign vectors.
 
     INPUT:
 
     - ``iterable`` -- an iterable of sign vectors
 
     OUTPUT:
-    Return the (lower) closure of ``iterable`` as a set of sign vectors.
+    Return the lower closure of ``iterable`` as a set of sign vectors.
 
     .. NOTE::
 
@@ -154,10 +154,84 @@ def lower_closure(iterable) -> set[SignVector]:
 
         hash_table[supp_len].add(x)
 
+    #fill the hash table with elements of the lower closure
+
     for i in range(1,max_support):
         for x in hash_table[-i]:
             for s in x.support():
                 hash_table[-i-1].add(x.set_to_zero([s]))
+
+    return set().union(*hash_table)
+
+def upper_closure(iterable) -> set[SignVector]:
+    r"""
+    Compute the upper closure of given sign vectors.
+
+    INPUT:
+
+    - ``iterable`` -- an iterable of sign vectors
+
+    OUTPUT:
+    Return the upper closure of ``iterable`` as a set of sign vectors.
+
+    .. NOTE::
+
+       The sign vector :math:`X` is in the upper closure
+       of a set of sign vectors :math:`W`
+       if there exists :math:`Y \in W` with :math:`X \leq Y`.
+
+    EXAMPLES:
+
+    We consider a list consisting of only one sign vector::
+
+        sage: from sign_vectors import *
+        sage: W = [sign_vector("+-0")]
+        sage: W
+        [(+-0)]
+        sage: upper_closure(W)
+        {(+-0), (+--), (+-+)}
+
+    Now, we consider a list of three sign vectors::
+
+        sage: W = [sign_vector("++-"), sign_vector("-00"), sign_vector("0--")]
+        sage: W
+        [(++-), (-00), (0--)]
+        sage: upper_closure(W)
+        {(-00), (---), (++-), (-+0), (--+), (-++), (--0), (0--), (-0-), (+--), (-+-), (-0+)}
+
+    TESTS::
+
+        sage: lower_closure([])
+        set()
+    """
+    if not iterable:
+        return set()
+    
+    for _ in iterable:
+        length = _.length()
+        break
+    
+    min_support = length
+    hash_table = [set()]
+
+    #create hash table with sets for each support length
+
+    for x in iterable:
+        supp_len = len(x.support())
+
+        while supp_len < min_support:
+            hash_table.append(set())
+            min_support -= 1
+
+        hash_table[length-supp_len].add(x)
+
+    #fill the hash table with elements of the upper closure
+
+    for i in range(1, length-min_support+1):
+        for x in hash_table[-i]:
+            for s in x.zero_support():
+                hash_table[-i-1].add(x.set_to_plus([s]))
+                hash_table[-i-1].add(x.set_to_minus([s]))
 
     return set().union(*hash_table)
 
