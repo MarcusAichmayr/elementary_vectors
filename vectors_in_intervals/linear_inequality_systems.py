@@ -284,26 +284,26 @@ class HomogeneousSystem(LinearInequalitySystem):
         sage: S.certify_existence()
         (1, 1, 1, 0, 0)
     """
-    __slots__ = "positive", "nonnegative", "zero"
+    __slots__ = "_positive", "_nonnegative", "_zero"
 
     def __init__(self, A: Matrix, B: Matrix, C: Matrix, result: bool = None) -> None:
         super().__init__(Matrix.block([[A], [B], [C]]), None, result=result)
-        self.positive = range(A.nrows())
-        self.nonnegative = range(A.nrows() + B.nrows())
-        self.zero = range(A.nrows() + B.nrows(), self.matrix.nrows())
+        self._positive = range(A.nrows())
+        self._nonnegative = range(A.nrows() + B.nrows())
+        self._zero = range(A.nrows() + B.nrows(), self.matrix.nrows())
 
         # self._evs._set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self._evs.length - self._evs.rank + 1))
 
-        if len(self.positive) == 1:
-            self._evs._set_combinations_kernel(CombinationsIncluding(self._evs.length, self._evs.rank + 1, self.positive))
+        if len(self._positive) == 1:
+            self._evs._set_combinations_kernel(CombinationsIncluding(self._evs.length, self._evs.rank + 1, self._positive))
 
     def _compute_intervals(self) -> Intervals:
         return [
             Interval(0, Infinity, False, False)
-            if i in self.positive else
+            if i in self._positive else
             (
                 Interval(0, Infinity)
-                if i in self.nonnegative else
+                if i in self._nonnegative else
                 Interval(0, 0)
             )
             for i in range(self.matrix.nrows())
@@ -311,10 +311,10 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def exists_orthogonal_vector(self, v) -> bool:
         return not (
-            any(v[k] for k in self.positive)
+            any(v[k] for k in self._positive)
             and (
-                all(v[k] >= 0 for k in self.nonnegative)
-                or all(v[k] <= 0 for k in self.nonnegative)
+                all(v[k] >= 0 for k in self._nonnegative)
+                or all(v[k] <= 0 for k in self._nonnegative)
             )
         )
 
@@ -324,15 +324,15 @@ class HomogeneousSystem(LinearInequalitySystem):
     def certify_existence(self, reverse: bool = False, random: bool = False):
         result = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
-        if self.positive.stop == 0:
+        if self._positive.stop == 0:
             return result
         for v in self.candidate_generator(dual=False, reverse=reverse, random=random):
             if self._solvable is False:
                 raise ValueError("No solution exists!")
             for w in [v, -v]:
-                if all(w[i] >= 0 for i in self.nonnegative) and all(w[i] == 0 for i in self.zero):
+                if all(w[i] >= 0 for i in self._nonnegative) and all(w[i] == 0 for i in self._zero):
                     result += w
-                    if all(result[i] > 0 for i in self.positive):
+                    if all(result[i] > 0 for i in self._positive):
                         self._solvable = True
                         return result
                     break
