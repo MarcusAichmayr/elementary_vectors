@@ -1,5 +1,5 @@
 r"""
-Double description
+Double description (Work in progress)
 
 EXAMPLES:
 
