@@ -119,14 +119,14 @@ class LinearInequalitySystem(SageObject):
     r"""
     A class for linear inequality systems given by a matrix and intervals
     """
-    __slots__ = "result", "matrix", "_intervals", "evs", "elementary_vectors", "solvable"
+    __slots__ = "result", "matrix", "_intervals", "evs", "elementary_vectors", "_solvable"
 
     def __init__(self, matrix: Matrix, intervals: Intervals, result: bool = None) -> None:
         self.matrix = matrix
         self._intervals = intervals
         self.result = result
         self.evs = ElementaryVectors(self.matrix.T)
-        self.solvable = None
+        self._solvable = None
 
     def _repr_(self) -> str:
         return str(self.matrix) + " x in " + str(self.intervals)
@@ -163,12 +163,12 @@ class LinearInequalitySystem(SageObject):
             If a solution exists and ``random`` is set to true, this method will never finish.
         """
         for v in self.candidate_generator(reverse=reverse, random=random):
-            if self.solvable:
+            if self._solvable:
                 break
             if not self.exists_orthogonal_vector(v):
-                self.solvable = False
+                self._solvable = False
                 return v
-        self.solvable = True
+        self._solvable = True
         raise ValueError("A solution exists!")
 
     def certify_existence(self, reverse: bool = False, random: bool = False):
@@ -326,17 +326,17 @@ class HomogeneousSystem(LinearInequalitySystem):
         if self.positive.stop == 0:
             return result
         for v in self.candidate_generator(dual=False, reverse=reverse, random=random):
-            if self.solvable is False:
+            if self._solvable is False:
                 raise ValueError("No solution exists!")
             for w in [v, -v]:
                 if all(w[i] >= 0 for i in self.nonnegative) and all(w[i] == 0 for i in self.zero):
                     result += w
                     if all(result[i] > 0 for i in self.positive):
-                        self.solvable = True
+                        self._solvable = True
                         return result
                     break
 
-        self.solvable = False
+        self._solvable = False
         raise ValueError("No solution exists!")
 
     def solve(self, reverse: bool = False, random: bool = False):
@@ -397,15 +397,15 @@ class HomogeneousSystem(LinearInequalitySystem):
 #         if result >= lower:
 #             return result
 #         for v in self.candidate_generator(dual=False, reverse=reverse, random=random):
-#             if self.solvable is False:
+#             if self._solvable is False:
 #                 raise ValueError("No solution exists!")
 #             if v <= upper:
 #                 result &= v
 #                 if result >= lower:
-#                     self.solvable = True
+#                     self._solvable = True
 #                     return result
 
-#         self.solvable = False
+#         self._solvable = False
 #         raise ValueError("No solution exists!")
 
 #     def solve(self, reverse: bool = False, random: bool = False):
