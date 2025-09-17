@@ -12,21 +12,18 @@ r"""Computing elementary vectors"""
 
 from typing import Optional, Union, List, Iterator
 from sage.combinat.combination import Combinations
-from sage.matrix.constructor import matrix
+from sage.matrix.constructor import Matrix
 from sage.modules.free_module_element import zero_vector, vector
 from sage.structure.sage_object import SageObject
 from .utility import is_symbolic
 
 
-def circuits(M: matrix) -> List[vector]:
+def circuits(matrix: Matrix) -> List[vector]:
     r"""
     Compute the circuits of a matrix.
-    INPUT:
-
-    - ``M`` -- a matrix
 
     OUTPUT:
-    Return a list of circuits of the matrix ``M``.
+    Return a list of circuits of the matrix.
     These are the nonzero support-minimal elements in the kernel.
 
     .. SEEALSO::
@@ -44,19 +41,15 @@ def circuits(M: matrix) -> List[vector]:
         sage: circuits(M)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
     """
-    return elementary_vectors(M, dual=True)
+    return elementary_vectors(matrix, dual=True)
 
 
-def cocircuits(M: matrix) -> List[vector]:
+def cocircuits(matrix: Matrix) -> List[vector]:
     r"""
     Compute the cocircuits of a matrix.
 
-    INPUT:
-
-    - ``M`` -- a matrix
-
     OUTPUT:
-    Return a list of cocircuits of the matrix ``M``.
+    Return a list of cocircuits of the matrix.
     These are the nonzero support-minimal elements in the row space.
 
     .. SEEALSO::
@@ -74,16 +67,16 @@ def cocircuits(M: matrix) -> List[vector]:
         sage: cocircuits(M)
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
     """
-    return elementary_vectors(M, dual=False)
+    return elementary_vectors(matrix, dual=False)
 
 
-def elementary_vectors(M: matrix, dual: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
+def elementary_vectors(matrix, dual: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
     r"""
     Compute elementary vectors of a subspace determined by a matrix.
 
     INPUT:
 
-    - ``M`` -- a matrix
+    - ``matrix`` -- a matrix
 
     - ``dual`` -- a boolean (default: ``True``)
 
@@ -92,7 +85,7 @@ def elementary_vectors(M: matrix, dual: bool = True, prevent_multiples: bool = T
     - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
-    Return a list of elementary vectors in the kernel of a matrix given by the matrix ``M``.
+    Return a list of elementary vectors in the kernel of a given matrix.
     To compute the elementary vectors in the row space, pass ``False`` for ``dual``.
 
     - If ``generator`` is ``True``, the output will be a generator object instead of a list.
@@ -169,25 +162,21 @@ def elementary_vectors(M: matrix, dual: bool = True, prevent_multiples: bool = T
         [(0, -1, 0), (0, 0, -1)]
     """
     if generator:
-        return ElementaryVectors(M).generator(dual=dual, prevent_multiples=prevent_multiples)
-    return ElementaryVectors(M).elements(dual=dual, prevent_multiples=prevent_multiples)
+        return ElementaryVectors(matrix).generator(dual=dual, prevent_multiples=prevent_multiples)
+    return ElementaryVectors(matrix).elements(dual=dual, prevent_multiples=prevent_multiples)
 
 
-def kernel_matrix_using_elementary_vectors(M: matrix) -> matrix:
+def kernel_matrix_using_elementary_vectors(matrix: Matrix) -> Matrix:
     """
     Division-free right kernel matrix based on elementary vectors.
 
-    INPUT:
-
-    - ``M`` -- a matrix
-
     OUTPUT:
-    A right kernel matrix of ``M``.
+    A right kernel matrix.
     It also works for symbolic matrices.
 
     .. NOTE::
 
-        Raises a ``ValueError`` if ``M`` has no constant nonzero maximal minor.
+        Raises a ``ValueError`` if the matrix has no constant nonzero maximal minor.
 
     EXAMPLES::
 
@@ -236,18 +225,18 @@ def kernel_matrix_using_elementary_vectors(M: matrix) -> matrix:
         sage: kernel_matrix_using_elementary_vectors(M)
         [1 0]
     """
-    evs = ElementaryVectors(M)
+    evs = ElementaryVectors(matrix)
 
     rank = evs.rank
     length = evs.length
 
     if rank == length:
-        return matrix(M.base_ring(), 0, length)
+        return Matrix(matrix.base_ring(), 0, length)
 
     for indices_minor in Combinations(range(length - 1, -1, -1), rank):
         minor = evs.minor(indices_minor)
         if minor != 0 and not is_symbolic(minor):
-            return matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor))
+            return Matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor))
     raise ValueError("Matrix has no constant nonzero maximal minor.")
 
 
@@ -318,15 +307,15 @@ class ElementaryVectors(SageObject):
         sage: evs.elements()
         [(0, -2, 1, 0), (0, 0, 0, 1)]
     """
-    def __init__(self, M: matrix) -> None:
+    def __init__(self, matrix: Matrix) -> None:
         try:
-            self.matrix = M.matrix_from_rows(M.pivot_rows())
+            self.matrix = matrix.matrix_from_rows(matrix.pivot_rows())
         except NotImplementedError as exc:
-            if all(minor == 0 for minor in M.minors(M.nrows())):
+            if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
                 raise ValueError("Provide a matrix with maximal rank.") from exc
-            self.matrix = M
+            self.matrix = matrix
         self.rank, self.length = self.matrix.dimensions()
-        self.ring = M.base_ring()
+        self.ring = matrix.base_ring()
         self.minors = {}
 
         self._set_combinations_kernel()
