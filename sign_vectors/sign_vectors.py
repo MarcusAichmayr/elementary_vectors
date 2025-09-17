@@ -689,7 +689,7 @@ class SignVector(SageObject):
 
         OUTPUT:
         Returns a new sign vector of same length. Components with indices in
-        ``indices`` are multiplied by ``-1``.
+        ``indices`` are set to ``0``.
 
         EXAMPLES::
 
@@ -710,6 +710,70 @@ class SignVector(SageObject):
         """
         indices = FrozenBitset(indices)
         return self.__class__(self._positive_support - indices, self._negative_support - indices)
+    
+    def set_to_plus(self, indices: list[int]) -> SignVector:
+        r"""
+        Set given entries to plus.
+
+        INPUT:
+
+        - ``indices`` -- list of indices
+
+        OUTPUT:
+        Returns a new sign vector of same length. Components with indices in
+        ``indices`` are set to ``+``.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: X = sign_vector('-++0+')
+            sage: X
+            (-++0+)
+            sage: X.set_to_plus([0, 2, 3])
+            (+++++)
+
+        ::
+
+            sage: X = sign_vector('+-+0+0')
+            sage: X
+            (+-+0+0)
+            sage: X.set_to_plus([0, 1, 4])
+            (+++0+0)
+        """
+        indices = FrozenBitset(indices)
+        return self.__class__(self._positive_support | indices, self._negative_support - indices)
+    
+    def set_to_minus(self, indices: list[int]) -> SignVector:
+        r"""
+        Set given entries to minus.
+
+        INPUT:
+
+        - ``indices`` -- list of indices
+
+        OUTPUT:
+        Returns a new sign vector of same length. Components with indices in
+        ``indices`` are set to ``-``.
+
+        EXAMPLES::
+
+            sage: from sign_vectors import *
+            sage: X = sign_vector('-++0+')
+            sage: X
+            (-++0+)
+            sage: X.set_to_minus([0, 2, 3])
+            (-+--+)
+
+        ::
+
+            sage: X = sign_vector('+-+0+0')
+            sage: X
+            (+-+0+0)
+            sage: X.set_to_minus([0, 1, 4])
+            (--+0-0)
+        """
+        indices = FrozenBitset(indices)
+        return self.__class__(self._positive_support - indices, self._negative_support | indices)
 
     def delete_components(self, indices: list[int]) -> SignVector:
         r"""
