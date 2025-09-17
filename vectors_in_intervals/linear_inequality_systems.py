@@ -121,7 +121,7 @@ class LinearInequalitySystem(SageObject):
     """
     __slots__ = "result", "matrix", "_intervals", "_evs", "elementary_vectors", "_solvable"
 
-    def __init__(self, matrix: Matrix, intervals: Intervals, result: bool = None) -> None:
+    def __init__(self, matrix: Matrix, intervals: Intervals = None, result: bool = None) -> None:
         self.matrix = matrix
         self._intervals = intervals
         self.result = result
@@ -134,7 +134,12 @@ class LinearInequalitySystem(SageObject):
     @property
     def intervals(self) -> Intervals:
         r"""Return the corresponding intervals."""
+        if self._intervals is None:
+            self._intervals = self._compute_intervals()
         return self._intervals
+
+    def _compute_intervals(self) -> Intervals:
+        raise NotImplementedError("This method should be implemented in subclasses.")
 
     def exists_orthogonal_vector(self, v) -> bool:
         r"""Check if an orthogonal vector exists in the intervals."""
@@ -239,10 +244,8 @@ class InhomogeneousSystem(LinearInequalitySystem):
         self.b = b
         self.c = c
 
-    @property
-    def intervals(self) -> Intervals:
-        self._intervals = [Interval(-Infinity, bi) for bi in self.b] + [Interval(-Infinity, ci, False, False) for ci in self.c]
-        return self._intervals
+    def _compute_intervals(self) -> Intervals:
+        return [Interval(-Infinity, bi) for bi in self.b] + [Interval(-Infinity, ci, False, False) for ci in self.c]
 
     def exists_orthogonal_vector(self, v) -> bool:
         len_b = len(self.b)
@@ -294,9 +297,8 @@ class HomogeneousSystem(LinearInequalitySystem):
         if len(self.positive) == 1:
             self._evs._set_combinations_kernel(CombinationsIncluding(self._evs.length, self._evs.rank + 1, self.positive))
 
-    @property
-    def intervals(self) -> Intervals:
-        self._intervals = [
+    def _compute_intervals(self) -> Intervals:
+        return [
             Interval(0, Infinity, False, False)
             if i in self.positive else
             (
@@ -306,7 +308,6 @@ class HomogeneousSystem(LinearInequalitySystem):
             )
             for i in range(self.matrix.nrows())
         ]
-        return self._intervals
 
     def exists_orthogonal_vector(self, v) -> bool:
         return not (
