@@ -92,6 +92,74 @@ def closure(iterable) -> set[SignVector]:
             break
     return set().union(*output)
 
+def lower_closure(iterable) -> set[SignVector]:
+    r"""
+    Compute the closure of given sign vectors.
+
+    INPUT:
+
+    - ``iterable`` -- an iterable of sign vectors
+
+    OUTPUT:
+    Return the (lower) closure of ``iterable`` as a set of sign vectors.
+
+    .. NOTE::
+
+       The sign vector :math:`X` is in the lower closure
+       of a set of sign vectors :math:`W`
+       if there exists :math:`Y \in W` with :math:`X \leq Y`.
+
+    EXAMPLES:
+
+    We consider a list consisting of only one sign vector::
+
+        sage: from sign_vectors import *
+        sage: W = [sign_vector("+-0")]
+        sage: W
+        [(+-0)]
+        sage: lower_closure(W)
+        {(000), (+00), (0-0), (+-0)}
+
+    Now, we consider a list of three sign vectors::
+
+        sage: W = [sign_vector("++-"), sign_vector("-00"), sign_vector("0--")]
+        sage: W
+        [(++-), (-00), (0--)]
+        sage: lower_closure(W)
+        {(000), (-00), (00-), (0+0), (0+-), (+00), (+0-), (++0), (++-), (0-0), (0--)}
+
+    TESTS::
+
+        sage: lower_closure([])
+        set()
+    """
+    if not iterable:
+        return set()
+    
+    for _ in iterable:
+        length = _.length()
+        break
+    
+    max_support = 0
+    hash_table = [{zero_sign_vector(length)}]
+
+    #create hashtable with sets for each support length
+
+    for x in iterable:
+        supp_len = len(x.support())
+
+        while supp_len > max_support:
+            hash_table.append(set())
+            max_support += 1
+
+        hash_table[supp_len].add(x)
+
+    for i in range(1,max_support):
+        for x in hash_table[-i]:
+            for s in x.support():
+                hash_table[-i-1].add(x.set_to_zero([s]))
+
+    return set().union(*hash_table)
 
 def contraction(iterable: set[SignVector], indices: list[int]) -> set[SignVector]:
     r"""
