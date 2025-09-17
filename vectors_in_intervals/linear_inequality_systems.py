@@ -9,7 +9,7 @@ EXAMPLES::
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
     sage: S = HomogeneousSystem(A, B, C)
-    sage: S.get_intervals()
+    sage: S.intervals
     [(0, +oo), (0, +oo), [0, +oo), {0}]
     sage: S.solve()
     (0, 1)
@@ -103,7 +103,7 @@ from __future__ import annotations
 import concurrent.futures
 
 from collections.abc import Generator
-from sage.matrix.constructor import matrix, zero_matrix
+from sage.matrix.constructor import Matrix, zero_matrix
 from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
@@ -119,25 +119,26 @@ class LinearInequalitySystem(SageObject):
     r"""
     A class for linear inequality systems given by a matrix and intervals
     """
-    __slots__ = "result", "matrix", "intervals", "evs", "elementary_vectors", "solvable"
+    __slots__ = "result", "matrix", "_intervals", "evs", "elementary_vectors", "solvable"
 
-    def __init__(self, _matrix, intervals: Intervals, result: bool = None) -> None:
-        self.matrix = _matrix
-        self.intervals = intervals
+    def __init__(self, matrix: Matrix, intervals: Intervals, result: bool = None) -> None:
+        self.matrix = matrix
+        self._intervals = intervals
         self.result = result
         self.evs = ElementaryVectors(self.matrix.T)
         self.solvable = None
 
     def _repr_(self) -> str:
-        return str(self.matrix) + " x in " + str(self.get_intervals())
+        return str(self.matrix) + " x in " + str(self.intervals)
 
-    def get_intervals(self) -> Intervals:
+    @property
+    def intervals(self) -> Intervals:
         r"""Return the corresponding intervals."""
-        return self.intervals
+        return self._intervals
 
     def exists_orthogonal_vector(self, v) -> bool:
         r"""Check if an orthogonal vector exists in the intervals."""
-        return exists_orthogonal_vector(v, self.intervals)
+        return exists_orthogonal_vector(v, self._intervals)
 
     def candidate_generator(self, dual: bool = True, reverse: bool = False, random: bool = False) -> Generator:
         r"""Return a generator of elementary vectors."""
@@ -231,16 +232,17 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
     ``A x <= b``, ``B x <= c``
     """
-    def __init__(self, A, B, b, c, result: bool = None) -> None:
-        super().__init__(matrix.block([[A], [B]]), None, result=result)
+    def __init__(self, A: Matrix, B: Matrix, b: vector, c: vector, result: bool = None) -> None:
+        super().__init__(Matrix.block([[A], [B]]), None, result=result)
         self.A = A
         self.B = B
         self.b = b
         self.c = c
 
-    def get_intervals(self) -> Intervals:
-        self.intervals = [Interval(-Infinity, bi) for bi in self.b] + [Interval(-Infinity, ci, False, False) for ci in self.c]
-        return self.intervals
+    @property
+    def intervals(self) -> Intervals:
+        self._intervals = [Interval(-Infinity, bi) for bi in self.b] + [Interval(-Infinity, ci, False, False) for ci in self.c]
+        return self._intervals
 
     def exists_orthogonal_vector(self, v) -> bool:
         len_b = len(self.b)
@@ -281,8 +283,8 @@ class HomogeneousSystem(LinearInequalitySystem):
     """
     __slots__ = "positive", "nonnegative", "zero"
 
-    def __init__(self, A, B, C, result: bool = None) -> None:
-        super().__init__(matrix.block([[A], [B], [C]]), None, result=result)
+    def __init__(self, A: Matrix, B: Matrix, C: Matrix, result: bool = None) -> None:
+        super().__init__(Matrix.block([[A], [B], [C]]), None, result=result)
         self.positive = range(A.nrows())
         self.nonnegative = range(A.nrows() + B.nrows())
         self.zero = range(A.nrows() + B.nrows(), self.matrix.nrows())
@@ -292,8 +294,9 @@ class HomogeneousSystem(LinearInequalitySystem):
         if len(self.positive) == 1:
             self.evs._set_combinations_kernel(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
 
-    def get_intervals(self) -> list:
-        self.intervals = [
+    @property
+    def intervals(self) -> Intervals:
+        self._intervals = [
             Interval(0, Infinity, False, False)
             if i in self.positive else
             (
@@ -303,7 +306,7 @@ class HomogeneousSystem(LinearInequalitySystem):
             )
             for i in range(self.matrix.nrows())
         ]
-        return self.intervals
+        return self._intervals
 
     def exists_orthogonal_vector(self, v) -> bool:
         return not (
@@ -416,7 +419,7 @@ def inhomogeneous_from_general(system: LinearInequalitySystem) -> InhomogeneousS
     b_list = []
     c_list = []
 
-    for line, interval in zip(system.matrix, system.intervals):
+    for line, interval in zip(system.matrix, system._intervals):
         if interval.infimum() != -Infinity:
             if interval.infimum() in interval:
                 A_list.append(-line)
@@ -433,8 +436,8 @@ def inhomogeneous_from_general(system: LinearInequalitySystem) -> InhomogeneousS
                 c_list.append(interval.supremum())
 
     return InhomogeneousSystem(
-        matrix(len(A_list), system.matrix.ncols(), A_list),
-        matrix(len(B_list), system.matrix.ncols(), B_list),
+        Matrix(len(A_list), system.matrix.ncols(), A_list),
+        Matrix(len(B_list), system.matrix.ncols(), B_list),
         vector(b_list),
         vector(c_list),
         result=system.result
@@ -470,7 +473,7 @@ def homogeneous_from_general(system: LinearInequalitySystem) -> HomogeneousSyste
 
     length = system.matrix.ncols()
 
-    for line, interval in zip(system.matrix, system.intervals):
+    for line, interval in zip(system.matrix, system._intervals):
         if interval.infimum() == interval.supremum():
             C_list.append(list(line) + [-interval.infimum()])
             continue
@@ -488,9 +491,9 @@ def homogeneous_from_general(system: LinearInequalitySystem) -> HomogeneousSyste
     A_list.append([0] * length + [-1])
 
     return HomogeneousSystem(
-        matrix(len(A_list), length + 1, A_list),
-        matrix(len(B_list), length + 1, B_list),
-        matrix(len(C_list), length + 1, C_list),
+        Matrix(len(A_list), length + 1, A_list),
+        Matrix(len(B_list), length + 1, B_list),
+        Matrix(len(C_list), length + 1, C_list),
         result=system.result
     )
 
@@ -498,8 +501,8 @@ def homogeneous_from_general(system: LinearInequalitySystem) -> HomogeneousSyste
 def homogeneous_from_inhomogeneous(system: InhomogeneousSystem) -> HomogeneousSystem:
     r"""Convert an inhomogeneous system to a homogeneous system."""
     return HomogeneousSystem(
-        matrix.block([[system.B, matrix(len(system.c), 1, -system.c)], [zero_matrix(1, system.A.ncols()), matrix([[-1]])]]),
-        matrix.block([[system.A, matrix(len(system.b), 1, -system.b)]]),
-        matrix(0, system.A.ncols() + 1),
+        Matrix.block([[system.B, Matrix(len(system.c), 1, -system.c)], [zero_matrix(1, system.A.ncols()), Matrix([[-1]])]]),
+        Matrix.block([[system.A, Matrix(len(system.b), 1, -system.b)]]),
+        Matrix(0, system.A.ncols() + 1),
         result=system.result
     )
