@@ -119,13 +119,13 @@ class LinearInequalitySystem(SageObject):
     r"""
     A class for linear inequality systems given by a matrix and intervals
     """
-    __slots__ = "result", "matrix", "_intervals", "evs", "elementary_vectors", "_solvable"
+    __slots__ = "result", "matrix", "_intervals", "_evs", "elementary_vectors", "_solvable"
 
     def __init__(self, matrix: Matrix, intervals: Intervals, result: bool = None) -> None:
         self.matrix = matrix
         self._intervals = intervals
         self.result = result
-        self.evs = ElementaryVectors(self.matrix.T)
+        self._evs = ElementaryVectors(self.matrix.T)
         self._solvable = None
 
     def _repr_(self) -> str:
@@ -144,9 +144,9 @@ class LinearInequalitySystem(SageObject):
         r"""Return a generator of elementary vectors."""
         if random:
             while True:
-                yield self.evs.random_element(dual=dual)
+                yield self._evs.random_element(dual=dual)
         else:
-            yield from self.evs.generator(dual=dual, reverse=reverse)
+            yield from self._evs.generator(dual=dual, reverse=reverse)
 
     def to_homogeneous(self) -> HomogeneousSystem:
         r"""Return the equivalent homogeneous system."""
@@ -289,10 +289,10 @@ class HomogeneousSystem(LinearInequalitySystem):
         self.nonnegative = range(A.nrows() + B.nrows())
         self.zero = range(A.nrows() + B.nrows(), self.matrix.nrows())
 
-        # self.evs._set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self.evs.length - self.evs.rank + 1))
+        # self._evs._set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self._evs.length - self._evs.rank + 1))
 
         if len(self.positive) == 1:
-            self.evs._set_combinations_kernel(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
+            self._evs._set_combinations_kernel(CombinationsIncluding(self._evs.length, self._evs.rank + 1, self.positive))
 
     @property
     def intervals(self) -> Intervals:
@@ -361,14 +361,14 @@ class HomogeneousSystem(LinearInequalitySystem):
 
 #     Certifying makes use of cocircuits instead of elementary vectors
 #     """
-#     def __init__(self, A, B, C, result: bool = None) -> None:
+#     def __init__(self, A: Matrix, B: Matrix, C: Matrix, result: bool = None) -> None:
 #         super().__init__(A, B, C, result=result)
 
-#         # self.evs = Cocircuits(self.matrix.T)
+#         # self._evs = Cocircuits(self.matrix.T)
 #         self.om = OrientedMatroid(self.matrix.T)
 
 #         if len(self.positive) == 1:
-#             self.evs.set_combinations(CombinationsIncluding(self.evs.length, self.evs.rank + 1, self.positive))
+#             self._evs.set_combinations(CombinationsIncluding(self._evs.length, self._evs.rank + 1, self.positive))
 
 #     def exists_orthogonal_vector(self, v) -> bool:
 #         return not (
