@@ -710,7 +710,7 @@ class SignVector(SageObject):
         """
         indices = FrozenBitset(indices)
         return self.__class__(self._positive_support - indices, self._negative_support - indices)
-    
+
     def set_to_plus(self, indices: list[int]) -> SignVector:
         r"""
         Set given entries to plus.
@@ -742,7 +742,7 @@ class SignVector(SageObject):
         """
         indices = FrozenBitset(indices)
         return self.__class__(self._positive_support | indices, self._negative_support - indices)
-    
+
     def set_to_minus(self, indices: list[int]) -> SignVector:
         r"""
         Set given entries to minus.

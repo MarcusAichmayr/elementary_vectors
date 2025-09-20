@@ -135,31 +135,31 @@ def lower_closure(iterable) -> set[SignVector]:
     """
     if not iterable:
         return set()
-    
+
     for _ in iterable:
         length = _.length()
         break
-    
-    max_support = 0
+
+    max_support_length = 0
     hash_table = [{zero_sign_vector(length)}]
 
     #create hashtable with sets for each support length
 
     for x in iterable:
-        supp_len = len(x.support())
+        support_length = len(x.support())
 
-        while supp_len > max_support:
+        while support_length > max_support_length:
             hash_table.append(set())
-            max_support += 1
+            max_support_length += 1
 
-        hash_table[supp_len].add(x)
+        hash_table[support_length].add(x)
 
     #fill the hash table with elements of the lower closure
 
-    for i in range(1,max_support):
+    for i in range(1, max_support_length):
         for x in hash_table[-i]:
             for s in x.support():
-                hash_table[-i-1].add(x.set_to_zero([s]))
+                hash_table[-i - 1].add(x.set_to_zero([s]))
 
     return set().union(*hash_table)
 
@@ -201,37 +201,37 @@ def upper_closure(iterable) -> set[SignVector]:
 
     TESTS::
 
-        sage: lower_closure([])
+        sage: upper_closure([])
         set()
     """
     if not iterable:
         return set()
-    
+
     for _ in iterable:
         length = _.length()
         break
-    
-    min_support = length
+
+    min_support_length = length
     hash_table = [set()]
 
     #create hash table with sets for each support length
 
     for x in iterable:
-        supp_len = len(x.support())
+        support_length = len(x.support())
 
-        while supp_len < min_support:
+        while support_length < min_support_length:
             hash_table.append(set())
-            min_support -= 1
+            min_support_length -= 1
 
-        hash_table[length-supp_len].add(x)
+        hash_table[length-support_length].add(x)
 
     #fill the hash table with elements of the upper closure
 
-    for i in range(1, length-min_support+1):
+    for i in range(1, length - min_support_length + 1):
         for x in hash_table[-i]:
             for s in x.zero_support():
-                hash_table[-i-1].add(x.set_to_plus([s]))
-                hash_table[-i-1].add(x.set_to_minus([s]))
+                hash_table[-i - 1].add(x.set_to_plus([s]))
+                hash_table[-i - 1].add(x.set_to_minus([s]))
 
     return set().union(*hash_table)
 
