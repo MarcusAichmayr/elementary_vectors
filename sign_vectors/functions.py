@@ -15,7 +15,7 @@ from sage.combinat.posets.posets import Poset
 from sign_vectors import SignVector, zero_sign_vector
 
 
-def lower_closure(iterable) -> set[SignVector]:
+def lower_closure(iterable: set[SignVector]) -> set[SignVector]:
     r"""
     Compute the lower closure of given sign vectors.
 
@@ -64,29 +64,25 @@ def lower_closure(iterable) -> set[SignVector]:
         break
 
     max_support_length = 0
-    hash_table = [{zero_sign_vector(length)}]
+    same_support_list = [{zero_sign_vector(length)}]
 
-    #create hashtable with sets for each support length
-
-    for x in iterable:
-        support_length = len(x.support())
+    for sv in iterable:
+        support_length = len(sv.support())
 
         while support_length > max_support_length:
-            hash_table.append(set())
+            same_support_list.append(set())
             max_support_length += 1
 
-        hash_table[support_length].add(x)
+        same_support_list[support_length].add(sv)
 
-    #fill the hash table with elements of the lower closure
+    for i in range(max_support_length, 1, -1):
+        for sv in same_support_list[i]:
+            for s in sv.support():
+                same_support_list[i - 1].add(sv.set_to_zero([s]))
 
-    for i in range(1, max_support_length):
-        for x in hash_table[-i]:
-            for s in x.support():
-                hash_table[-i - 1].add(x.set_to_zero([s]))
+    return set().union(*same_support_list)
 
-    return set().union(*hash_table)
-
-def upper_closure(iterable) -> set[SignVector]:
+def upper_closure(iterable: set[SignVector]) -> set[SignVector]:
     r"""
     Compute the upper closure of given sign vectors.
 
@@ -135,28 +131,24 @@ def upper_closure(iterable) -> set[SignVector]:
         break
 
     min_support_length = length
-    hash_table = [set()]
+    same_support_list = [set()]
 
-    #create hash table with sets for each support length
-
-    for x in iterable:
-        support_length = len(x.support())
+    for sv in iterable:
+        support_length = len(sv.support())
 
         while support_length < min_support_length:
-            hash_table.append(set())
+            same_support_list.append(set())
             min_support_length -= 1
 
-        hash_table[length-support_length].add(x)
+        same_support_list[length-support_length].add(sv)
 
-    #fill the hash table with elements of the upper closure
+    for i in range(length - min_support_length, 0, -1):
+        for sv in same_support_list[i]:
+            for s in sv.zero_support():
+                same_support_list[i - 1].add(sv.set_to_plus([s]))
+                same_support_list[i - 1].add(sv.set_to_minus([s]))
 
-    for i in range(1, length - min_support_length + 1):
-        for x in hash_table[-i]:
-            for s in x.zero_support():
-                hash_table[-i - 1].add(x.set_to_plus([s]))
-                hash_table[-i - 1].add(x.set_to_minus([s]))
-
-    return set().union(*hash_table)
+    return set().union(*same_support_list)
 
 def contraction(iterable: set[SignVector], indices: list[int]) -> set[SignVector]:
     r"""
@@ -228,7 +220,7 @@ def deletion(iterable: set[SignVector], indices: list[int]) -> set[SignVector]:
     return set(X.delete_components(indices) for X in iterable)
 
 
-def plot_sign_vectors(iterable, vertex_size: int = 600, figsize: int = None, aspect_ratio=None):
+def plot_sign_vectors(iterable: set[SignVector], vertex_size: int = 600, figsize: int = None, aspect_ratio=None):
     r"""
     Plot the Hasse Diagram of sign vectors using the conformal relation.
 
