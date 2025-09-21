@@ -12,8 +12,7 @@
 
 from typing import Iterator
 
-from sage.modules.free_module_element import vector
-from sign_vectors import SignVector, sign_vector
+from sign_vectors import SignVector
 
 
 def are_parallel(iterable, component1, component2, return_ratio: bool = False):
