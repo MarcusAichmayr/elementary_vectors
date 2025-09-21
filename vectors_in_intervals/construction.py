@@ -138,7 +138,7 @@ def multiple_in_intervals(v: vector, intervals: Intervals) -> vector:
         raise ValueError("There is no multiple in given intervals.") from exc
 
 
-def vector_from_sign_vector(data, sv):
+def vector_from_sign_vector(data, sv: SignVector) -> vector:
     r"""
     Find a vector in the row space of a matrix that has given signs.
 
@@ -189,7 +189,7 @@ def vector_from_sign_vector(data, sv):
         raise ValueError("Cannot find vector corresponding to given sign vector.") from exc
 
 
-def vector_between_sign_vectors(data, lower, upper):
+def vector_between_sign_vectors(data, lower: SignVector, upper: SignVector) -> vector:
     r"""
     Find a vector in the row space of a matrix that has given signs.
 
