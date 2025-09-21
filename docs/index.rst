@@ -9,8 +9,6 @@ To install this SageMath package, visit the `repository on GitHub <https://githu
     :toctree: generated
 
     elementary_vectors.functions
-    elementary_vectors.functions_dd
-    elementary_vectors.reductions
     elementary_vectors.utility
 
 .. rubric:: Sign vectors

@@ -11,5 +11,3 @@
 from __future__ import absolute_import
 
 from .functions import elementary_vectors, circuits, cocircuits, kernel_matrix_using_elementary_vectors, ElementaryVectors
-from .functions_dd import double_description
-from .reductions import reduce_vectors_support, reduce_vectors

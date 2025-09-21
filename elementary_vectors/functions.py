@@ -11,10 +11,12 @@ r"""Computing elementary vectors"""
 #############################################################################
 
 from typing import Optional, Union, List, Iterator
+
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import Matrix
 from sage.modules.free_module_element import zero_vector, vector
 from sage.structure.sage_object import SageObject
+
 from .utility import is_symbolic
 
 

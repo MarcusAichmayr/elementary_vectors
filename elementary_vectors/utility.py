@@ -10,46 +10,6 @@
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from sage.modules.free_module_element import vector
-
-
-def kernel_vector_support_given(M, indices: list):
-    r"""
-    Return a right kernel vector such that the support is contained in the given indices.
-
-    INPUT:
-
-    - ``M`` -- a matrix
-
-    - ``indices`` -- a list of indices
-
-    OUTPUT:
-    a vector in the right kernel of ``M`` such that the support is a subset of ``indices``.
-
-    EXAMPLES::
-
-        sage: from elementary_vectors.utility import kernel_vector_support_given
-        sage: M = matrix([[1, 2, 0, 0], [0, 1, -1, 0]])
-        sage: v = kernel_vector_support_given(M, [0, 1, 2])
-        sage: max(v, -v)
-        (2, -1, -1, 0)
-        sage: kernel_vector_support_given(M, [3])
-        (0, 0, 0, 1)
-        sage: v = kernel_vector_support_given(M, [0, 3]) # (0, 0, 0, 1) or (0, 0, 0, -1) depending on sage version
-        sage: v.support()
-        [3]
-    """
-    try:
-        subvector_list = list(M.matrix_from_columns(indices).right_kernel_matrix()[0])
-    except IndexError as exc:
-        raise ValueError(
-            "Right kernel restricted to column ``indices`` is empty."
-        ) from exc
-    for k in range(M.ncols()):
-        if not k in indices:
-            subvector_list.insert(k, 0)
-    return vector(subvector_list)
-
 
 def is_symbolic(expression):
     r"""
