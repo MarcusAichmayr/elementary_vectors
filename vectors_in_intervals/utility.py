@@ -21,25 +21,6 @@ from sage.structure.sage_object import SageObject
 from elementary_vectors.functions import ElementaryVectors
 
 
-def solve_left_for_roots(A: Matrix, b: vector):
-    r"""
-    Find a solution for ``x*A = b`` that works for matrices whose entries are roots.
-
-    INPUT:
-
-    - ``A`` -- a matrix
-
-    - ``b`` -- a vector
-
-    NOTE::
-
-        The built in method ``solve_left`` for matrices fails occasionally.
-    """
-    M = Matrix(list(A) + [-b]).T.right_kernel_matrix()
-    x = Matrix(M.column(-1)).solve_right(vector([1]))
-    return (x * M)[:-1]
-
-
 def solve_without_division(A: Matrix, b: vector):
     r"""
     Solve a linear system of equations without division.
