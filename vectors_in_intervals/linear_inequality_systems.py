@@ -218,6 +218,18 @@ class LinearInequalitySystem(SageObject):
         """
         return self.to_homogeneous().certify_existence(reverse=reverse, random=random)
 
+    def has_solution(self, reverse: bool = False, random: bool = False) -> bool:
+        r"""
+        Check whether a solution exists.
+
+        If ``random`` is true, this method will never finish if a solution exists.
+        """
+        try:
+            self.certify_nonexistence(reverse=reverse, random=random)
+            return False
+        except ValueError:
+            return True
+
     def solve(self, reverse: bool = False, random: bool = False):
         r"""
         Compute a solution for this linear inequality system.

@@ -33,10 +33,12 @@ Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deal with th
     [-1  0]
     sage: S.one.intervals
     [(0, +oo), (0, +oo), [0, +oo), {0}]
-    sage: exists_vector(S.one.matrix, S.one.intervals)
+    sage: S.one.has_solution()
     True
+    sage: S.one.solve()
+    (0, 1)
 
-The certify the result, we consider the alternative system
+To certify the result, we consider the alternative system
 which consists of a single matrix and intervals::
 
     sage: S.two.matrix
@@ -50,9 +52,9 @@ which consists of a single matrix and intervals::
     [ 2  1  3  0]
     sage: S.two.intervals
     [(0, +oo), [0, +oo), [0, +oo), [0, +oo), {0}, {0}]
-    sage: exists_vector(S.two.matrix, S.two.intervals)
+    sage: S.two.has_solution()
     False
-    sage: exists_vector(S.two.matrix, S.two.intervals, certify=True)
+    sage: S.two.certify_nonexistence()
     (-1, -1, 0, -3, 0, 1)
 
 There is a single command for certification::
@@ -97,8 +99,7 @@ Inhomogeneous systems
 We deal with linear inequality systems given in the form
 :math:`A x \leq b, B x < c` with matrices :math:`A`, :math:`B` and vectors :math:`b`, :math:`c`.
 We are interested whether the system  has a solution :math:`x`.
-This can be checked using :func:`vectors_in_intervals.existence.exists_vector`.
-If no solution exists, this function can be used to certify the result.
+If no solution exists, we want to certify the result.
 
 To demonstrate this, consider the following example::
 
@@ -115,8 +116,10 @@ To demonstrate this, consider the following example::
     [2 3]
     sage: S.one.intervals
     [(-oo, 1], (-oo, -1], (-oo, 2)]
-    sage: exists_vector(S.one.matrix, S.one.intervals)
+    sage: S.one.has_solution()
     True
+    sage: S.one.solve()
+    (7/2, -2)
 
 However, to certify existence of a solution, we need to consider the alternative system.
 This system can be described by two matrices and two lists of intervals::
@@ -134,9 +137,9 @@ This system can be described by two matrices and two lists of intervals::
     [-1  1 -2 -1]
     sage: S.two.intervals
     [(0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), {0}, {0}, {0}]
-    sage: exists_vector(S.two.matrix, S.two.intervals)
+    sage: S.two.has_solution()
     False
-    sage: exists_vector(S.two.matrix, S.two.intervals, certify=True)
+    sage: S.two.certify_nonexistence()
     (1, 3, 0, 4, 0, 0, -1, 1)
 
 The package offers a single function that certifies existence of a solution::
@@ -190,8 +193,6 @@ we can certify general systems::
     sage: lower_bounds_closed = [True, True, False, False]
     sage: upper_bounds_closed = [False, False, False, True]
     sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
-    sage: exists_vector(M, I) # no certificate
-    True
     sage: S = AlternativesGeneral(M, I)
     sage: S.one.matrix
     [1 0]
