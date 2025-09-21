@@ -14,7 +14,6 @@ from __future__ import absolute_import
 
 from .intervals import Interval, Intervals
 from .existence import exists_vector, exists_orthogonal_vector
-from .construction import vector_from_sign_vector, vector_between_sign_vectors
 from .linear_inequality_systems import (
     LinearInequalitySystem,
     InhomogeneousSystem,
