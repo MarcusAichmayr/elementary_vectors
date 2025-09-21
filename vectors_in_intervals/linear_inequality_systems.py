@@ -110,7 +110,7 @@ from sage.structure.sage_object import SageObject
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
 from sign_vectors.oriented_matroids import OrientedMatroid
-from . import exists_orthogonal_vector, Intervals, Interval
+from . import Intervals, Interval
 from elementary_vectors.functions import ElementaryVectors
 from .utility import CombinationsIncluding, solve_without_division
 
@@ -146,9 +146,34 @@ class LinearInequalitySystem(SageObject):
     def _compute_intervals(self) -> Intervals:
         raise NotImplementedError("This method should be implemented in subclasses.")
 
-    def exists_orthogonal_vector(self, v) -> bool:
+    def exists_orthogonal_vector(self, v: vector) -> bool:
         r"""Check if an orthogonal vector exists in the intervals."""
-        return exists_orthogonal_vector(v, self.intervals)
+        lower_product = 0
+        upper_product = 0
+        lower_product_attainable = True
+        upper_product_attainable = True
+
+        for entry, interval in zip(v, self.intervals):
+            if interval.is_empty():
+                return False
+            if not entry:
+                continue
+            bound1 = interval.infimum() if entry > 0 else interval.supremum()
+            bound2 = interval.supremum() if entry > 0 else interval.infimum()
+            lower_product += entry * bound1
+            upper_product += entry * bound2
+            lower_product_attainable &= bound1 in interval
+            upper_product_attainable &= bound2 in interval
+
+        if lower_product > 0:
+            return False
+        if upper_product < 0:
+            return False
+        if lower_product == 0 and not lower_product_attainable:
+            return False
+        if upper_product == 0 and not upper_product_attainable:
+            return False
+        return True
 
     def candidate_generator(self, dual: bool = True, reverse: bool = False, random: bool = False) -> Generator:
         r"""Return a generator of elementary vectors."""
