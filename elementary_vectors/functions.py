@@ -318,7 +318,7 @@ class ElementaryVectors(SageObject):
             self.matrix = matrix
         self.rank, self.length = self.matrix.dimensions()
         self.ring = matrix.base_ring()
-        self.minors = {}
+        self._minors = {}
 
         self._set_combinations_kernel()
         self._set_combinations_row_space()
@@ -353,15 +353,15 @@ class ElementaryVectors(SageObject):
             sage: from elementary_vectors.functions import ElementaryVectors
             sage: M = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
             sage: evs = ElementaryVectors(M)
-            sage: evs.minors
+            sage: evs._minors
             {}
             sage: evs.minor([0, 1])
             1
-            sage: evs.minors
+            sage: evs._minors
             {(0, 1): 1}
             sage: evs.minor([2, 4])
             18
-            sage: evs.minors
+            sage: evs._minors
             {(0, 1): 1, (2, 4): 18}
             sage: evs.minor([0, 1, 2])
             Traceback (most recent call last):
@@ -369,11 +369,11 @@ class ElementaryVectors(SageObject):
             ValueError: Indices (0, 1, 2) should have size 2 and not 3.
         """
         indices = tuple(indices)
-        minor = self.minors.get(indices)
+        minor = self._minors.get(indices)
         if minor is None:
             try:
                 minor = self._compute_minor(indices)
-                self.minors[indices] = minor
+                self._minors[indices] = minor
             except ValueError as e:
                 raise ValueError(f"Indices {indices} should have size {self.rank} and not {len(indices)}.") from e
         if mark_if_zero and minor == 0:
