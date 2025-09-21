@@ -14,14 +14,14 @@ from typing import Iterator
 
 from sage.combinat.combination import Combinations
 from sage.functions.generalized import sign
-from sage.matrix.constructor import matrix
+from sage.matrix.constructor import Matrix
 from sage.modules.free_module_element import vector
 from sage.structure.sage_object import SageObject
 
 from elementary_vectors.functions import ElementaryVectors
 
 
-def solve_left_for_roots(A, b):
+def solve_left_for_roots(A: Matrix, b: vector):
     r"""
     Find a solution for ``x*A = b`` that works for matrices whose entries are roots.
 
@@ -35,12 +35,12 @@ def solve_left_for_roots(A, b):
 
         The built in method ``solve_left`` for matrices fails occasionally.
     """
-    M = matrix(list(A) + [-b]).T.right_kernel_matrix()
-    x = matrix(M.column(-1)).solve_right(vector([1]))
+    M = Matrix(list(A) + [-b]).T.right_kernel_matrix()
+    x = Matrix(M.column(-1)).solve_right(vector([1]))
     return (x * M)[:-1]
 
 
-def solve_without_division(A, b):
+def solve_without_division(A: Matrix, b: vector):
     r"""
     Solve a linear system of equations without division.
 
@@ -65,7 +65,7 @@ def solve_without_division(A, b):
         sage: solve_without_division(A, b)
         (0, 1, 1)
     """
-    Ab = matrix.block([[A, matrix.column(b)]])
+    Ab = Matrix.block([[A, Matrix.column(b)]])
     ev = next(ElementaryVectors(Ab).generator(reverse=True))
     return -sign(ev[-1]) * ev[:-1]
 
