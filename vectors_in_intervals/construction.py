@@ -17,12 +17,10 @@ Most other functions here are auxiliary functions but can be used for special ca
 
 from collections.abc import Generator
 
-from sage.misc.mrange import cartesian_product_iterator
 from sage.modules.free_module_element import vector, zero_vector
 
 from sign_vectors import sign_vector, SignVector
 from elementary_vectors.functions import ElementaryVectors
-from . import Intervals
 
 
 def vector_from_sign_vector(data, sv: SignVector) -> vector:
@@ -131,59 +129,3 @@ def vector_between_sign_vectors(data, lower: SignVector, upper: SignVector) -> v
                 break
 
     raise ValueError("Cannot find vector corresponding to given sign vectors.")
-
-
-def sign_vectors_in_intervals(intervals: Intervals, generator: bool = False) -> list[SignVector] | Generator[SignVector]:
-    r"""
-    Compute all sign vectors that correspond to a vector with components in given intervals.
-
-    INPUT:
-
-    - ``intervals`` -- a list of intervals
-
-    - ``generator`` -- a boolean (default: ``False``)
-
-    EXAMPLES::
-
-        sage: from vectors_in_intervals import *
-        sage: intervals = Intervals.from_bounds([-1, 1], [0, 1])
-        sage: sign_vectors_in_intervals(intervals)
-        [(0+), (-+)]
-        sage: intervals = Intervals.from_bounds([-1, -2], [0, 1])
-        sage: sign_vectors_in_intervals(intervals)
-        [(00), (0+), (0-), (-0), (-+), (--)]
-        sage: intervals = Intervals.from_bounds([-1, -1, 0], [0, 5, 0])
-        sage: sign_vectors_in_intervals(intervals)
-        [(000), (0+0), (0-0), (-00), (-+0), (--0)]
-        sage: intervals = Intervals.from_bounds([-1, -1, -1], [0, 1, 0], False, False)
-        sage: sign_vectors_in_intervals(intervals)
-        [(-0-), (-+-), (---)]
-        sage: intervals = Intervals.from_bounds([-1, 0], [1, 0], False, False)
-        sage: sign_vectors_in_intervals(intervals)
-        []
-        sage: intervals = Intervals.from_bounds([], [])
-        sage: sign_vectors_in_intervals(intervals)
-        []
-    """
-    list_of_signs = []
-    if intervals.is_empty():
-        if generator:
-            def empty():
-                yield from ()
-            return empty()
-        return []
-    for interval in intervals:
-        available_signs = []
-        if 0 in interval:
-            available_signs.append(0)
-        if interval.supremum() > 0:
-            available_signs.append(1)
-        if interval.infimum() < 0:
-            available_signs.append(-1)
-        list_of_signs.append(available_signs)
-
-    if generator:
-        return (
-            sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs)
-        )
-    return [sign_vector(signs) for signs in cartesian_product_iterator(list_of_signs)]
