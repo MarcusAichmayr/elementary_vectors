@@ -12,7 +12,7 @@ r"""Functions for working with oriented matroids"""
 
 from sage.combinat.posets.posets import Poset
 
-from sign_vectors import SignVector, zero_sign_vector
+from . import SignVector, zero_sign_vector
 
 
 def lower_closure(iterable: set[SignVector]) -> set[SignVector]:

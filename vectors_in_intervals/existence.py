@@ -11,7 +11,6 @@
 #############################################################################
 
 from collections.abc import Generator
-from sage.sets.real_set import RealSet
 
 from elementary_vectors import elementary_vectors
 from . import Intervals

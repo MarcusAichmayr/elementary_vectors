@@ -110,7 +110,7 @@ from sage.structure.sage_object import SageObject
 
 from sign_vectors import SignVector, sign_vector, zero_sign_vector
 from sign_vectors.oriented_matroids import OrientedMatroid
-from vectors_in_intervals import exists_orthogonal_vector, Intervals, Interval
+from . import exists_orthogonal_vector, Intervals, Interval
 from elementary_vectors.functions import ElementaryVectors
 from .utility import CombinationsIncluding, solve_without_division
 

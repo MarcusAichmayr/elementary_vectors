@@ -16,7 +16,7 @@ from typing import Iterator
 
 from sage.combinat.combination import Combinations
 
-from sign_vectors import sign_symbolic, SignVector
+from . import sign_symbolic, SignVector
 
 
 class Sign(IntEnum):

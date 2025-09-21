@@ -12,7 +12,7 @@
 
 from typing import Iterator
 
-from sign_vectors import SignVector
+from . import SignVector
 
 
 def are_parallel(iterable, component1, component2, return_ratio: bool = False):
