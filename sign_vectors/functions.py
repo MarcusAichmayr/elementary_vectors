@@ -82,7 +82,7 @@ def lower_closure(iterable: set[SignVector]) -> set[SignVector]:
 
     return set().union(*same_support_list)
 
-def upper_closure(iterable: set[SignVector]) -> set[SignVector]:
+def upper_closure(iterable) -> tuple[set[SignVector], list[int]]:
     r"""
     Compute the upper closure of given sign vectors.
 
@@ -91,13 +91,15 @@ def upper_closure(iterable: set[SignVector]) -> set[SignVector]:
     - ``iterable`` -- an iterable of sign vectors
 
     OUTPUT:
-    Return the upper closure of ``iterable`` as a set of sign vectors.
+    Return the upper closure of ``iterable`` as a set of relevant sign vectors 
+    and a list of irrelevant components. Note, that these can be unpacked with
+    the function unpack_irrelevant_components.
 
     .. NOTE::
 
        The sign vector :math:`X` is in the upper closure
        of a set of sign vectors :math:`W`
-       if there exists :math:`Y \in W` with :math:`X \leq Y`.
+       if there exists :math:`Y \in W` with :math:`X \geq Y`.
 
     EXAMPLES:
 
@@ -108,7 +110,7 @@ def upper_closure(iterable: set[SignVector]) -> set[SignVector]:
         sage: W
         [(+-0)]
         sage: upper_closure(W)
-        {(+-0), (+--), (+-+)}
+        ({(+-0)}, [2])
 
     Now, we consider a list of three sign vectors::
 
@@ -116,11 +118,11 @@ def upper_closure(iterable: set[SignVector]) -> set[SignVector]:
         sage: W
         [(++-), (-00), (0--)]
         sage: upper_closure(W)
-        {(-00), (---), (++-), (-+0), (--+), (-++), (--0), (0--), (-0-), (+--), (-+-), (-0+)}
+        ({(-00), (---), (++-), (-+0), (--+), (-++), (--0), (0--), (-0-), (+--), (-+-), (-0+)}, [])
 
     TESTS::
 
-        sage: upper_closure([])
+        sage: lower_closure([])
         set()
     """
     if not iterable:
@@ -128,6 +130,7 @@ def upper_closure(iterable: set[SignVector]) -> set[SignVector]:
 
     for _ in iterable:
         length = _.length()
+        irrelevant_c = _._zero_support()
         break
 
     min_support_length = length
@@ -135,6 +138,7 @@ def upper_closure(iterable: set[SignVector]) -> set[SignVector]:
 
     for sv in iterable:
         support_length = len(sv.support())
+        irrelevant_c = irrelevant_c & sv._zero_support()
 
         while support_length < min_support_length:
             same_support_list.append(set())
@@ -142,13 +146,65 @@ def upper_closure(iterable: set[SignVector]) -> set[SignVector]:
 
         same_support_list[length-support_length].add(sv)
 
-    for i in range(length - min_support_length, 0, -1):
+    irrelevant_len = len(list(irrelevant_c))
+
+    for i in range(length - min_support_length, irrelevant_len, -1):
         for sv in same_support_list[i]:
-            for s in sv.zero_support():
+            for s in list(sv._zero_support()-irrelevant_c):
                 same_support_list[i - 1].add(sv.set_to_plus([s]))
                 same_support_list[i - 1].add(sv.set_to_minus([s]))
 
-    return set().union(*same_support_list)
+    return set().union(*same_support_list), list(irrelevant_c)
+
+def unpack_irrelevant_components(iterable, irrelevant_components) -> list[SignVector]:
+    r"""
+    Compute the upper closure of given sign vectors.
+
+    INPUT:
+
+    - ``iterable`` -- a set of sign vectors
+    - ``irrelevant_components`` -- list of indices
+
+    OUTPUT:
+    Return the full set of ``iterable``, with unpacked irrelevant components.
+
+    EXAMPLES:
+
+    We consider an output of the upper_closure function::
+
+        sage: from sign_vectors import *
+        sage: W = [sign_vector("+-0")]
+        sage: W
+        [(+-0)]
+        sage: U = upper_closure(W); U
+        ({(+-0)}, [2])
+        sage: unpack_irrelevant_components(*U)
+        [(+-0), (+-+), (+--)]
+
+    Now, we consider a larger example of irrelevant components::
+
+        sage: from sign_vectors import *
+        sage: W = [sign_vector("+0-00"), sign_vector("+0000"), sign_vector("+0++0")]
+        sage: W
+        [(+0-00), (+0000), (+0++0)]
+        sage: irrelevant_components = [1,4]
+        sage: unpack_irrelevant_components(W, irrelevant_components)
+        [(+0000), (+0++0), (+0-00), (++000), (+-000), (++++0), (+-++0), (++-00),
+            (+--00), (+000+), (+000-), (+0+++), (+0++-), (+0-0+), (+0-0-), (++00+),
+            (++00-), (+-00+), (+-00-), (+++++), (++++-), (+-+++), (+-++-), (++-0+),
+            (++-0-), (+--0+), (+--0-)]
+    """
+    vectors = list(set(iterable))
+    temp_vectors = vectors.copy()
+    for i in irrelevant_components:
+        for x in vectors:
+            temp_vectors.append(x.set_to_plus([i]))
+            temp_vectors.append(x.set_to_minus([i]))
+
+        vectors = temp_vectors
+        temp_vectors = vectors.copy()
+
+    return vectors
 
 def contraction(iterable: set[SignVector], indices: list[int]) -> set[SignVector]:
     r"""
