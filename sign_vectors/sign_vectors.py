@@ -425,7 +425,10 @@ class SignVector(SageObject):
             sage: X.zero_support()
             [1, 4]
         """
-        return list(~self._support())
+        return list(self._zero_support())
+    
+    def _zero_support(self) -> FrozenBitset:
+        return ~self._support()
 
     def positive_support(self) -> list[int]:
         r"""
