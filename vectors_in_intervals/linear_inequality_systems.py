@@ -50,6 +50,27 @@ We consider another system::
     sage: # S.certify_parallel() # TODO SignalError: Segmentation Fault
     (True, (3, 7, 1, 1, 0, 0, 0))
 
+::
+
+    sage: S.to_inhomogeneous()
+    [-1  0]
+    [ 0 -1]
+    [ 0  1]
+    [-----]
+    [ 1  0]
+    [-1 -1]
+    [ 1  1] x in [(-oo, -2], (-oo, -5], (-oo, 5], (-oo, 5), (-oo, 0), (-oo, 8)]
+    sage: S.to_homogeneous()
+    [ 1  0 -5]
+    [-1 -1  0]
+    [ 1  1 -8]
+    [ 0  0 -1]
+    [--------]
+    [-1  0  2]
+    [ 0 -1  5]
+    [ 0  1 -5]
+    [--------] x in [(0, +oo), (0, +oo), (0, +oo), (0, +oo), [0, +oo), [0, +oo), [0, +oo)]
+
 We consider yet another system::
 
     sage: A = matrix([[1, 0], [1, 1]])
@@ -63,6 +84,16 @@ We consider yet another system::
     (False, (0, 1, 1))
     sage: S.certify_parallel(random=True)
     (False, (0, 1, 1))
+
+::
+
+    sage: S.to_homogeneous()
+    [-1 -1  0]
+    [ 0  0 -1]
+    [--------]
+    [ 1  0 -1]
+    [ 1  1  0]
+    [--------] x in [(0, +oo), (0, +oo), [0, +oo), [0, +oo)]
 
 In the case of homogeneous systems, we can use cocircuits to certify::
 
