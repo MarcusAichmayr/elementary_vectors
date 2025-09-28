@@ -499,9 +499,9 @@ class ElementaryVectors(SageObject):
             If no elementary vector exists or the zero vector has been generated, ``None`` is returned.
         """
         try:
-            return self.element(
-                (self._combinations_kernel if dual else self._combinations_row_space).random_element(),
-                dual=dual)
+            if dual:
+                return self.element(self._combinations_kernel.random_element(), dual=dual)
+            return self.element(self._combinations_row_space.random_element(), dual=dual)
         except ValueError: # no elementary vectors exist or generated zero vector
             return
 
