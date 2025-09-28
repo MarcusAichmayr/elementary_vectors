@@ -153,6 +153,8 @@ class LinearInequalitySystem(SageObject):
     __slots__ = "result", "_matrix", "_intervals", "_evs", "elementary_vectors", "_solvable"
 
     def __init__(self, matrix: Matrix, intervals: Intervals = None, result: bool = None) -> None:
+        if intervals is not None and matrix.nrows() != len(intervals):
+            raise ValueError("Matrix row count and number of intervals must agree!")
         self._matrix = matrix
         self._intervals = intervals
         self.result = result
