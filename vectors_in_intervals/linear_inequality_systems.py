@@ -279,6 +279,34 @@ class LinearInequalitySystem(SageObject):
             result=self.result
         )
 
+    def with_intervals(self, intervals: Intervals) -> LinearInequalitySystem:
+        r"""
+        Return a copy of this system with different intervals.
+
+        TESTS::
+
+            sage: from vectors_in_intervals import *
+            sage: M = matrix([[1, 0], [0, 1], [1, 1], [0, 1]])
+            sage: lower_bounds = [2, 5, 0, -oo]
+            sage: upper_bounds = [5, oo, 8, 5]
+            sage: lower_bounds_closed = [True, True, False, False]
+            sage: upper_bounds_closed = [False, False, False, True]
+            sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
+            sage: S = LinearInequalitySystem(M, I)
+            sage: S.certify()
+            (True, (5, 15, 1, 2, 1, 0, 0))
+            sage: S.with_intervals(I).certify()
+            (True, (5, 15, 1, 2, 1, 0, 0))
+            sage: S.with_intervals(Intervals.from_bounds([2, 6, 0, -oo], [5, oo, 8, 5])).certify()
+            (False, (0, -1, 0, 1))
+            sage: S.with_intervals(Intervals.from_bounds([2, 5, 0, -oo], [5, 5, 8, 5])).certify()
+            (True, (1, 0, 3, 7, 1, 0, 0))
+        """
+        system = LinearInequalitySystem(self.matrix, intervals, result=self.result)
+        if self.__class__ is LinearInequalitySystem:
+            system._evs = self._evs
+        return system
+
     def certify_nonexistence(self, reverse: bool = False, random: bool = False):
         r"""
         Certify nonexistence of solutions.
