@@ -13,7 +13,6 @@ r"""Finding vectors with components in intervals"""
 from __future__ import absolute_import
 
 from .intervals import Interval, Intervals
-from .existence import exists_vector, exists_orthogonal_vector
 from .linear_inequality_systems import (
     LinearInequalitySystem,
     InhomogeneousSystem,
