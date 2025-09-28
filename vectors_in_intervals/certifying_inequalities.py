@@ -366,7 +366,7 @@ class AlternativesInhomogeneous(Alternatives):
             self.one = inhomogeneous_alternative1_homogenized(system)
         else:
             self.one = inhomogeneous_alternative1(system)
-        
+
         if two_double_system:
             self.two = inhomogeneous_alternative2_system1(system)
             self.three = inhomogeneous_alternative2_system2(system)
@@ -422,7 +422,7 @@ class AlternativesGeneral(Alternatives):
 def inhomogeneous_alternative1(system: InhomogeneousSystem) -> InhomogeneousSystem:
     r"""
     A standard inhomogeneous linear inequality system.
-    
+
     ``A x <= b``, ``B x < c``
     """
     return InhomogeneousSystem(system._matrix1, system._matrix2, system._vector1, system._vector2, result=False)

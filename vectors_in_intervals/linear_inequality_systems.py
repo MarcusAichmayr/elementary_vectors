@@ -103,14 +103,13 @@ from __future__ import annotations
 import concurrent.futures
 
 from collections.abc import Generator
-from platform import system
 from sage.matrix.constructor import Matrix, zero_matrix
 from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
-from sign_vectors import SignVector, sign_vector, zero_sign_vector
-from sign_vectors.oriented_matroids import OrientedMatroid
+# from sign_vectors import SignVector, sign_vector, zero_sign_vector
+# from sign_vectors.oriented_matroids import OrientedMatroid
 from . import Intervals, Interval
 from elementary_vectors.functions import ElementaryVectors
 from .utility import CombinationsIncluding, solve_without_division
@@ -419,7 +418,7 @@ class HomogeneousSystem(LinearInequalitySystem):
             for i in range(self.matrix.nrows())
         ]
 
-    def exists_orthogonal_vector(self, v) -> bool:
+    def exists_orthogonal_vector(self, v: vector) -> bool:
         return not (
             any(v[k] for k in self._positive)
             and (
