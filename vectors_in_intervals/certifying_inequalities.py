@@ -247,7 +247,6 @@ from .linear_inequality_systems import (
     LinearInequalitySystem,
     InhomogeneousSystem,
     HomogeneousSystem,
-    inhomogeneous_from_general,
 )
 
 
@@ -417,7 +416,7 @@ class AlternativesGeneral(Alternatives):
     def __init__(self, matrix: Matrix, intervals: Intervals) -> None:
         super().__init__()
         self.one = LinearInequalitySystem(matrix, intervals, result=False)
-        self.two = inhomogeneous_alternative2(inhomogeneous_from_general(self.one))
+        self.two = inhomogeneous_alternative2(self.one.to_inhomogeneous())
 
 
 def inhomogeneous_alternative1(system: InhomogeneousSystem) -> InhomogeneousSystem:

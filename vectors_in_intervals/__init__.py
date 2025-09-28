@@ -19,9 +19,6 @@ from .linear_inequality_systems import (
     InhomogeneousSystem,
     HomogeneousSystem,
     # HomogeneousSystemCocircuits,
-    homogeneous_from_general,
-    inhomogeneous_from_general,
-    homogeneous_from_inhomogeneous,
 )
 from .certifying_inequalities import (
     AlternativesGeneral,

@@ -103,6 +103,7 @@ from __future__ import annotations
 import concurrent.futures
 
 from collections.abc import Generator
+from platform import system
 from sage.matrix.constructor import Matrix, zero_matrix
 from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
@@ -185,7 +186,66 @@ class LinearInequalitySystem(SageObject):
 
     def to_homogeneous(self) -> HomogeneousSystem:
         r"""Return the equivalent homogeneous system."""
-        return homogeneous_from_general(self)
+        matrix1_list = []
+        matrix2_list = []
+        matrix3_list = []
+
+        length = self.matrix.ncols()
+
+        for line, interval in zip(self.matrix, self.intervals):
+            if interval.infimum() == interval.supremum():
+                matrix3_list.append(list(line) + [-interval.infimum()])
+                continue
+            if interval.infimum() != -Infinity:
+                if interval.infimum() in interval:
+                    matrix2_list.append(list(-line) + [interval.infimum()])
+                else:
+                    matrix1_list.append(list(-line) + [interval.infimum()])
+            if interval.supremum() != Infinity:
+                if interval.supremum() in interval:
+                    matrix2_list.append(list(line) + [-interval.supremum()])
+                else:
+                    matrix1_list.append(list(line) + [-interval.supremum()])
+
+        matrix1_list.append([0] * length + [-1])
+
+        return HomogeneousSystem(
+            Matrix(len(matrix1_list), length + 1, matrix1_list),
+            Matrix(len(matrix2_list), length + 1, matrix2_list),
+            Matrix(len(matrix3_list), length + 1, matrix3_list),
+            result=self.result
+        )
+
+    def to_inhomogeneous(self) -> InhomogeneousSystem:
+        r"""Return the equivalent inhomogeneous system."""
+        matrix1_list = []
+        matrix2_list = []
+        vector1_list = []
+        vector2_list = []
+
+        for line, interval in zip(self.matrix, self.intervals):
+            if interval.infimum() != -Infinity:
+                if interval.infimum() in interval:
+                    matrix1_list.append(-line)
+                    vector1_list.append(-interval.infimum())
+                else:
+                    matrix2_list.append(-line)
+                    vector2_list.append(-interval.infimum())
+            if interval.supremum() != Infinity:
+                if interval.supremum() in interval:
+                    matrix1_list.append(line)
+                    vector1_list.append(interval.supremum())
+                else:
+                    matrix2_list.append(line)
+                    vector2_list.append(interval.supremum())
+
+        return InhomogeneousSystem(
+            Matrix(len(matrix1_list), self.matrix.ncols(), matrix1_list),
+            Matrix(len(matrix2_list), self.matrix.ncols(), matrix2_list),
+            vector(vector1_list),
+            vector(vector2_list),
+            result=self.result
+        )
 
     def certify_nonexistence(self, reverse: bool = False, random: bool = False):
         r"""
@@ -307,7 +367,15 @@ class InhomogeneousSystem(LinearInequalitySystem):
         return not condition(v) and not condition(-v)
 
     def to_homogeneous(self) -> HomogeneousSystem:
-        return homogeneous_from_inhomogeneous(self)
+        return HomogeneousSystem(
+            Matrix.block([[self._matrix2, Matrix(len(self._vector2), 1, -self._vector2)], [zero_matrix(1, self._matrix1.ncols()), Matrix([[-1]])]]),
+            Matrix.block([[self._matrix1, Matrix(len(self._vector1), 1, -self._vector1)]]),
+            Matrix(0, self._matrix1.ncols() + 1),
+            result=self.result
+        )
+
+    def to_inhomogeneous(self):
+        return self
 
 
 class HomogeneousSystem(LinearInequalitySystem):
@@ -453,99 +521,3 @@ class HomogeneousSystem(LinearInequalitySystem):
 
 #     def solve(self, reverse: bool = False, random: bool = False):
 #         raise ValueError("Can't solve using cocircuits!")
-
-
-def inhomogeneous_from_general(system: LinearInequalitySystem) -> InhomogeneousSystem:
-    r"""Translate a general system into an inhomogeneous system."""
-    matrix1_list = []
-    matrix2_list = []
-    vector1_list = []
-    vector2_list = []
-
-    for line, interval in zip(system.matrix, system.intervals):
-        if interval.infimum() != -Infinity:
-            if interval.infimum() in interval:
-                matrix1_list.append(-line)
-                vector1_list.append(-interval.infimum())
-            else:
-                matrix2_list.append(-line)
-                vector2_list.append(-interval.infimum())
-        if interval.supremum() != Infinity:
-            if interval.supremum() in interval:
-                matrix1_list.append(line)
-                vector1_list.append(interval.supremum())
-            else:
-                matrix2_list.append(line)
-                vector2_list.append(interval.supremum())
-
-    return InhomogeneousSystem(
-        Matrix(len(matrix1_list), system.matrix.ncols(), matrix1_list),
-        Matrix(len(matrix2_list), system.matrix.ncols(), matrix2_list),
-        vector(vector1_list),
-        vector(vector2_list),
-        result=system.result
-    )
-
-
-def homogeneous_from_general(system: LinearInequalitySystem) -> HomogeneousSystem:
-    r"""
-    Convert a general system to a homogeneous system.
-
-    EXAMPLE::
-
-        sage: from vectors_in_intervals import *
-        sage: M = matrix([[1, 0], [0, 1], [1, 1]])
-        sage: lower_bounds = [2, 5, 0]
-        sage: upper_bounds = [5, oo, 0]
-        sage: lower_bounds_closed = [True, True, True]
-        sage: upper_bounds_closed = [False, False, True]
-        sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
-        sage: S = LinearInequalitySystem(M, I)
-        sage: homogeneous_from_general(S)
-        [ 1  0 -5]
-        [ 0  0 -1]
-        [--------]
-        [-1  0  2]
-        [ 0 -1  5]
-        [--------]
-        [ 1  1  0] x in [(0, +oo), (0, +oo), [0, +oo), [0, +oo), {0}]
-    """
-    matrix1_list = []
-    matrix2_list = []
-    matrix3_list = []
-
-    length = system.matrix.ncols()
-
-    for line, interval in zip(system.matrix, system.intervals):
-        if interval.infimum() == interval.supremum():
-            matrix3_list.append(list(line) + [-interval.infimum()])
-            continue
-        if interval.infimum() != -Infinity:
-            if interval.infimum() in interval:
-                matrix2_list.append(list(-line) + [interval.infimum()])
-            else:
-                matrix1_list.append(list(-line) + [interval.infimum()])
-        if interval.supremum() != Infinity:
-            if interval.supremum() in interval:
-                matrix2_list.append(list(line) + [-interval.supremum()])
-            else:
-                matrix1_list.append(list(line) + [-interval.supremum()])
-
-    matrix1_list.append([0] * length + [-1])
-
-    return HomogeneousSystem(
-        Matrix(len(matrix1_list), length + 1, matrix1_list),
-        Matrix(len(matrix2_list), length + 1, matrix2_list),
-        Matrix(len(matrix3_list), length + 1, matrix3_list),
-        result=system.result
-    )
-
-
-def homogeneous_from_inhomogeneous(system: InhomogeneousSystem) -> HomogeneousSystem:
-    r"""Convert an inhomogeneous system to a homogeneous system."""
-    return HomogeneousSystem(
-        Matrix.block([[system._matrix2, Matrix(len(system._vector2), 1, -system._vector2)], [zero_matrix(1, system._matrix1.ncols()), Matrix([[-1]])]]),
-        Matrix.block([[system._matrix1, Matrix(len(system._vector1), 1, -system._vector1)]]),
-        Matrix(0, system._matrix1.ncols() + 1),
-        result=system.result
-    )
