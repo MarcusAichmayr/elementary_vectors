@@ -237,10 +237,12 @@ We compute a solution using elementary vectors::
 #############################################################################
 
 from copy import copy
-from sage.matrix.constructor import matrix, zero_matrix, identity_matrix, ones_matrix
+from sage.matrix.constructor import Matrix
+from sage.modules.free_module_element import vector
 from sage.parallel.decorate import parallel
 from sage.structure.sage_object import SageObject
 
+from .intervals import Intervals
 from .linear_inequality_systems import (
     LinearInequalitySystem,
     InhomogeneousSystem,
@@ -316,18 +318,19 @@ class AlternativesHomogeneous(Alternatives):
 
     ``A x > 0``, ``B x >= 0``, ``C x = 0``
     """
-    def __init__(self, A, B, C) -> None:
-        self.one = HomogeneousSystem(A, B, C, result=False)
-        m_A = A.nrows()
-        m_B = B.nrows()
-        m_C = C.nrows()
+    def __init__(self, matrix1: Matrix, matrix2: Matrix, matrix3: Matrix) -> None:
+        super().__init__()
+        self.one = HomogeneousSystem(matrix1, matrix2, matrix3, result=False)
+        length1 = matrix1.nrows()
+        length2 = matrix2.nrows()
+        length3 = matrix3.nrows()
         self.two = HomogeneousSystem(
-            matrix.block([[ones_matrix(1, m_A), zero_matrix(1, m_B), zero_matrix(1, m_C)]]),
-            matrix.block([
-                [identity_matrix(m_A), zero_matrix(m_A, m_B), zero_matrix(m_A, m_C)],
-                [zero_matrix(m_B, m_A), identity_matrix(m_B), zero_matrix(m_B, m_C)]
+            Matrix.block([[Matrix.ones(1, length1), Matrix.zero(1, length2), Matrix.zero(1, length3)]]),
+            Matrix.block([
+                [Matrix.identity(length1), Matrix.zero(length1, length2), Matrix.zero(length1, length3)],
+                [Matrix.zero(length2, length1), Matrix.identity(length2), Matrix.zero(length2, length3)]
             ]),
-            matrix.block([[A.T, B.T, C.T]]),
+            Matrix.block([[matrix1.T, matrix2.T, matrix3.T]]),
             result=True
         )
 
@@ -357,8 +360,9 @@ class AlternativesInhomogeneous(Alternatives):
         sage: S.certify(random=True)[0]
         True
     """
-    def __init__(self, A, B, b, c, one_homogenized=False, two_double_system=False) -> None:
-        system = InhomogeneousSystem(A, B, b, c)
+    def __init__(self, matrix1: Matrix, matrix2: Matrix, vector1: vector, vector2: vector, one_homogenized=False, two_double_system=False) -> None:
+        super().__init__()
+        system = InhomogeneousSystem(matrix1, matrix2, vector1, vector2)
         if one_homogenized:
             self.one = inhomogeneous_alternative1_homogenized(system)
         else:
@@ -410,8 +414,9 @@ class AlternativesInhomogeneous(Alternatives):
 
 class AlternativesGeneral(Alternatives):
     r"""Alternatives for a general system ``M x in I``."""
-    def __init__(self, M, I) -> None:
-        self.one = LinearInequalitySystem(M, I, result=False)
+    def __init__(self, matrix: Matrix, intervals: Intervals) -> None:
+        super().__init__()
+        self.one = LinearInequalitySystem(matrix, intervals, result=False)
         self.two = inhomogeneous_alternative2(inhomogeneous_from_general(self.one))
 
 
@@ -421,7 +426,7 @@ def inhomogeneous_alternative1(system: InhomogeneousSystem) -> InhomogeneousSyst
     
     ``A x <= b``, ``B x < c``
     """
-    return InhomogeneousSystem(system.A, system.B, system.b, system.c, result=False)
+    return InhomogeneousSystem(system._matrix1, system._matrix2, system._vector1, system._vector2, result=False)
 
 
 def inhomogeneous_alternative1_homogenized(system: InhomogeneousSystem) -> HomogeneousSystem:
@@ -435,14 +440,14 @@ def inhomogeneous_alternative1_homogenized(system: InhomogeneousSystem) -> Homog
         [0 -1]
     """
     return HomogeneousSystem(
-        matrix.block([
-            [zero_matrix(1, system.A.ncols()), matrix([[-1]])],
-            [system.B, -system.c.column()]
+        Matrix.block([
+            [Matrix.zero(1, system._matrix1.ncols()), Matrix([[-1]])],
+            [system._matrix2, -system._vector2.column()]
         ]),
-        matrix.block([
-            [system.A, -system.b.column()],
+        Matrix.block([
+            [system._matrix1, -system._vector1.column()],
         ]),
-        matrix(0, system.A.ncols() + 1),
+        Matrix(0, system._matrix1.ncols() + 1),
         result=False
     )
 
@@ -451,17 +456,17 @@ def inhomogeneous_alternative2(system: InhomogeneousSystem) -> HomogeneousSystem
     r"""
     Alternative of a standard inhomogeneous linear inequality system.
     """
-    m_A = system.A.nrows()
-    m_B = system.B.nrows()
-    length = system.A.ncols()
+    length1 = system._matrix1.nrows()
+    length2 = system._matrix2.nrows()
+    length = system._matrix1.ncols()
     return HomogeneousSystem(
-        matrix.block([
-            [zero_matrix(1, m_A), ones_matrix(1, m_B + 1)]
+        Matrix.block([
+            [Matrix.zero(1, length1), Matrix.ones(1, length2 + 1)]
         ]),
-        identity_matrix(m_A + m_B + 1),
-        matrix.block([
-            [system.A.T, system.B.T, zero_matrix(length, 1)],
-            [-system.b.row(), -system.c.row(), matrix([[-1]])]
+        Matrix.identity(length1 + length2 + 1),
+        Matrix.block([
+            [system._matrix1.T, system._matrix2.T, Matrix.zero(length, 1)],
+            [-system._vector1.row(), -system._vector2.row(), Matrix([[-1]])]
         ]),
         result=True
     )
@@ -471,12 +476,12 @@ def inhomogeneous_alternative2_system1(system: InhomogeneousSystem) -> Homogeneo
     r"""
     Alternative of a standard inhomogeneous linear inequality system given by two systems.
     """
-    m_A = system.A.nrows()
-    m_B = system.B.nrows()
+    length1 = system._matrix1.nrows()
+    length2 = system._matrix2.nrows()
     return HomogeneousSystem(
-        matrix.block([[-system.b.row(), -system.c.row()]]),
-        identity_matrix(m_A + m_B),
-        matrix.block([[system.A.T, system.B.T]]),
+        Matrix.block([[-system._vector1.row(), -system._vector2.row()]]),
+        Matrix.identity(length1 + length2),
+        Matrix.block([[system._matrix1.T, system._matrix2.T]]),
         result=True
     )
 
@@ -485,14 +490,14 @@ def inhomogeneous_alternative2_system2(system: InhomogeneousSystem) -> Homogeneo
     r"""
     Alternative of a standard inhomogeneous linear inequality system given by two systems.
     """
-    m_A = system.A.nrows()
-    m_B = system.B.nrows()
+    length1 = system._matrix1.nrows()
+    length2 = system._matrix2.nrows()
     return HomogeneousSystem(
-        matrix.block([[zero_matrix(1, m_A), ones_matrix(1, m_B)]]),
-        matrix.block([
-            [matrix.block([[-system.b.row(), -system.c.row()]])],
-            [identity_matrix(m_A + m_B)],
+        Matrix.block([[Matrix.zero(1, length1), Matrix.ones(1, length2)]]),
+        Matrix.block([
+            [Matrix.block([[-system._vector1.row(), -system._vector2.row()]])],
+            [Matrix.identity(length1 + length2)],
         ]),
-        matrix.block([[system.A.T, system.B.T]]),
+        Matrix.block([[system._matrix1.T, system._matrix2.T]]),
         result=True
     )

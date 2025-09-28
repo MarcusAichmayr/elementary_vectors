@@ -279,28 +279,28 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
     ``A x <= b``, ``B x <= c``
     """
-    def __init__(self, A: Matrix, B: Matrix, b: vector, c: vector, result: bool = None) -> None:
-        super().__init__(Matrix.block([[A], [B]]), None, result=result)
-        self.A = A
-        self.B = B
-        self.b = b
-        self.c = c
+    def __init__(self, matrix1: Matrix, matrix2: Matrix, vector1: vector, vector2: vector, result: bool = None) -> None:
+        super().__init__(Matrix.block([[matrix1], [matrix2]]), None, result=result)
+        self._matrix1 = matrix1
+        self._matrix2 = matrix2
+        self._vector1 = vector1
+        self._vector2 = vector2
 
     def _compute_intervals(self) -> Intervals:
-        return [Interval(-Infinity, bi) for bi in self.b] + [Interval(-Infinity, ci, False, False) for ci in self.c]
+        return [Interval(-Infinity, bi) for bi in self._vector1] + [Interval(-Infinity, ci, False, False) for ci in self._vector2]
 
-    def exists_orthogonal_vector(self, v) -> bool:
-        len_b = len(self.b)
-        len_c = len(self.c)
+    def exists_orthogonal_vector(self, v: vector) -> bool:
+        length1 = len(self._vector1)
+        length2 = len(self._vector2)
 
-        def condition(v) -> bool:
+        def condition(v: vector) -> bool:
             if all(vk >= 0 for vk in v):
-                scalarproduct = sum(v[k] * self.b[k] for k in range(len_b)) + sum(
-                    v[k + len_b] * self.c[k] for k in range(len_c)
+                scalarproduct = sum(v[k] * self._vector1[k] for k in range(length1)) + sum(
+                    v[k + length1] * self._vector2[k] for k in range(length2)
                 )
                 if scalarproduct < 0:
                     return True
-                if scalarproduct <= 0 and any(v[k] for k in range(len_b, len_b + len_c)):
+                if scalarproduct <= 0 and any(v[k] for k in range(length1, length1 + length2)):
                     return True
             return False
 
@@ -328,11 +328,11 @@ class HomogeneousSystem(LinearInequalitySystem):
     """
     __slots__ = "_positive", "_nonnegative", "_zero"
 
-    def __init__(self, A: Matrix, B: Matrix, C: Matrix, result: bool = None) -> None:
-        super().__init__(Matrix.block([[A], [B], [C]]), None, result=result)
-        self._positive = range(A.nrows())
-        self._nonnegative = range(A.nrows() + B.nrows())
-        self._zero = range(A.nrows() + B.nrows(), self.matrix.nrows())
+    def __init__(self, matrix1: Matrix, matrix2: Matrix, matrix3: Matrix, result: bool = None) -> None:
+        super().__init__(Matrix.block([[matrix1], [matrix2], [matrix3]]), None, result=result)
+        self._positive = range(matrix1.nrows())
+        self._nonnegative = range(matrix1.nrows() + matrix2.nrows())
+        self._zero = range(matrix1.nrows() + matrix2.nrows(), self.matrix.nrows())
 
         # self._evs._set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self._evs.length - self._evs.rank + 1))
 
@@ -457,32 +457,32 @@ class HomogeneousSystem(LinearInequalitySystem):
 
 def inhomogeneous_from_general(system: LinearInequalitySystem) -> InhomogeneousSystem:
     r"""Translate a general system into an inhomogeneous system."""
-    A_list = []
-    B_list = []
-    b_list = []
-    c_list = []
+    matrix1_list = []
+    matrix2_list = []
+    vector1_list = []
+    vector2_list = []
 
     for line, interval in zip(system.matrix, system.intervals):
         if interval.infimum() != -Infinity:
             if interval.infimum() in interval:
-                A_list.append(-line)
-                b_list.append(-interval.infimum())
+                matrix1_list.append(-line)
+                vector1_list.append(-interval.infimum())
             else:
-                B_list.append(-line)
-                c_list.append(-interval.infimum())
+                matrix2_list.append(-line)
+                vector2_list.append(-interval.infimum())
         if interval.supremum() != Infinity:
             if interval.supremum() in interval:
-                A_list.append(line)
-                b_list.append(interval.supremum())
+                matrix1_list.append(line)
+                vector1_list.append(interval.supremum())
             else:
-                B_list.append(line)
-                c_list.append(interval.supremum())
+                matrix2_list.append(line)
+                vector2_list.append(interval.supremum())
 
     return InhomogeneousSystem(
-        Matrix(len(A_list), system.matrix.ncols(), A_list),
-        Matrix(len(B_list), system.matrix.ncols(), B_list),
-        vector(b_list),
-        vector(c_list),
+        Matrix(len(matrix1_list), system.matrix.ncols(), matrix1_list),
+        Matrix(len(matrix2_list), system.matrix.ncols(), matrix2_list),
+        vector(vector1_list),
+        vector(vector2_list),
         result=system.result
     )
 
@@ -510,33 +510,33 @@ def homogeneous_from_general(system: LinearInequalitySystem) -> HomogeneousSyste
         [--------]
         [ 1  1  0] x in [(0, +oo), (0, +oo), [0, +oo), [0, +oo), {0}]
     """
-    A_list = []
-    B_list = []
-    C_list = []
+    matrix1_list = []
+    matrix2_list = []
+    matrix3_list = []
 
     length = system.matrix.ncols()
 
     for line, interval in zip(system.matrix, system.intervals):
         if interval.infimum() == interval.supremum():
-            C_list.append(list(line) + [-interval.infimum()])
+            matrix3_list.append(list(line) + [-interval.infimum()])
             continue
         if interval.infimum() != -Infinity:
             if interval.infimum() in interval:
-                B_list.append(list(-line) + [interval.infimum()])
+                matrix2_list.append(list(-line) + [interval.infimum()])
             else:
-                A_list.append(list(-line) + [interval.infimum()])
+                matrix1_list.append(list(-line) + [interval.infimum()])
         if interval.supremum() != Infinity:
             if interval.supremum() in interval:
-                B_list.append(list(line) + [-interval.supremum()])
+                matrix2_list.append(list(line) + [-interval.supremum()])
             else:
-                A_list.append(list(line) + [-interval.supremum()])
+                matrix1_list.append(list(line) + [-interval.supremum()])
 
-    A_list.append([0] * length + [-1])
+    matrix1_list.append([0] * length + [-1])
 
     return HomogeneousSystem(
-        Matrix(len(A_list), length + 1, A_list),
-        Matrix(len(B_list), length + 1, B_list),
-        Matrix(len(C_list), length + 1, C_list),
+        Matrix(len(matrix1_list), length + 1, matrix1_list),
+        Matrix(len(matrix2_list), length + 1, matrix2_list),
+        Matrix(len(matrix3_list), length + 1, matrix3_list),
         result=system.result
     )
 
@@ -544,8 +544,8 @@ def homogeneous_from_general(system: LinearInequalitySystem) -> HomogeneousSyste
 def homogeneous_from_inhomogeneous(system: InhomogeneousSystem) -> HomogeneousSystem:
     r"""Convert an inhomogeneous system to a homogeneous system."""
     return HomogeneousSystem(
-        Matrix.block([[system.B, Matrix(len(system.c), 1, -system.c)], [zero_matrix(1, system.A.ncols()), Matrix([[-1]])]]),
-        Matrix.block([[system.A, Matrix(len(system.b), 1, -system.b)]]),
-        Matrix(0, system.A.ncols() + 1),
+        Matrix.block([[system._matrix2, Matrix(len(system._vector2), 1, -system._vector2)], [zero_matrix(1, system._matrix1.ncols()), Matrix([[-1]])]]),
+        Matrix.block([[system._matrix1, Matrix(len(system._vector1), 1, -system._vector1)]]),
+        Matrix(0, system._matrix1.ncols() + 1),
         result=system.result
     )
