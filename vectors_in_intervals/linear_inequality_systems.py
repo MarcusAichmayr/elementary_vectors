@@ -334,7 +334,7 @@ class LinearInequalitySystem(SageObject):
 
         .. NOTE::
 
-            If a solution exists and ``random`` is set to true, this method will never finish.
+            If no solution exists and ``random`` is set to true, this method will never finish.
         """
         return self.to_homogeneous().certify_existence(reverse=reverse, random=random)
 
