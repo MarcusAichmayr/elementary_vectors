@@ -346,7 +346,6 @@ class Interval(SageObject):
             INPUT:
 
             - ``cfl`` -- a list corresponding to a continued fraction
-
             - ``left`` -- a boolean
             """
             if left != len(cfl) & 1: # check if odd
@@ -602,7 +601,6 @@ class Intervals(SageObject):
         INPUT:
 
         - ``intervals`` -- a list of intervals
-
         - ``generator`` -- a boolean (default: ``False``)
 
         EXAMPLES::

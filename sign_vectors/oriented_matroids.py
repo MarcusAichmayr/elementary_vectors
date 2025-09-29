@@ -91,9 +91,7 @@ class _OrientedMatroid(SageObject):
         INPUT:
 
         - ``cocircuits`` -- a set (or list) of sign vectors or strings representing the cocircuits.
-
         - ``rank`` -- the rank of the oriented matroid (optional).
-
         - ``ground_set_size`` -- the size of the ground set (optional).
 
         EXAMPLES::
@@ -157,9 +155,7 @@ class _OrientedMatroid(SageObject):
         INPUT:
 
         - ``circuits`` -- a set (or list) of sign vectors or strings representing the circuits.
-
         - ``rank`` -- the rank of the oriented matroid (optional).
-
         - ``ground_set_size`` -- the size of the ground set (optional).
 
         EXAMPLES::
@@ -946,9 +942,7 @@ class _OrientedMatroid(SageObject):
         INPUT:
 
         - ``vertex_size`` -- the size of the vertices in the plot.
-
         - ``figsize`` -- the size of the figure.
-
         - ``aspect_ratio`` -- the aspect ratio of the plot.
 
         .. NOTE::

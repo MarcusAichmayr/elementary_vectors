@@ -318,7 +318,6 @@ class SignVector(SageObject):
         INPUT:
 
         - ``positive_support`` -- a ``FrozenBitset`` representing the positive support.
-
         - ``negative_support`` -- a ``FrozenBitset`` representing the negative support.
 
         .. NOTE::
@@ -1236,9 +1235,7 @@ class SignVector(SageObject):
         INPUT:
 
         - ``positive_support`` -- a list of integers.
-
         - ``negative_support`` -- a list of integers.
-
         - ``length`` -- a nonnegative integer
 
         OUTPUT:

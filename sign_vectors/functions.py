@@ -157,7 +157,6 @@ def contraction(iterable: set[SignVector], indices: list[int]) -> set[SignVector
     INPUT:
 
     - ``iterable`` -- an iterable of sign vectors or vectors
-
     - ``indices`` -- a list of indices.
 
     OUTPUT:
@@ -198,7 +197,6 @@ def deletion(iterable: set[SignVector], indices: list[int]) -> set[SignVector]:
     INPUT:
 
     - ``iterable`` -- an iterable of sign vectors
-
     - ``indices`` -- a list of indices
 
     EXAMPLES::
@@ -227,11 +225,8 @@ def plot_sign_vectors(iterable: set[SignVector], vertex_size: int = 600, figsize
     INPUT:
 
     - ``iterable`` -- an iterable of sign vectors
-
     - ``vertex_size`` -- the size of the vertices in the plot (default: 600)
-
     - ``figsize`` -- the size of the figure (default: None)
-
     - ``aspect_ratio`` -- the aspect ratio of the plot (default: None)
     """
     Poset((iterable, lambda X, Y: X.conforms(Y))).plot(

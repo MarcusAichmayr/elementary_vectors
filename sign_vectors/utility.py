@@ -22,11 +22,8 @@ def are_parallel(iterable, component1, component2, return_ratio: bool = False):
     INPUT:
 
     - ``iterable`` -- a list of sign vectors or vectors of length ``n``
-
     - ``component1`` -- an integer with ``0 <= component1 < n``
-
     - ``component2`` -- an integer with ``0  <= component2 < n``
-
     - ``return_ratio`` -- a boolean
 
     OUTPUT:
@@ -121,7 +118,6 @@ def parallel_classes(iterable, length: int) -> list[set[int]]:
     INPUT:
 
     - ``iterable`` -- an iterable of sign vectors or vectors with same length
-
     - ``length`` -- an integer ``n``
 
     OUTPUT:
@@ -272,9 +268,7 @@ def adjacent(element1: SignVector, element2: SignVector, iterable) -> bool:
     INPUT:
 
     - ``element1`` -- a sign vector
-
     - ``element2`` -- a sign vector
-
     - ``iterable`` -- an iterable of sign vectors
 
     OUTPUT:

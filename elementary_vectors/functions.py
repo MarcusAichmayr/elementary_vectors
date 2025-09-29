@@ -79,11 +79,8 @@ def elementary_vectors(matrix, dual: bool = True, prevent_multiples: bool = True
     INPUT:
 
     - ``matrix`` -- a matrix
-
     - ``dual`` -- a boolean (default: ``True``)
-
     - ``prevent_multiples`` -- a boolean (default: ``True``)
-
     - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
@@ -396,9 +393,7 @@ class ElementaryVectors(SageObject):
 
         - ``indices`` -- a list of ``rank - 1`` (for elements in the row space)
                          or ``rank + 1`` (for elements in the kernel) integers
-
         - ``dual`` -- a boolean
-
         - ``prevent_multiple`` -- a boolean
 
         If ``dual`` is true, return an elementary vector in the kernel

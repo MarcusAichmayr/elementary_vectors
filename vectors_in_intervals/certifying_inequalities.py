@@ -265,9 +265,7 @@ class Alternatives(SageObject):
         Certify whether the first alternative has a solution.
 
         - ``reverse`` -- reverses the order of elementary vectors
-
         - ``random`` -- randomizes computed elementary vectors (repetition possible)
-
         - ``number_parallel`` -- number of parallel computations
 
         OUTPUT:

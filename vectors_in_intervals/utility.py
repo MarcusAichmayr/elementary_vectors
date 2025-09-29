@@ -31,7 +31,6 @@ def vector_from_sign_vector(data, sv: SignVector) -> vector:
 
     - ``data`` -- either a real matrix with ``n`` columns or a list of
                 elementary vectors of length ``n``
-
     - ``sv`` -- a sign vector of length ``n``
 
     OUTPUT:
