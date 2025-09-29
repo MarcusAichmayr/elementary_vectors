@@ -54,8 +54,8 @@ which consists of a single matrix and intervals::
     [(0, +oo), [0, +oo), [0, +oo), [0, +oo), {0}, {0}]
     sage: S.two.has_solution()
     False
-    sage: S.two.certify_nonexistence()
-    (-1, -1, 0, -3, 0, 1)
+    sage: S.two.certify()
+    (False, (-1, -1, 0, -3, 0, 1))
 
 There is a single command for certification::
 
@@ -139,8 +139,8 @@ This system can be described by two matrices and two lists of intervals::
     [(0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), {0}, {0}, {0}]
     sage: S.two.has_solution()
     False
-    sage: S.two.certify_nonexistence()
-    (1, 3, 0, 4, 0, 0, -1, 1)
+    sage: S.two.certify()
+    (False, (1, 3, 0, 4, 0, 0, -1, 1))
 
 The package offers a single function that certifies existence of a solution::
 
@@ -237,6 +237,7 @@ We compute a solution using elementary vectors::
 #############################################################################
 
 from copy import copy
+
 from sage.matrix.constructor import Matrix
 from sage.modules.free_module_element import vector
 from sage.parallel.decorate import parallel
@@ -275,7 +276,7 @@ class Alternatives(SageObject):
         systems = [self.one, self.two]
         needed_iterations = 0
         for system in systems:
-            system.elementary_vectors = system.candidate_generator(reverse=reverse, random=random)
+            system.elementary_vectors = system._candidate_generator(reverse=reverse, random=random)
 
         if number_parallel <= 1:
             while True:
@@ -285,7 +286,7 @@ class Alternatives(SageObject):
                         v = next(system.elementary_vectors)
                         if v is None:
                             continue
-                        if not system.exists_orthogonal_vector(v):
+                        if not system._exists_orthogonal_vector(v):
                             return system.result, v, needed_iterations
                     except StopIteration:
                         systems.pop(i)
@@ -301,7 +302,7 @@ class Alternatives(SageObject):
                 v = next(system.elementary_vectors)
             except StopIteration:
                 return
-            if not system.exists_orthogonal_vector(v):
+            if not system._exists_orthogonal_vector(v):
                 results.append((system.result, v, -1))
 
         while not results:
@@ -389,7 +390,7 @@ class AlternativesInhomogeneous(Alternatives):
         systems = {0: self.one, 1: self.two, 2: self.three}
         needed_iterations = 0
         for system in systems.values():
-            system.elementary_vectors = system.candidate_generator(reverse=reverse, random=random)
+            system.elementary_vectors = system._candidate_generator(reverse=reverse, random=random)
 
         certificates = {}
         while True:
@@ -399,7 +400,7 @@ class AlternativesInhomogeneous(Alternatives):
                     v = next(system.elementary_vectors)
                     if v is None:
                         continue
-                    if not system.exists_orthogonal_vector(v):
+                    if not system._exists_orthogonal_vector(v):
                         if i == 0:
                             return system.result, v, needed_iterations
                         certificates[i] = v

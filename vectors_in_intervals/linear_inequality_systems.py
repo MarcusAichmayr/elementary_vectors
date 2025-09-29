@@ -13,12 +13,6 @@ EXAMPLES::
     [(0, +oo), (0, +oo), [0, +oo), {0}]
     sage: S.solve()
     (0, 1)
-    sage: S.certify_existence()
-    (2, 1, 3, 0)
-    sage: S.certify_nonexistence()
-    Traceback (most recent call last):
-    ...
-    ValueError: A solution exists!
     sage: S.certify()
     (True, (2, 1, 3, 0))
     sage: S.certify(reverse=True)
@@ -41,8 +35,6 @@ We consider another system::
     sage: S = LinearInequalitySystem(M, I)
     sage: S.solve()
     (5/2, 5)
-    sage: S.certify_existence()
-    (5, 15, 1, 2, 1, 0, 0)
     sage: S.certify()
     (True, (5, 15, 1, 2, 1, 0, 0))
     sage: S.certify(reverse=True)
@@ -105,8 +97,6 @@ In the case of homogeneous systems, we can use cocircuits to certify::
     Traceback (most recent call last):
     ...
     ValueError: Can't solve using cocircuits!
-    sage: S.certify_existence() # TODO: not implemented
-    (+++0)
     sage: # S.certify() # TODO
 
 Now, we consider the example::
@@ -115,7 +105,7 @@ Now, we consider the example::
     sage: B = matrix([[2, -3]])
     sage: C = matrix([[-1, -1]])
     sage: S = HomogeneousSystemCocircuits(A, B, C) # TODO: not implemented
-    sage: S.certify_nonexistence() # TODO: not implemented
+    sage: S.certify() # TODO: not implemented
     (++0+)
 """
 
@@ -178,43 +168,6 @@ class LinearInequalitySystem(SageObject):
 
     def _compute_intervals(self) -> Intervals:
         raise NotImplementedError("This method should be implemented in subclasses.")
-
-    def exists_orthogonal_vector(self, v: vector) -> bool:
-        r"""Check if an orthogonal vector exists in the intervals."""
-        lower_product = 0
-        upper_product = 0
-        lower_product_attainable = True
-        upper_product_attainable = True
-
-        for entry, interval in zip(v, self.intervals):
-            if interval.is_empty():
-                return False
-            if not entry:
-                continue
-            bound1 = interval.infimum() if entry > 0 else interval.supremum()
-            bound2 = interval.supremum() if entry > 0 else interval.infimum()
-            lower_product += entry * bound1
-            upper_product += entry * bound2
-            lower_product_attainable &= bound1 in interval
-            upper_product_attainable &= bound2 in interval
-
-        if lower_product > 0:
-            return False
-        if upper_product < 0:
-            return False
-        if lower_product == 0 and not lower_product_attainable:
-            return False
-        if upper_product == 0 and not upper_product_attainable:
-            return False
-        return True
-
-    def candidate_generator(self, dual: bool = True, reverse: bool = False, random: bool = False) -> Generator:
-        r"""Return a generator of elementary vectors."""
-        if random:
-            while True:
-                yield self._evs.random_element(dual=dual)
-        else:
-            yield from self._evs.generator(dual=dual, reverse=reverse)
 
     def to_homogeneous(self) -> HomogeneousSystem:
         r"""Return the equivalent homogeneous system."""
@@ -307,7 +260,44 @@ class LinearInequalitySystem(SageObject):
             system._evs = self._evs
         return system
 
-    def certify_nonexistence(self, reverse: bool = False, random: bool = False):
+    def _candidate_generator(self, dual: bool = True, reverse: bool = False, random: bool = False) -> Generator:
+        r"""Return a generator of elementary vectors."""
+        if random:
+            while True:
+                yield self._evs.random_element(dual=dual)
+        else:
+            yield from self._evs.generator(dual=dual, reverse=reverse)
+
+    def _exists_orthogonal_vector(self, v: vector) -> bool:
+        r"""Check if an orthogonal vector exists in the intervals."""
+        lower_product = 0
+        upper_product = 0
+        lower_product_attainable = True
+        upper_product_attainable = True
+
+        for entry, interval in zip(v, self.intervals):
+            if interval.is_empty():
+                return False
+            if not entry:
+                continue
+            bound1 = interval.infimum() if entry > 0 else interval.supremum()
+            bound2 = interval.supremum() if entry > 0 else interval.infimum()
+            lower_product += entry * bound1
+            upper_product += entry * bound2
+            lower_product_attainable &= bound1 in interval
+            upper_product_attainable &= bound2 in interval
+
+        if lower_product > 0:
+            return False
+        if upper_product < 0:
+            return False
+        if lower_product == 0 and not lower_product_attainable:
+            return False
+        if upper_product == 0 and not upper_product_attainable:
+            return False
+        return True
+
+    def _certify_nonexistence(self, reverse: bool = False, random: bool = False):
         r"""
         Certify nonexistence of solutions.
 
@@ -317,16 +307,16 @@ class LinearInequalitySystem(SageObject):
 
             If a solution exists and ``random`` is set to true, this method will never finish.
         """
-        for v in self.candidate_generator(reverse=reverse, random=random):
+        for v in self._candidate_generator(reverse=reverse, random=random):
             if self._solvable:
                 break
-            if not self.exists_orthogonal_vector(v):
+            if not self._exists_orthogonal_vector(v):
                 self._solvable = False
                 return v
         self._solvable = True
         raise ValueError("A solution exists!")
 
-    def certify_existence(self, reverse: bool = False, random: bool = False):
+    def _certify_existence(self, reverse: bool = False, random: bool = False):
         r"""
         Certify existence of a solution if one exists.
 
@@ -336,35 +326,14 @@ class LinearInequalitySystem(SageObject):
 
             If no solution exists and ``random`` is set to true, this method will never finish.
         """
-        return self.to_homogeneous().certify_existence(reverse=reverse, random=random)
-
-    def has_solution(self, reverse: bool = False, random: bool = False) -> bool:
-        r"""
-        Check whether a solution exists.
-
-        If ``random`` is true, this method will never finish if a solution exists.
-        """
-        try:
-            self.certify_nonexistence(reverse=reverse, random=random)
-            return False
-        except ValueError:
-            return True
-
-    def solve(self, reverse: bool = False, random: bool = False):
-        r"""
-        Compute a solution for this linear inequality system.
-
-        If no solution exists, a ``ValueError`` is raised.
-        """
-        solution = self.to_homogeneous().solve(reverse=reverse, random=random)
-        return solution[:-1] / solution[-1]
+        return self.to_homogeneous()._certify_existence(reverse=reverse, random=random)
 
     def certify(self, reverse: bool = False) -> tuple:
         r"""Return a boolean and a certificate for solvability."""
         try:
-            return False, self.certify_nonexistence(reverse=reverse)
+            return False, self._certify_nonexistence(reverse=reverse)
         except ValueError:
-            return True, self.certify_existence(reverse=reverse)
+            return True, self._certify_existence(reverse=reverse)
 
     def certify_parallel(self, reverse: bool = False, random: bool = False) -> tuple:
         r"""
@@ -375,8 +344,8 @@ class LinearInequalitySystem(SageObject):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             done, not_done = concurrent.futures.wait(
                 [
-                    executor.submit(lambda: (False, self.certify_nonexistence(reverse=reverse, random=random))),
-                    executor.submit(lambda: (True, self.certify_existence(reverse=reverse, random=random)))
+                    executor.submit(lambda: (False, self._certify_nonexistence(reverse=reverse, random=random))),
+                    executor.submit(lambda: (True, self._certify_existence(reverse=reverse, random=random)))
                 ],
                 return_when=concurrent.futures.FIRST_COMPLETED
             )
@@ -391,6 +360,27 @@ class LinearInequalitySystem(SageObject):
                 except ValueError:
                     pass
             return not_done.pop().result()
+
+    def has_solution(self, reverse: bool = False, random: bool = False) -> bool:
+        r"""
+        Check whether a solution exists.
+
+        If ``random`` is true, this method will never finish if a solution exists.
+        """
+        try:
+            self._certify_nonexistence(reverse=reverse, random=random)
+            return False
+        except ValueError:
+            return True
+
+    def solve(self, reverse: bool = False, random: bool = False):
+        r"""
+        Compute a solution for this linear inequality system.
+
+        If no solution exists, a ``ValueError`` is raised.
+        """
+        solution = self.to_homogeneous().solve(reverse=reverse, random=random)
+        return solution[:-1] / solution[-1]
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
@@ -409,7 +399,18 @@ class InhomogeneousSystem(LinearInequalitySystem):
     def _compute_intervals(self) -> Intervals:
         return [Interval(-Infinity, bi) for bi in self._vector1] + [Interval(-Infinity, ci, False, False) for ci in self._vector2]
 
-    def exists_orthogonal_vector(self, v: vector) -> bool:
+    def to_homogeneous(self) -> HomogeneousSystem:
+        return HomogeneousSystem(
+            Matrix.block([[self._matrix2, Matrix(len(self._vector2), 1, -self._vector2)], [zero_matrix(1, self._matrix1.ncols()), Matrix([[-1]])]]),
+            Matrix.block([[self._matrix1, Matrix(len(self._vector1), 1, -self._vector1)]]),
+            Matrix(0, self._matrix1.ncols() + 1),
+            result=self.result
+        )
+
+    def to_inhomogeneous(self):
+        return self
+
+    def _exists_orthogonal_vector(self, v: vector) -> bool:
         length1 = len(self._vector1)
         length2 = len(self._vector2)
 
@@ -426,17 +427,6 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
         return not condition(v) and not condition(-v)
 
-    def to_homogeneous(self) -> HomogeneousSystem:
-        return HomogeneousSystem(
-            Matrix.block([[self._matrix2, Matrix(len(self._vector2), 1, -self._vector2)], [zero_matrix(1, self._matrix1.ncols()), Matrix([[-1]])]]),
-            Matrix.block([[self._matrix1, Matrix(len(self._vector1), 1, -self._vector1)]]),
-            Matrix(0, self._matrix1.ncols() + 1),
-            result=self.result
-        )
-
-    def to_inhomogeneous(self):
-        return self
-
 
 class HomogeneousSystem(LinearInequalitySystem):
     r"""
@@ -451,8 +441,8 @@ class HomogeneousSystem(LinearInequalitySystem):
         sage: B = zero_matrix(0, 2)
         sage: C = matrix([[1, 1], [0, 0]])
         sage: S = HomogeneousSystem(A, B, C)
-        sage: S.certify_existence()
-        (1, 1, 1, 0, 0)
+        sage: S.certify()
+        (True, (1, 1, 1, 0, 0))
     """
     __slots__ = "_positive", "_nonnegative", "_zero"
 
@@ -479,7 +469,10 @@ class HomogeneousSystem(LinearInequalitySystem):
             for i in range(self.matrix.nrows())
         ]
 
-    def exists_orthogonal_vector(self, v: vector) -> bool:
+    def to_homogeneous(self) -> HomogeneousSystem:
+        return self
+
+    def _exists_orthogonal_vector(self, v: vector) -> bool:
         return not (
             any(v[k] for k in self._positive)
             and (
@@ -488,15 +481,12 @@ class HomogeneousSystem(LinearInequalitySystem):
             )
         )
 
-    def to_homogeneous(self) -> HomogeneousSystem:
-        return self
-
-    def certify_existence(self, reverse: bool = False, random: bool = False):
+    def _certify_existence(self, reverse: bool = False, random: bool = False):
         result = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
         if self._positive.stop == 0:
             return result
-        for v in self.candidate_generator(dual=False, reverse=reverse, random=random):
+        for v in self._candidate_generator(dual=False, reverse=reverse, random=random):
             if self._solvable is False:
                 raise ValueError("No solution exists!")
             for w in [v, -v]:
@@ -521,7 +511,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 
             If no solution exists, and ``random`` is true, this method will never finish.
         """
-        return solve_without_division(self.matrix, self.certify_existence(reverse=reverse, random=random))
+        return solve_without_division(self.matrix, self._certify_existence(reverse=reverse, random=random))
 
 
 # class HomogeneousSystemCocircuits(HomogeneousSystem):
@@ -547,7 +537,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 #             and all(v[k] >= 0 for k in self.nonnegative)
 #         )
 
-#     def certify_existence(self, reverse: bool = False, random: bool = False) -> SignVector:
+#     def _certify_existence(self, reverse: bool = False, random: bool = False) -> SignVector:
 #         r"""
 #         Compute a solution if existent.
 
