@@ -95,11 +95,11 @@ def vector_from_sign_vector(data, sv: SignVector) -> vector:
     raise ValueError("Cannot find vector corresponding to given sign vector.")
 
 
-def solve_without_division(A: Matrix, b: vector):
+def solve_without_division(matrix: Matrix, rhs: vector):
     r"""
     Solve a linear system of equations without division.
 
-    The system is ``A x = c b`` where ``c`` is a positive constant.
+    Compute ``x`` for ``A x = c b`` where ``c`` is any positive constant.
     Uses an elementary vector.
 
     EXAMPLES::
@@ -120,8 +120,9 @@ def solve_without_division(A: Matrix, b: vector):
         sage: solve_without_division(A, b)
         (0, 1, 1)
     """
-    Ab = Matrix.block([[A, Matrix.column(b)]])
-    ev = next(ElementaryVectors(Ab).generator(reverse=True))
+    ev = next(ElementaryVectors(
+        Matrix.block([[matrix, Matrix.column(rhs)]])
+    ).generator(reverse=True))
     return -sign(ev[-1]) * ev[:-1]
 
 
