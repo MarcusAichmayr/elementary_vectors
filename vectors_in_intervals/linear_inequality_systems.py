@@ -232,6 +232,10 @@ class LinearInequalitySystem(SageObject):
             result=self.result
         )
 
+    def dual(self) -> LinearInequalitySystem:
+        r"""Return the dual linear inequality system."""
+        return self.to_inhomogeneous().dual()
+
     def with_intervals(self, intervals: Intervals) -> LinearInequalitySystem:
         r"""
         Return a copy of this system with different intervals.
@@ -410,6 +414,22 @@ class InhomogeneousSystem(LinearInequalitySystem):
     def to_inhomogeneous(self):
         return self
 
+    def dual(self) -> HomogeneousSystem:
+        length1 = self._matrix1.nrows()
+        length2 = self._matrix2.nrows()
+        length = self._matrix1.ncols()
+        return HomogeneousSystem(
+            Matrix.block([
+                [Matrix.zero(1, length1), Matrix.ones(1, length2 + 1)]
+            ]),
+            Matrix.identity(length1 + length2 + 1),
+            Matrix.block([
+                [self._matrix1.T, self._matrix2.T, Matrix.zero(length, 1)],
+                [-self._vector1.row(), -self._vector2.row(), Matrix([[-1]])]
+            ]),
+            result=not self.result
+        )
+
     def _exists_orthogonal_vector(self, v: vector) -> bool:
         length1 = len(self._vector1)
         length2 = len(self._vector2)
@@ -471,6 +491,20 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def to_homogeneous(self) -> HomogeneousSystem:
         return self
+
+    def dual(self) -> HomogeneousSystem:
+        length1 = len(self._positive)
+        length2 = len(self._nonnegative) - length1
+        length3 = len(self._zero)
+        return HomogeneousSystem(
+            Matrix.block([[Matrix.ones(1, length1), Matrix.zero(1, length2), Matrix.zero(1, length3)]]),
+            Matrix.block([
+                [Matrix.identity(length1), Matrix.zero(length1, length2), Matrix.zero(length1, length3)],
+                [Matrix.zero(length2, length1), Matrix.identity(length2), Matrix.zero(length2, length3)]
+            ]),
+            self.matrix.T,
+            result=not self.result
+        )
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
         return not (
