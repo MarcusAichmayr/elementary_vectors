@@ -974,7 +974,10 @@ class _OrientedMatroidFromMatrix(_OrientedMatroid):
         try:
             matrix = matrix.matrix_from_rows(matrix.pivot_rows())
         except NotImplementedError as exc:
-            if all(minor == 0 for minor in matrix.minors(matrix.nrows())):
+            if all(
+                matrix.matrix_from_columns(indices).det() == 0
+                for indices in Combinations(matrix.ncols(), matrix.nrows())
+            ):
                 raise ValueError("Provide a matrix with maximal rank.") from exc
         super().__init__(rank=matrix.nrows(), ground_set_size=matrix.ncols(), chirotope_cls=Chirotope.from_matrix(matrix))
         self._matrix = matrix
