@@ -1,4 +1,9 @@
-r"""Computing elementary vectors"""
+r"""
+Computing elementary vectors
+
+Elementary vectors are support minimal vectors of a subspace.
+They are also called _circuits_.
+"""
 
 #############################################################################
 #  Copyright (C) 2025                                                       #
