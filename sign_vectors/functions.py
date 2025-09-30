@@ -14,6 +14,145 @@ from sage.combinat.posets.posets import Poset
 
 from . import SignVector, zero_sign_vector
 
+from itertools import product
+
+def orthogonal_complement(iterable: set[SignVector])-> tuple[set[SignVector], list[int]]:
+    r"""
+    Compute the orthogonal complement of given sign vectors.
+
+    INPUT:
+
+    - ``iterable`` -- an iterable of sign vectors
+
+    OUTPUT:
+    Return the orthogonal complement of ``iterable`` as a set of relevant sign vectors 
+    and a list of irrelevant components. Note, that these can be unpacked with
+    the function unpack_irrelevant_components.
+
+    .. NOTE::
+
+       The sign vector :math:`X` is in the orthogonal complement
+       of a set of sign vectors :math:`W`
+       if :math:`X \perp Y` for all :math:`Y \in W` with .
+
+    EXAMPLES:
+
+    We consider a list consisting of only one sign vector::
+
+        sage: from sign_vectors import *
+        sage: W = [sign_vector("+-0")]
+        sage: W
+        [(+-0)]
+        sage: orthogonal_complement(W)
+        ({(000), (--0), (++0)}, [2])
+
+    Now, we consider a list of three sign vectors::
+
+        sage: W = [sign_vector("++-"), sign_vector("-00"), sign_vector("0--")]
+        sage: W
+        [(++-), (-00), (0--)]
+        sage: orthogonal_complement(W)
+        ({(000)}, [])
+
+    Finally, we consider an even larger list with longer vectors::
+
+        sage: W = [sign_vector("+-++0-"), sign_vector("+0--0-"), sign_vector("+-+-0-"), sign_vector("+00-0-"), sign_vector("00000-"), sign_vector("0+-+0-"), sign_vector("0+-00-")]
+        sage: W
+        [(+-++0-), (+0--0-), (+-+-0-), (+00-0-), (00000-), (0+-+0-), (0+-00-)]
+        sage: orthogonal_complement(W)
+        ({(000000), (+--+00), (++++00), (----00), (-++-00)}, [4])
+
+    TESTS::
+
+    """
+    if not iterable:
+        return set()
+
+    for _ in iterable:
+        length = _.length()
+        irrelevant_c = _._zero_support()
+        break
+
+    min_support_length = length
+    same_support_list = [set()]
+
+    for sv in iterable:
+        support_length = len(sv.support())
+        irrelevant_c = irrelevant_c & sv._zero_support()
+
+        while support_length < min_support_length:
+            same_support_list.append(set())
+            min_support_length -= 1
+
+        same_support_list[length-support_length].add(sv)
+
+    
+    irrelevant_len = len(list(irrelevant_c))
+    sample_ic = zero_sign_vector(length)._zero_support() - irrelevant_c
+    sample_list = [(zero_sign_vector(length),sample_ic)]
+    temp_sample_list = []
+
+
+    for ssl_index in range(length - min_support_length, irrelevant_len-1, -1):
+        for sv in same_support_list[ssl_index]:
+            for sample_vector, sample_ic in sample_list:
+
+                difference = sv._separating_elements(sample_vector)
+                connection = sv._connecting_elements(sample_vector)
+
+                if difference.isempty() and connection.isempty():
+                    temp_sample_list.append((sample_vector, sample_ic-sv._support()))
+
+                    for d, c in product(list(sample_ic & sv._support()), repeat=2):
+
+                        if d != c:
+                            if sv[d] == 1:
+                                new_sample_vector =  sample_vector.set_to_minus([d])
+                            else:
+                                new_sample_vector =  sample_vector.set_to_plus([d])
+
+                            if sv[c]==1:
+                                new_sample_vector =  new_sample_vector.set_to_plus([c])
+                            else:
+                                new_sample_vector =  new_sample_vector.set_to_minus([c])
+                            
+                            new_sample_ic = sample_ic - new_sample_vector._support()
+                            temp_sample_list.append((new_sample_vector, new_sample_ic))
+
+                elif not difference.isempty() and not connection.isempty():
+                    temp_sample_list.append((sample_vector, sample_ic))
+
+                elif not difference.isempty():
+                    for ic in list(sample_ic & sv._support()):
+                        for d in list(difference):
+                            if sv[ic] == 1:
+                                new_sample_vector = sample_vector.set_to_plus([ic])    
+                            else:
+                                new_sample_vector = sample_vector.set_to_minus([ic])
+                            new_sample_ic = sample_ic - new_sample_vector._support()
+                            temp_sample_list.append((new_sample_vector, new_sample_ic))
+
+                elif not connection.isempty():
+                    for ic in list(sample_ic & sv._support()):
+                        for c in list(connection):
+                            if sv[ic] == 1:
+                                new_sample_vector = sample_vector.set_to_minus([ic])
+                            else:
+                                new_sample_vector = sample_vector.set_to_plus([ic])
+                            new_sample_ic = sample_ic - new_sample_vector._support()
+                            temp_sample_list.append((new_sample_vector, new_sample_ic))
+
+            sample_list = list(set(temp_sample_list.copy()))
+            temp_sample_list = []
+
+    result = set()
+    for sample_vector, sample_ic in sample_list:
+        result.update(unpack_irrelevant_components([sample_vector], list(sample_ic)))
+
+    
+
+    return (result, list(irrelevant_c))
+
 
 def lower_closure(iterable: set[SignVector]) -> set[SignVector]:
     r"""
@@ -122,7 +261,7 @@ def upper_closure(iterable) -> tuple[set[SignVector], list[int]]:
 
     TESTS::
 
-        sage: lower_closure([])
+        sage: upper_closure([])
         set()
     """
     if not iterable:
@@ -148,7 +287,7 @@ def upper_closure(iterable) -> tuple[set[SignVector], list[int]]:
 
     irrelevant_len = len(list(irrelevant_c))
 
-    for i in range(length - min_support_length, irrelevant_len, -1):
+    for i in range(length - min_support_length, irrelevant_len-1, -1):
         for sv in same_support_list[i]:
             for s in list(sv._zero_support()-irrelevant_c):
                 same_support_list[i - 1].add(sv.set_to_plus([s]))
@@ -156,7 +295,7 @@ def upper_closure(iterable) -> tuple[set[SignVector], list[int]]:
 
     return set().union(*same_support_list), list(irrelevant_c)
 
-def unpack_irrelevant_components(iterable, irrelevant_components) -> list[SignVector]:
+def unpack_irrelevant_components(iterable, irrelevant_components: list[int]) -> list[SignVector]:
     r"""
     Compute the upper closure of given sign vectors.
 
