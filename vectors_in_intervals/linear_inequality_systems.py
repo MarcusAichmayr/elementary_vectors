@@ -140,8 +140,6 @@ class LinearInequalitySystem(SageObject):
     r"""
     A class for linear inequality systems given by a matrix and intervals
     """
-    __slots__ = "result", "_matrix", "_intervals", "_evs", "elementary_vectors", "_solvable"
-
     def __init__(self, matrix: Matrix, intervals: Intervals = None, result: bool = None) -> None:
         if intervals is not None and matrix.nrows() != len(intervals):
             raise ValueError("Matrix row count and number of intervals must agree!")
@@ -264,7 +262,7 @@ class LinearInequalitySystem(SageObject):
             system._evs = self._evs
         return system
 
-    def _candidate_generator(self, dual: bool = True, reverse: bool = False, random: bool = False) -> Generator:
+    def _evs_generator(self, dual: bool = True, reverse: bool = False, random: bool = False) -> Generator:
         r"""Return a generator of elementary vectors."""
         if random:
             while True:
@@ -311,7 +309,7 @@ class LinearInequalitySystem(SageObject):
 
             If a solution exists and ``random`` is set to true, this method will never finish.
         """
-        for v in self._candidate_generator(reverse=reverse, random=random):
+        for v in self._evs_generator(reverse=reverse, random=random):
             if self._solvable:
                 break
             if not self._exists_orthogonal_vector(v):
@@ -434,18 +432,29 @@ class InhomogeneousSystem(LinearInequalitySystem):
         length1 = len(self._vector1)
         length2 = len(self._vector2)
 
-        def condition(v: vector) -> bool:
-            if all(vk >= 0 for vk in v):
-                scalarproduct = sum(v[k] * self._vector1[k] for k in range(length1)) + sum(
-                    v[k + length1] * self._vector2[k] for k in range(length2)
-                )
-                if scalarproduct < 0:
-                    return True
-                if scalarproduct <= 0 and any(v[k] for k in range(length1, length1 + length2)):
-                    return True
-            return False
+        if v == 0:
+            return True
 
-        return not condition(v) and not condition(-v)
+        positive = None
+        if all(vk >= 0 for vk in v):
+            positive = True
+        elif all(vk <= 0 for vk in v):
+            positive = False
+        if positive is None:
+            return True
+
+        v1 = vector(v[k] for k in range(length1))
+        v2 = vector(v[k + length1] for k in range(length2))
+
+        scalarproduct = v1 * self._vector1 + v2 * self._vector2
+
+        if positive and scalarproduct < 0:
+            return False
+        if not positive and scalarproduct > 0:
+            return False
+        if scalarproduct == 0 and v2 != 0:
+            return False
+        return True
 
 
 class HomogeneousSystem(LinearInequalitySystem):
@@ -464,8 +473,6 @@ class HomogeneousSystem(LinearInequalitySystem):
         sage: S.certify()
         (True, (1, 1, 1, 0, 0))
     """
-    __slots__ = "_positive", "_nonnegative", "_zero"
-
     def __init__(self, matrix1: Matrix, matrix2: Matrix, matrix3: Matrix, result: bool = None) -> None:
         super().__init__(Matrix.block([[matrix1], [matrix2], [matrix3]]), None, result=result)
         self._positive = range(matrix1.nrows())
@@ -479,13 +486,9 @@ class HomogeneousSystem(LinearInequalitySystem):
 
     def _compute_intervals(self) -> Intervals:
         return [
-            Interval(0, Infinity, False, False)
+            Interval.open(0, Infinity)
             if i in self._positive else
-            (
-                Interval(0, Infinity)
-                if i in self._nonnegative else
-                Interval(0, 0)
-            )
+            (Interval.closed(0, Infinity) if i in self._nonnegative else Interval.closed(0, 0))
             for i in range(self.matrix.nrows())
         ]
 
@@ -507,32 +510,32 @@ class HomogeneousSystem(LinearInequalitySystem):
         )
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
-        return not (
-            any(v[k] for k in self._positive)
-            and (
-                all(v[k] >= 0 for k in self._nonnegative)
-                or all(v[k] <= 0 for k in self._nonnegative)
-            )
-        )
+        if all(v[k] == 0 for k in self._positive):
+            return True
+        if all(v[k] >= 0 for k in self._nonnegative):
+            return False
+        if all(v[k] <= 0 for k in self._nonnegative):
+            return False
+        return True
 
     def _certify_existence(self, reverse: bool = False, random: bool = False):
-        result = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
+        certificate = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
         if self._positive.stop == 0:
-            return result
-        for v in self._candidate_generator(dual=False, reverse=reverse, random=random):
+            return certificate
+        for v in self._evs_generator(dual=False, reverse=reverse, random=random):
             if self._solvable is False:
-                raise ValueError("No solution exists!")
+                raise ValueError("System is marked as unsolvable!")
             for w in [v, -v]:
                 if all(w[i] >= 0 for i in self._nonnegative) and all(w[i] == 0 for i in self._zero):
-                    result += w
-                    if all(result[i] > 0 for i in self._positive):
+                    certificate += w
+                    if all(certificate[i] > 0 for i in self._positive):
                         self._solvable = True
-                        return result
+                        return certificate
                     break
 
         self._solvable = False
-        raise ValueError("No solution exists!")
+        raise ValueError("Couldn't construct a solution. No solution exists!")
 
     def solve(self, reverse: bool = False, random: bool = False):
         r"""
@@ -587,18 +590,18 @@ class HomogeneousSystem(LinearInequalitySystem):
 #         upper = sign_vector(
 #             len(self.nonnegative) * [1] + (self.matrix.nrows() - len(self.nonnegative)) * [0]
 #         )
-#         result = zero_sign_vector(self.matrix.nrows())
+#         certificate = zero_sign_vector(self.matrix.nrows())
 
-#         if result >= lower:
-#             return result
-#         for v in self.candidate_generator(dual=False, reverse=reverse, random=random):
+#         if certificate >= lower:
+#             return certificate
+#         for v in self._evs_generator(dual=False, reverse=reverse, random=random):
 #             if self._solvable is False:
 #                 raise ValueError("No solution exists!")
 #             if v <= upper:
-#                 result &= v
-#                 if result >= lower:
+#                 certificate &= v
+#                 if certificate >= lower:
 #                     self._solvable = True
-#                     return result
+#                     return certificate
 
 #         self._solvable = False
 #         raise ValueError("No solution exists!")
