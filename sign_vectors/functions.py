@@ -123,22 +123,20 @@ def orthogonal_complement(iterable: set[SignVector])-> tuple[set[SignVector], li
                     temp_sample_list.append((sample_vector, sample_ic))
 
                 elif not difference.isempty():
-                    for ic in list(sample_ic & sv._support()):
-                        for d in list(difference):
-                            if sv[ic] == 1:
-                                new_sample_vector = sample_vector.set_to_plus([ic])    
-                            else:
-                                new_sample_vector = sample_vector.set_to_minus([ic])
-                            new_sample_ic = sample_ic - new_sample_vector._support()
-                            temp_sample_list.append((new_sample_vector, new_sample_ic))
+                    for c in list(sample_ic & sv._support()):
+                        if sv[c] == 1:
+                            new_sample_vector = sample_vector.set_to_plus([c])    
+                        else:
+                            new_sample_vector = sample_vector.set_to_minus([c])
+                        new_sample_ic = sample_ic - new_sample_vector._support()
+                        temp_sample_list.append((new_sample_vector, new_sample_ic))
 
                 elif not connection.isempty():
-                    for ic in list(sample_ic & sv._support()):
-                        for c in list(connection):
-                            if sv[ic] == 1:
-                                new_sample_vector = sample_vector.set_to_minus([ic])
+                    for d in list(sample_ic & sv._support()):
+                            if sv[d] == 1:
+                                new_sample_vector = sample_vector.set_to_minus([d])
                             else:
-                                new_sample_vector = sample_vector.set_to_plus([ic])
+                                new_sample_vector = sample_vector.set_to_plus([d])
                             new_sample_ic = sample_ic - new_sample_vector._support()
                             temp_sample_list.append((new_sample_vector, new_sample_ic))
 
