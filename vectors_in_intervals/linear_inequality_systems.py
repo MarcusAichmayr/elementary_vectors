@@ -385,85 +385,6 @@ class LinearInequalitySystem(SageObject):
         return solution[:-1] / solution[-1]
 
 
-class InhomogeneousSystem(LinearInequalitySystem):
-    r"""
-    A class for inhomogeneous linear inequality systems
-
-    ``A x < a``, ``B x <= b``
-    """
-    def __init__(
-            self,
-            matrix_strict: Matrix,
-            matrix_nonstrict: Matrix,
-            vector_strict: vector,
-            vector_nonstrict: vector,
-            result: bool = None
-    ) -> None:
-        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict]]), None, result=result)
-        self._matrix_strict = matrix_strict
-        self._matrix_nonstrict = matrix_nonstrict
-        self._vector_strict = vector_strict
-        self._vector_nonstrict = vector_nonstrict
-
-    def _compute_intervals(self) -> Intervals:
-        return [Interval.open(-Infinity, ai) for ai in self._vector_strict] + [Interval.closed(-Infinity, bi) for bi in self._vector_nonstrict]
-
-    def to_homogeneous(self) -> HomogeneousSystem:
-        return HomogeneousSystem(
-            Matrix.block([[self._matrix_strict, Matrix(len(self._vector_strict), 1, -self._vector_strict)], [zero_matrix(1, self._matrix_nonstrict.ncols()), Matrix([[-1]])]]),
-            Matrix.block([[self._matrix_nonstrict, Matrix(len(self._vector_nonstrict), 1, -self._vector_nonstrict)]]),
-            Matrix(0, self._matrix_nonstrict.ncols() + 1),
-            result=self.result
-        )
-
-    def to_inhomogeneous(self):
-        return self
-
-    def dual(self) -> HomogeneousSystem:
-        length_strict = self._matrix_strict.nrows()
-        length_nonstrict = self._matrix_nonstrict.nrows()
-        length = self._matrix_nonstrict.ncols()
-        return HomogeneousSystem(
-            Matrix.block([
-                [Matrix.zero(1, length_nonstrict), Matrix.ones(1, length_strict + 1)]
-            ]),
-            Matrix.identity(length_nonstrict + length_strict + 1),
-            Matrix.block([
-                [self._matrix_nonstrict.T, self._matrix_strict.T, Matrix.zero(length, 1)],
-                [-self._vector_nonstrict.row(), -self._vector_strict.row(), Matrix([[-1]])]
-            ]),
-            result=not self.result
-        )
-
-    def _exists_orthogonal_vector(self, v: vector) -> bool:
-        length_strict = len(self._vector_strict)
-        length_nonstrict = len(self._vector_nonstrict)
-
-        if v == 0:
-            return True
-
-        positive = None
-        if all(vk >= 0 for vk in v):
-            positive = True
-        elif all(vk <= 0 for vk in v):
-            positive = False
-        if positive is None:
-            return True
-
-        v_strict = vector(v[k] for k in range(length_strict))
-        v_nonstrict = vector(v[k + length_strict] for k in range(length_nonstrict))
-
-        scalarproduct = v_strict * self._vector_strict + v_nonstrict * self._vector_nonstrict
-
-        if positive and scalarproduct < 0:
-            return False
-        if not positive and scalarproduct > 0:
-            return False
-        if scalarproduct == 0 and v_strict != 0:
-            return False
-        return True
-
-
 class HomogeneousSystem(LinearInequalitySystem):
     r"""
     A class for homogeneous linear inequality systems
@@ -556,6 +477,85 @@ class HomogeneousSystem(LinearInequalitySystem):
             If no solution exists, and ``random`` is true, this method will never finish.
         """
         return solve_without_division(self.matrix, self._certify_existence(reverse=reverse, random=random))
+
+
+class InhomogeneousSystem(LinearInequalitySystem):
+    r"""
+    A class for inhomogeneous linear inequality systems
+
+    ``A x < a``, ``B x <= b``
+    """
+    def __init__(
+            self,
+            matrix_strict: Matrix,
+            matrix_nonstrict: Matrix,
+            vector_strict: vector,
+            vector_nonstrict: vector,
+            result: bool = None
+    ) -> None:
+        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict]]), None, result=result)
+        self._matrix_strict = matrix_strict
+        self._matrix_nonstrict = matrix_nonstrict
+        self._vector_strict = vector_strict
+        self._vector_nonstrict = vector_nonstrict
+
+    def _compute_intervals(self) -> Intervals:
+        return [Interval.open(-Infinity, ai) for ai in self._vector_strict] + [Interval.closed(-Infinity, bi) for bi in self._vector_nonstrict]
+
+    def to_homogeneous(self) -> HomogeneousSystem:
+        return HomogeneousSystem(
+            Matrix.block([[self._matrix_strict, Matrix(len(self._vector_strict), 1, -self._vector_strict)], [zero_matrix(1, self._matrix_nonstrict.ncols()), Matrix([[-1]])]]),
+            Matrix.block([[self._matrix_nonstrict, Matrix(len(self._vector_nonstrict), 1, -self._vector_nonstrict)]]),
+            Matrix(0, self._matrix_nonstrict.ncols() + 1),
+            result=self.result
+        )
+
+    def to_inhomogeneous(self):
+        return self
+
+    def dual(self) -> HomogeneousSystem:
+        length_strict = self._matrix_strict.nrows()
+        length_nonstrict = self._matrix_nonstrict.nrows()
+        length = self._matrix_nonstrict.ncols()
+        return HomogeneousSystem(
+            Matrix.block([
+                [Matrix.zero(1, length_nonstrict), Matrix.ones(1, length_strict + 1)]
+            ]),
+            Matrix.identity(length_nonstrict + length_strict + 1),
+            Matrix.block([
+                [self._matrix_nonstrict.T, self._matrix_strict.T, Matrix.zero(length, 1)],
+                [-self._vector_nonstrict.row(), -self._vector_strict.row(), Matrix([[-1]])]
+            ]),
+            result=not self.result
+        )
+
+    def _exists_orthogonal_vector(self, v: vector) -> bool:
+        length_strict = len(self._vector_strict)
+        length_nonstrict = len(self._vector_nonstrict)
+
+        if v == 0:
+            return True
+
+        positive = None
+        if all(vk >= 0 for vk in v):
+            positive = True
+        elif all(vk <= 0 for vk in v):
+            positive = False
+        if positive is None:
+            return True
+
+        v_strict = vector(v[k] for k in range(length_strict))
+        v_nonstrict = vector(v[k + length_strict] for k in range(length_nonstrict))
+
+        scalarproduct = v_strict * self._vector_strict + v_nonstrict * self._vector_nonstrict
+
+        if positive and scalarproduct < 0:
+            return False
+        if not positive and scalarproduct > 0:
+            return False
+        if scalarproduct == 0 and v_strict != 0:
+            return False
+        return True
 
 
 # class HomogeneousSystemCocircuits(HomogeneousSystem):
