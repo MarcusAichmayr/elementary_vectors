@@ -107,6 +107,40 @@ Now, we consider the example::
     sage: S = HomogeneousSystemCocircuits(A, B, C) # TODO: not implemented
     sage: S.certify() # TODO: not implemented
     (++0+)
+
+TESTS::
+
+    sage: A = matrix([[1, 1]])
+    sage: B = matrix([[0, 1]])
+    sage: C = matrix([[1, -1]])
+    sage: S = HomogeneousSystem(A, B, C)
+    sage: S
+    [ 1  1]
+    [-----]
+    [ 0  1]
+    [-----]
+    [ 1 -1] x in [(0, +oo), [0, +oo), {0}]
+    sage: S.to_inhomogeneous()
+    [-1 -1]
+    [-----]
+    [ 0 -1]
+    [-1  1]
+    [ 1 -1] x in [(-oo, 0), (-oo, 0], (-oo, 0], (-oo, 0]]
+    sage: S.to_inhomogeneous().to_homogeneous()
+    [-1 -1  0]
+    [ 0  0 -1]
+    [--------]
+    [ 0 -1  0]
+    [-1  1  0]
+    [ 1 -1  0]
+    [--------] x in [(0, +oo), (0, +oo), [0, +oo), [0, +oo), [0, +oo)]
+    sage: S.to_inhomogeneous().to_homogeneous().to_inhomogeneous()
+    [ 1  1  0]
+    [ 0  0  1]
+    [--------]
+    [ 0  1  0]
+    [ 1 -1  0]
+    [-1  1  0] x in [(-oo, 0), (-oo, 0), (-oo, 0], (-oo, 0], (-oo, 0]]
 """
 
 #############################################################################
