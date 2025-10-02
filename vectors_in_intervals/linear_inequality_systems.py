@@ -401,22 +401,22 @@ class HomogeneousSystem(LinearInequalitySystem):
         sage: S.certify()
         (True, (1, 1, 1, 0, 0))
     """
-    def __init__(self, matrix_positive: Matrix, matrix_nonnegative: Matrix, matrix_zero: Matrix, result: bool = None) -> None:
-        super().__init__(Matrix.block([[matrix_positive], [matrix_nonnegative], [matrix_zero]]), None, result=result)
-        self._positive = range(matrix_positive.nrows())
-        self._nonnegative = range(matrix_positive.nrows() + matrix_nonnegative.nrows())
-        self._zero = range(matrix_positive.nrows() + matrix_nonnegative.nrows(), self.matrix.nrows())
+    def __init__(self, matrix_strict: Matrix, matrix_nonstrict: Matrix, matrix_zero: Matrix, result: bool = None) -> None:
+        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict], [matrix_zero]]), None, result=result)
+        self._length_strict = matrix_strict.nrows()
+        self._length_nonstrict = matrix_nonstrict.nrows()
+        self._length_zero = matrix_zero.nrows()
 
         # self._evs._set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self._evs.length - self._evs.rank + 1))
 
-        if len(self._positive) == 1:
-            self._evs._set_combinations_kernel(CombinationsIncluding(self._evs.length, self._evs.rank + 1, self._positive))
+        if self._length_strict == 1:
+            self._evs._set_combinations_kernel(CombinationsIncluding(self._evs.length, self._evs.rank + 1, range(self._length_strict)))
 
     def _compute_intervals(self) -> Intervals:
         return [
             Interval.open(0, Infinity)
-            if i in self._positive else
-            (Interval.closed(0, Infinity) if i in self._nonnegative else Interval.closed(0, 0))
+            if i < self._length_strict else
+            (Interval.closed(0, Infinity) if i < self._length_strict + self._length_nonstrict else Interval.closed(0, 0))
             for i in range(self.matrix.nrows())
         ]
 
@@ -424,43 +424,43 @@ class HomogeneousSystem(LinearInequalitySystem):
         return self
 
     def dual(self) -> HomogeneousSystem:
-        length1 = len(self._positive)
-        length2 = len(self._nonnegative) - length1
-        length3 = len(self._zero)
         return HomogeneousSystem(
-            Matrix.block([[Matrix.ones(1, length1), Matrix.zero(1, length2), Matrix.zero(1, length3)]]),
+            Matrix.block([[Matrix.ones(1, self._length_strict), Matrix.zero(1, self._length_nonstrict), Matrix.zero(1, self._length_zero)]]),
             Matrix.block([
-                [Matrix.identity(length1), Matrix.zero(length1, length2), Matrix.zero(length1, length3)],
-                [Matrix.zero(length2, length1), Matrix.identity(length2), Matrix.zero(length2, length3)]
+                [Matrix.identity(self._length_strict), Matrix.zero(self._length_strict, self._length_nonstrict), Matrix.zero(self._length_strict, self._length_zero)],
+                [Matrix.zero(self._length_nonstrict, self._length_strict), Matrix.identity(self._length_nonstrict), Matrix.zero(self._length_nonstrict, self._length_zero)]
             ]),
             self.matrix.T,
             result=not self.result
         )
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
-        if all(v[k] == 0 for k in self._positive):
+        if all(v[k] == 0 for k in range(self._length_strict)):
             return True
-        if all(v[k] >= 0 for k in self._nonnegative):
+        if all(v[k] >= 0 for k in range(self._length_strict + self._length_nonstrict)):
             return False
-        if all(v[k] <= 0 for k in self._nonnegative):
+        if all(v[k] <= 0 for k in range(self._length_strict + self._length_nonstrict)):
             return False
         return True
 
     def _certify_existence(self, reverse: bool = False, random: bool = False):
         certificate = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
-        if self._positive.stop == 0:
+        if self._length_strict == 0:
             return certificate
         for v in self._evs_generator(dual=False, reverse=reverse, random=random):
             if self._solvable is False:
                 raise ValueError("System is marked as unsolvable!")
             for w in [v, -v]:
-                if all(w[i] >= 0 for i in self._nonnegative) and all(w[i] == 0 for i in self._zero):
-                    certificate += w
-                    if all(certificate[i] > 0 for i in self._positive):
-                        self._solvable = True
-                        return certificate
-                    break
+                if any(w[i] < 0 for i in range(self._length_strict + self._length_nonstrict)):
+                    continue
+                if any(w[i] != 0 for i in range(self._length_strict + self._length_nonstrict, self.matrix.nrows())):
+                    continue
+                certificate += w
+                if all(certificate[i] > 0 for i in range(self._length_strict)):
+                    self._solvable = True
+                    return certificate
+                break
 
         self._solvable = False
         raise ValueError("Couldn't construct a solution. No solution exists!")
