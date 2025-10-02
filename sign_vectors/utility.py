@@ -14,6 +14,56 @@ from typing import Iterator
 
 from . import SignVector
 
+def unpack_irrelevant_components(iterable, irrelevant_components: list[int]) -> list[SignVector]:
+    r"""
+    Compute the upper closure of given sign vectors.
+
+    INPUT:
+
+    - ``iterable`` -- a set of sign vectors
+    - ``irrelevant_components`` -- list of indices
+
+    OUTPUT:
+    Return the full set of ``iterable``, with unpacked irrelevant components.
+
+    EXAMPLES:
+
+    We consider an output of the upper_closure function::
+
+        sage: from sign_vectors import *
+        sage: W = [sign_vector("+-0")]
+        sage: W
+        [(+-0)]
+        sage: U = upper_closure(W); U
+        ({(+-0)}, [2])
+        sage: unpack_irrelevant_components(*U)
+        [(+-0), (+-+), (+--)]
+
+    Now, we consider a larger example of irrelevant components::
+
+        sage: from sign_vectors import *
+        sage: W = [sign_vector("+0-00"), sign_vector("+0000"), sign_vector("+0++0")]
+        sage: W
+        [(+0-00), (+0000), (+0++0)]
+        sage: irrelevant_components = [1,4]
+        sage: unpack_irrelevant_components(W, irrelevant_components)
+        [(+0000), (+0++0), (+0-00), (++000), (+-000), (++++0), (+-++0), (++-00),
+            (+--00), (+000+), (+000-), (+0+++), (+0++-), (+0-0+), (+0-0-), (++00+),
+            (++00-), (+-00+), (+-00-), (+++++), (++++-), (+-+++), (+-++-), (++-0+),
+            (++-0-), (+--0+), (+--0-)]
+    """
+    vectors = list(set(iterable))
+    temp_vectors = vectors.copy()
+    for i in irrelevant_components:
+        for x in vectors:
+            temp_vectors.append(x.set_to_plus([i]))
+            temp_vectors.append(x.set_to_minus([i]))
+
+        vectors = temp_vectors
+        temp_vectors = vectors.copy()
+
+    return vectors
+
 
 def are_parallel(iterable, component1, component2, return_ratio: bool = False):
     r"""
