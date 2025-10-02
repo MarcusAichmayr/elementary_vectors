@@ -389,23 +389,30 @@ class InhomogeneousSystem(LinearInequalitySystem):
     r"""
     A class for inhomogeneous linear inequality systems
 
-    ``A x <= b``, ``B x <= c``
+    ``A x <= b``, ``B x < c``
     """
-    def __init__(self, matrix1: Matrix, matrix2: Matrix, vector1: vector, vector2: vector, result: bool = None) -> None:
-        super().__init__(Matrix.block([[matrix1], [matrix2]]), None, result=result)
-        self._matrix1 = matrix1
-        self._matrix2 = matrix2
-        self._vector1 = vector1
-        self._vector2 = vector2
+    def __init__(
+            self,
+            matrix_nonstrict: Matrix,
+            matrix_strict: Matrix,
+            vector_nonstrict: vector,
+            vector_strict: vector,
+            result: bool = None
+    ) -> None:
+        super().__init__(Matrix.block([[matrix_nonstrict], [matrix_strict]]), None, result=result)
+        self._matrix_nonstrict = matrix_nonstrict
+        self._matrix_strict = matrix_strict
+        self._vector_nonstrict = vector_nonstrict
+        self._vector_strict = vector_strict
 
     def _compute_intervals(self) -> Intervals:
-        return [Interval(-Infinity, bi) for bi in self._vector1] + [Interval(-Infinity, ci, False, False) for ci in self._vector2]
+        return [Interval.closed(-Infinity, bi) for bi in self._vector_nonstrict] + [Interval.open(-Infinity, ci) for ci in self._vector_strict]
 
     def to_homogeneous(self) -> HomogeneousSystem:
         return HomogeneousSystem(
-            Matrix.block([[self._matrix2, Matrix(len(self._vector2), 1, -self._vector2)], [zero_matrix(1, self._matrix1.ncols()), Matrix([[-1]])]]),
-            Matrix.block([[self._matrix1, Matrix(len(self._vector1), 1, -self._vector1)]]),
-            Matrix(0, self._matrix1.ncols() + 1),
+            Matrix.block([[self._matrix_strict, Matrix(len(self._vector_strict), 1, -self._vector_strict)], [zero_matrix(1, self._matrix_nonstrict.ncols()), Matrix([[-1]])]]),
+            Matrix.block([[self._matrix_nonstrict, Matrix(len(self._vector_nonstrict), 1, -self._vector_nonstrict)]]),
+            Matrix(0, self._matrix_nonstrict.ncols() + 1),
             result=self.result
         )
 
@@ -413,24 +420,24 @@ class InhomogeneousSystem(LinearInequalitySystem):
         return self
 
     def dual(self) -> HomogeneousSystem:
-        length1 = self._matrix1.nrows()
-        length2 = self._matrix2.nrows()
-        length = self._matrix1.ncols()
+        length1 = self._matrix_nonstrict.nrows()
+        length2 = self._matrix_strict.nrows()
+        length = self._matrix_nonstrict.ncols()
         return HomogeneousSystem(
             Matrix.block([
                 [Matrix.zero(1, length1), Matrix.ones(1, length2 + 1)]
             ]),
             Matrix.identity(length1 + length2 + 1),
             Matrix.block([
-                [self._matrix1.T, self._matrix2.T, Matrix.zero(length, 1)],
-                [-self._vector1.row(), -self._vector2.row(), Matrix([[-1]])]
+                [self._matrix_nonstrict.T, self._matrix_strict.T, Matrix.zero(length, 1)],
+                [-self._vector_nonstrict.row(), -self._vector_strict.row(), Matrix([[-1]])]
             ]),
             result=not self.result
         )
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
-        length1 = len(self._vector1)
-        length2 = len(self._vector2)
+        length1 = len(self._vector_nonstrict)
+        length2 = len(self._vector_strict)
 
         if v == 0:
             return True
@@ -446,7 +453,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
         v1 = vector(v[k] for k in range(length1))
         v2 = vector(v[k + length1] for k in range(length2))
 
-        scalarproduct = v1 * self._vector1 + v2 * self._vector2
+        scalarproduct = v1 * self._vector_nonstrict + v2 * self._vector_strict
 
         if positive and scalarproduct < 0:
             return False
@@ -473,11 +480,11 @@ class HomogeneousSystem(LinearInequalitySystem):
         sage: S.certify()
         (True, (1, 1, 1, 0, 0))
     """
-    def __init__(self, matrix1: Matrix, matrix2: Matrix, matrix3: Matrix, result: bool = None) -> None:
-        super().__init__(Matrix.block([[matrix1], [matrix2], [matrix3]]), None, result=result)
-        self._positive = range(matrix1.nrows())
-        self._nonnegative = range(matrix1.nrows() + matrix2.nrows())
-        self._zero = range(matrix1.nrows() + matrix2.nrows(), self.matrix.nrows())
+    def __init__(self, matrix_positive: Matrix, matrix_nonnegative: Matrix, matrix_zero: Matrix, result: bool = None) -> None:
+        super().__init__(Matrix.block([[matrix_positive], [matrix_nonnegative], [matrix_zero]]), None, result=result)
+        self._positive = range(matrix_positive.nrows())
+        self._nonnegative = range(matrix_positive.nrows() + matrix_nonnegative.nrows())
+        self._zero = range(matrix_positive.nrows() + matrix_nonnegative.nrows(), self.matrix.nrows())
 
         # self._evs._set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self._evs.length - self._evs.rank + 1))
 

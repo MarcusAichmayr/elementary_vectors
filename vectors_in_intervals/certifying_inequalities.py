@@ -408,12 +408,12 @@ def _inhomogeneous_alternative2_system1(system: InhomogeneousSystem) -> Homogene
     r"""
     Alternative of a standard inhomogeneous linear inequality system given by two systems.
     """
-    length1 = system._matrix1.nrows()
-    length2 = system._matrix2.nrows()
+    length1 = system._matrix_nonstrict.nrows()
+    length2 = system._matrix_strict.nrows()
     return HomogeneousSystem(
-        Matrix.block([[-system._vector1.row(), -system._vector2.row()]]),
+        Matrix.block([[-system._vector_nonstrict.row(), -system._vector_strict.row()]]),
         Matrix.identity(length1 + length2),
-        Matrix.block([[system._matrix1.T, system._matrix2.T]]),
+        Matrix.block([[system._matrix_nonstrict.T, system._matrix_strict.T]]),
         result=True
     )
 
@@ -422,14 +422,14 @@ def _inhomogeneous_alternative2_system2(system: InhomogeneousSystem) -> Homogene
     r"""
     Alternative of a standard inhomogeneous linear inequality system given by two systems.
     """
-    length1 = system._matrix1.nrows()
-    length2 = system._matrix2.nrows()
+    length1 = system._matrix_nonstrict.nrows()
+    length2 = system._matrix_strict.nrows()
     return HomogeneousSystem(
         Matrix.block([[Matrix.zero(1, length1), Matrix.ones(1, length2)]]),
         Matrix.block([
-            [Matrix.block([[-system._vector1.row(), -system._vector2.row()]])],
+            [Matrix.block([[-system._vector_nonstrict.row(), -system._vector_strict.row()]])],
             [Matrix.identity(length1 + length2)],
         ]),
-        Matrix.block([[system._matrix1.T, system._matrix2.T]]),
+        Matrix.block([[system._matrix_nonstrict.T, system._matrix_strict.T]]),
         result=True
     )
