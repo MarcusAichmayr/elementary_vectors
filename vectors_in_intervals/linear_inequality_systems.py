@@ -45,13 +45,13 @@ We consider another system::
 ::
 
     sage: S.to_inhomogeneous()
-    [-1  0]
-    [ 0 -1]
-    [ 0  1]
-    [-----]
     [ 1  0]
     [-1 -1]
-    [ 1  1] x in [(-oo, -2], (-oo, -5], (-oo, 5], (-oo, 5), (-oo, 0), (-oo, 8)]
+    [ 1  1]
+    [-----]
+    [-1  0]
+    [ 0 -1]
+    [ 0  1] x in [(-oo, 5), (-oo, 0), (-oo, 8), (-oo, -2], (-oo, -5], (-oo, 5]]
     sage: S.to_homogeneous()
     [ 1  0 -5]
     [-1 -1  0]
@@ -65,17 +65,17 @@ We consider another system::
 
 We consider yet another system::
 
-    sage: A = matrix([[1, 0], [1, 1]])
-    sage: B = matrix([[-1, -1]])
+    sage: A = matrix([[-1, -1]])
+    sage: B = matrix([[1, 0], [1, 1]])
+    sage: a = vector([0])
     sage: b = vector([1, 0])
-    sage: c = vector([0])
-    sage: S = InhomogeneousSystem(A, B, b, c)
+    sage: S = InhomogeneousSystem(A, B, a, b)
     sage: S.certify()
-    (False, (0, 1, 1))
+    (False, (1, 0, 1))
     sage: S.certify_parallel()
-    (False, (0, 1, 1))
+    (False, (1, 0, 1))
     sage: S.certify_parallel(random=True)
-    (False, (0, 1, 1))
+    (False, (1, 0, 1))
 
 ::
 
@@ -201,32 +201,32 @@ class LinearInequalitySystem(SageObject):
 
     def to_inhomogeneous(self) -> InhomogeneousSystem:
         r"""Return the equivalent inhomogeneous system."""
-        matrix1_list = []
-        matrix2_list = []
-        vector1_list = []
-        vector2_list = []
+        matrix_strict_list = []
+        matrix_nonstrict_list = []
+        vector_strict_list = []
+        vector_nonstrict_list = []
 
         for line, interval in zip(self.matrix, self.intervals):
             if interval.infimum() != -Infinity:
                 if interval.infimum() in interval:
-                    matrix1_list.append(-line)
-                    vector1_list.append(-interval.infimum())
+                    matrix_nonstrict_list.append(-line)
+                    vector_nonstrict_list.append(-interval.infimum())
                 else:
-                    matrix2_list.append(-line)
-                    vector2_list.append(-interval.infimum())
+                    matrix_strict_list.append(-line)
+                    vector_strict_list.append(-interval.infimum())
             if interval.supremum() != Infinity:
                 if interval.supremum() in interval:
-                    matrix1_list.append(line)
-                    vector1_list.append(interval.supremum())
+                    matrix_nonstrict_list.append(line)
+                    vector_nonstrict_list.append(interval.supremum())
                 else:
-                    matrix2_list.append(line)
-                    vector2_list.append(interval.supremum())
+                    matrix_strict_list.append(line)
+                    vector_strict_list.append(interval.supremum())
 
         return InhomogeneousSystem(
-            Matrix(len(matrix1_list), self.matrix.ncols(), matrix1_list),
-            Matrix(len(matrix2_list), self.matrix.ncols(), matrix2_list),
-            vector(vector1_list),
-            vector(vector2_list),
+            Matrix(len(matrix_strict_list), self.matrix.ncols(), matrix_strict_list),
+            Matrix(len(matrix_nonstrict_list), self.matrix.ncols(), matrix_nonstrict_list),
+            vector(vector_strict_list),
+            vector(vector_nonstrict_list),
             result=self.result
         )
 
@@ -389,24 +389,24 @@ class InhomogeneousSystem(LinearInequalitySystem):
     r"""
     A class for inhomogeneous linear inequality systems
 
-    ``A x <= b``, ``B x < c``
+    ``A x < a``, ``B x <= b``
     """
     def __init__(
             self,
-            matrix_nonstrict: Matrix,
             matrix_strict: Matrix,
-            vector_nonstrict: vector,
+            matrix_nonstrict: Matrix,
             vector_strict: vector,
+            vector_nonstrict: vector,
             result: bool = None
     ) -> None:
-        super().__init__(Matrix.block([[matrix_nonstrict], [matrix_strict]]), None, result=result)
-        self._matrix_nonstrict = matrix_nonstrict
+        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict]]), None, result=result)
         self._matrix_strict = matrix_strict
-        self._vector_nonstrict = vector_nonstrict
+        self._matrix_nonstrict = matrix_nonstrict
         self._vector_strict = vector_strict
+        self._vector_nonstrict = vector_nonstrict
 
     def _compute_intervals(self) -> Intervals:
-        return [Interval.closed(-Infinity, bi) for bi in self._vector_nonstrict] + [Interval.open(-Infinity, ci) for ci in self._vector_strict]
+        return [Interval.open(-Infinity, ai) for ai in self._vector_strict] + [Interval.closed(-Infinity, bi) for bi in self._vector_nonstrict]
 
     def to_homogeneous(self) -> HomogeneousSystem:
         return HomogeneousSystem(
@@ -420,14 +420,14 @@ class InhomogeneousSystem(LinearInequalitySystem):
         return self
 
     def dual(self) -> HomogeneousSystem:
-        length1 = self._matrix_nonstrict.nrows()
-        length2 = self._matrix_strict.nrows()
+        length_strict = self._matrix_strict.nrows()
+        length_nonstrict = self._matrix_nonstrict.nrows()
         length = self._matrix_nonstrict.ncols()
         return HomogeneousSystem(
             Matrix.block([
-                [Matrix.zero(1, length1), Matrix.ones(1, length2 + 1)]
+                [Matrix.zero(1, length_nonstrict), Matrix.ones(1, length_strict + 1)]
             ]),
-            Matrix.identity(length1 + length2 + 1),
+            Matrix.identity(length_nonstrict + length_strict + 1),
             Matrix.block([
                 [self._matrix_nonstrict.T, self._matrix_strict.T, Matrix.zero(length, 1)],
                 [-self._vector_nonstrict.row(), -self._vector_strict.row(), Matrix([[-1]])]
@@ -436,8 +436,8 @@ class InhomogeneousSystem(LinearInequalitySystem):
         )
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
-        length1 = len(self._vector_nonstrict)
-        length2 = len(self._vector_strict)
+        length_strict = len(self._vector_strict)
+        length_nonstrict = len(self._vector_nonstrict)
 
         if v == 0:
             return True
@@ -450,16 +450,16 @@ class InhomogeneousSystem(LinearInequalitySystem):
         if positive is None:
             return True
 
-        v1 = vector(v[k] for k in range(length1))
-        v2 = vector(v[k + length1] for k in range(length2))
+        v_strict = vector(v[k] for k in range(length_strict))
+        v_nonstrict = vector(v[k + length_strict] for k in range(length_nonstrict))
 
-        scalarproduct = v1 * self._vector_nonstrict + v2 * self._vector_strict
+        scalarproduct = v_strict * self._vector_strict + v_nonstrict * self._vector_nonstrict
 
         if positive and scalarproduct < 0:
             return False
         if not positive and scalarproduct > 0:
             return False
-        if scalarproduct == 0 and v2 != 0:
+        if scalarproduct == 0 and v_strict != 0:
             return False
         return True
 

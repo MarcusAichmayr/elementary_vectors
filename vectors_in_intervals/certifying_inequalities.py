@@ -97,25 +97,25 @@ Inhomogeneous systems
 ~~~~~~~~~~~~~~~~~~~~~
 
 We deal with linear inequality systems given in the form
-:math:`A x \leq b, B x < c` with matrices :math:`A`, :math:`B` and vectors :math:`b`, :math:`c`.
+:math:`A x < a, B x \leq b` with matrices :math:`A`, :math:`B` and vectors :math:`a`, :math:`b`.
 We are interested whether the system  has a solution :math:`x`.
 If no solution exists, we want to certify the result.
 
 To demonstrate this, consider the following example::
 
     sage: from vectors_in_intervals import *
-    sage: A = matrix([[1, 2], [0, 1]])
-    sage: B = matrix([[2, 3]])
+    sage: A = matrix([[2, 3]])
+    sage: B = matrix([[1, 2], [0, 1]])
+    sage: a = vector([2])
     sage: b = vector([1, -1])
-    sage: c = vector([2])
-    sage: S = AlternativesInhomogeneous(A, B, b, c)
+    sage: S = AlternativesInhomogeneous(A, B, a, b)
     sage: S.one.matrix
+    [2 3]
+    [---]
     [1 2]
     [0 1]
-    [---]
-    [2 3]
     sage: S.one.intervals
-    [(-oo, 1], (-oo, -1], (-oo, 2)]
+    [(-oo, 2), (-oo, 1], (-oo, -1]]
     sage: S.one.has_solution()
     True
     sage: S.one.solve()
@@ -150,7 +150,7 @@ The package offers a single function that certifies existence of a solution::
 The alternatives for the inhomogeneous case can be formulated using two systems.
 The resulting systems yield different certificates::
 
-    sage: S = AlternativesInhomogeneous(A, B, b, c, two_double_system=True)
+    sage: S = AlternativesInhomogeneous(A, B, a, b, two_double_system=True)
     sage: S.certify()
     (True, [(-2, 0, -1, 0, 0, 1, 0), (-2, -1, 0, 0, -5, 2)], 5)
 
@@ -161,17 +161,17 @@ A solution is::
 
 We consider another example::
 
-    sage: A = matrix([[1, 0], [1, 1]])
-    sage: B = matrix([[-1, -1]])
+    sage: A = matrix([[-1, -1]])
+    sage: B = matrix([[1, 0], [1, 1]])
+    sage: a = vector([0])
     sage: b = vector([1, 0])
-    sage: c = vector([0])
-    sage: S = AlternativesInhomogeneous(A, B, b, c)
+    sage: S = AlternativesInhomogeneous(A, B, a, b)
     sage: S.certify()
-    (False, (0, 1, 1), 1)
+    (False, (1, 0, 1), 1)
 
 We can homogenized the first alternative yielding a different system::
 
-    sage: S = AlternativesInhomogeneous(A, B, b, c, one_homogenized=True)
+    sage: S = AlternativesInhomogeneous(A, B, a, b, one_homogenized=True)
     sage: S.certify()
     (False, (-1, 0, 0, -1), 1)
 
@@ -316,9 +316,9 @@ class AlternativesHomogeneous(Alternatives):
 
     ``A x > 0``, ``B x >= 0``, ``C x = 0``
     """
-    def __init__(self, matrix1: Matrix, matrix2: Matrix, matrix3: Matrix) -> None:
+    def __init__(self, matrix_positive: Matrix, matrix_nonnegative: Matrix, matrix_zero: Matrix) -> None:
         super().__init__()
-        self.one = HomogeneousSystem(matrix1, matrix2, matrix3, result=False)
+        self.one = HomogeneousSystem(matrix_positive, matrix_nonnegative, matrix_zero, result=False)
         self.two = self.one.dual()
 
 
@@ -326,7 +326,7 @@ class AlternativesInhomogeneous(Alternatives):
     r"""
     A class for certifying inhomogeneous linear inequality systems.
 
-    ``A x <= b``, ``B x < c``
+    ``A x < a``, ``B x <= b``
 
     INPUT:
 
@@ -337,19 +337,19 @@ class AlternativesInhomogeneous(Alternatives):
     TESTS::
 
         sage: from vectors_in_intervals import *
-        sage: A = matrix([[1]])
-        sage: B = matrix(0, 1)
+        sage: A = matrix(0, 1)
+        sage: B = matrix([[1]])
+        sage: a = vector([])
         sage: b = vector([1])
-        sage: c = vector([])
-        sage: S = AlternativesInhomogeneous(A, B, b, c)
+        sage: S = AlternativesInhomogeneous(A, B, a, b)
         sage: S.certify()
         (True, (-1, 0, 0, -1, -1), 2)
         sage: S.certify(random=True)[0]
         True
     """
-    def __init__(self, matrix1: Matrix, matrix2: Matrix, vector1: vector, vector2: vector, one_homogenized=False, two_double_system=False) -> None:
+    def __init__(self, matrix_strict: Matrix, matrix_nonstrict: Matrix, vector_strict: vector, vector_nonstrict: vector, one_homogenized=False, two_double_system=False) -> None:
         super().__init__()
-        self.one = InhomogeneousSystem(matrix1, matrix2, vector1, vector2, result=False)
+        self.one = InhomogeneousSystem(matrix_strict, matrix_nonstrict, vector_strict, vector_nonstrict, result=False)
         if two_double_system:
             self.two = _inhomogeneous_alternative2_system1(self.one)
             self.three = _inhomogeneous_alternative2_system2(self.one)
@@ -408,11 +408,11 @@ def _inhomogeneous_alternative2_system1(system: InhomogeneousSystem) -> Homogene
     r"""
     Alternative of a standard inhomogeneous linear inequality system given by two systems.
     """
-    length1 = system._matrix_nonstrict.nrows()
-    length2 = system._matrix_strict.nrows()
+    length_strict = system._matrix_strict.nrows()
+    length_nonstrict = system._matrix_nonstrict.nrows()
     return HomogeneousSystem(
         Matrix.block([[-system._vector_nonstrict.row(), -system._vector_strict.row()]]),
-        Matrix.identity(length1 + length2),
+        Matrix.identity(length_nonstrict + length_strict),
         Matrix.block([[system._matrix_nonstrict.T, system._matrix_strict.T]]),
         result=True
     )
@@ -422,13 +422,13 @@ def _inhomogeneous_alternative2_system2(system: InhomogeneousSystem) -> Homogene
     r"""
     Alternative of a standard inhomogeneous linear inequality system given by two systems.
     """
-    length1 = system._matrix_nonstrict.nrows()
-    length2 = system._matrix_strict.nrows()
+    length_strict = system._matrix_strict.nrows()
+    length_nonstrict = system._matrix_nonstrict.nrows()
     return HomogeneousSystem(
-        Matrix.block([[Matrix.zero(1, length1), Matrix.ones(1, length2)]]),
+        Matrix.block([[Matrix.zero(1, length_nonstrict), Matrix.ones(1, length_strict)]]),
         Matrix.block([
             [Matrix.block([[-system._vector_nonstrict.row(), -system._vector_strict.row()]])],
-            [Matrix.identity(length1 + length2)],
+            [Matrix.identity(length_nonstrict + length_strict)],
         ]),
         Matrix.block([[system._matrix_nonstrict.T, system._matrix_strict.T]]),
         result=True
