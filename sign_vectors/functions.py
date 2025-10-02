@@ -13,6 +13,7 @@ r"""Functions for working with oriented matroids"""
 from sage.combinat.posets.posets import Poset
 
 from . import SignVector, zero_sign_vector
+from .utility import unpack_irrelevant_components
 
 from itertools import product
 
@@ -105,19 +106,21 @@ def orthogonal_complement(iterable: set[SignVector])-> tuple[set[SignVector], li
 
                     for d, c in product(list(sample_ic & sv._support()), repeat=2):
 
-                        if d != c:
-                            if sv[d] == 1:
-                                new_sample_vector =  sample_vector.set_to_minus([d])
-                            else:
-                                new_sample_vector =  sample_vector.set_to_plus([d])
+                        if d == c:
+                            continue
+                        
+                        if sv[d] == 1:
+                            new_sample_vector =  sample_vector.set_to_minus([d])
+                        else:
+                            new_sample_vector =  sample_vector.set_to_plus([d])
 
-                            if sv[c]==1:
-                                new_sample_vector =  new_sample_vector.set_to_plus([c])
-                            else:
-                                new_sample_vector =  new_sample_vector.set_to_minus([c])
-                            
-                            new_sample_ic = sample_ic - new_sample_vector._support()
-                            temp_sample_list.append((new_sample_vector, new_sample_ic))
+                        if sv[c]==1:
+                            new_sample_vector =  new_sample_vector.set_to_plus([c])
+                        else:
+                            new_sample_vector =  new_sample_vector.set_to_minus([c])
+                        
+                        new_sample_ic = sample_ic - new_sample_vector._support()
+                        temp_sample_list.append((new_sample_vector, new_sample_ic))
 
                 elif not difference.isempty() and not connection.isempty():
                     temp_sample_list.append((sample_vector, sample_ic))
@@ -293,55 +296,6 @@ def upper_closure(iterable) -> tuple[set[SignVector], list[int]]:
 
     return set().union(*same_support_list), list(irrelevant_c)
 
-def unpack_irrelevant_components(iterable, irrelevant_components: list[int]) -> list[SignVector]:
-    r"""
-    Compute the upper closure of given sign vectors.
-
-    INPUT:
-
-    - ``iterable`` -- a set of sign vectors
-    - ``irrelevant_components`` -- list of indices
-
-    OUTPUT:
-    Return the full set of ``iterable``, with unpacked irrelevant components.
-
-    EXAMPLES:
-
-    We consider an output of the upper_closure function::
-
-        sage: from sign_vectors import *
-        sage: W = [sign_vector("+-0")]
-        sage: W
-        [(+-0)]
-        sage: U = upper_closure(W); U
-        ({(+-0)}, [2])
-        sage: unpack_irrelevant_components(*U)
-        [(+-0), (+-+), (+--)]
-
-    Now, we consider a larger example of irrelevant components::
-
-        sage: from sign_vectors import *
-        sage: W = [sign_vector("+0-00"), sign_vector("+0000"), sign_vector("+0++0")]
-        sage: W
-        [(+0-00), (+0000), (+0++0)]
-        sage: irrelevant_components = [1,4]
-        sage: unpack_irrelevant_components(W, irrelevant_components)
-        [(+0000), (+0++0), (+0-00), (++000), (+-000), (++++0), (+-++0), (++-00),
-            (+--00), (+000+), (+000-), (+0+++), (+0++-), (+0-0+), (+0-0-), (++00+),
-            (++00-), (+-00+), (+-00-), (+++++), (++++-), (+-+++), (+-++-), (++-0+),
-            (++-0-), (+--0+), (+--0-)]
-    """
-    vectors = list(set(iterable))
-    temp_vectors = vectors.copy()
-    for i in irrelevant_components:
-        for x in vectors:
-            temp_vectors.append(x.set_to_plus([i]))
-            temp_vectors.append(x.set_to_minus([i]))
-
-        vectors = temp_vectors
-        temp_vectors = vectors.copy()
-
-    return vectors
 
 def contraction(iterable: set[SignVector], indices: list[int]) -> set[SignVector]:
     r"""
