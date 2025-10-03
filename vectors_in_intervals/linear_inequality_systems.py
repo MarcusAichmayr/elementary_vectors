@@ -15,13 +15,9 @@ EXAMPLES::
     (0, 1)
     sage: S.certify()
     (True, (2, 1, 3, 0))
-    sage: S.certify(reverse=True)
+    sage: S.certify(random=True)
     (True, (2, 1, 3, 0))
-    sage: S.certify_parallel()
-    (True, (2, 1, 3, 0))
-    sage: S.certify_parallel(reverse=True)
-    (True, (2, 1, 3, 0))
-    sage: S.certify_parallel(random=True)
+    sage: S.certify(parallel=True, random=True)
     (True, (2, 1, 3, 0))
 
 We consider another system::
@@ -39,7 +35,7 @@ We consider another system::
     (True, (5, 15, 1, 2, 1, 0, 0))
     sage: S.certify(reverse=True)
     (True, (3, 7, 1, 1, 0, 0, 0))
-    sage: # S.certify_parallel() # TODO SignalError: Segmentation Fault
+    sage: S.certify(parallel=True)
     (True, (3, 7, 1, 1, 0, 0, 0))
 
 ::
@@ -72,9 +68,9 @@ We consider yet another system::
     sage: S = InhomogeneousSystem(A, B, a, b)
     sage: S.certify()
     (False, (1, 0, 1))
-    sage: S.certify_parallel()
+    sage: S.certify(parallel=True)
     (False, (1, 0, 1))
-    sage: S.certify_parallel(random=True)
+    sage: S.certify(random=True)
     (False, (1, 0, 1))
 
 ::
@@ -297,7 +293,7 @@ class LinearInequalitySystem(SageObject):
             system._evs = self._evs
         return system
 
-    def _evs_generator(self, dual: bool = True, reverse: bool = False, random: bool = False) -> Iterator[vector]:
+    def _evs_generator(self, dual: bool = True, random: bool = False, reverse: bool = False) -> Iterator[vector]:
         r"""Return a generator of elementary vectors."""
         if random:
             while True:
@@ -334,7 +330,7 @@ class LinearInequalitySystem(SageObject):
             return False
         return True
 
-    def _certify_nonexistence(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> vector:
+    def _certify_nonexistence(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
         r"""
         Certify nonexistence of a solution.
 
@@ -344,7 +340,7 @@ class LinearInequalitySystem(SageObject):
 
             Raises an exception if the maximum number of iterations is reached.
         """
-        for i, v in enumerate(self._evs_generator(reverse=reverse, random=random)):
+        for i, v in enumerate(self._evs_generator(random=random, reverse=reverse)):
             if self._solvable:
                 break
             if i >= maxiter:
@@ -355,7 +351,7 @@ class LinearInequalitySystem(SageObject):
         self._solvable = True
         raise ValueError("A solution exists!")
 
-    def _certify_existence(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> vector:
+    def _certify_existence(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
         r"""
         Certify existence of a solution if one exists.
 
@@ -365,21 +361,23 @@ class LinearInequalitySystem(SageObject):
 
             Raises an exception if the maximum number of iterations is reached.
         """
-        return self.to_homogeneous()._certify_existence(reverse=reverse, random=random, maxiter=maxiter)
+        return self.to_homogeneous()._certify_existence(random=random, reverse=reverse, maxiter=maxiter)
 
-    def certify(self, reverse: bool = False, maxiter: int = 1000) -> tuple[bool, vector]:
+    def certify(self, random: bool = False, parallel: bool = False, reverse: bool = False, maxiter: int = 1000) -> tuple[bool, vector]:
         r"""Return a boolean and a certificate for solvability."""
+        if parallel:
+            return self._certify_parallel(random=random, reverse=reverse, maxiter=maxiter)
         try:
-            return False, self._certify_nonexistence(reverse=reverse, maxiter=maxiter)
+            return False, self._certify_nonexistence(random=random, reverse=reverse, maxiter=maxiter)
         except (ValueError, MaxIterationsExceededError):
-            return True, self._certify_existence(reverse=reverse, maxiter=maxiter)
+            return True, self._certify_existence(random=random, reverse=reverse, maxiter=maxiter)
 
-    def certify_parallel(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> tuple[bool, vector]:
+    def _certify_parallel(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> tuple[bool, vector]:
         r"""Return a boolean and a certificate for solvability in parallel."""
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
-                executor.submit(self._certify_nonexistence, reverse=reverse, random=random, maxiter=maxiter): False,
-                executor.submit(self._certify_existence,  reverse=not reverse, random=random, maxiter=maxiter): True,
+                executor.submit(self._certify_nonexistence, random=random, reverse=reverse, maxiter=maxiter): False,
+                executor.submit(self._certify_existence,  random=random, reverse=not reverse, maxiter=maxiter): True,
             }
             for future in as_completed(futures):
                 flag = futures[future]
@@ -391,7 +389,7 @@ class LinearInequalitySystem(SageObject):
 
         raise MaxIterationsExceededError("Both processes exceeded the maximum number of iterations.")
 
-    def is_solvable(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> bool:
+    def is_solvable(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> bool:
         r"""
         Check whether a solution exists.
 
@@ -402,18 +400,18 @@ class LinearInequalitySystem(SageObject):
             Raises an exception if the maximum number of iterations is reached.
         """
         try:
-            self._certify_nonexistence(reverse=reverse, random=random, maxiter=maxiter)
+            self._certify_nonexistence(random=random, reverse=reverse, maxiter=maxiter)
         except ValueError:
             pass
         return self._solvable
 
-    def find_solution(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
         r"""
         Compute a solution for this linear inequality system.
 
         If no solution exists, a ``ValueError`` is raised.
         """
-        solution = self.to_homogeneous().find_solution(reverse=reverse, random=random, maxiter=maxiter)
+        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, maxiter=maxiter)
         return solution[:-1] / solution[-1]
 
 
@@ -475,12 +473,12 @@ class HomogeneousSystem(LinearInequalitySystem):
             return False
         return True
 
-    def _certify_existence(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> vector:
+    def _certify_existence(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
         certificate = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
         if self._length_strict == 0:
             return certificate
-        for i, v in enumerate(self._evs_generator(dual=False, reverse=reverse, random=random)):
+        for i, v in enumerate(self._evs_generator(dual=False, random=random, reverse=reverse)):
             if self._solvable is False:
                 raise ValueError("System is marked as unsolvable!")
             if i >= maxiter:
@@ -501,7 +499,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         self._solvable = False
         raise ValueError("Couldn't construct a solution. No solution exists!")
 
-    def find_solution(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
         r"""
         Compute a solution if existent.
 
@@ -512,7 +510,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 
             If no solution exists, and ``random`` is true, this method will never finish.
         """
-        return solve_without_division(self.matrix, self._certify_existence(reverse=reverse, random=random))
+        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, maxiter=maxiter))
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
@@ -522,12 +520,12 @@ class InhomogeneousSystem(LinearInequalitySystem):
     ``A x < a``, ``B x <= b``
     """
     def __init__(
-            self,
-            matrix_strict: Matrix,
-            matrix_nonstrict: Matrix,
-            vector_strict: vector,
-            vector_nonstrict: vector,
-            result: bool = None
+        self,
+        matrix_strict: Matrix,
+        matrix_nonstrict: Matrix,
+        vector_strict: vector,
+        vector_nonstrict: vector,
+        result: bool = None
     ) -> None:
         super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict]]), None, result=result)
         self._matrix_strict = matrix_strict
