@@ -157,7 +157,7 @@ from __future__ import annotations
 
 from typing import Iterator
 
-import concurrent.futures
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from sage.matrix.constructor import Matrix, zero_matrix
 from sage.modules.free_module_element import vector, zero_vector
@@ -375,30 +375,21 @@ class LinearInequalitySystem(SageObject):
             return True, self._certify_existence(reverse=reverse, maxiter=maxiter)
 
     def certify_parallel(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> tuple[bool, vector]:
-        r"""
-        Return a boolean and a certificate for solvability.
-
-        Attempts to find a solution and certify nonexistence in parallel.
-        """
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            done, not_done = concurrent.futures.wait(
-                [
-                    executor.submit(lambda: (False, self._certify_nonexistence(reverse=reverse, random=random, maxiter=maxiter))),
-                    executor.submit(lambda: (True, self._certify_existence(reverse=reverse, random=random, maxiter=maxiter)))
-                ],
-                return_when=concurrent.futures.FIRST_COMPLETED
-            )
-
-            for task in done:
+        r"""Return a boolean and a certificate for solvability in parallel."""
+        with ProcessPoolExecutor(max_workers=2) as executor:
+            futures = {
+                executor.submit(self._certify_nonexistence, reverse=reverse, random=random, maxiter=maxiter): False,
+                executor.submit(self._certify_existence,  reverse=not reverse, random=random, maxiter=maxiter): True,
+            }
+            for future in as_completed(futures):
+                flag = futures[future]
                 try:
-                    result = task.result()
-                    for task in not_done:
-                        task.cancel()
-
-                    return result
+                    res = future.result()
+                    return (flag, res)
                 except (ValueError, MaxIterationsExceededError):
                     pass
-            return not_done.pop().result()
+
+        raise MaxIterationsExceededError("Both processes exceeded the maximum number of iterations.")
 
     def is_solvable(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> bool:
         r"""
