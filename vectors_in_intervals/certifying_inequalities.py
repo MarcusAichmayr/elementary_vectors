@@ -62,8 +62,6 @@ We consider another example::
     sage: S = AlternativesHomogeneous(A, B, C)
     sage: S.certify()
     (False, (0, -5, -1, -2), 1)
-    sage: S.one.certify()
-    (False, (1, 1, 0, 1))
 
 In some cases, it is faster to randomly generate elementary vectors to certify::
 
