@@ -330,7 +330,7 @@ class LinearInequalitySystem(SageObject):
             return False
         return True
 
-    def _certify_nonexistence(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
+    def _certify_nonexistence(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
         Certify nonexistence of a solution.
 
@@ -343,15 +343,15 @@ class LinearInequalitySystem(SageObject):
         for i, v in enumerate(self._evs_generator(random=random, reverse=reverse)):
             if self._solvable:
                 break
-            if i >= maxiter:
-                raise MaxIterationsExceededError("Reached maximum number of iterations! Does a solution exist?")
+            if i >= iteration_limit:
+                raise iteration_limitationsExceededError("Reached maximum number of iterations! Does a solution exist?")
             if not self._exists_orthogonal_vector(v):
                 self._solvable = False
                 return v
         self._solvable = True
         raise ValueError("A solution exists!")
 
-    def _certify_existence(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
+    def _certify_existence(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
         Certify existence of a solution if one exists.
 
@@ -361,35 +361,35 @@ class LinearInequalitySystem(SageObject):
 
             Raises an exception if the maximum number of iterations is reached.
         """
-        return self.to_homogeneous()._certify_existence(random=random, reverse=reverse, maxiter=maxiter)
+        return self.to_homogeneous()._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit)
 
-    def certify(self, random: bool = False, parallel: bool = False, reverse: bool = False, maxiter: int = 1000) -> tuple[bool, vector]:
+    def certify(self, random: bool = False, parallel: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
         r"""Return a boolean and a certificate for solvability."""
         if parallel:
-            return self._certify_parallel(random=random, reverse=reverse, maxiter=maxiter)
+            return self._certify_parallel(random=random, reverse=reverse, iteration_limit=iteration_limit)
         try:
-            return False, self._certify_nonexistence(random=random, reverse=reverse, maxiter=maxiter)
-        except (ValueError, MaxIterationsExceededError):
-            return True, self._certify_existence(random=random, reverse=reverse, maxiter=maxiter)
+            return False, self._certify_nonexistence(random=random, reverse=reverse, iteration_limit=iteration_limit)
+        except (ValueError, iteration_limitationsExceededError):
+            return True, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit)
 
-    def _certify_parallel(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> tuple[bool, vector]:
+    def _certify_parallel(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
         r"""Return a boolean and a certificate for solvability in parallel."""
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
-                executor.submit(self._certify_nonexistence, random=random, reverse=reverse, maxiter=maxiter): False,
-                executor.submit(self._certify_existence,  random=random, reverse=not reverse, maxiter=maxiter): True,
+                executor.submit(self._certify_nonexistence, random=random, reverse=reverse, iteration_limit=iteration_limit): False,
+                executor.submit(self._certify_existence,  random=random, reverse=not reverse, iteration_limit=iteration_limit): True,
             }
             for future in as_completed(futures):
                 flag = futures[future]
                 try:
                     res = future.result()
                     return (flag, res)
-                except (ValueError, MaxIterationsExceededError):
+                except (ValueError, iteration_limitationsExceededError):
                     pass
 
-        raise MaxIterationsExceededError("Both processes exceeded the maximum number of iterations.")
+        raise iteration_limitationsExceededError("Both processes exceeded the maximum number of iterations.")
 
-    def is_solvable(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> bool:
+    def is_solvable(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> bool:
         r"""
         Check whether a solution exists.
 
@@ -400,18 +400,18 @@ class LinearInequalitySystem(SageObject):
             Raises an exception if the maximum number of iterations is reached.
         """
         try:
-            self._certify_nonexistence(random=random, reverse=reverse, maxiter=maxiter)
+            self._certify_nonexistence(random=random, reverse=reverse, iteration_limit=iteration_limit)
         except ValueError:
             pass
         return self._solvable
 
-    def find_solution(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
         Compute a solution for this linear inequality system.
 
         If no solution exists, a ``ValueError`` is raised.
         """
-        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, maxiter=maxiter)
+        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit)
         return solution[:-1] / solution[-1]
 
 
@@ -473,7 +473,7 @@ class HomogeneousSystem(LinearInequalitySystem):
             return False
         return True
 
-    def _certify_existence(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
+    def _certify_existence(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
         certificate = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
         if self._length_strict == 0:
@@ -481,8 +481,8 @@ class HomogeneousSystem(LinearInequalitySystem):
         for i, v in enumerate(self._evs_generator(dual=False, random=random, reverse=reverse)):
             if self._solvable is False:
                 raise ValueError("System is marked as unsolvable!")
-            if i >= maxiter:
-                raise MaxIterationsExceededError("Reached maximum number of iterations! Is system unsolvable?")
+            if i >= iteration_limit:
+                raise iteration_limitationsExceededError("Reached maximum number of iterations! Is system unsolvable?")
             if v is None:
                 continue
             for w in [v, -v]:
@@ -499,7 +499,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         self._solvable = False
         raise ValueError("Couldn't construct a solution. No solution exists!")
 
-    def find_solution(self, random: bool = False, reverse: bool = False, maxiter: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
         Compute a solution if existent.
 
@@ -510,7 +510,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 
             If no solution exists, and ``random`` is true, this method will never finish.
         """
-        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, maxiter=maxiter))
+        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit))
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
@@ -592,5 +592,5 @@ class InhomogeneousSystem(LinearInequalitySystem):
         return True
 
 
-class MaxIterationsExceededError(Exception):
+class iteration_limitationsExceededError(Exception):
     """Raised when the maximum number of iterations is reached."""
