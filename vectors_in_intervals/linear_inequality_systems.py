@@ -315,7 +315,7 @@ class LinearInequalitySystem(SageObject):
             if self._solvable:
                 break
             if i >= iteration_limit:
-                raise iteration_limitationsExceededError("Reached maximum number of iterations! Does a solution exist?")
+                raise MaxIterationsReachedError("Reached maximum number of iterations! Does a solution exist?")
             if not self._exists_orthogonal_vector(v):
                 self._solvable = False
                 return v
@@ -340,7 +340,7 @@ class LinearInequalitySystem(SageObject):
             return self._certify_parallel(random=random, reverse=reverse, iteration_limit=iteration_limit)
         try:
             return False, self._certify_nonexistence(random=random, reverse=reverse, iteration_limit=iteration_limit)
-        except (ValueError, iteration_limitationsExceededError):
+        except (ValueError, MaxIterationsReachedError):
             return True, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit)
 
     def _certify_parallel(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
@@ -355,10 +355,10 @@ class LinearInequalitySystem(SageObject):
                 try:
                     res = future.result()
                     return (flag, res)
-                except (ValueError, iteration_limitationsExceededError):
+                except (ValueError, MaxIterationsReachedError):
                     pass
 
-        raise iteration_limitationsExceededError("Both processes exceeded the maximum number of iterations.")
+        raise MaxIterationsReachedError("Both processes exceeded the maximum number of iterations.")
 
     def is_solvable(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> bool:
         r"""
@@ -449,7 +449,7 @@ class HomogeneousSystem(LinearInequalitySystem):
             if self._solvable is False:
                 raise ValueError("System is marked as unsolvable!")
             if i >= iteration_limit:
-                raise iteration_limitationsExceededError("Reached maximum number of iterations! Is system unsolvable?")
+                raise MaxIterationsReachedError("Reached maximum number of iterations! Is system unsolvable?")
             if v is None:
                 continue
             for w in [v, -v]:
@@ -559,5 +559,5 @@ class InhomogeneousSystem(LinearInequalitySystem):
         return True
 
 
-class iteration_limitationsExceededError(Exception):
+class MaxIterationsReachedError(Exception):
     """Raised when the maximum number of iterations is reached."""
