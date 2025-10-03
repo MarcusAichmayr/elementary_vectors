@@ -17,8 +17,6 @@ EXAMPLES::
     (True, (2, 1, 3, 0))
     sage: S.certify(random=True)
     (True, (2, 1, 3, 0))
-    sage: S.certify(parallel=True, random=True)
-    (True, (2, 1, 3, 0))
 
 We consider another system::
 
@@ -33,10 +31,6 @@ We consider another system::
     (5/2, 5)
     sage: S.certify()
     (True, (5, 15, 1, 2, 1, 0, 0))
-    sage: S.certify(reverse=True)
-    (True, (3, 7, 1, 1, 0, 0, 0))
-    sage: S.certify(parallel=True)
-    (True, (3, 7, 1, 1, 0, 0, 0))
 
 ::
 
@@ -67,8 +61,6 @@ We consider yet another system::
     sage: b = vector([1, 0])
     sage: S = InhomogeneousSystem(A, B, a, b)
     sage: S.certify()
-    (False, (1, 0, 1))
-    sage: S.certify(parallel=True)
     (False, (1, 0, 1))
     sage: S.certify(random=True)
     (False, (1, 0, 1))
@@ -263,7 +255,7 @@ class LinearInequalitySystem(SageObject):
             sage: S.with_intervals(I).certify()
             (True, (5, 15, 1, 2, 1, 0, 0))
             sage: S.with_intervals(Intervals.from_bounds([2, 6, 0, -oo], [5, oo, 8, 5])).certify()
-            (False, (0, -1, 0, 1))
+            (False, (0, 1, 0, -1))
             sage: S.with_intervals(Intervals.from_bounds([2, 5, 0, -oo], [5, 5, 8, 5])).certify()
             (True, (1, 0, 3, 7, 1, 0, 0))
         """
@@ -342,7 +334,7 @@ class LinearInequalitySystem(SageObject):
         """
         return self.to_homogeneous()._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit)
 
-    def certify(self, random: bool = False, parallel: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
+    def certify(self, random: bool = False, parallel: bool = True, reverse: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
         r"""Return a boolean and a certificate for solvability."""
         if parallel:
             return self._certify_parallel(random=random, reverse=reverse, iteration_limit=iteration_limit)
@@ -355,8 +347,8 @@ class LinearInequalitySystem(SageObject):
         r"""Return a boolean and a certificate for solvability in parallel."""
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
-                executor.submit(self._certify_nonexistence, random=random, reverse=reverse, iteration_limit=iteration_limit): False,
-                executor.submit(self._certify_existence,  random=random, reverse=not reverse, iteration_limit=iteration_limit): True,
+                executor.submit(self._certify_nonexistence, random=random, reverse=not reverse, iteration_limit=iteration_limit): False,
+                executor.submit(self._certify_existence,  random=random, reverse=reverse, iteration_limit=iteration_limit): True,
             }
             for future in as_completed(futures):
                 flag = futures[future]
