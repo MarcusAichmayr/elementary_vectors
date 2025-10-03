@@ -334,21 +334,25 @@ class LinearInequalitySystem(SageObject):
         """
         return self.to_homogeneous()._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit)
 
-    def certify(self, random: bool = False, parallel: bool = True, reverse: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
-        r"""Return a boolean and a certificate for solvability."""
-        if parallel:
-            return self._certify_parallel(random=random, reverse=reverse, iteration_limit=iteration_limit)
-        try:
-            return False, self._certify_nonexistence(random=random, reverse=reverse, iteration_limit=iteration_limit)
-        except (ValueError, MaxIterationsReachedError):
-            return True, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit)
+    def certify(self, random: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
+        r"""
+        Return a boolean and a certificate for solvability.
 
-    def _certify_parallel(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
+        Both existence and nonexistence are checked in parallel.
+
+        INPUT:
+
+        - ``random`` -- if true, elementary vectors are generated randomly
+        - ``iteration_limit`` -- maximum number of iterations for each process
+        """
+        return self._certify_parallel(random=random, iteration_limit=iteration_limit)
+
+    def _certify_parallel(self, random: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
         r"""Return a boolean and a certificate for solvability in parallel."""
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
-                executor.submit(self._certify_nonexistence, random=random, reverse=not reverse, iteration_limit=iteration_limit): False,
-                executor.submit(self._certify_existence,  random=random, reverse=reverse, iteration_limit=iteration_limit): True,
+                executor.submit(self._certify_nonexistence, random=random, reverse=True, iteration_limit=iteration_limit): False,
+                executor.submit(self._certify_existence,  random=random, reverse=False, iteration_limit=iteration_limit): True,
             }
             for future in as_completed(futures):
                 flag = futures[future]
