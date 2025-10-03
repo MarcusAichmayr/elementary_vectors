@@ -83,27 +83,6 @@ We consider yet another system::
     [ 1  1  0]
     [--------] x in [(0, +oo), (0, +oo), [0, +oo), [0, +oo)]
 
-In the case of homogeneous systems, we can use cocircuits to certify::
-
-    sage: A = matrix([[1, 2], [0, 1]])
-    sage: B = matrix([[2, 3]])
-    sage: C = matrix([[-1, 0]])
-    sage: S = HomogeneousSystemCocircuits(A, B, C) # TODO: not implemented
-    sage: S.find_solution() # TODO: not implemented
-    Traceback (most recent call last):
-    ...
-    ValueError: Can't solve using cocircuits!
-    sage: # S.certify() # TODO
-
-Now, we consider the example::
-
-    sage: A = matrix([[1, 0], [0, 1]])
-    sage: B = matrix([[2, -3]])
-    sage: C = matrix([[-1, -1]])
-    sage: S = HomogeneousSystemCocircuits(A, B, C) # TODO: not implemented
-    sage: S.certify() # TODO: not implemented
-    (++0+)
-
 TESTS::
 
     sage: A = matrix([[1, 1]])
