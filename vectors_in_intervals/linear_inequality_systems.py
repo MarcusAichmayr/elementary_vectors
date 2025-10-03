@@ -494,6 +494,8 @@ class HomogeneousSystem(LinearInequalitySystem):
                 raise ValueError("System is marked as unsolvable!")
             if i >= maxiter:
                 raise MaxIterationsExceededError("Reached maximum number of iterations! Is system unsolvable?")
+            if v is None:
+                continue
             for w in [v, -v]:
                 if any(w[i] < 0 for i in range(self._length_strict + self._length_nonstrict)):
                     continue
