@@ -399,11 +399,7 @@ class LinearInequalitySystem(SageObject):
 
             Raises an exception if the maximum number of iterations is reached.
         """
-        try:
-            self._certify_nonexistence(random=random, reverse=reverse, iteration_limit=iteration_limit)
-        except ValueError:
-            pass
-        return self._solvable
+        return self.certify(random=random, reverse=reverse, iteration_limit=iteration_limit)[0]
 
     def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
