@@ -33,10 +33,6 @@ Here, we have three matrices :math:`A`, :math:`B` and :math:`C` and deal with th
     [-1  0]
     sage: S.one.intervals
     [(0, +oo), (0, +oo), [0, +oo), {0}]
-    sage: S.one.has_solution()
-    True
-    sage: S.one.solve()
-    (0, 1)
 
 To certify the result, we consider the alternative system
 which consists of a single matrix and intervals::
@@ -52,20 +48,11 @@ which consists of a single matrix and intervals::
     [ 2  1  3  0]
     sage: S.two.intervals
     [(0, +oo), [0, +oo), [0, +oo), [0, +oo), {0}, {0}]
-    sage: S.two.has_solution()
-    False
-    sage: S.two.certify()
-    (False, (-1, -1, 0, -3, 0, 1))
 
 There is a single command for certification::
 
     sage: S.certify()
     (True, (-1, -1, 0, -3, 0, 1), 2)
-
-We can also use elementary vectors to construct a solution::
-
-    sage: S.one.solve()
-    (0, 1)
 
 We consider another example::
 
@@ -87,11 +74,6 @@ Parallel computation is also supported::
 
     sage: S.certify(number_parallel=4) # random
     (False, (0, -5, -1, -2), 2)
-
-A solution for the second system is::
-
-    sage: S.two.solve()
-    (0, 5, 1, 2)
 
 Inhomogeneous systems
 ~~~~~~~~~~~~~~~~~~~~~
@@ -116,10 +98,6 @@ To demonstrate this, consider the following example::
     [0 1]
     sage: S.one.intervals
     [(-oo, 2), (-oo, 1], (-oo, -1]]
-    sage: S.one.has_solution()
-    True
-    sage: S.one.solve()
-    (7/2, -2)
 
 However, to certify existence of a solution, we need to consider the alternative system.
 This system can be described by two matrices and two lists of intervals::
@@ -137,10 +115,6 @@ This system can be described by two matrices and two lists of intervals::
     [-1  1 -2 -1]
     sage: S.two.intervals
     [(0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), {0}, {0}, {0}]
-    sage: S.two.has_solution()
-    False
-    sage: S.two.certify()
-    (False, (1, 3, 0, 4, 0, 0, -1, 1))
 
 The package offers a single function that certifies existence of a solution::
 
@@ -153,11 +127,6 @@ The resulting systems yield different certificates::
     sage: S = AlternativesInhomogeneous(A, B, a, b, two_double_system=True)
     sage: S.certify()
     (True, [(-2, 0, -1, 0, 0, 1, 0), (-2, -1, 0, 0, -5, 2)], 5)
-
-A solution is::
-
-    sage: S.one.solve()
-    (7/2, -2)
 
 We consider another example::
 
@@ -174,11 +143,6 @@ We can homogenized the first alternative yielding a different system::
     sage: S = AlternativesInhomogeneous(A, B, a, b, one_homogenized=True)
     sage: S.certify()
     (False, (-1, 0, 0, -1), 1)
-
-A solution is::
-
-    sage: S.two.solve()
-    (0, 1, 1, 0)
 
 General systems
 ~~~~~~~~~~~~~~~
@@ -219,11 +183,6 @@ we can certify general systems::
     [(0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), [0, +oo), {0}, {0}, {0}]
     sage: S.certify()
     (True, (1, 0, 0, 0, 2, 6, 0, 0, 2, 5, 1), 3)
-
-We compute a solution using elementary vectors::
-
-    sage: S.one.solve()
-    (5/2, 5)
 """
 
 #############################################################################

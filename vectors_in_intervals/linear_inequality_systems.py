@@ -11,7 +11,7 @@ EXAMPLES::
     sage: S = HomogeneousSystem(A, B, C)
     sage: S.intervals
     [(0, +oo), (0, +oo), [0, +oo), {0}]
-    sage: S.solve()
+    sage: S.find_solution()
     (0, 1)
     sage: S.certify()
     (True, (2, 1, 3, 0))
@@ -33,7 +33,7 @@ We consider another system::
     sage: upper_bounds_closed = [False, False, False, True]
     sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
     sage: S = LinearInequalitySystem(M, I)
-    sage: S.solve()
+    sage: S.find_solution()
     (5/2, 5)
     sage: S.certify()
     (True, (5, 15, 1, 2, 1, 0, 0))
@@ -93,7 +93,7 @@ In the case of homogeneous systems, we can use cocircuits to certify::
     sage: B = matrix([[2, 3]])
     sage: C = matrix([[-1, 0]])
     sage: S = HomogeneousSystemCocircuits(A, B, C) # TODO: not implemented
-    sage: S.solve() # TODO: not implemented
+    sage: S.find_solution() # TODO: not implemented
     Traceback (most recent call last):
     ...
     ValueError: Can't solve using cocircuits!
@@ -400,7 +400,7 @@ class LinearInequalitySystem(SageObject):
                     pass
             return not_done.pop().result()
 
-    def has_solution(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> bool:
+    def is_solvable(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> bool:
         r"""
         Check whether a solution exists.
 
@@ -416,13 +416,13 @@ class LinearInequalitySystem(SageObject):
             pass
         return self._solvable
 
-    def solve(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> vector:
+    def find_solution(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> vector:
         r"""
         Compute a solution for this linear inequality system.
 
         If no solution exists, a ``ValueError`` is raised.
         """
-        solution = self.to_homogeneous().solve(reverse=reverse, random=random, maxiter=maxiter)
+        solution = self.to_homogeneous().find_solution(reverse=reverse, random=random, maxiter=maxiter)
         return solution[:-1] / solution[-1]
 
 
@@ -508,7 +508,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         self._solvable = False
         raise ValueError("Couldn't construct a solution. No solution exists!")
 
-    def solve(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> vector:
+    def find_solution(self, reverse: bool = False, random: bool = False, maxiter: int = 1000) -> vector:
         r"""
         Compute a solution if existent.
 
