@@ -17,6 +17,8 @@ EXAMPLES::
     (True, (2, 1, 3, 0))
     sage: S.certify(random=True)
     (True, (2, 1, 3, 0))
+    sage: S.is_solvable()
+    True
 
 We consider another system::
 
@@ -364,7 +366,7 @@ class LinearInequalitySystem(SageObject):
 
         raise MaxIterationsReachedError("Both processes exceeded the maximum number of iterations.")
 
-    def is_solvable(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> bool:
+    def is_solvable(self, random: bool = False, iteration_limit: int = 1000) -> bool:
         r"""
         Check whether a solution exists.
 
@@ -374,15 +376,15 @@ class LinearInequalitySystem(SageObject):
 
             Raises an exception if the maximum number of iterations is reached.
         """
-        return self.certify(random=random, reverse=reverse, iteration_limit=iteration_limit)[0]
+        return self.certify(random=random, iteration_limit=iteration_limit)[0]
 
-    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
         Compute a solution for this linear inequality system.
 
         If no solution exists, a ``ValueError`` is raised.
         """
-        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit)
+        solution = self.to_homogeneous().find_solution(random=random, iteration_limit=iteration_limit)
         return solution[:-1] / solution[-1]
 
 
@@ -470,7 +472,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         self._solvable = False
         raise ValueError("Couldn't construct a solution. No solution exists!")
 
-    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
         Compute a solution if existent.
 
@@ -481,7 +483,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 
             If no solution exists, and ``random`` is true, this method will never finish.
         """
-        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit))
+        return solve_without_division(self.matrix, self._certify_existence(random=random, iteration_limit=iteration_limit))
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
