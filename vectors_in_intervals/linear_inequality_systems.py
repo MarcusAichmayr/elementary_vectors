@@ -141,9 +141,7 @@ from .utility import CombinationsIncluding, solve_without_division
 
 
 class LinearInequalitySystem(SageObject):
-    r"""
-    A class for linear inequality systems given by a matrix and intervals
-    """
+    r"""A class for linear inequality systems given by a matrix and intervals."""
     def __init__(self, matrix: Matrix, intervals: Intervals = None, result: bool = None) -> None:
         if intervals is not None and matrix.nrows() != len(intervals):
             raise ValueError("Matrix row count and number of intervals must agree!")
@@ -392,7 +390,7 @@ class LinearInequalitySystem(SageObject):
 
 class HomogeneousSystem(LinearInequalitySystem):
     r"""
-    A class for homogeneous linear inequality systems
+    A class for homogeneous linear inequality systems.
 
     ``A x > 0``, ``B x >= 0``, ``C x = 0``
 
@@ -486,7 +484,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 
 class InhomogeneousSystem(LinearInequalitySystem):
     r"""
-    A class for inhomogeneous linear inequality systems
+    A class for inhomogeneous linear inequality systems.
 
     ``A x < a``, ``B x <= b``
     """
