@@ -476,12 +476,8 @@ class HomogeneousSystem(LinearInequalitySystem):
         r"""
         Compute a solution if existent.
 
-        This approach sums up positive elementary vectors in the row space.
+        This approach sums up nonnegative elementary vectors in the row space.
         It doesn't use division.
-
-        .. NOTE::
-
-            If no solution exists, and ``random`` is true, this method will never finish.
         """
         return solve_without_division(self.matrix, self._certify_existence(random=random, iteration_limit=iteration_limit))
 
