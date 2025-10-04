@@ -318,6 +318,8 @@ class LinearInequalitySystem(SageObject):
                 break
             if i >= iteration_limit:
                 raise MaxIterationsReachedError("Reached maximum number of iterations! Does a solution exist?")
+            if v is None:
+                continue
             if not self._exists_orthogonal_vector(v):
                 self._solvable = False
                 return v
