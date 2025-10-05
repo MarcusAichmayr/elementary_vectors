@@ -357,10 +357,8 @@ class LinearInequalitySystem(SageObject):
                 executor.submit(self._certify_existence,  random=random, reverse=False, iteration_limit=iteration_limit): True,
             }
             for future in as_completed(futures):
-                flag = futures[future]
                 try:
-                    res = future.result()
-                    return (flag, res)
+                    return (futures[future], future.result())
                 except (ValueError, MaxIterationsReachedError):
                     pass
 
