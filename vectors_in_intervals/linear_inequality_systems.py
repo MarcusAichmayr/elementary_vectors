@@ -133,8 +133,6 @@ from sage.modules.free_module_element import vector, zero_vector
 from sage.rings.infinity import Infinity
 from sage.structure.sage_object import SageObject
 
-# from sign_vectors import SignVector, sign_vector, zero_sign_vector
-# from sign_vectors.oriented_matroids import OrientedMatroid
 from . import Intervals, Interval
 from elementary_vectors.functions import ElementaryVectors
 from .utility import CombinationsIncluding, solve_without_division
