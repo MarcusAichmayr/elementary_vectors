@@ -14,9 +14,9 @@ EXAMPLES::
     sage: S.find_solution()
     (0, 1)
     sage: S.certify()
-    (True, (2, 1, 3, 0))
+    (True, (0, 1))
     sage: S.certify(random=True)
-    (True, (2, 1, 3, 0))
+    (True, (0, 1))
     sage: S.is_solvable()
     True
 
@@ -32,7 +32,7 @@ We consider another system::
     sage: S.find_solution()
     (5/2, 5)
     sage: S.certify()
-    (True, (5, 15, 1, 2, 1, 0, 0))
+    (True, (5/2, 5))
 
 ::
 
@@ -249,13 +249,13 @@ class LinearInequalitySystem(SageObject):
             sage: I = Intervals.from_bounds(lower_bounds, upper_bounds, lower_bounds_closed, upper_bounds_closed)
             sage: S = LinearInequalitySystem(M, I)
             sage: S.certify()
-            (True, (5, 15, 1, 2, 1, 0, 0))
+            (True, (5/2, 5))
             sage: S.with_intervals(I).certify()
-            (True, (5, 15, 1, 2, 1, 0, 0))
+            (True, (5/2, 5))
             sage: S.with_intervals(Intervals.from_bounds([2, 6, 0, -oo], [5, oo, 8, 5])).certify()
             (False, (0, 1, 0, -1))
             sage: S.with_intervals(Intervals.from_bounds([2, 5, 0, -oo], [5, 5, 8, 5])).certify()
-            (True, (1, 0, 3, 7, 1, 0, 0))
+            (True, (2, 5))
         """
         system = LinearInequalitySystem(self.matrix, intervals, result=self.result)
         if self.__class__ is LinearInequalitySystem:
@@ -322,18 +322,6 @@ class LinearInequalitySystem(SageObject):
         self._solvable = True
         raise ValueError("A solution exists!")
 
-    def _certify_existence(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
-        r"""
-        Certify existence of a solution if one exists.
-
-        Otherwise, a ``ValueError`` is raised.
-
-        .. NOTE::
-
-            Raises an exception if the maximum number of iterations is reached.
-        """
-        return self.to_homogeneous()._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit)
-
     def certify(self, random: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
         r"""
         Return a boolean and a certificate for solvability.
@@ -352,7 +340,7 @@ class LinearInequalitySystem(SageObject):
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
                 executor.submit(self._certify_nonexistence, random=random, reverse=True, iteration_limit=iteration_limit): False,
-                executor.submit(self._certify_existence,  random=random, reverse=False, iteration_limit=iteration_limit): True,
+                executor.submit(self.find_solution,  random=random, reverse=False, iteration_limit=iteration_limit): True,
             }
             for future in as_completed(futures):
                 try:
@@ -374,13 +362,13 @@ class LinearInequalitySystem(SageObject):
         """
         return self.certify(random=random, iteration_limit=iteration_limit)[0]
 
-    def find_solution(self, random: bool = False, iteration_limit: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
         Compute a solution for this linear inequality system.
 
         If no solution exists, a ``ValueError`` is raised.
         """
-        solution = self.to_homogeneous().find_solution(random=random, iteration_limit=iteration_limit)
+        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit)
         return solution[:-1] / solution[-1]
 
 
@@ -398,7 +386,7 @@ class HomogeneousSystem(LinearInequalitySystem):
         sage: C = matrix([[1, 1], [0, 0]])
         sage: S = HomogeneousSystem(A, B, C)
         sage: S.certify()
-        (True, (1, 1, 1, 0, 0))
+        (True, (-1, 1))
     """
     def __init__(self, matrix_strict: Matrix, matrix_nonstrict: Matrix, matrix_zero: Matrix, result: bool = None) -> None:
         super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict], [matrix_zero]]), None, result=result)
@@ -468,14 +456,14 @@ class HomogeneousSystem(LinearInequalitySystem):
         self._solvable = False
         raise ValueError("Couldn't construct a solution. No solution exists!")
 
-    def find_solution(self, random: bool = False, iteration_limit: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
         Compute a solution if existent.
 
         This approach sums up nonnegative elementary vectors in the row space.
         It doesn't use division.
         """
-        return solve_without_division(self.matrix, self._certify_existence(random=random, iteration_limit=iteration_limit))
+        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit))
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
