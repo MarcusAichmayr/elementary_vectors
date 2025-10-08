@@ -17,8 +17,6 @@ EXAMPLES::
     (True, (0, 1))
     sage: S.certify(random=True)
     (True, (0, 1))
-    sage: S.is_solvable()
-    True
 
 We consider another system::
 
@@ -349,18 +347,6 @@ class LinearInequalitySystem(SageObject):
                     pass
 
         raise MaxIterationsReachedError("Both processes exceeded the maximum number of iterations.")
-
-    def is_solvable(self, random: bool = False, iteration_limit: int = 1000) -> bool:
-        r"""
-        Check whether a solution exists.
-
-        If ``random`` is true, this method will never finish if a solution exists.
-
-        .. NOTE::
-
-            Raises an exception if the maximum number of iterations is reached.
-        """
-        return self.certify(random=random, iteration_limit=iteration_limit)[0]
 
     def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
