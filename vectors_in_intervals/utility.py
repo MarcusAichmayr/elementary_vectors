@@ -21,7 +21,7 @@ from sage.structure.sage_object import SageObject
 from elementary_vectors.functions import ElementaryVectors
 
 
-def solve_without_division(matrix: Matrix, rhs: vector):
+def solve_without_division(matrix: Matrix, rhs: vector) -> vector:
     r"""
     Solve a linear system of equations without division.
 
@@ -45,11 +45,18 @@ def solve_without_division(matrix: Matrix, rhs: vector):
         sage: b = vector([2, 3])
         sage: solve_without_division(A, b)
         (0, 1, 1)
+
+    TESTS::
+
+        sage: M = matrix([[1, 0, 1], [1, 0, 2]])
+        sage: rhs = vector([1, 1])
+        sage: solve_without_division(M, rhs)
+        (1, 0, 0)
     """
-    ev = next(ElementaryVectors(
-        Matrix.block([[matrix, Matrix.column(rhs)]])
-    ).generator(reverse=True))
-    return -sign(ev[-1]) * ev[:-1]
+    for ev in ElementaryVectors(Matrix.block([[matrix, Matrix.column(rhs)]])).generator(reverse=True):
+        if ev[-1] != 0:
+            return -sign(ev[-1]) * ev[:-1]
+    raise ValueError("No elementary vector with nonzero last component found. Is there a solution?")
 
 
 class CombinationsIncluding(SageObject):
