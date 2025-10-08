@@ -320,6 +320,15 @@ class LinearInequalitySystem(SageObject):
         self._solvable = True
         raise ValueError("A solution exists!")
 
+    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
+        r"""
+        Compute a solution for this linear inequality system.
+
+        If no solution exists, a ``ValueError`` is raised.
+        """
+        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit)
+        return solution[:-1] / solution[-1]
+
     def certify(self, random: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
         r"""
         Return a boolean and a certificate for solvability.
@@ -347,15 +356,6 @@ class LinearInequalitySystem(SageObject):
                     pass
 
         raise MaxIterationsReachedError("Both processes exceeded the maximum number of iterations.")
-
-    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
-        r"""
-        Compute a solution for this linear inequality system.
-
-        If no solution exists, a ``ValueError`` is raised.
-        """
-        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit)
-        return solution[:-1] / solution[-1]
 
 
 class HomogeneousSystem(LinearInequalitySystem):
