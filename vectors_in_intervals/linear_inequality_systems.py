@@ -299,7 +299,7 @@ class LinearInequalitySystem(SageObject):
             return False
         return True
 
-    def _certify_nonexistence(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
+    def _certify_nonexistence(self, random: bool, reverse: bool, iteration_limit: int) -> vector:
         r"""
         Certify nonexistence of a solution.
 
@@ -335,7 +335,7 @@ class LinearInequalitySystem(SageObject):
         """
         return self._certify_parallel(random=random, iteration_limit=iteration_limit)
 
-    def _certify_parallel(self, random: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
+    def _certify_parallel(self, random: bool, iteration_limit: int) -> tuple[bool, vector]:
         r"""Return a boolean and a certificate for solvability in parallel."""
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
@@ -430,7 +430,7 @@ class HomogeneousSystem(LinearInequalitySystem):
             return False
         return True
 
-    def _certify_existence(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
+    def _certify_existence(self, random: bool, reverse: bool, iteration_limit: int) -> vector:
         certificate = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
         if self._length_strict == 0:
