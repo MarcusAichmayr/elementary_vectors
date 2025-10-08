@@ -240,7 +240,7 @@ def kernel_matrix_using_elementary_vectors(matrix: Matrix) -> Matrix:
     for indices_minor in Combinations(range(length - 1, -1, -1), rank):
         minor = evs.minor(indices_minor)
         if minor != 0 and not is_symbolic(minor):
-            return Matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor))
+            return Matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor, dual=True))
     raise ValueError("Matrix has no constant nonzero maximal minor.")
 
 
@@ -469,7 +469,7 @@ class ElementaryVectors(SageObject):
             raise MultipleException(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector!")
         return element
 
-    def _element_kernel(self, indices: List[int], mark_zeros: bool = False) -> vector:
+    def _element_kernel(self, indices: List[int], mark_zeros: bool) -> vector:
         element = self._zero_element()
         for pos in range(self.rank + 1):
             indices_minor = indices.copy()
@@ -480,7 +480,7 @@ class ElementaryVectors(SageObject):
                 element[i] = -minor if (pos & 1) else minor
         return element
 
-    def _element_row_space(self, indices: List[int], mark_zeros: bool = False) -> vector:
+    def _element_row_space(self, indices: List[int], mark_zeros: bool) -> vector:
         element = self._zero_element()
         pos = 0
         for i in range(self.length):
@@ -521,7 +521,7 @@ class ElementaryVectors(SageObject):
     def _clear_zero_minors(self) -> None:
         self._zero_minors.clear()
 
-    def _index_sets_from_minor(self, indices_minor: List[int], dual: bool = True) -> Iterator[List[int]]:
+    def _index_sets_from_minor(self, indices_minor: List[int], dual: bool) -> Iterator[List[int]]:
         r"""Generator of index sets corresponding to elementary vectors involving given minor."""
         if dual:
             for i in range(self.length):
