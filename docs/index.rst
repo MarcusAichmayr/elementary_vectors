@@ -29,5 +29,5 @@ To install this SageMath package, visit the `repository on GitHub <https://githu
 
     vectors_in_intervals.intervals
     vectors_in_intervals.linear_inequality_systems
-    vectors_in_intervals.certifying_inequalities
     vectors_in_intervals.utility
+
