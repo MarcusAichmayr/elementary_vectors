@@ -98,12 +98,12 @@ class Interval(SageObject):
         self.lower_closed = lower_closed
         self.upper_closed = upper_closed
 
-    def __contains__(self, x) -> bool:
-        if self.lower_closed and x == self.lower:
+    def __contains__(self, value) -> bool:
+        if self.lower_closed and value == self.lower:
             return True
-        if self.upper_closed and x == self.upper:
+        if self.upper_closed and value == self.upper:
             return True
-        return self.lower < x < self.upper
+        return self.lower < value < self.upper
 
     def _repr_(self) -> str:
         if self.is_empty():
@@ -446,7 +446,7 @@ class Intervals(SageObject):
         sage: Intervals.random(3) # random
         [0, +oo) x (-5, 2) x (0, 1]
     """
-    def __init__(self, intervals: list) -> None:
+    def __init__(self, intervals: list[Interval]) -> None:
         self.intervals = intervals
 
     def __contains__(self, iterable) -> bool:
@@ -455,7 +455,7 @@ class Intervals(SageObject):
     def __len__(self) -> int:
         return len(self.intervals)
 
-    def __getitem__(self, i) -> Interval:
+    def __getitem__(self, i: int) -> Interval:
         return self.intervals[i]
 
     def _repr_(self) -> str:
