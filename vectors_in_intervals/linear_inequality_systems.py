@@ -125,6 +125,7 @@ from __future__ import annotations
 from typing import Iterator
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from multiprocessing import Manager
 
 from sage.matrix.constructor import Matrix, zero_matrix
 from sage.modules.free_module_element import vector, zero_vector
@@ -145,7 +146,6 @@ class LinearInequalitySystem(SageObject):
         self._intervals = intervals
         self.result = result
         self._evs = ElementaryVectors(self.matrix.T)
-        self._solvable = None
 
     def _repr_(self) -> str:
         return str(self.matrix) + " x in " + str(self.intervals)
@@ -297,7 +297,7 @@ class LinearInequalitySystem(SageObject):
             return False
         return True
 
-    def _certify_nonexistence(self, random: bool, reverse: bool, iteration_limit: int) -> vector:
+    def _certify_nonexistence(self, random: bool, reverse: bool, iteration_limit: int, stop_event=None) -> vector:
         r"""
         Certify nonexistence of a solution.
 
@@ -308,28 +308,26 @@ class LinearInequalitySystem(SageObject):
             Raises an exception if the maximum number of iterations is reached.
         """
         for i, v in enumerate(self._evs_generator(random=random, reverse=reverse)):
-            if self._solvable:
-                break
-            if i >= iteration_limit:
+            if stop_event is not None and stop_event.is_set():
+                raise ProcessStoppedError("Process was stopped because another process found a solution.")
+            if iteration_limit != -1 and i >= iteration_limit:
                 raise MaxIterationsReachedError("Reached maximum number of iterations! Does a solution exist?")
             if v is None:
                 continue
             if not self._exists_orthogonal_vector(v):
-                self._solvable = False
                 return v
-        self._solvable = True
         raise ValueError("A solution exists!")
 
-    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000, stop_event=None) -> vector:
         r"""
         Compute a solution for this linear inequality system.
 
         If no solution exists, a ``ValueError`` is raised.
         """
-        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit)
+        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit, stop_event=stop_event)
         return solution[:-1] / solution[-1]
 
-    def certify(self, random: bool = False, iteration_limit: int = 1000) -> tuple[bool, vector]:
+    def certify(self, random: bool = False, iteration_limit: int = -1) -> tuple[bool, vector]:
         r"""
         Return a boolean and a certificate for solvability.
 
@@ -338,21 +336,30 @@ class LinearInequalitySystem(SageObject):
         INPUT:
 
         - ``random`` -- if true, elementary vectors are generated randomly
-        - ``iteration_limit`` -- maximum number of iterations for each process
+        - ``iteration_limit`` -- maximum number of iterations for each process (by default unlimited)
         """
         return self._certify_parallel(random=random, iteration_limit=iteration_limit)
 
     def _certify_parallel(self, random: bool, iteration_limit: int) -> tuple[bool, vector]:
         r"""Return a boolean and a certificate for solvability in parallel."""
+        stop_event = Manager().Event()
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
-                executor.submit(self._certify_nonexistence, random=random, reverse=True, iteration_limit=iteration_limit): False,
-                executor.submit(self.find_solution,  random=random, reverse=False, iteration_limit=iteration_limit): True,
+                executor.submit(self._certify_nonexistence, random=random, reverse=True, iteration_limit=iteration_limit, stop_event=stop_event): False,
+                executor.submit(self.find_solution, random=random, reverse=False, iteration_limit=iteration_limit, stop_event=stop_event): True,
             }
             for future in as_completed(futures):
                 try:
-                    return (futures[future], future.result())
-                except (ValueError, MaxIterationsReachedError):
+                    result = future.result()
+                    stop_event.set()
+                    for f in futures:
+                        if f is not future:
+                            try:
+                                f.cancel()
+                            except Exception: # TODO other exception
+                                pass
+                    return (futures[future], result)
+                except (ValueError, MaxIterationsReachedError, ProcessStoppedError):
                     pass
 
         raise MaxIterationsReachedError("Both processes exceeded the maximum number of iterations.")
@@ -416,15 +423,15 @@ class HomogeneousSystem(LinearInequalitySystem):
             return False
         return True
 
-    def _certify_existence(self, random: bool, reverse: bool, iteration_limit: int) -> vector:
+    def _certify_existence(self, random: bool, reverse: bool, iteration_limit: int, stop_event=None) -> vector:
         certificate = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
         if self._length_strict == 0:
             return certificate
         for i, v in enumerate(self._evs_generator(dual=False, random=random, reverse=reverse)):
-            if self._solvable is False:
-                raise ValueError("System is marked as unsolvable!")
-            if i >= iteration_limit:
+            if stop_event is not None and stop_event.is_set():
+                raise ProcessStoppedError("Process was stopped because another process found a certificate for nonexistence.")
+            if iteration_limit != -1 and i >= iteration_limit:
                 raise MaxIterationsReachedError("Reached maximum number of iterations! Is system unsolvable?")
             if v is None:
                 continue
@@ -435,21 +442,19 @@ class HomogeneousSystem(LinearInequalitySystem):
                     continue
                 certificate += w
                 if all(certificate[i] > 0 for i in range(self._length_strict)):
-                    self._solvable = True
                     return certificate
                 break
 
-        self._solvable = False
         raise ValueError("Couldn't construct a solution. No solution exists!")
 
-    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000, stop_event=None) -> vector:
         r"""
         Compute a solution if existent.
 
         This approach sums up nonnegative elementary vectors in the row space.
         It doesn't use division.
         """
-        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit))
+        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit, stop_event=stop_event))
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
@@ -533,3 +538,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
 class MaxIterationsReachedError(Exception):
     """Raised when the maximum number of iterations is reached."""
+
+
+class ProcessStoppedError(Exception):
+    """Raised when the process was stopped by another process."""
