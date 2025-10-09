@@ -10,7 +10,7 @@ EXAMPLES::
     sage: C = matrix([[-1, 0]])
     sage: S = HomogeneousSystem(A, B, C)
     sage: S.intervals
-    [(0, +oo), (0, +oo), [0, +oo), {0}]
+    (0, +oo) x (0, +oo) x [0, +oo) x {0}
     sage: S.find_solution()
     (0, 1)
     sage: S.certify()
@@ -41,7 +41,7 @@ We consider another system::
     [-----]
     [-1  0]
     [ 0 -1]
-    [ 0  1] x in [(-oo, 5), (-oo, 0), (-oo, 8), (-oo, -2], (-oo, -5], (-oo, 5]]
+    [ 0  1] x in (-oo, 5) x (-oo, 0) x (-oo, 8) x (-oo, -2] x (-oo, -5] x (-oo, 5]
     sage: S.to_homogeneous()
     [ 1  0 -5]
     [-1 -1  0]
@@ -51,7 +51,7 @@ We consider another system::
     [-1  0  2]
     [ 0 -1  5]
     [ 0  1 -5]
-    [--------] x in [(0, +oo), (0, +oo), (0, +oo), (0, +oo), [0, +oo), [0, +oo), [0, +oo)]
+    [--------] x in (0, +oo) x (0, +oo) x (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo) x [0, +oo)
 
 We consider yet another system::
 
@@ -73,7 +73,7 @@ We consider yet another system::
     [--------]
     [ 1  0 -1]
     [ 1  1  0]
-    [--------] x in [(0, +oo), (0, +oo), [0, +oo), [0, +oo)]
+    [--------] x in (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo)
 
 TESTS::
 
@@ -86,13 +86,13 @@ TESTS::
     [-----]
     [ 0  1]
     [-----]
-    [ 1 -1] x in [(0, +oo), [0, +oo), {0}]
+    [ 1 -1] x in (0, +oo) x [0, +oo) x {0}
     sage: S.to_inhomogeneous()
     [-1 -1]
     [-----]
     [ 0 -1]
     [-1  1]
-    [ 1 -1] x in [(-oo, 0), (-oo, 0], (-oo, 0], (-oo, 0]]
+    [ 1 -1] x in (-oo, 0) x (-oo, 0] x (-oo, 0] x (-oo, 0]
     sage: S.to_inhomogeneous().to_homogeneous()
     [-1 -1  0]
     [ 0  0 -1]
@@ -100,14 +100,14 @@ TESTS::
     [ 0 -1  0]
     [-1  1  0]
     [ 1 -1  0]
-    [--------] x in [(0, +oo), (0, +oo), [0, +oo), [0, +oo), [0, +oo)]
+    [--------] x in (0, +oo) x (0, +oo) x [0, +oo) x [0, +oo) x [0, +oo)
     sage: S.to_inhomogeneous().to_homogeneous().to_inhomogeneous()
     [ 1  1  0]
     [ 0  0  1]
     [--------]
     [ 0  1  0]
     [ 1 -1  0]
-    [-1  1  0] x in [(-oo, 0), (-oo, 0), (-oo, 0], (-oo, 0], (-oo, 0]]
+    [-1  1  0] x in (-oo, 0) x (-oo, 0) x (-oo, 0] x (-oo, 0] x (-oo, 0]
 """
 
 #############################################################################
@@ -393,12 +393,12 @@ class HomogeneousSystem(LinearInequalitySystem):
             self._evs._set_combinations_kernel(CombinationsIncluding(self._evs.length, self._evs.rank + 1, range(self._length_strict)))
 
     def _compute_intervals(self) -> Intervals:
-        return [
+        return Intervals([
             Interval.open(0, Infinity)
             if i < self._length_strict else
             (Interval.closed(0, Infinity) if i < self._length_strict + self._length_nonstrict else Interval.closed(0, 0))
             for i in range(self.matrix.nrows())
-        ]
+        ])
 
     def to_homogeneous(self) -> HomogeneousSystem:
         return self
@@ -478,7 +478,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
         self._vector_nonstrict = vector_nonstrict
 
     def _compute_intervals(self) -> Intervals:
-        return [Interval.open(-Infinity, ai) for ai in self._vector_strict] + [Interval.closed(-Infinity, bi) for bi in self._vector_nonstrict]
+        return Intervals([Interval.open(-Infinity, ai) for ai in self._vector_strict] + [Interval.closed(-Infinity, bi) for bi in self._vector_nonstrict])
 
     def to_homogeneous(self) -> HomogeneousSystem:
         return HomogeneousSystem(
