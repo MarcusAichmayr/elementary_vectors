@@ -327,6 +327,10 @@ class LinearInequalitySystem(SageObject):
         .. NOTE::
 
             If no solution exists, a ``ValueError`` is raised.
+
+        .. SEEALSO::
+
+            :meth:`certify`
         """
         return self._find_solution(random, reverse=False, iteration_limit=iteration_limit, stop_event=None)
 
