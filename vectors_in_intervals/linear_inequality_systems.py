@@ -363,12 +363,6 @@ class LinearInequalitySystem(SageObject):
                 try:
                     result = future.result()
                     stop_event.set()
-                    for f in futures:
-                        if f is not future:
-                            try:
-                                f.cancel()
-                            except Exception: # TODO other exception
-                                pass
                     return (futures[future], result)
                 except (ValueError, MaxIterationsReachedError, ProcessStoppedError):
                     pass
