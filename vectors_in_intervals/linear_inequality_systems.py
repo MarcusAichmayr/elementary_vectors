@@ -344,6 +344,10 @@ class LinearInequalitySystem(SageObject):
 
         - ``random`` -- if true, elementary vectors are generated randomly
         - ``iteration_limit`` -- maximum number of iterations for each process (by default unlimited)
+
+        OUTPUT:
+        A tuple ``(exists, certificate)`` where ``exists`` is a boolean indicating whether a solution exists,
+        and ``certificate`` is either a solution (if ``exists`` is true) or a vector certifying nonexistence (if ``exists`` is false).
         """
         return self._certify_parallel(random=random, iteration_limit=iteration_limit)
 
