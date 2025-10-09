@@ -318,13 +318,20 @@ class LinearInequalitySystem(SageObject):
                 return v
         raise ValueError("A solution exists!")
 
-    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000, stop_event=None) -> vector:
+    def find_solution(self, random: bool = False, iteration_limit: int = 1000) -> vector:
         r"""
-        Compute a solution for this linear inequality system.
+        Compute a solution if existent.
 
-        If no solution exists, a ``ValueError`` is raised.
+        This method sums up nonnegative elementary vectors in the row space.
+
+        .. NOTE::
+
+            If no solution exists, a ``ValueError`` is raised.
         """
-        solution = self.to_homogeneous().find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit, stop_event=stop_event)
+        return self._find_solution(random, reverse=False, iteration_limit=iteration_limit, stop_event=None)
+
+    def _find_solution(self, random: bool, reverse: bool, iteration_limit: int, stop_event=None) -> vector:
+        solution = self.to_homogeneous()._find_solution(random=random, reverse=reverse, iteration_limit=iteration_limit, stop_event=stop_event)
         return solution[:-1] / solution[-1]
 
     def certify(self, random: bool = False, iteration_limit: int = -1) -> tuple[bool, vector]:
@@ -346,7 +353,7 @@ class LinearInequalitySystem(SageObject):
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = {
                 executor.submit(self._certify_nonexistence, random=random, reverse=True, iteration_limit=iteration_limit, stop_event=stop_event): False,
-                executor.submit(self.find_solution, random=random, reverse=False, iteration_limit=iteration_limit, stop_event=stop_event): True,
+                executor.submit(self._find_solution, random=random, reverse=False, iteration_limit=iteration_limit, stop_event=stop_event): True,
             }
             for future in as_completed(futures):
                 try:
@@ -423,6 +430,9 @@ class HomogeneousSystem(LinearInequalitySystem):
             return False
         return True
 
+    def _find_solution(self, random: bool, reverse: bool, iteration_limit: int, stop_event=None) -> vector:
+        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit, stop_event=stop_event))
+
     def _certify_existence(self, random: bool, reverse: bool, iteration_limit: int, stop_event=None) -> vector:
         certificate = zero_vector(self.matrix.base_ring(), self.matrix.nrows())
 
@@ -446,15 +456,6 @@ class HomogeneousSystem(LinearInequalitySystem):
                 break
 
         raise ValueError("Couldn't construct a solution. No solution exists!")
-
-    def find_solution(self, random: bool = False, reverse: bool = False, iteration_limit: int = 1000, stop_event=None) -> vector:
-        r"""
-        Compute a solution if existent.
-
-        This approach sums up nonnegative elementary vectors in the row space.
-        It doesn't use division.
-        """
-        return solve_without_division(self.matrix, self._certify_existence(random=random, reverse=reverse, iteration_limit=iteration_limit, stop_event=stop_event))
 
 
 class InhomogeneousSystem(LinearInequalitySystem):
