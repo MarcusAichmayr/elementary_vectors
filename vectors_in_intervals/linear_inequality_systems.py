@@ -322,11 +322,18 @@ class LinearInequalitySystem(SageObject):
         r"""
         Compute a solution if existent.
 
-        This method sums up nonnegative elementary vectors in the row space.
+        INPUT:
+
+        - ``random`` -- if true, the returned sum consists of random elementary vectors
+        - ``iteration_limit`` -- maximum number of iterations (by default 1000). If -1, unlimited.
+
+        OUTPUT:
+        A vector (as a sum of elementary vectors) solving the system.
 
         .. NOTE::
 
-            If no solution exists, a ``ValueError`` is raised.
+            If the iteration limit is reached, a ``MaxIterationsReachedError`` is raised.
+            If no solution exists, a ``ValueError`` is raised unless the iteration limit is -1 (endless loop).
 
         .. SEEALSO::
 
