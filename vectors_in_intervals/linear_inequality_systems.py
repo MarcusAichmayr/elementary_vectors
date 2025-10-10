@@ -299,14 +299,14 @@ class LinearInequalitySystem(SageObject):
             return False
         return True
 
-    def certify_nonexistence(self, random: bool = False, iteration_limit: int = 1000) -> vector:
+    def certify_nonexistence(self, random: bool = False, iteration_limit: int = 10000) -> vector:
         r"""
         Certify nonexistence of a solution if no solution exists.
 
         INPUT:
 
         - ``random`` -- if true, tries random elementary vectors
-        - ``iteration_limit`` -- maximum number of iterations (by default 1000). If -1, unlimited.
+        - ``iteration_limit`` -- maximum number of iterations (by default 10000). If -1, unlimited.
 
         OUTPUT:
         A vector certifying that no solution exists.
@@ -340,14 +340,14 @@ class LinearInequalitySystem(SageObject):
                 return v
         raise ValueError("A solution exists!")
 
-    def find_solution(self, random: bool = False, iteration_limit: int = 1000) -> vector:
+    def find_solution(self, random: bool = False, iteration_limit: int = 10000) -> vector:
         r"""
         Compute a solution if existent.
 
         INPUT:
 
         - ``random`` -- if true, the returned sum consists of random elementary vectors
-        - ``iteration_limit`` -- maximum number of iterations (by default 1000). If -1, unlimited.
+        - ``iteration_limit`` -- maximum number of iterations (by default 10000). If -1, unlimited.
 
         OUTPUT:
         A vector (as a sum of elementary vectors) solving the system.
