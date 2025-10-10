@@ -403,8 +403,6 @@ class HomogeneousSystem(LinearInequalitySystem):
         self._length_nonstrict = matrix_nonstrict.nrows()
         self._length_zero = matrix_zero.nrows()
 
-        # self._evs._set_combinations_row_space(Combinations(range(A.nrows() + B.nrows()), self._evs.length - self._evs.rank + 1))
-
         if self._length_strict == 1:
             self._evs._set_combinations_kernel(CombinationsIncluding(self._evs.length, self._evs.rank + 1, [0]))
 
