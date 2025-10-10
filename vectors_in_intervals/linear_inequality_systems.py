@@ -64,6 +64,8 @@ We consider yet another system::
     (False, (1, 0, 1))
     sage: S.certify(random=True)
     (False, (1, 0, 1))
+    sage: S.certify_nonexistence()
+    (1, 0, 1)
 
 ::
 
@@ -297,6 +299,26 @@ class LinearInequalitySystem(SageObject):
             return False
         return True
 
+    def certify_nonexistence(self, random: bool = False, iteration_limit: int = 1000) -> vector:
+        r"""
+        Certify nonexistence of a solution if no solution exists.
+
+        INPUT:
+
+        - ``random`` -- if true, tries random elementary vectors
+        - ``iteration_limit`` -- maximum number of iterations (by default 1000). If -1, unlimited.
+
+        OUTPUT:
+        A vector certifying that no solution exists.
+
+        .. NOTE::
+
+            - If the iteration limit is reached, a ``MaxIterationsReachedError`` is raised.
+            - If a solution exists, a ``ValueError`` is raised.
+            - If a solution exists, the iteration limit is ``-1`` _and_ ``random`` is true, this leads to an endless loop.
+        """
+        return self._certify_nonexistence(random, reverse=True, iteration_limit=iteration_limit, stop_event=None)
+
     def _certify_nonexistence(self, random: bool, reverse: bool, iteration_limit: int, stop_event=None) -> vector:
         r"""
         Certify nonexistence of a solution.
@@ -332,8 +354,9 @@ class LinearInequalitySystem(SageObject):
 
         .. NOTE::
 
-            If the iteration limit is reached, a ``MaxIterationsReachedError`` is raised.
-            If no solution exists, a ``ValueError`` is raised unless the iteration limit is -1 (endless loop).
+            - If the iteration limit is reached, a ``MaxIterationsReachedError`` is raised.
+            - If no solution exists, a ``ValueError`` is raised.
+            - If no solution exists, the iteration limit is ``-1`` _and_ ``random`` is true, this leads to an endless loop.
 
         .. SEEALSO::
 
