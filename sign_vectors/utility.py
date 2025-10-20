@@ -176,62 +176,6 @@ def parallel_classes(iterable, length: int) -> list[set[int]]:
     return result
 
 
-def positive_parallel_classes(iterable, length: int) -> list[set[int]]:
-    r"""
-    Compute the positive parallel classes of given sign vectors or vectors.
-
-    .. SEEALSO::
-
-        - :func:`~parallel_classes`
-
-    EXAMPLES::
-
-        sage: from sign_vectors.utility import positive_parallel_classes
-        sage: from sign_vectors import sign_vector
-        sage: L = [sign_vector("++0-"), sign_vector("--0+"), sign_vector("00+0")]
-        sage: L
-        [(++0-), (--0+), (00+0)]
-        sage: positive_parallel_classes(L, 4)
-        [{0, 1}, {2}, {3}]
-
-    Now, we compute the positive parallel classes of a list of real vectors::
-
-        sage: L = [vector([1, 1, 2, 3, 0, 0]), vector([-2, 1, -4, 3, 3, -17]), vector([0, 1, 0, 1, 0, 0])]
-        sage: L
-        [(1, 1, 2, 3, 0, 0), (-2, 1, -4, 3, 3, -17), (0, 1, 0, 1, 0, 0)]
-        sage: positive_parallel_classes(L, 6)
-        [{0, 2}, {1}, {3}, {4}, {5}]
-
-    Let us compute the positive parallel classes of the rows of a matrix::
-
-        sage: M = matrix([[0, 0, 1, -2, 0], [1, 0, 0, 0, 1], [1, 1, -3, 6, 1]])
-        sage: M
-        [ 0  0  1 -2  0]
-        [ 1  0  0  0  1]
-        [ 1  1 -3  6  1]
-        sage: positive_parallel_classes(M, 5)
-        [{0, 4}, {1}, {2}, {3}]
-
-    TESTS::
-
-        sage: positive_parallel_classes([], 5)
-        [{0, 1, 2, 3, 4}]
-    """
-    result = []
-    indices_to_check = set(range(length))
-
-    while indices_to_check:
-        component1 = indices_to_check.pop()
-        parallel_class = {component1}
-        for component2 in indices_to_check.copy():
-            value, ratio = are_parallel(iterable, component1, component2, return_ratio=True)
-            if value and ratio >= 0:
-                parallel_class.add(component2)
-                indices_to_check.remove(component2)
-        result.append(parallel_class)
-    return result
-
-
 def classes_same_support(iterable) -> Iterator[set[SignVector]]:
     r"""
     Compute the classes with same support of given sign vectors.
