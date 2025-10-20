@@ -253,7 +253,7 @@ def classes_same_support(iterable) -> Iterator[set[SignVector]]:
     """
     support_dict = {}
     for element in iterable:
-        support = tuple(element.support())  # tuples are hashable
+        support = tuple(element.support())
         if support not in support_dict:
             support_dict[support] = {element}
         else:
