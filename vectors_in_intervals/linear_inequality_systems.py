@@ -141,12 +141,11 @@ from .utility import CombinationsIncluding, solve_without_division
 
 class LinearInequalitySystem(SageObject):
     r"""A class for linear inequality systems given by a matrix and intervals."""
-    def __init__(self, matrix: Matrix, intervals: Intervals = None, result: bool = None) -> None:
+    def __init__(self, matrix: Matrix, intervals: Intervals = None) -> None:
         if intervals is not None and matrix.nrows() != len(intervals):
             raise ValueError("Matrix row count and number of intervals must agree!")
         self._matrix = matrix
         self._intervals = intervals
-        self.result = result
         self._evs = ElementaryVectors(self.matrix.T)
 
     def _repr_(self) -> str:
@@ -195,8 +194,7 @@ class LinearInequalitySystem(SageObject):
         return HomogeneousSystem(
             Matrix(len(matrix1_list), length + 1, matrix1_list),
             Matrix(len(matrix2_list), length + 1, matrix2_list),
-            Matrix(len(matrix3_list), length + 1, matrix3_list),
-            result=self.result
+            Matrix(len(matrix3_list), length + 1, matrix3_list)
         )
 
     def to_inhomogeneous(self) -> InhomogeneousSystem:
@@ -226,8 +224,7 @@ class LinearInequalitySystem(SageObject):
             Matrix(len(matrix_strict_list), self.matrix.ncols(), matrix_strict_list),
             Matrix(len(matrix_nonstrict_list), self.matrix.ncols(), matrix_nonstrict_list),
             vector(vector_strict_list),
-            vector(vector_nonstrict_list),
-            result=self.result
+            vector(vector_nonstrict_list)
         )
 
     def dual(self) -> LinearInequalitySystem:
@@ -257,7 +254,7 @@ class LinearInequalitySystem(SageObject):
             sage: S.with_intervals(Intervals.from_bounds([2, 5, 0, -oo], [5, 5, 8, 5])).certify()
             (True, (2, 5))
         """
-        system = LinearInequalitySystem(self.matrix, intervals, result=self.result)
+        system = LinearInequalitySystem(self.matrix, intervals)
         if self.__class__ is LinearInequalitySystem:
             system._evs = self._evs
         return system
@@ -420,8 +417,8 @@ class HomogeneousSystem(LinearInequalitySystem):
         sage: S.certify()
         (True, (-1, 1))
     """
-    def __init__(self, matrix_strict: Matrix, matrix_nonstrict: Matrix, matrix_zero: Matrix, result: bool = None) -> None:
-        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict], [matrix_zero]]), None, result=result)
+    def __init__(self, matrix_strict: Matrix, matrix_nonstrict: Matrix, matrix_zero: Matrix) -> None:
+        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict], [matrix_zero]]), None)
         self._length_strict = matrix_strict.nrows()
         self._length_nonstrict = matrix_nonstrict.nrows()
         self._length_zero = matrix_zero.nrows()
@@ -447,8 +444,7 @@ class HomogeneousSystem(LinearInequalitySystem):
                 [Matrix.identity(self._length_strict), Matrix.zero(self._length_strict, self._length_nonstrict), Matrix.zero(self._length_strict, self._length_zero)],
                 [Matrix.zero(self._length_nonstrict, self._length_strict), Matrix.identity(self._length_nonstrict), Matrix.zero(self._length_nonstrict, self._length_zero)]
             ]),
-            self.matrix.T,
-            result=not self.result
+            self.matrix.T
         )
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
@@ -494,15 +490,8 @@ class InhomogeneousSystem(LinearInequalitySystem):
 
     ``A x < a``, ``B x <= b``
     """
-    def __init__(
-        self,
-        matrix_strict: Matrix,
-        matrix_nonstrict: Matrix,
-        vector_strict: vector,
-        vector_nonstrict: vector,
-        result: bool = None
-    ) -> None:
-        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict]]), None, result=result)
+    def __init__(self, matrix_strict: Matrix, matrix_nonstrict: Matrix, vector_strict: vector, vector_nonstrict: vector) -> None:
+        super().__init__(Matrix.block([[matrix_strict], [matrix_nonstrict]]), None)
         self._matrix_strict = matrix_strict
         self._matrix_nonstrict = matrix_nonstrict
         self._vector_strict = vector_strict
@@ -515,8 +504,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
         return HomogeneousSystem(
             Matrix.block([[self._matrix_strict, Matrix(len(self._vector_strict), 1, -self._vector_strict)], [zero_matrix(1, self._matrix_nonstrict.ncols()), Matrix([[-1]])]]),
             Matrix.block([[self._matrix_nonstrict, Matrix(len(self._vector_nonstrict), 1, -self._vector_nonstrict)]]),
-            Matrix(0, self._matrix_nonstrict.ncols() + 1),
-            result=self.result
+            Matrix(0, self._matrix_nonstrict.ncols() + 1)
         )
 
     def to_inhomogeneous(self) -> InhomogeneousSystem:
@@ -534,8 +522,7 @@ class InhomogeneousSystem(LinearInequalitySystem):
             Matrix.block([
                 [self._matrix_nonstrict.T, self._matrix_strict.T, Matrix.zero(length, 1)],
                 [-self._vector_nonstrict.row(), -self._vector_strict.row(), Matrix([[-1]])]
-            ]),
-            result=not self.result
+            ])
         )
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
