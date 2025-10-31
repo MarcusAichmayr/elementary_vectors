@@ -2,7 +2,7 @@
 
 ## Description
 
-a SageMath package to work with elementary vectors, linear inequality systems, sign vectors and oriented matroids
+a SageMath package to work with elementary vectors (circuits and cocircuits of a matrix)
 
 ## License
 
