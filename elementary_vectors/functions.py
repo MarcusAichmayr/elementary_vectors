@@ -226,7 +226,7 @@ def elementary_vectors(matrix, kernel: bool = True, prevent_multiples: bool = Tr
     return ElementaryVectors(matrix).elements(kernel=kernel, prevent_multiples=prevent_multiples)
 
 
-def kernel_matrix_using_elementary_vectors(matrix: Matrix) -> Matrix:
+def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
     """
     Division-free right kernel matrix based on elementary vectors.
 
@@ -245,7 +245,7 @@ def kernel_matrix_using_elementary_vectors(matrix: Matrix) -> Matrix:
         sage: M
         [ 1  0  1 -1  0]
         [ 0  1  1  1 -1]
-        sage: kernel_matrix_using_elementary_vectors(M)
+        sage: division_free_kernel_matrix(M)
         [1 0 0 1 1]
         [0 1 0 0 1]
         [0 0 1 1 2]
@@ -254,7 +254,7 @@ def kernel_matrix_using_elementary_vectors(matrix: Matrix) -> Matrix:
         [ 1  1 -1 -1  0]
         [ 2  1 -1  0  1]
         [ 1  1  1  1  1]
-        sage: kernel_matrix_using_elementary_vectors(M)
+        sage: division_free_kernel_matrix(M)
         [-1  0  0 -1  2]
         [ 0 -1  1 -2  2]
         sage: var('a')
@@ -263,18 +263,18 @@ def kernel_matrix_using_elementary_vectors(matrix: Matrix) -> Matrix:
         sage: M
         [ 1  0  1 -1  0]
         [ 0  1  a  1 -1]
-        sage: kernel_matrix_using_elementary_vectors(M)
+        sage: division_free_kernel_matrix(M)
         [    1     0     0     1     1]
         [    0     1     0     0     1]
         [    0     0     1     1 a + 1]
 
     TESTS::
 
-        sage: kernel_matrix_using_elementary_vectors(identity_matrix(3, 3))
+        sage: division_free_kernel_matrix(identity_matrix(3, 3))
         []
         sage: _.dimensions()
         (0, 3)
-        sage: kernel_matrix_using_elementary_vectors(matrix(0, 3))
+        sage: division_free_kernel_matrix(matrix(0, 3))
         [1 0 0]
         [0 1 0]
         [0 0 1]
@@ -282,7 +282,7 @@ def kernel_matrix_using_elementary_vectors(matrix: Matrix) -> Matrix:
     ::
 
         sage: M = matrix([[0, 1], [0, 1]])
-        sage: kernel_matrix_using_elementary_vectors(M)
+        sage: division_free_kernel_matrix(M)
         [1 0]
     """
     evs = ElementaryVectors(matrix)
