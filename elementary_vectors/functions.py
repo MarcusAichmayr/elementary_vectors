@@ -2,7 +2,7 @@ r"""
 Computing elementary vectors
 
 Elementary vectors are support minimal vectors of a subspace.
-They are also called _circuits_.
+They are also called *circuits*.
 """
 
 #############################################################################
