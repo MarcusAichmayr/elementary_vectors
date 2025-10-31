@@ -29,14 +29,21 @@ def circuits(matrix, prevent_multiples: bool = True, generator: bool = False) ->
     r"""
     Compute the circuits of a matrix.
 
+    INPUT:
+
+    - ``matrix`` -- a matrix
+    - ``prevent_multiples`` -- a boolean (default: ``True``)
+    - ``generator`` -- a boolean (default: ``False``)
+
     OUTPUT:
-    Return a list of circuits of the matrix.
+    Return the circuits of this matrix.
     These are the nonzero support-minimal elements in the kernel.
+
+    - If ``generator`` is ``True``, the output will be a generator object instead of a list.
 
     .. SEEALSO::
 
-        - - :func:`cocircuits`
-        - - :func:`elementary_vectors`
+        - :func:`cocircuits`
 
     EXAMPLES::
 
@@ -48,21 +55,27 @@ def circuits(matrix, prevent_multiples: bool = True, generator: bool = False) ->
         sage: circuits(M)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
     """
-    return elementary_vectors(matrix, kernel=True, prevent_multiples=prevent_multiples, generator=generator)
+    return _elementary_vectors(matrix, kernel=True, prevent_multiples=prevent_multiples, generator=generator)
 
 
 def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
     r"""
     Compute the cocircuits of a matrix.
 
+    INPUT:
+    - ``matrix`` -- a matrix
+    - ``prevent_multiples`` -- a boolean (default: ``True``)
+    - ``generator`` -- a boolean (default: ``False``)
+
     OUTPUT:
-    Return a list of cocircuits of the matrix.
+    Return the cocircuits of this matrix.
     These are the nonzero support-minimal elements in the row space.
+
+    - If ``generator`` is ``True``, the output will be a generator object instead of a list.
 
     .. SEEALSO::
 
-        - - :func:`circuits`
-        - - :func:`elementary_vectors`
+        - :func:`circuits`
 
     EXAMPLES::
 
@@ -74,7 +87,14 @@ def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool =
         sage: cocircuits(M)
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
     """
-    return elementary_vectors(matrix, kernel=False, prevent_multiples=prevent_multiples, generator=generator)
+    return _elementary_vectors(matrix, kernel=False, prevent_multiples=prevent_multiples, generator=generator)
+
+
+def _elementary_vectors(matrix, kernel: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
+    r"""Compute elementary vectors of a subspace determined by a matrix."""
+    if generator:
+        return ElementaryVectors(matrix).generator(kernel=kernel, prevent_multiples=prevent_multiples)
+    return ElementaryVectors(matrix).elements(kernel=kernel, prevent_multiples=prevent_multiples)
 
 
 def degenerate_circuits(matrix: Matrix) -> list[vector]:
@@ -131,99 +151,6 @@ def degenerate_cocircuits(matrix: Matrix) -> list[vector]:
         [(1, 0, 0, -1)]
     """
     return list(ElementaryVectors(matrix).degenerate_elements(kernel=False))
-
-
-def elementary_vectors(matrix, kernel: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
-    r"""
-    Compute elementary vectors of a subspace determined by a matrix.
-
-    INPUT:
-
-    - ``matrix`` -- a matrix
-    - ``kernel`` -- a boolean (default: ``True``)
-    - ``prevent_multiples`` -- a boolean (default: ``True``)
-    - ``generator`` -- a boolean (default: ``False``)
-
-    OUTPUT:
-    Return a list of elementary vectors in the kernel of a given matrix.
-    To compute the elementary vectors in the row space, pass ``False`` for ``kernel``.
-
-    - If ``generator`` is ``True``, the output will be a generator object instead of a list.
-
-    EXAMPLES::
-
-        sage: from elementary_vectors import *
-        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-        sage: M
-        [1 2 0 0]
-        [0 1 2 3]
-        sage: elementary_vectors(M)
-        [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
-        sage: elementary_vectors(M, prevent_multiples=False)
-        [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2), (0, 0, -6, 4)]
-
-    By default, the elementary vectors in the kernel are computed.
-    To consider the row space, pass ``kernel=False``::
-
-        sage: elementary_vectors(M, kernel=False)
-        [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
-
-    We can also compute elementary vectors over a finite field::
-
-        sage: B = matrix(GF(7), [[1, 2, 3, 4, 0], [0, 5, 2, 3, 3]])
-        sage: B
-        [1 2 3 4 0]
-        [0 5 2 3 3]
-        sage: elementary_vectors(B)
-        [(3, 5, 5, 0, 0),
-         (0, 4, 0, 5, 0),
-         (6, 4, 0, 0, 5),
-         (1, 0, 4, 2, 0),
-         (2, 0, 4, 0, 2),
-         (5, 0, 0, 4, 3),
-         (0, 2, 1, 0, 3),
-         (0, 0, 5, 5, 1)]
-
-    Variables are also supported::
-
-        sage: var('a, b')
-        (a, b)
-        sage: M = matrix([[1, 2, a, 0], [0, 1, 2, b]])
-        sage: M
-        [1 2 a 0]
-        [0 1 2 b]
-        sage: elementary_vectors(M)
-        [(-a + 4, -2, 1, 0), (2*b, -b, 0, 1), (a*b, 0, -b, 2), (0, a*b, -2*b, -a + 4)]
-
-    Matrices over the polynomial ring work, too::
-
-        sage: R = PolynomialRing(ZZ, "x")
-        sage: x = R.gen()
-        sage: M = matrix([[1, 2, x, 0], [0, 1, 2, x]])
-        sage: M
-        [1 2 x 0]
-        [0 1 2 x]
-        sage: elementary_vectors(M)
-        [(-x + 4, -2, 1, 0), (2*x, -x, 0, 1), (x^2, 0, -x, 2), (0, x^2, -2*x, -x + 4)]
-        sage: R = PolynomialRing(ZZ, "x, y")
-        sage: x, y = R.gens()
-        sage: M = matrix([[x, y, 0, 0], [0, 1, 2, 3]])
-        sage: M
-        [x y 0 0]
-        [0 1 2 3]
-        sage: elementary_vectors(M)
-        [(2*y, -2*x, x, 0), (3*y, -3*x, 0, x), (0, 0, -3*x, 2*x)]
-
-    TESTS::
-
-        sage: elementary_vectors(random_matrix(QQ, 0, 4))
-        [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)]
-        sage: elementary_vectors(matrix([[1, 0, 0], [0, 0, 0]]))
-        [(0, -1, 0), (0, 0, -1)]
-    """
-    if generator:
-        return ElementaryVectors(matrix).generator(kernel=kernel, prevent_multiples=prevent_multiples)
-    return ElementaryVectors(matrix).elements(kernel=kernel, prevent_multiples=prevent_multiples)
 
 
 def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
@@ -606,7 +533,70 @@ class ElementaryVectors(SageObject):
                 pass
 
     def elements(self, kernel: bool = True, prevent_multiples: bool = True) -> List[vector]:
-        r"""Return a list of elementary vectors"""
+        r"""
+        Return a list of elementary vectors
+
+        EXAMPLES::
+
+            sage: from elementary_vectors import *
+            sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+            sage: M
+            [1 2 0 0]
+            [0 1 2 3]
+            sage: evs = ElementaryVectors(M)
+            sage: evs.elements(M)
+            [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
+            sage: evs.elements(prevent_multiples=False)
+            [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2), (0, 0, -6, 4)]
+
+        By default, the elementary vectors in the kernel are computed.
+        To consider the row space, pass ``kernel=False``::
+
+            sage: evs.elements(kernel=False)
+            [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
+
+        Variables are also supported::
+
+            sage: var('a, b')
+            (a, b)
+            sage: M = matrix([[1, 2, a, 0], [0, 1, 2, b]])
+            sage: M
+            [1 2 a 0]
+            [0 1 2 b]
+            sage: evs = ElementaryVectors(M)
+            sage: evs.elements(M)
+            [(-a + 4, -2, 1, 0), (2*b, -b, 0, 1), (a*b, 0, -b, 2), (0, a*b, -2*b, -a + 4)]
+
+        Matrices over the polynomial ring work, too::
+
+            sage: R = PolynomialRing(ZZ, "x")
+            sage: x = R.gen()
+            sage: M = matrix([[1, 2, x, 0], [0, 1, 2, x]])
+            sage: M
+            [1 2 x 0]
+            [0 1 2 x]
+            sage: evs = ElementaryVectors(M)
+            sage: evs.elements()
+            [(-x + 4, -2, 1, 0), (2*x, -x, 0, 1), (x^2, 0, -x, 2), (0, x^2, -2*x, -x + 4)]
+            sage: R = PolynomialRing(ZZ, "x, y")
+            sage: x, y = R.gens()
+            sage: M = matrix([[x, y, 0, 0], [0, 1, 2, 3]])
+            sage: M
+            [x y 0 0]
+            [0 1 2 3]
+            sage: evs = ElementaryVectors(M)
+            sage: evs.elements()
+            [(2*y, -2*x, x, 0), (3*y, -3*x, 0, x), (0, 0, -3*x, 2*x)]
+
+        TESTS::
+
+            sage: evs = ElementaryVectors(matrix(0, 4))
+            sage: evs.elements()
+            [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)]
+            sage: evs = ElementaryVectors(matrix([[1, 0, 0], [0, 0, 0]]))
+            sage: evs.elements()
+            [(0, -1, 0), (0, 0, -1)]
+        """
         return list(self.generator(kernel=kernel, prevent_multiples=prevent_multiples))
 
     def degenerate_elements(self, kernel: bool = True) -> Iterator[vector]:
