@@ -97,62 +97,6 @@ def _elementary_vectors(matrix, kernel: bool = True, prevent_multiples: bool = T
     return ElementaryVectors(matrix).elements(kernel=kernel, prevent_multiples=prevent_multiples)
 
 
-def degenerate_circuits(matrix: Matrix) -> list[vector]:
-    r"""
-    Compute degenerate circuits of a matrix.
-
-    OUTPUT:
-    Return a list of degenerate circuits of the matrix.
-    These are the nonzero support-minimal elements in the kernel
-    with support smaller than rank + 1.
-
-    EXAMPLES::
-
-        sage: from elementary_vectors import *
-        sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
-        sage: M
-        [1 0 1 0]
-        [0 0 1 1]
-        sage: degenerate_circuits(M)
-        [(0, -1, 0, 0)]
-        sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
-        sage: M
-        [1 1 1 0]
-        [0 1 1 1]
-        sage: degenerate_circuits(M)
-        [(0, -1, 1, 0)]
-    """
-    return list(ElementaryVectors(matrix).degenerate_elements(kernel=True))
-
-
-def degenerate_cocircuits(matrix: Matrix) -> list[vector]:
-    r"""
-    Compute degenerate cocircuits of a matrix.
-
-    OUTPUT:
-    Return a list of degenerate cocircuits of the matrix.
-    These are the nonzero support-minimal elements in the row space
-    with support smaller than rank - 1.
-
-    EXAMPLES::
-
-        sage: from elementary_vectors import *
-        sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
-        sage: M
-        [1 0 1 0]
-        [0 0 1 1]
-        sage: degenerate_cocircuits(M)
-        [(0, 0, -1, -1), (1, 0, 0, -1), (1, 0, 1, 0)]
-        sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
-        sage: M
-        [1 1 1 0]
-        [0 1 1 1]
-        sage: degenerate_cocircuits(M)
-        [(1, 0, 0, -1)]
-    """
-    return list(ElementaryVectors(matrix).degenerate_elements(kernel=False))
-
-
 def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
     """
     Division-free right kernel matrix based on elementary vectors.
@@ -225,6 +169,62 @@ def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
         if minor != 0 and not is_symbolic(minor):
             return Matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor, kernel=True))
     raise ValueError("Matrix has no constant nonzero maximal minor.")
+
+
+def degenerate_circuits(matrix: Matrix) -> list[vector]:
+    r"""
+    Compute degenerate circuits of a matrix.
+
+    OUTPUT:
+    Return a list of degenerate circuits of the matrix.
+    These are the nonzero support-minimal elements in the kernel
+    with support smaller than rank + 1.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors import *
+        sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
+        sage: M
+        [1 0 1 0]
+        [0 0 1 1]
+        sage: degenerate_circuits(M)
+        [(0, -1, 0, 0)]
+        sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
+        sage: M
+        [1 1 1 0]
+        [0 1 1 1]
+        sage: degenerate_circuits(M)
+        [(0, -1, 1, 0)]
+    """
+    return list(ElementaryVectors(matrix).degenerate_elements(kernel=True))
+
+
+def degenerate_cocircuits(matrix: Matrix) -> list[vector]:
+    r"""
+    Compute degenerate cocircuits of a matrix.
+
+    OUTPUT:
+    Return a list of degenerate cocircuits of the matrix.
+    These are the nonzero support-minimal elements in the row space
+    with support smaller than rank - 1.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors import *
+        sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
+        sage: M
+        [1 0 1 0]
+        [0 0 1 1]
+        sage: degenerate_cocircuits(M)
+        [(0, 0, -1, -1), (1, 0, 0, -1), (1, 0, 1, 0)]
+        sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
+        sage: M
+        [1 1 1 0]
+        [0 1 1 1]
+        sage: degenerate_cocircuits(M)
+        [(1, 0, 0, -1)]
+    """
+    return list(ElementaryVectors(matrix).degenerate_elements(kernel=False))
 
 
 class ElementaryVectors(SageObject):
