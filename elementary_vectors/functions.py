@@ -236,7 +236,7 @@ class ElementaryVectors(SageObject):
 
     EXAMPLES::
 
-        sage: from elementary_vectors.functions import ElementaryVectors
+        sage: from elementary_vectors import *
         sage: M = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
         sage: evs = ElementaryVectors(M)
         sage: evs.elements()
@@ -338,7 +338,7 @@ class ElementaryVectors(SageObject):
 
         TESTS::
 
-            sage: from elementary_vectors.functions import ElementaryVectors
+            sage: from elementary_vectors import *
             sage: M = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
             sage: evs = ElementaryVectors(M)
             sage: evs._minors
