@@ -259,13 +259,13 @@ class LinearInequalitySystem(SageObject):
             system._evs = self._evs
         return system
 
-    def _evs_generator(self, dual: bool = True, random: bool = False, reverse: bool = False) -> Iterator[vector]:
+    def _evs_generator(self, kernel: bool = True, random: bool = False, reverse: bool = False) -> Iterator[vector]:
         r"""Return a generator of elementary vectors."""
         if random:
             while True:
-                yield self._evs.random_element(dual=dual)
+                yield self._evs.random_element(kernel=kernel)
         else:
-            yield from self._evs.generator(dual=dual, reverse=reverse)
+            yield from self._evs.generator(kernel=kernel, reverse=reverse)
 
     def _exists_orthogonal_vector(self, v: vector) -> bool:
         r"""Check if an orthogonal vector exists in the intervals."""
@@ -464,7 +464,7 @@ class HomogeneousSystem(LinearInequalitySystem):
 
         if self._length_strict == 0:
             return certificate
-        for i, v in enumerate(self._evs_generator(dual=False, random=random, reverse=reverse)):
+        for i, v in enumerate(self._evs_generator(kernel=False, random=random, reverse=reverse)):
             if stop_event is not None and stop_event.is_set():
                 raise ProcessStoppedError("Process was stopped because another process found a certificate for nonexistence.")
             if iteration_limit != -1 and i >= iteration_limit:

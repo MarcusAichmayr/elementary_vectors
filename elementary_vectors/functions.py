@@ -48,7 +48,7 @@ def circuits(matrix, prevent_multiples: bool = True, generator: bool = False) ->
         sage: circuits(M)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
     """
-    return elementary_vectors(matrix, dual=True, prevent_multiples=prevent_multiples, generator=generator)
+    return elementary_vectors(matrix, kernel=True, prevent_multiples=prevent_multiples, generator=generator)
 
 
 def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
@@ -74,23 +74,23 @@ def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool =
         sage: cocircuits(M)
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
     """
-    return elementary_vectors(matrix, dual=False, prevent_multiples=prevent_multiples, generator=generator)
+    return elementary_vectors(matrix, kernel=False, prevent_multiples=prevent_multiples, generator=generator)
 
 
-def elementary_vectors(matrix, dual: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
+def elementary_vectors(matrix, kernel: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
     r"""
     Compute elementary vectors of a subspace determined by a matrix.
 
     INPUT:
 
     - ``matrix`` -- a matrix
-    - ``dual`` -- a boolean (default: ``True``)
+    - ``kernel`` -- a boolean (default: ``True``)
     - ``prevent_multiples`` -- a boolean (default: ``True``)
     - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
     Return a list of elementary vectors in the kernel of a given matrix.
-    To compute the elementary vectors in the row space, pass ``False`` for ``dual``.
+    To compute the elementary vectors in the row space, pass ``False`` for ``kernel``.
 
     - If ``generator`` is ``True``, the output will be a generator object instead of a list.
 
@@ -107,9 +107,9 @@ def elementary_vectors(matrix, dual: bool = True, prevent_multiples: bool = True
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2), (0, 0, -6, 4)]
 
     By default, the elementary vectors in the kernel are computed.
-    To consider the row space, pass ``dual=False``::
+    To consider the row space, pass ``kernel=False``::
 
-        sage: elementary_vectors(M, dual=False)
+        sage: elementary_vectors(M, kernel=False)
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
 
     We can also compute elementary vectors over a finite field::
@@ -166,8 +166,8 @@ def elementary_vectors(matrix, dual: bool = True, prevent_multiples: bool = True
         [(0, -1, 0), (0, 0, -1)]
     """
     if generator:
-        return ElementaryVectors(matrix).generator(dual=dual, prevent_multiples=prevent_multiples)
-    return ElementaryVectors(matrix).elements(dual=dual, prevent_multiples=prevent_multiples)
+        return ElementaryVectors(matrix).generator(kernel=kernel, prevent_multiples=prevent_multiples)
+    return ElementaryVectors(matrix).elements(kernel=kernel, prevent_multiples=prevent_multiples)
 
 
 def kernel_matrix_using_elementary_vectors(matrix: Matrix) -> Matrix:
@@ -240,7 +240,7 @@ def kernel_matrix_using_elementary_vectors(matrix: Matrix) -> Matrix:
     for indices_minor in Combinations(range(length - 1, -1, -1), rank):
         minor = evs.minor(indices_minor)
         if minor != 0 and not is_symbolic(minor):
-            return Matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor, dual=True))
+            return Matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor, kernel=True))
     raise ValueError("Matrix has no constant nonzero maximal minor.")
 
 
@@ -276,9 +276,9 @@ class ElementaryVectors(SageObject):
          (0, 18, -9, 0, 0),
          (0, 7, 0, -9, 5),
          (0, 0, 7, -18, 10)]
-        sage: evs.elements(dual=False)
+        sage: evs.elements(kernel=False)
         [(0, -1, -2, -3, -4), (1, 0, 0, -5, -9), (3, 5, 10, 0, -7), (4, 9, 18, 7, 0)]
-        sage: evs.elements(dual=False, prevent_multiples=False)
+        sage: evs.elements(kernel=False, prevent_multiples=False)
         [(0, -1, -2, -3, -4),
          (1, 0, 0, -5, -9),
          (2, 0, 0, -10, -18),
@@ -293,13 +293,13 @@ class ElementaryVectors(SageObject):
         (10, 0, -3, 2, 0)
         sage: evs.element([0])
         (0, -1, -2, -3, -4)
-        sage: evs.element([0, 2, 3], dual=True)
+        sage: evs.element([0, 2, 3], kernel=True)
         (10, 0, -3, 2, 0)
-        sage: evs.element([0], dual=False)
+        sage: evs.element([0], kernel=False)
         (0, -1, -2, -3, -4)
         sage: evs.random_element() # random
         (0, 0, 7, -18, 10)
-        sage: evs.random_element(dual=False) # random
+        sage: evs.random_element(kernel=False) # random
         (3, 5, 10, 0, -7)
 
     We consider an example that involves many zero minors::
@@ -393,7 +393,7 @@ class ElementaryVectors(SageObject):
         for indices in Combinations(self.length, self.rank):
             self.minor(indices)
 
-    def element(self, indices: List[int], dual: Optional[bool] = None, prevent_multiple: bool = False) -> vector:
+    def element(self, indices: List[int], kernel: Optional[bool] = None, prevent_multiple: bool = False) -> vector:
         r"""
         Compute the elementary vector corresponding to a list of indices.
 
@@ -401,10 +401,10 @@ class ElementaryVectors(SageObject):
 
         - ``indices`` -- a list of ``rank - 1`` (for elements in the row space)
                          or ``rank + 1`` (for elements in the kernel) integers
-        - ``dual`` -- a boolean
+        - ``kernel`` -- a boolean
         - ``prevent_multiple`` -- a boolean
 
-        If ``dual`` is true, return an elementary vector in the kernel
+        If ``kernel`` is true, return an elementary vector in the kernel
         and otherwise in the row space.
         If not specified, this is determined from the number of indices.
 
@@ -449,15 +449,15 @@ class ElementaryVectors(SageObject):
             evs._element_row_space([3])
             (0, 0, 0, 0)
         """
-        if dual is None:
+        if kernel is None:
             if len(indices) == self.rank + 1:
-                dual = True
+                kernel = True
             elif len(indices) == self.rank - 1:
-                dual = False
+                kernel = False
             else:
                 raise ValueError(f"The number of indices should be {self.rank - 1} or {self.rank + 1} but got {len(indices)}.")
 
-        if dual:
+        if kernel:
             element = self._element_kernel(indices, mark_zeros=prevent_multiple)
         else:
             element = self._element_row_space(indices, mark_zeros=prevent_multiple)
@@ -493,7 +493,7 @@ class ElementaryVectors(SageObject):
                 element[i] = -minor if (pos & 1) else minor
         return element
 
-    def random_element(self, dual: bool = True) -> Optional[vector]:
+    def random_element(self, kernel: bool = True) -> Optional[vector]:
         r"""
         Return a random elementary vector
 
@@ -502,9 +502,9 @@ class ElementaryVectors(SageObject):
             If no elementary vector exists or the zero vector has been generated, ``None`` is returned.
         """
         try:
-            if dual:
-                return self.element(self._combinations_kernel.random_element(), dual=dual)
-            return self.element(self._combinations_row_space.random_element(), dual=dual)
+            if kernel:
+                return self.element(self._combinations_kernel.random_element(), kernel=kernel)
+            return self.element(self._combinations_row_space.random_element(), kernel=kernel)
         except ValueError: # no elementary vectors exist or generated zero vector
             return
 
@@ -521,9 +521,9 @@ class ElementaryVectors(SageObject):
     def _clear_zero_minors(self) -> None:
         self._zero_minors.clear()
 
-    def _index_sets_from_minor(self, indices_minor: List[int], dual: bool) -> Iterator[List[int]]:
+    def _index_sets_from_minor(self, indices_minor: List[int], kernel: bool) -> Iterator[List[int]]:
         r"""Generator of index sets corresponding to elementary vectors involving given minor."""
-        if dual:
+        if kernel:
             for i in range(self.length):
                 if i in indices_minor:
                     continue
@@ -531,11 +531,11 @@ class ElementaryVectors(SageObject):
         else:
             yield from Combinations(indices_minor, self.rank - 1)
 
-    def generator(self, dual: bool = True, prevent_multiples: bool = True, reverse: bool = False) -> Iterator[vector]:
+    def generator(self, kernel: bool = True, prevent_multiples: bool = True, reverse: bool = False) -> Iterator[vector]:
         r"""Return a generator of elementary vectors"""
         if prevent_multiples:
             self._reset_set_for_preventing_multiples()
-        if dual:
+        if kernel:
             combinations = self._combinations_kernel
         elif self.rank == 0:
             return
@@ -545,15 +545,15 @@ class ElementaryVectors(SageObject):
             combinations = reversed(combinations)
         for indices in combinations:
             try:
-                yield self.element(indices, dual=dual, prevent_multiple=prevent_multiples)
+                yield self.element(indices, kernel=kernel, prevent_multiple=prevent_multiples)
             except ValueError:
                 pass
 
-    def elements(self, dual: bool = True, prevent_multiples: bool = True) -> List[vector]:
+    def elements(self, kernel: bool = True, prevent_multiples: bool = True) -> List[vector]:
         r"""Return a list of elementary vectors"""
-        return list(self.generator(dual=dual, prevent_multiples=prevent_multiples))
+        return list(self.generator(kernel=kernel, prevent_multiples=prevent_multiples))
 
-    def degenerate_elements(self, dual: bool = True) -> Iterator[vector]:
+    def degenerate_elements(self, kernel: bool = True) -> Iterator[vector]:
         r"""
         Generator of elementary vectors with smaller-than-usual support.
 
@@ -564,7 +564,7 @@ class ElementaryVectors(SageObject):
             sage: evs = ElementaryVectors(M)
             sage: list(evs.degenerate_elements())
             [(0, -1, 0, 0)]
-            sage: list(evs.degenerate_elements(dual=False))
+            sage: list(evs.degenerate_elements(kernel=False))
             [(0, 0, -1, -1), (1, 0, 0, -1), (1, 0, 1, 0)]
 
         ::
@@ -573,7 +573,7 @@ class ElementaryVectors(SageObject):
             sage: evs = ElementaryVectors(M)
             sage: list(evs.degenerate_elements())
             [(0, -1, 1, 0)]
-            sage: list(evs.degenerate_elements(dual=False))
+            sage: list(evs.degenerate_elements(kernel=False))
             [(1, 0, 0, -1)]
 
         We consider an example with 4 zero minors.
@@ -594,9 +594,9 @@ class ElementaryVectors(SageObject):
                 continue
             if tuple(indices_minor) in self._marked_minors:
                 continue
-            for indices in self._index_sets_from_minor(indices_minor, dual=dual):
+            for indices in self._index_sets_from_minor(indices_minor, kernel=kernel):
                 try:
-                    yield self.element(indices, dual=dual, prevent_multiple=True)
+                    yield self.element(indices, kernel=kernel, prevent_multiple=True)
                     break
                 except MultipleException:
                     break
