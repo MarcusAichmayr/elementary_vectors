@@ -25,7 +25,7 @@ from sage.structure.sage_object import SageObject
 from .utility import is_symbolic
 
 
-def circuits(matrix: Matrix) -> List[vector]:
+def circuits(matrix, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
     r"""
     Compute the circuits of a matrix.
 
@@ -48,10 +48,10 @@ def circuits(matrix: Matrix) -> List[vector]:
         sage: circuits(M)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
     """
-    return elementary_vectors(matrix, dual=True)
+    return elementary_vectors(matrix, dual=True, prevent_multiples=prevent_multiples, generator=generator)
 
 
-def cocircuits(matrix: Matrix) -> List[vector]:
+def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
     r"""
     Compute the cocircuits of a matrix.
 
@@ -74,7 +74,7 @@ def cocircuits(matrix: Matrix) -> List[vector]:
         sage: cocircuits(M)
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
     """
-    return elementary_vectors(matrix, dual=False)
+    return elementary_vectors(matrix, dual=False, prevent_multiples=prevent_multiples, generator=generator)
 
 
 def elementary_vectors(matrix, dual: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
