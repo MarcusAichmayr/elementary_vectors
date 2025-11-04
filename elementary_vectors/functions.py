@@ -55,7 +55,9 @@ def circuits(matrix, prevent_multiples: bool = True, generator: bool = False) ->
         sage: circuits(M)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
     """
-    return _elementary_vectors(matrix, kernel=True, prevent_multiples=prevent_multiples, generator=generator)
+    if generator:
+        return ElementaryVectors(matrix).circuit_generator(prevent_multiples=prevent_multiples)
+    return ElementaryVectors(matrix).circuits(prevent_multiples=prevent_multiples)
 
 
 def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
@@ -87,14 +89,9 @@ def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool =
         sage: cocircuits(M)
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
     """
-    return _elementary_vectors(matrix, kernel=False, prevent_multiples=prevent_multiples, generator=generator)
-
-
-def _elementary_vectors(matrix, kernel: bool = True, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
-    r"""Compute elementary vectors of a subspace determined by a matrix."""
     if generator:
-        return ElementaryVectors(matrix).generator(kernel=kernel, prevent_multiples=prevent_multiples)
-    return ElementaryVectors(matrix).elements(kernel=kernel, prevent_multiples=prevent_multiples)
+        return ElementaryVectors(matrix).cocircuit_generator(prevent_multiples=prevent_multiples)
+    return ElementaryVectors(matrix).cocircuits(prevent_multiples=prevent_multiples)
 
 
 def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
@@ -167,7 +164,7 @@ def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
     for indices_minor in Combinations(range(length - 1, -1, -1), rank):
         minor = evs.minor(indices_minor)
         if minor != 0 and not is_symbolic(minor):
-            return Matrix(evs.element(indices) for indices in evs._index_sets_from_minor(indices_minor, kernel=True))
+            return Matrix(evs.circuit(indices) for indices in evs._index_sets_from_minor(indices_minor, kernel=True))
     raise ValueError("Matrix has no constant nonzero maximal minor.")
 
 
@@ -196,7 +193,7 @@ def degenerate_circuits(matrix: Matrix) -> list[vector]:
         sage: degenerate_circuits(M)
         [(0, -1, 1, 0)]
     """
-    return list(ElementaryVectors(matrix).degenerate_elements(kernel=True))
+    return ElementaryVectors(matrix).degenerate_circuits()
 
 
 def degenerate_cocircuits(matrix: Matrix) -> list[vector]:
@@ -224,7 +221,7 @@ def degenerate_cocircuits(matrix: Matrix) -> list[vector]:
         sage: degenerate_cocircuits(M)
         [(1, 0, 0, -1)]
     """
-    return list(ElementaryVectors(matrix).degenerate_elements(kernel=False))
+    return ElementaryVectors(matrix).degenerate_cocircuits()
 
 
 class ElementaryVectors(SageObject):
@@ -239,7 +236,7 @@ class ElementaryVectors(SageObject):
         sage: from elementary_vectors import *
         sage: M = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
         sage: evs = ElementaryVectors(M)
-        sage: evs.elements()
+        sage: evs.circuits()
         [(0, -2, 1, 0, 0),
          (5, -3, 0, 1, 0),
          (9, -4, 0, 0, 1),
@@ -248,7 +245,7 @@ class ElementaryVectors(SageObject):
          (7, 0, 0, -4, 3),
          (0, 7, 0, -9, 5),
          (0, 0, 7, -18, 10)]
-        sage: evs.elements(prevent_multiples=False)
+        sage: evs.circuits(prevent_multiples=False)
         [(0, -2, 1, 0, 0),
          (5, -3, 0, 1, 0),
          (9, -4, 0, 0, 1),
@@ -259,9 +256,9 @@ class ElementaryVectors(SageObject):
          (0, 18, -9, 0, 0),
          (0, 7, 0, -9, 5),
          (0, 0, 7, -18, 10)]
-        sage: evs.elements(kernel=False)
+        sage: evs.cocircuits()
         [(0, -1, -2, -3, -4), (1, 0, 0, -5, -9), (3, 5, 10, 0, -7), (4, 9, 18, 7, 0)]
-        sage: evs.elements(kernel=False, prevent_multiples=False)
+        sage: evs.cocircuits(prevent_multiples=False)
         [(0, -1, -2, -3, -4),
          (1, 0, 0, -5, -9),
          (2, 0, 0, -10, -18),
@@ -272,17 +269,13 @@ class ElementaryVectors(SageObject):
 
         sage: evs.minor([0, 2])
         2
-        sage: evs.element([0, 2, 3])
+        sage: evs.circuit([0, 2, 3])
         (10, 0, -3, 2, 0)
-        sage: evs.element([0])
+        sage: evs.cocircuit([0])
         (0, -1, -2, -3, -4)
-        sage: evs.element([0, 2, 3], kernel=True)
-        (10, 0, -3, 2, 0)
-        sage: evs.element([0], kernel=False)
-        (0, -1, -2, -3, -4)
-        sage: evs.random_element() # random
+        sage: evs.random_circuit() # random
         (0, 0, 7, -18, 10)
-        sage: evs.random_element(kernel=False) # random
+        sage: evs.random_cocircuit() # random
         (3, 5, 10, 0, -7)
 
     We consider an example that involves many zero minors::
@@ -291,7 +284,7 @@ class ElementaryVectors(SageObject):
         sage: M.minors(2)
         [1, 2, 0, 0, 0, 0]
         sage: evs = ElementaryVectors(M)
-        sage: evs.elements()
+        sage: evs.circuits()
         [(0, -2, 1, 0), (0, 0, 0, 1)]
     """
     def __init__(self, matrix: Matrix) -> None:
@@ -376,20 +369,16 @@ class ElementaryVectors(SageObject):
         for indices in Combinations(self.length, self.rank):
             self.minor(indices)
 
-    def element(self, indices: List[int], kernel: Optional[bool] = None, prevent_multiple: bool = False) -> vector:
+    def circuit(self, indices: List[int], prevent_multiple: bool = False) -> vector:
         r"""
-        Compute the elementary vector corresponding to a list of indices.
+        Compute the circuit corresponding to a list of indices.
 
         INPUT:
 
-        - ``indices`` -- a list of ``rank - 1`` (for elements in the row space)
-                         or ``rank + 1`` (for elements in the kernel) integers
-        - ``kernel`` -- a boolean
+        - ``indices`` -- a list of ``rank + 1`` integers
         - ``prevent_multiple`` -- a boolean
 
-        If ``kernel`` is true, return an elementary vector in the kernel
-        and otherwise in the row space.
-        If not specified, this is determined from the number of indices.
+        Return the circuit corresponding to the given indices.
 
         If ``prevent_multiple`` is true, a ``ValueError`` is raised if a multiple
         of this element has been computed before.
@@ -404,51 +393,92 @@ class ElementaryVectors(SageObject):
             sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
             sage: evs = ElementaryVectors(M)
 
-        Elementary vectors in the kernel require 3 indices::
+        Circuits require 3 indices::
 
-            sage: evs.element([0, 1, 2])
+            sage: evs.circuit([0, 1, 2])
             (0, -2, 1, 0)
-            sage: evs.element([1, 2, 3])
+            sage: evs.circuit([1, 2, 3])
             Traceback (most recent call last):
             ...
             ValueError: The indices [1, 2, 3] correspond to the zero vector!
+        """
+        return self._element(indices, kernel=True, mark_zeros=prevent_multiple)
 
-        For the row space, we need 1 element::
+    def cocircuit(self, indices: List[int], prevent_multiple: bool = False) -> vector:
+        r"""
+        Compute the cocircuit corresponding to a list of indices.
 
-            sage: evs.element([0])
+        INPUT:
+
+        - ``indices`` -- a list of ``rank - 1`` integers
+        - ``prevent_multiple`` -- a boolean
+
+        Return the cocircuit corresponding to the given indices.
+
+        If ``prevent_multiple`` is true, a ``ValueError`` is raised if a multiple
+        of this element has been computed before.
+
+        .. NOTE::
+
+            Raises a ``ValueError`` if the indices correspond to the zero vector.
+
+        EXAMPLES::
+
+            sage: from elementary_vectors import *
+            sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
+            sage: evs = ElementaryVectors(M)
+
+        Cocircuits require 1 element::
+
+            sage: evs.cocircuit([0])
             (0, -1, -2, 0)
-
-        TESTS::
-
-            sage: evs.element([1, 2])
+            sage: evs.cocircuit([3])
             Traceback (most recent call last):
             ...
-            ValueError: The number of indices should be 1 or 3 but got 2.
+            ValueError: The indices [3] correspond to the zero vector!
+        """
+        return self._element(indices, kernel=False, mark_zeros=prevent_multiple)
 
-        ::
+    def _element(self, indices: List[int], kernel: bool, mark_zeros: bool = False) -> vector:
+        r"""
+        Compute the elementary vector corresponding to a list of indices.
 
-            evs._element_kernel([1, 2, 3])
+        INPUT:
+
+        - ``indices`` -- a list of ``rank - 1`` (for elements in the row space)
+                         or ``rank + 1`` (for elements in the kernel) integers
+        - ``kernel`` -- a boolean
+        - ``prevent_multiple`` -- a boolean
+
+        If ``kernel`` is true, return an elementary vector in the kernel
+        and otherwise in the row space.
+
+        If ``prevent_multiple`` is true, a ``ValueError`` is raised if a multiple
+        of this element has been computed before.
+
+        .. NOTE::
+
+            Raises a ``ValueError`` if the indices correspond to the zero vector.
+
+        EXAMPLES::
+
+            sage: from elementary_vectors import *
+            sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
+            sage: evs = ElementaryVectors(M)
+            sage: evs._element_kernel([1, 2, 3], mark_zeros=False)
             (0, 0, 0, 0)
-            evs._element_row_space([3])
+            sage: evs._element_row_space([3], mark_zeros=False)
             (0, 0, 0, 0)
         """
-        if kernel is None:
-            if len(indices) == self.rank + 1:
-                kernel = True
-            elif len(indices) == self.rank - 1:
-                kernel = False
-            else:
-                raise ValueError(f"The number of indices should be {self.rank - 1} or {self.rank + 1} but got {len(indices)}.")
-
         if kernel:
-            element = self._element_kernel(indices, mark_zeros=prevent_multiple)
+            element = self._element_kernel(indices, mark_zeros=mark_zeros)
         else:
-            element = self._element_row_space(indices, mark_zeros=prevent_multiple)
+            element = self._element_row_space(indices, mark_zeros=mark_zeros)
         if element == 0:
             self._clear_zero_minors()
             raise ValueError(f"The indices {indices} correspond to the zero vector!")
 
-        if prevent_multiple and self._mark_zero_minors():
+        if mark_zeros and self._mark_zero_minors():
             raise MultipleException(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector!")
         return element
 
@@ -476,19 +506,30 @@ class ElementaryVectors(SageObject):
                 element[i] = -minor if (pos & 1) else minor
         return element
 
-    def random_element(self, kernel: bool = True) -> Optional[vector]:
+    def random_circuit(self) -> Optional[vector]:
         r"""
-        Return a random elementary vector
+        Return a random circuit
 
         .. NOTE::
 
-            If no elementary vector exists or the zero vector has been generated, ``None`` is returned.
+            If no circuit exists or the zero vector has been generated, ``None`` is returned.
         """
         try:
-            if kernel:
-                return self.element(self._combinations_kernel.random_element(), kernel=kernel)
-            return self.element(self._combinations_row_space.random_element(), kernel=kernel)
-        except ValueError: # no elementary vectors exist or generated zero vector
+            return self.circuit(self._combinations_kernel.random_element())
+        except ValueError: # no circuits exist or generated zero vector
+            return
+
+    def random_cocircuit(self) -> Optional[vector]:
+        r"""
+        Return a random cocircuit
+
+        .. NOTE::
+
+            If no cocircuit exists or the zero vector has been generated, ``None`` is returned.
+        """
+        try:
+            return self.cocircuit(self._combinations_row_space.random_element())
+        except ValueError: # no cocircuits exist or generated zero vector
             return
 
     def _zero_element(self) -> tuple:
@@ -514,7 +555,15 @@ class ElementaryVectors(SageObject):
         else:
             yield from Combinations(indices_minor, self.rank - 1)
 
-    def generator(self, kernel: bool = True, prevent_multiples: bool = True, reverse: bool = False) -> Iterator[vector]:
+    def circuit_generator(self, prevent_multiples: bool = True, reverse: bool = False) -> Iterator[vector]:
+        r"""Return a generator of circuits"""
+        return self._generator(kernel=True, prevent_multiples=prevent_multiples, reverse=reverse)
+
+    def cocircuit_generator(self, prevent_multiples: bool = True, reverse: bool = False) -> Iterator[vector]:
+        r"""Return a generator of cocircuits"""
+        return self._generator(kernel=False, prevent_multiples=prevent_multiples, reverse=reverse)
+
+    def _generator(self, kernel: bool, prevent_multiples: bool, reverse: bool) -> Iterator[vector]:
         r"""Return a generator of elementary vectors"""
         if prevent_multiples:
             self._reset_set_for_preventing_multiples()
@@ -528,13 +577,13 @@ class ElementaryVectors(SageObject):
             combinations = reversed(combinations)
         for indices in combinations:
             try:
-                yield self.element(indices, kernel=kernel, prevent_multiple=prevent_multiples)
+                yield self._element(indices, kernel=kernel, mark_zeros=prevent_multiples)
             except ValueError:
                 pass
 
-    def elements(self, kernel: bool = True, prevent_multiples: bool = True) -> List[vector]:
+    def circuits(self, prevent_multiples: bool = True) -> List[vector]:
         r"""
-        Return a list of elementary vectors
+        Return a list of circuits
 
         EXAMPLES::
 
@@ -544,16 +593,8 @@ class ElementaryVectors(SageObject):
             [1 2 0 0]
             [0 1 2 3]
             sage: evs = ElementaryVectors(M)
-            sage: evs.elements(M)
+            sage: evs.circuits()
             [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
-            sage: evs.elements(prevent_multiples=False)
-            [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2), (0, 0, -6, 4)]
-
-        By default, the elementary vectors in the kernel are computed.
-        To consider the row space, pass ``kernel=False``::
-
-            sage: evs.elements(kernel=False)
-            [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
 
         Variables are also supported::
 
@@ -564,7 +605,7 @@ class ElementaryVectors(SageObject):
             [1 2 a 0]
             [0 1 2 b]
             sage: evs = ElementaryVectors(M)
-            sage: evs.elements(M)
+            sage: evs.circuits(M)
             [(-a + 4, -2, 1, 0), (2*b, -b, 0, 1), (a*b, 0, -b, 2), (0, a*b, -2*b, -a + 4)]
 
         Matrices over the polynomial ring work, too::
@@ -576,7 +617,7 @@ class ElementaryVectors(SageObject):
             [1 2 x 0]
             [0 1 2 x]
             sage: evs = ElementaryVectors(M)
-            sage: evs.elements()
+            sage: evs.circuits()
             [(-x + 4, -2, 1, 0), (2*x, -x, 0, 1), (x^2, 0, -x, 2), (0, x^2, -2*x, -x + 4)]
             sage: R = PolynomialRing(ZZ, "x, y")
             sage: x, y = R.gens()
@@ -585,42 +626,55 @@ class ElementaryVectors(SageObject):
             [x y 0 0]
             [0 1 2 3]
             sage: evs = ElementaryVectors(M)
-            sage: evs.elements()
+            sage: evs.circuits()
             [(2*y, -2*x, x, 0), (3*y, -3*x, 0, x), (0, 0, -3*x, 2*x)]
 
         TESTS::
 
             sage: evs = ElementaryVectors(matrix(0, 4))
-            sage: evs.elements()
+            sage: evs.circuits()
             [(1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1)]
             sage: evs = ElementaryVectors(matrix([[1, 0, 0], [0, 0, 0]]))
-            sage: evs.elements()
+            sage: evs.circuits()
             [(0, -1, 0), (0, 0, -1)]
         """
-        return list(self.generator(kernel=kernel, prevent_multiples=prevent_multiples))
+        return list(self.circuit_generator(prevent_multiples=prevent_multiples))
 
-    def degenerate_elements(self, kernel: bool = True) -> Iterator[vector]:
+    def cocircuits(self, prevent_multiples: bool = True) -> List[vector]:
         r"""
-        Generator of elementary vectors with smaller-than-usual support.
+        Return a list of cocircuits
+
+        EXAMPLES::
+
+            sage: from elementary_vectors import *
+            sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+            sage: M
+            [1 2 0 0]
+            [0 1 2 3]
+            sage: evs = ElementaryVectors(M)
+            sage: evs.cocircuits()
+            [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
+        """
+        return list(self.cocircuit_generator(prevent_multiples=prevent_multiples))
+
+    def degenerate_circuits(self) -> List[vector]:
+        r"""
+        Return a list of degenerate circuits
 
         EXAMPLES::
 
             sage: from elementary_vectors import *
             sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
             sage: evs = ElementaryVectors(M)
-            sage: list(evs.degenerate_elements())
+            sage: evs.degenerate_circuits()
             [(0, -1, 0, 0)]
-            sage: list(evs.degenerate_elements(kernel=False))
-            [(0, 0, -1, -1), (1, 0, 0, -1), (1, 0, 1, 0)]
 
         ::
 
             sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
             sage: evs = ElementaryVectors(M)
-            sage: list(evs.degenerate_elements())
+            sage: evs.degenerate_circuits()
             [(0, -1, 1, 0)]
-            sage: list(evs.degenerate_elements(kernel=False))
-            [(1, 0, 0, -1)]
 
         We consider an example with 4 zero minors.
         There are six multiples that involve 2 of them each::
@@ -631,8 +685,31 @@ class ElementaryVectors(SageObject):
             [ 0  0  1  0  1  2]
             [ 0  0  0  1  1  3]
             sage: evs = ElementaryVectors(M)
-            sage: list(evs.degenerate_elements())
+            sage: evs.degenerate_circuits()
             [(-1, -1, 0, 0, 0, 0)]
+        """
+        return list(self._degenerate_elements(kernel=True))
+
+    def degenerate_cocircuits(self) -> List[vector]:
+        r"""
+        Return a list of degenerate cocircuits
+
+        EXAMPLES::
+
+            sage: from elementary_vectors import *
+            sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
+            sage: M
+            [1 0 1 0]
+            [0 0 1 1]
+            sage: evs = ElementaryVectors(M)
+            sage: evs.degenerate_cocircuits()
+            [(0, 0, -1, -1), (1, 0, 0, -1), (1, 0, 1, 0)]
+        """
+        return list(self._degenerate_elements(kernel=False))
+
+    def _degenerate_elements(self, kernel: bool) -> Iterator[vector]:
+        r"""
+        Generator of elementary vectors with smaller-than-usual support.
         """
         self._reset_set_for_preventing_multiples()
         for indices_minor in Combinations(self.length, self.rank):
@@ -642,7 +719,10 @@ class ElementaryVectors(SageObject):
                 continue
             for indices in self._index_sets_from_minor(indices_minor, kernel=kernel):
                 try:
-                    yield self.element(indices, kernel=kernel, prevent_multiple=True)
+                    if kernel:
+                        yield self.circuit(indices, prevent_multiple=True)
+                    else:
+                        yield self.cocircuit(indices, prevent_multiple=True)
                     break
                 except MultipleException:
                     break
