@@ -10,4 +10,4 @@
 
 from __future__ import absolute_import
 
-from .functions import ElementaryVectors, circuits, cocircuits, division_free_kernel_matrix, degenerate_circuits, degenerate_cocircuits
+from .functions import ElementaryVectors, circuits, cocircuits, circuit_kernel_matrix, degenerate_circuits, degenerate_cocircuits

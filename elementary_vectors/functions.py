@@ -94,13 +94,15 @@ def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool =
     return ElementaryVectors(matrix).cocircuits(prevent_multiples=prevent_multiples)
 
 
-def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
+def circuit_kernel_matrix(matrix: Matrix) -> Matrix:
     """
-    Division-free right kernel matrix based on elementary vectors.
+    Right kernel matrix based on circuits.
 
     OUTPUT:
     A right kernel matrix.
-    It also works for symbolic matrices.
+    Each row is a circuit of the input matrix.
+    Therefore, the output matrix is division-free.
+    Also works for symbolic matrices.
 
     .. NOTE::
 
@@ -113,7 +115,7 @@ def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
         sage: M
         [ 1  0  1 -1  0]
         [ 0  1  1  1 -1]
-        sage: division_free_kernel_matrix(M)
+        sage: circuit_kernel_matrix(M)
         [1 0 0 1 1]
         [0 1 0 0 1]
         [0 0 1 1 2]
@@ -122,7 +124,7 @@ def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
         [ 1  1 -1 -1  0]
         [ 2  1 -1  0  1]
         [ 1  1  1  1  1]
-        sage: division_free_kernel_matrix(M)
+        sage: circuit_kernel_matrix(M)
         [-1  0  0 -1  2]
         [ 0 -1  1 -2  2]
         sage: var('a')
@@ -131,18 +133,18 @@ def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
         sage: M
         [ 1  0  1 -1  0]
         [ 0  1  a  1 -1]
-        sage: division_free_kernel_matrix(M)
+        sage: circuit_kernel_matrix(M)
         [    1     0     0     1     1]
         [    0     1     0     0     1]
         [    0     0     1     1 a + 1]
 
     TESTS::
 
-        sage: division_free_kernel_matrix(identity_matrix(3, 3))
+        sage: circuit_kernel_matrix(identity_matrix(3, 3))
         []
         sage: _.dimensions()
         (0, 3)
-        sage: division_free_kernel_matrix(matrix(0, 3))
+        sage: circuit_kernel_matrix(matrix(0, 3))
         [1 0 0]
         [0 1 0]
         [0 0 1]
@@ -150,7 +152,7 @@ def division_free_kernel_matrix(matrix: Matrix) -> Matrix:
     ::
 
         sage: M = matrix([[0, 1], [0, 1]])
-        sage: division_free_kernel_matrix(M)
+        sage: circuit_kernel_matrix(M)
         [1 0]
     """
     evs = ElementaryVectors(matrix)
