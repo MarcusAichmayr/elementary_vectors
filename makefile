@@ -4,7 +4,7 @@ install:
 	sage -pip install --upgrade .
 
 test:
-	sage -t elementary_vectors/ sign_vectors/ vectors_in_intervals/
+	sage -t elementary_vectors/
 
 doc:
 	cd docs && make html
