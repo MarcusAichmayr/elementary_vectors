@@ -50,7 +50,7 @@ jobs:
           fi
         continue-on-error: true
       - name: Install docs dependencies
-        run: pip install -r docs/requirements.txt
+        run: sage --pip install -r docs/requirements.txt
       - name: Generate documentation
         run: make doc
       - name: Move documentation
