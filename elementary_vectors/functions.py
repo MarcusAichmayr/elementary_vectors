@@ -53,6 +53,36 @@ def circuits(matrix, prevent_multiples: bool = True) -> List[vector]:
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
         sage: circuits(M, prevent_multiples=False)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2), (0, 0, -6, 4)]
+
+    Variables are also supported::
+
+        sage: var('a, b')
+        (a, b)
+        sage: M = matrix([[1, 2, a, 0], [0, 1, 2, b]])
+        sage: M
+        [1 2 a 0]
+        [0 1 2 b]
+        sage: circuits(M)
+        [(-a + 4, -2, 1, 0), (2*b, -b, 0, 1), (a*b, 0, -b, 2), (0, a*b, -2*b, -a + 4)]
+
+    Matrices over the polynomial ring work, too::
+
+        sage: R = PolynomialRing(ZZ, "x")
+        sage: x = R.gen()
+        sage: M = matrix([[1, 2, x, 0], [0, 1, 2, x]])
+        sage: M
+        [1 2 x 0]
+        [0 1 2 x]
+        sage: circuits(M)
+        [(-x + 4, -2, 1, 0), (2*x, -x, 0, 1), (x^2, 0, -x, 2), (0, x^2, -2*x, -x + 4)]
+        sage: R = PolynomialRing(ZZ, "x, y")
+        sage: x, y = R.gens()
+        sage: M = matrix([[x, y, 0, 0], [0, 1, 2, 3]])
+        sage: M
+        [x y 0 0]
+        [0 1 2 3]
+        sage: circuits(M)
+        [(2*y, -2*x, x, 0), (3*y, -3*x, 0, x), (0, 0, -3*x, 2*x)]
     """
     return ElementaryVectors(matrix).circuits(prevent_multiples=prevent_multiples)
 
@@ -278,10 +308,16 @@ def degenerate_cocircuits(matrix: Matrix) -> list[vector]:
 
 class ElementaryVectors(SageObject):
     r"""
-    A class used to compute elementary vectors.
+    A class used to compute elementary vectors (circuits and cocircuits).
 
-    Whenever a maximal minor is computed, it is stored in a dictionary for efficient reuse.
-    Supports elementary vectors in the kernel and row space.
+    If you want to compute circuits *and* cocircuits of the same matrix,
+    use this class instead of the functions :func:`circuits` and :func:`cocircuits`
+    since they share computed maximal minors.
+    Also use this class if you want to compute individual circuits or cocircuits.
+
+    .. NOTE::
+
+        Whenever a maximal minor is computed, it is stored in a dictionary for efficient reuse.
 
     EXAMPLES::
 
@@ -317,7 +353,7 @@ class ElementaryVectors(SageObject):
          (3, 5, 10, 0, -7),
          (4, 9, 18, 7, 0)]
 
-    ::
+    We compute individual elements::
 
         sage: evs.minor([0, 2])
         2
@@ -330,7 +366,7 @@ class ElementaryVectors(SageObject):
         sage: evs.random_cocircuit() # random
         (3, 5, 10, 0, -7)
 
-    We consider an example that involves many zero minors::
+    Now, we consider an example that involves many zero minors::
 
         sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
         sage: M.minors(2)
@@ -379,7 +415,9 @@ class ElementaryVectors(SageObject):
         r"""
         Compute a minor given by (sorted) indices.
 
-        The minor is cached for efficient reuse.
+        .. NOTE::
+
+            The minor is cached for efficient reuse.
 
         TESTS::
 
@@ -445,7 +483,7 @@ class ElementaryVectors(SageObject):
             sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
             sage: evs = ElementaryVectors(M)
 
-        Circuits require 3 indices::
+        In this example, circuits require 3 indices::
 
             sage: evs.circuit([0, 1, 2])
             (0, -2, 1, 0)
@@ -480,7 +518,7 @@ class ElementaryVectors(SageObject):
             sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
             sage: evs = ElementaryVectors(M)
 
-        Cocircuits require 1 element::
+        In this example, cocircuits require 1 index::
 
             sage: evs.cocircuit([0])
             (0, -1, -2, 0)
@@ -647,39 +685,6 @@ class ElementaryVectors(SageObject):
             sage: evs = ElementaryVectors(M)
             sage: evs.circuits()
             [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
-
-        Variables are also supported::
-
-            sage: var('a, b')
-            (a, b)
-            sage: M = matrix([[1, 2, a, 0], [0, 1, 2, b]])
-            sage: M
-            [1 2 a 0]
-            [0 1 2 b]
-            sage: evs = ElementaryVectors(M)
-            sage: evs.circuits(M)
-            [(-a + 4, -2, 1, 0), (2*b, -b, 0, 1), (a*b, 0, -b, 2), (0, a*b, -2*b, -a + 4)]
-
-        Matrices over the polynomial ring work, too::
-
-            sage: R = PolynomialRing(ZZ, "x")
-            sage: x = R.gen()
-            sage: M = matrix([[1, 2, x, 0], [0, 1, 2, x]])
-            sage: M
-            [1 2 x 0]
-            [0 1 2 x]
-            sage: evs = ElementaryVectors(M)
-            sage: evs.circuits()
-            [(-x + 4, -2, 1, 0), (2*x, -x, 0, 1), (x^2, 0, -x, 2), (0, x^2, -2*x, -x + 4)]
-            sage: R = PolynomialRing(ZZ, "x, y")
-            sage: x, y = R.gens()
-            sage: M = matrix([[x, y, 0, 0], [0, 1, 2, 3]])
-            sage: M
-            [x y 0 0]
-            [0 1 2 3]
-            sage: evs = ElementaryVectors(M)
-            sage: evs.circuits()
-            [(2*y, -2*x, x, 0), (3*y, -3*x, 0, x), (0, 0, -3*x, 2*x)]
 
         TESTS::
 
