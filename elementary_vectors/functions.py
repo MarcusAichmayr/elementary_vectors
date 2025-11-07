@@ -15,7 +15,7 @@ They are also called *circuits*.
 #  http://www.gnu.org/licenses/                                             #
 #############################################################################
 
-from typing import Optional, Union, List, Iterator
+from typing import Optional, List, Iterator
 
 from sage.combinat.combination import Combinations
 from sage.matrix.constructor import Matrix
@@ -25,7 +25,7 @@ from sage.structure.sage_object import SageObject
 from .utility import is_symbolic
 
 
-def circuits(matrix, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
+def circuits(matrix, prevent_multiples: bool = True) -> List[vector]:
     r"""
     Compute the circuits of a matrix.
 
@@ -33,13 +33,10 @@ def circuits(matrix, prevent_multiples: bool = True, generator: bool = False) ->
 
     - ``matrix`` -- a matrix
     - ``prevent_multiples`` -- a boolean (default: ``True``)
-    - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
     Return the circuits of this matrix.
     These are the nonzero support-minimal elements in the kernel.
-
-    - If ``generator`` is ``True``, the output will be a generator object instead of a list.
 
     .. SEEALSO::
 
@@ -54,26 +51,23 @@ def circuits(matrix, prevent_multiples: bool = True, generator: bool = False) ->
         [0 1 2 3]
         sage: circuits(M)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
+        sage: circuits(M, prevent_multiples=False)
+        [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2), (0, 0, -6, 4)]
     """
-    if generator:
-        return ElementaryVectors(matrix).circuit_generator(prevent_multiples=prevent_multiples)
     return ElementaryVectors(matrix).circuits(prevent_multiples=prevent_multiples)
 
 
-def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool = False) -> Union[List[vector], Iterator[vector]]:
+def cocircuits(matrix: Matrix, prevent_multiples: bool = True) -> List[vector]:
     r"""
     Compute the cocircuits of a matrix.
 
     INPUT:
     - ``matrix`` -- a matrix
     - ``prevent_multiples`` -- a boolean (default: ``True``)
-    - ``generator`` -- a boolean (default: ``False``)
 
     OUTPUT:
     Return the cocircuits of this matrix.
     These are the nonzero support-minimal elements in the row space.
-
-    - If ``generator`` is ``True``, the output will be a generator object instead of a list.
 
     .. SEEALSO::
 
@@ -88,10 +82,66 @@ def cocircuits(matrix: Matrix, prevent_multiples: bool = True, generator: bool =
         [0 1 2 3]
         sage: cocircuits(M)
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
+        sage: cocircuits(M, prevent_multiples=False)
+        [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0), (3, 6, 0, 0)]
     """
-    if generator:
-        return ElementaryVectors(matrix).cocircuit_generator(prevent_multiples=prevent_multiples)
     return ElementaryVectors(matrix).cocircuits(prevent_multiples=prevent_multiples)
+
+
+def circuit_generator(matrix: Matrix, prevent_multiples: bool = True, reverse: bool = False) -> Iterator[vector]:
+    r"""
+    Generator of circuits of a matrix.
+
+    INPUT:
+    - ``matrix`` -- a matrix
+    - ``prevent_multiples`` -- a boolean (default: ``True``)
+    - ``reverse`` -- a boolean (default: ``False``)
+
+    OUTPUT:
+    A generator of the circuits of this matrix.
+    These are the nonzero support-minimal elements in the kernel.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.functions import circuit_generator
+        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: M
+        [1 2 0 0]
+        [0 1 2 3]
+        sage: list(circuit_generator(M))
+        [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
+        sage: list(circuit_generator(M, reverse=True))
+        [(0, 0, -6, 4), (6, -3, 0, 1), (4, -2, 1, 0)]
+    """
+    return ElementaryVectors(matrix).circuit_generator(prevent_multiples=prevent_multiples, reverse=reverse)
+
+
+def cocircuit_generator(matrix: Matrix, prevent_multiples: bool = True, reverse: bool = False) -> Iterator[vector]:
+    r"""
+    Generator of cocircuits of a matrix.
+
+    INPUT:
+    - ``matrix`` -- a matrix
+    - ``prevent_multiples`` -- a boolean (default: ``True``)
+    - ``reverse`` -- a boolean (default: ``False``)
+
+    OUTPUT:
+    A generator of the cocircuits of this matrix.
+    These are the nonzero support-minimal elements in the row space.
+
+    EXAMPLES::
+
+        sage: from elementary_vectors.functions import cocircuit_generator
+        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: M
+        [1 2 0 0]
+        [0 1 2 3]
+        sage: list(cocircuit_generator(M))
+        [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
+        sage: list(cocircuit_generator(M, reverse=True))
+        [(3, 6, 0, 0), (1, 0, -4, -6), (0, -1, -2, -3)]
+    """
+    return ElementaryVectors(matrix).cocircuit_generator(prevent_multiples=prevent_multiples, reverse=reverse)
 
 
 def circuit_kernel_matrix(matrix: Matrix) -> Matrix:
