@@ -22,7 +22,7 @@ from sage.matrix.constructor import Matrix
 from sage.modules.free_module_element import zero_vector, vector
 from sage.structure.sage_object import SageObject
 
-from .utility import is_symbolic
+from .utility import is_constant
 
 
 def circuits(matrix, prevent_multiples: bool = True) -> List[vector]:
@@ -245,7 +245,7 @@ def circuit_kernel_matrix(matrix: Matrix) -> Matrix:
 
     for indices_minor in Combinations(range(length - 1, -1, -1), rank):
         minor = evs.minor(indices_minor)
-        if minor != 0 and not is_symbolic(minor):
+        if minor != 0 and is_constant(minor):
             return Matrix(evs.circuit(indices) for indices in evs._index_sets_from_minor(indices_minor, kernel=True))
     raise ValueError("Matrix has no constant nonzero maximal minor.")
 

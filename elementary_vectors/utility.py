@@ -11,28 +11,28 @@
 #############################################################################
 
 
-def is_symbolic(expression):
+def is_constant(expression):
     r"""
-    Return whether this element is a symbolic expression.
+    Return whether this expression is constant.
 
-    If it belongs to the symbolic ring but doesn't contain any variables it does not count as "symbolic".
+    Symbolic expressions are considered constant if they do not depend on any variables.
 
     EXAMPLES::
 
-        sage: from elementary_vectors.utility import is_symbolic
-        sage: is_symbolic(5)
-        False
+        sage: from elementary_vectors.utility import is_constant
+        sage: is_constant(5)
+        True
         sage: var('a, b')
         (a, b)
-        sage: is_symbolic(a)
-        True
-        sage: is_symbolic(-a)
-        True
-        sage: is_symbolic(b^2 - a)
-        True
-        sage: is_symbolic(SR(5))
+        sage: is_constant(a)
         False
+        sage: is_constant(-a)
+        False
+        sage: is_constant(b^2 - a)
+        False
+        sage: is_constant(SR(5))
+        True
     """
     if hasattr(expression, "variables"):
-        return bool(expression.variables())
-    return False
+        return not bool(expression.variables())
+    return True
