@@ -1,5 +1,6 @@
 r"""
-Computing elementary vectors
+Computing circuits and cocircuits
+=================================
 
 Elementary vectors are support minimal vectors of a subspace.
 They are also called *circuits*.
