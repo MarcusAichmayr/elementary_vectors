@@ -491,7 +491,7 @@ class ElementaryVectors(SageObject):
             sage: evs.circuit([1, 2, 3])
             Traceback (most recent call last):
             ...
-            ValueError: The indices [1, 2, 3] correspond to the zero vector!
+            ValueError: The indices [1, 2, 3] correspond to the zero vector.
         """
         return self._element(indices, kernel=True, mark_zeros=prevent_multiple)
 
@@ -526,7 +526,7 @@ class ElementaryVectors(SageObject):
             sage: evs.cocircuit([3])
             Traceback (most recent call last):
             ...
-            ValueError: The indices [3] correspond to the zero vector!
+            ValueError: The indices [3] correspond to the zero vector.
         """
         return self._element(indices, kernel=False, mark_zeros=prevent_multiple)
 
@@ -567,10 +567,10 @@ class ElementaryVectors(SageObject):
             element = self._element_row_space(indices, mark_zeros=mark_zeros)
         if element == 0:
             self._clear_zero_minors()
-            raise ValueError(f"The indices {indices} correspond to the zero vector!")
+            raise ValueError(f"The indices {indices} correspond to the zero vector.")
 
         if mark_zeros and self._mark_zero_minors():
-            raise MultipleException(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector!")
+            raise MultipleException(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector.")
         return element
 
     def _element_kernel(self, indices: List[int], mark_zeros: bool) -> vector:
