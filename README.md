@@ -56,7 +56,7 @@ Change to the root directory of the repository and run:
 
 The documentation of this package is available on GitHub:
 
-https://marcusaichmayr.github.io/elementary_vectors/index.html
+https://marcusaichmayr.github.io/elementary_vectors/
 
 To generate it, run
 
