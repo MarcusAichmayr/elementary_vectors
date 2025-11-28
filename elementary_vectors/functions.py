@@ -309,7 +309,7 @@ def degenerate_cocircuits(matrix: Matrix) -> list[vector]:
 
 class CircuitEnumerator(SageObject):
     r"""
-    A class used to compute elementary vectors (circuits and cocircuits).
+    A class used to compute circuits and cocircuits.
 
     If you want to compute circuits *and* cocircuits of the same matrix,
     use this class instead of the functions :func:`circuits` and :func:`cocircuits`
