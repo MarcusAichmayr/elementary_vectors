@@ -1,6 +1,6 @@
 r"""
-Elementary vectors (circuits and cocircuits)
-============================================
+Circuits and cocircuits
+=======================
 
 Elementary vectors are support minimal vectors of a subspace.
 They are also called *circuits*.
@@ -26,7 +26,7 @@ from sage.structure.sage_object import SageObject
 from .utility import is_constant
 
 
-def circuits(matrix, prevent_multiples: bool = True) -> List[vector]:
+def circuits(matrix: Matrix, prevent_multiples: bool = True) -> List[vector]:
     r"""
     Compute the circuits of a matrix.
 
@@ -629,15 +629,15 @@ class CircuitEnumerator(SageObject):
         except ValueError: # no cocircuits exist or generated zero vector
             return
 
-    def _zero_element(self) -> tuple:
+    def _zero_element(self) -> vector:
         return zero_vector(self.ring, self.length)
 
     @staticmethod
-    def _set_element_entry(element, index: int, value) -> None:
+    def _set_element_entry(element: vector, index: int, value) -> None:
         element.set(index, value)
 
     @staticmethod
-    def _is_element_zero(element) -> bool:
+    def _is_element_zero(element: vector) -> bool:
         return element == 0
 
     def _mark_zero_minors(self) -> bool:
