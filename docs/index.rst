@@ -9,4 +9,5 @@ To install this SageMath package, visit the `repository on GitHub <https://githu
     :toctree: generated
 
     elementary_vectors.functions
+    elementary_vectors.supports
     elementary_vectors.utility
