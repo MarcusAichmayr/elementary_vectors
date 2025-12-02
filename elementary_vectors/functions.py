@@ -571,7 +571,7 @@ class CircuitEnumerator(SageObject):
             element = self._element_kernel(indices, mark_zeros=mark_zeros)
         else:
             element = self._element_row_space(indices, mark_zeros=mark_zeros)
-        if element == 0:
+        if self._is_element_zero(element):
             self._clear_zero_minors()
             raise ValueError(f"The indices {indices} correspond to the zero vector.")
 
@@ -587,7 +587,7 @@ class CircuitEnumerator(SageObject):
             minor = self.minor(indices_minor, mark_if_zero=mark_zeros)
             if minor != 0:
                 # check whether pos is even or odd
-                element[i] = -minor if (pos & 1) else minor
+                self._set_element_entry(element, i, -minor if (pos & 1) else minor)
         return element
 
     def _element_row_space(self, indices: List[int], mark_zeros: bool) -> vector:
@@ -600,7 +600,7 @@ class CircuitEnumerator(SageObject):
             minor = self.minor(sorted(indices + [i]), mark_if_zero=mark_zeros)
             if minor != 0:
                 # check whether pos is even or odd
-                element[i] = -minor if (pos & 1) else minor
+                self._set_element_entry(element, i, -minor if (pos & 1) else minor)
         return element
 
     def random_circuit(self) -> Optional[vector]:
@@ -631,6 +631,14 @@ class CircuitEnumerator(SageObject):
 
     def _zero_element(self) -> tuple:
         return zero_vector(self.ring, self.length)
+
+    @staticmethod
+    def _set_element_entry(element, index: int, value) -> None:
+        element.set(index, value)
+
+    @staticmethod
+    def _is_element_zero(element) -> bool:
+        return element == 0
 
     def _mark_zero_minors(self) -> bool:
         r"""Return whether a marked minor is encountered again."""
