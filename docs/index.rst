@@ -8,6 +8,6 @@ To install this SageMath package, visit the `repository on GitHub <https://githu
 .. autosummary::
     :toctree: generated
 
-    elementary_vectors.functions
+    elementary_vectors.elements
     elementary_vectors.supports
     elementary_vectors.utility

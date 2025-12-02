@@ -134,7 +134,7 @@ def circuit_generator(matrix: Matrix, prevent_multiples: bool = True, reverse: b
 
     EXAMPLES::
 
-        sage: from elementary_vectors.functions import circuit_generator
+        sage: from elementary_vectors.circuits import circuit_generator
         sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
         sage: M
         [1 2 0 0]
@@ -162,7 +162,7 @@ def cocircuit_generator(matrix: Matrix, prevent_multiples: bool = True, reverse:
 
     EXAMPLES::
 
-        sage: from elementary_vectors.functions import cocircuit_generator
+        sage: from elementary_vectors.circuits import cocircuit_generator
         sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
         sage: M
         [1 2 0 0]

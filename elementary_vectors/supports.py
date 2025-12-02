@@ -20,7 +20,7 @@ from typing import List
 
 from sage.matrix.constructor import Matrix
 
-from .functions import CircuitEnumerator
+from .elements import CircuitEnumerator
 
 
 def circuit_supports(matrix: Matrix) -> List[List[int]]:
