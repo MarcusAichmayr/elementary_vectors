@@ -1,5 +1,5 @@
-Documentation of elementary_vectors
-===================================
+Elementary vectors
+==================
 
 To install this SageMath package, visit the `repository on GitHub <https://github.com/MarcusAichmayr/elementary_vectors>`_.
 
