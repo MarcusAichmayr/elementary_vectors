@@ -2,7 +2,7 @@
 
 ## Description
 
-SageMath package for elementary vectors (circuits and cocircuits of a matrix)
+SageMath package for circuits of a matrix (elementary vectors)
 
 ## License
 
