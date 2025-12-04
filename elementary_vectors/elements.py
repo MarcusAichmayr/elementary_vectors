@@ -177,13 +177,12 @@ def cocircuit_generator(matrix: Matrix, prevent_multiples: bool = True, reverse:
 
 def circuit_kernel_matrix(matrix: Matrix) -> Matrix:
     """
-    Right kernel matrix based on circuits.
+    Right kernel matrix based on circuits (division-free).
 
     OUTPUT:
-    A right kernel matrix.
-    Each row is a circuit of the input matrix.
-    Therefore, the output matrix is division-free.
-    Also works for symbolic matrices.
+    Returns a right kernel matrix whose rows are circuits of the input.
+    Its entries are maximal minors (or zero), with no divisions required.
+    It also works for matrices with variables.
 
     .. NOTE::
 
