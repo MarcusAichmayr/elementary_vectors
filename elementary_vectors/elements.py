@@ -460,6 +460,20 @@ class CircuitEnumerator(SageObject):
     def _compute_minor(self, indices: tuple[int]):
         return self.matrix.matrix_from_columns(indices).det()
 
+    def minors(self) -> list:
+        r"""
+        Return a list of all maximal minors of the matrix.
+
+        EXAMPLES::
+
+            sage: from elementary_vectors import *
+            sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+            sage: ce = CircuitEnumerator(M)
+            sage: ce.minors()
+            [1, 2, 3, 4, 6, 0]
+        """
+        return [self.minor(indices) for indices in Combinations(self.length, self.rank)]
+
     def compute_minors(self) -> None:
         r"""Compute all maximal minors of the matrix."""
         for indices in Combinations(self.length, self.rank):
