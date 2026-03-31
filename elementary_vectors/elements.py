@@ -46,43 +46,43 @@ def circuits(matrix: Matrix, prevent_multiples: bool = True) -> List[vector]:
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-        sage: M
+        sage: P = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: P
         [1 2 0 0]
         [0 1 2 3]
-        sage: circuits(M)
+        sage: circuits(P)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
-        sage: circuits(M, prevent_multiples=False)
+        sage: circuits(P, prevent_multiples=False)
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2), (0, 0, -6, 4)]
 
     Variables are also supported::
 
         sage: var('a, b')
         (a, b)
-        sage: M = matrix([[1, 2, a, 0], [0, 1, 2, b]])
-        sage: M
+        sage: P = matrix([[1, 2, a, 0], [0, 1, 2, b]])
+        sage: P
         [1 2 a 0]
         [0 1 2 b]
-        sage: circuits(M)
+        sage: circuits(P)
         [(-a + 4, -2, 1, 0), (2*b, -b, 0, 1), (a*b, 0, -b, 2), (0, a*b, -2*b, -a + 4)]
 
     Matrices over the polynomial ring work, too::
 
         sage: R = PolynomialRing(ZZ, "x")
         sage: x = R.gen()
-        sage: M = matrix([[1, 2, x, 0], [0, 1, 2, x]])
-        sage: M
+        sage: P = matrix([[1, 2, x, 0], [0, 1, 2, x]])
+        sage: P
         [1 2 x 0]
         [0 1 2 x]
-        sage: circuits(M)
+        sage: circuits(P)
         [(-x + 4, -2, 1, 0), (2*x, -x, 0, 1), (x^2, 0, -x, 2), (0, x^2, -2*x, -x + 4)]
         sage: R = PolynomialRing(ZZ, "x, y")
         sage: x, y = R.gens()
-        sage: M = matrix([[x, y, 0, 0], [0, 1, 2, 3]])
-        sage: M
+        sage: P = matrix([[x, y, 0, 0], [0, 1, 2, 3]])
+        sage: P
         [x y 0 0]
         [0 1 2 3]
-        sage: circuits(M)
+        sage: circuits(P)
         [(2*y, -2*x, x, 0), (3*y, -3*x, 0, x), (0, 0, -3*x, 2*x)]
     """
     return CircuitEnumerator(matrix).circuits(prevent_multiples=prevent_multiples)
@@ -107,13 +107,13 @@ def cocircuits(matrix: Matrix, prevent_multiples: bool = True) -> List[vector]:
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-        sage: M
+        sage: P = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: P
         [1 2 0 0]
         [0 1 2 3]
-        sage: cocircuits(M)
+        sage: cocircuits(P)
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
-        sage: cocircuits(M, prevent_multiples=False)
+        sage: cocircuits(P, prevent_multiples=False)
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0), (3, 6, 0, 0)]
     """
     return CircuitEnumerator(matrix).cocircuits(prevent_multiples=prevent_multiples)
@@ -135,13 +135,13 @@ def circuit_generator(matrix: Matrix, prevent_multiples: bool = True, reverse: b
     EXAMPLES::
 
         sage: from elementary_vectors.elements import circuit_generator
-        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-        sage: M
+        sage: P = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: P
         [1 2 0 0]
         [0 1 2 3]
-        sage: list(circuit_generator(M))
+        sage: list(circuit_generator(P))
         [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
-        sage: list(circuit_generator(M, reverse=True))
+        sage: list(circuit_generator(P, reverse=True))
         [(0, 0, -6, 4), (6, -3, 0, 1), (4, -2, 1, 0)]
     """
     return CircuitEnumerator(matrix).circuit_generator(prevent_multiples=prevent_multiples, reverse=reverse)
@@ -163,13 +163,13 @@ def cocircuit_generator(matrix: Matrix, prevent_multiples: bool = True, reverse:
     EXAMPLES::
 
         sage: from elementary_vectors.elements import cocircuit_generator
-        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-        sage: M
+        sage: P = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: P
         [1 2 0 0]
         [0 1 2 3]
-        sage: list(cocircuit_generator(M))
+        sage: list(cocircuit_generator(P))
         [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
-        sage: list(cocircuit_generator(M, reverse=True))
+        sage: list(cocircuit_generator(P, reverse=True))
         [(3, 6, 0, 0), (1, 0, -4, -6), (0, -1, -2, -3)]
     """
     return CircuitEnumerator(matrix).cocircuit_generator(prevent_multiples=prevent_multiples, reverse=reverse)
@@ -191,29 +191,29 @@ def circuit_kernel_matrix(matrix: Matrix) -> Matrix:
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: M = matrix([[1, 0, 1, -1, 0], [0, 1, 1, 1, -1]])
-        sage: M
+        sage: P = matrix([[1, 0, 1, -1, 0], [0, 1, 1, 1, -1]])
+        sage: P
         [ 1  0  1 -1  0]
         [ 0  1  1  1 -1]
-        sage: circuit_kernel_matrix(M)
+        sage: circuit_kernel_matrix(P)
         [1 0 0 1 1]
         [0 1 0 0 1]
         [0 0 1 1 2]
-        sage: M = matrix([[1, 1, -1, -1, 0], [2, 1, -1, 0, 1], [1, 1, 1, 1, 1]])
-        sage: M
+        sage: P = matrix([[1, 1, -1, -1, 0], [2, 1, -1, 0, 1], [1, 1, 1, 1, 1]])
+        sage: P
         [ 1  1 -1 -1  0]
         [ 2  1 -1  0  1]
         [ 1  1  1  1  1]
-        sage: circuit_kernel_matrix(M)
+        sage: circuit_kernel_matrix(P)
         [-1  0  0 -1  2]
         [ 0 -1  1 -2  2]
         sage: var('a')
         a
-        sage: M = matrix([[1, 0, 1, -1, 0], [0, 1, a, 1, -1]])
-        sage: M
+        sage: P = matrix([[1, 0, 1, -1, 0], [0, 1, a, 1, -1]])
+        sage: P
         [ 1  0  1 -1  0]
         [ 0  1  a  1 -1]
-        sage: circuit_kernel_matrix(M)
+        sage: circuit_kernel_matrix(P)
         [    1     0     0     1     1]
         [    0     1     0     0     1]
         [    0     0     1     1 a + 1]
@@ -231,8 +231,8 @@ def circuit_kernel_matrix(matrix: Matrix) -> Matrix:
 
     ::
 
-        sage: M = matrix([[0, 1], [0, 1]])
-        sage: circuit_kernel_matrix(M)
+        sage: P = matrix([[0, 1], [0, 1]])
+        sage: circuit_kernel_matrix(P)
         [1 0]
     """
     ce = CircuitEnumerator(matrix)
@@ -262,17 +262,17 @@ def degenerate_circuits(matrix: Matrix) -> list[vector]:
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
-        sage: M
+        sage: P = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
+        sage: P
         [1 0 1 0]
         [0 0 1 1]
-        sage: degenerate_circuits(M)
+        sage: degenerate_circuits(P)
         [(0, -1, 0, 0)]
-        sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
-        sage: M
+        sage: P = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
+        sage: P
         [1 1 1 0]
         [0 1 1 1]
-        sage: degenerate_circuits(M)
+        sage: degenerate_circuits(P)
         [(0, -1, 1, 0)]
     """
     return CircuitEnumerator(matrix).degenerate_circuits()
@@ -290,17 +290,17 @@ def degenerate_cocircuits(matrix: Matrix) -> list[vector]:
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
-        sage: M
+        sage: P = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
+        sage: P
         [1 0 1 0]
         [0 0 1 1]
-        sage: degenerate_cocircuits(M)
+        sage: degenerate_cocircuits(P)
         [(0, 0, -1, -1), (1, 0, 0, -1), (1, 0, 1, 0)]
-        sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
-        sage: M
+        sage: P = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
+        sage: P
         [1 1 1 0]
         [0 1 1 1]
-        sage: degenerate_cocircuits(M)
+        sage: degenerate_cocircuits(P)
         [(1, 0, 0, -1)]
     """
     return CircuitEnumerator(matrix).degenerate_cocircuits()
@@ -323,8 +323,8 @@ class CircuitEnumerator(SageObject):
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: M = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
-        sage: ce = CircuitEnumerator(M)
+        sage: P = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
+        sage: ce = CircuitEnumerator(P)
         sage: ce
         Circuit enumerator of 2x5 matrix
         sage: ce.circuits()
@@ -371,10 +371,10 @@ class CircuitEnumerator(SageObject):
 
     Now, we consider an example that involves many zero minors::
 
-        sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
-        sage: M.minors(2)
+        sage: P = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
+        sage: P.minors(2)
         [1, 2, 0, 0, 0, 0]
-        sage: ce = CircuitEnumerator(M)
+        sage: ce = CircuitEnumerator(P)
         sage: ce.circuits()
         [(0, -2, 1, 0), (0, 0, 0, 1)]
     """
@@ -428,8 +428,8 @@ class CircuitEnumerator(SageObject):
         TESTS::
 
             sage: from elementary_vectors import *
-            sage: M = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
-            sage: ce = CircuitEnumerator(M)
+            sage: P = matrix([[1, 2, 4, 1, -1], [0, 1, 2, 3, 4]])
+            sage: ce = CircuitEnumerator(P)
             sage: ce._minors
             {}
             sage: ce.minor([0, 1])
@@ -467,8 +467,8 @@ class CircuitEnumerator(SageObject):
         EXAMPLES::
 
             sage: from elementary_vectors import *
-            sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: ce = CircuitEnumerator(M)
+            sage: P = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+            sage: ce = CircuitEnumerator(P)
             sage: ce.minors()
             [1, 2, 3, 4, 6, 0]
         """
@@ -500,8 +500,8 @@ class CircuitEnumerator(SageObject):
         EXAMPLES::
 
             sage: from elementary_vectors import *
-            sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
-            sage: ce = CircuitEnumerator(M)
+            sage: P = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
+            sage: ce = CircuitEnumerator(P)
 
         In this example, circuits require 3 indices::
 
@@ -535,8 +535,8 @@ class CircuitEnumerator(SageObject):
         EXAMPLES::
 
             sage: from elementary_vectors import *
-            sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
-            sage: ce = CircuitEnumerator(M)
+            sage: P = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
+            sage: ce = CircuitEnumerator(P)
 
         In this example, cocircuits require 1 index::
 
@@ -573,8 +573,8 @@ class CircuitEnumerator(SageObject):
         EXAMPLES::
 
             sage: from elementary_vectors import *
-            sage: M = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
-            sage: ce = CircuitEnumerator(M)
+            sage: P = matrix([[1, 2, 4, 0], [0, 1, 2, 0]])
+            sage: ce = CircuitEnumerator(P)
             sage: ce._element_kernel([1, 2, 3], mark_zeros=False)
             (0, 0, 0, 0)
             sage: ce._element_row_space([3], mark_zeros=False)
@@ -706,11 +706,11 @@ class CircuitEnumerator(SageObject):
         EXAMPLES::
 
             sage: from elementary_vectors import *
-            sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: M
+            sage: P = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+            sage: P
             [1 2 0 0]
             [0 1 2 3]
-            sage: ce = CircuitEnumerator(M)
+            sage: ce = CircuitEnumerator(P)
             sage: ce.circuits()
             [(4, -2, 1, 0), (6, -3, 0, 1), (0, 0, -3, 2)]
 
@@ -732,11 +732,11 @@ class CircuitEnumerator(SageObject):
         EXAMPLES::
 
             sage: from elementary_vectors import *
-            sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-            sage: M
+            sage: P = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+            sage: P
             [1 2 0 0]
             [0 1 2 3]
-            sage: ce = CircuitEnumerator(M)
+            sage: ce = CircuitEnumerator(P)
             sage: ce.cocircuits()
             [(0, -1, -2, -3), (1, 0, -4, -6), (2, 4, 0, 0)]
         """
@@ -749,27 +749,27 @@ class CircuitEnumerator(SageObject):
         EXAMPLES::
 
             sage: from elementary_vectors import *
-            sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
-            sage: ce = CircuitEnumerator(M)
+            sage: P = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
+            sage: ce = CircuitEnumerator(P)
             sage: ce.degenerate_circuits()
             [(0, -1, 0, 0)]
 
         ::
 
-            sage: M = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
-            sage: ce = CircuitEnumerator(M)
+            sage: P = matrix([[1, 1, 1, 0], [0, 1, 1, 1]])
+            sage: ce = CircuitEnumerator(P)
             sage: ce.degenerate_circuits()
             [(0, -1, 1, 0)]
 
         We consider an example with 4 zero minors.
         There are six multiples that involve 2 of them each::
 
-            sage: M = matrix([[1, -1, 0, 0, 1, 1], [0, 0, 1, 0, 1, 2], [0, 0, 0, 1, 1, 3]])
-            sage: M
+            sage: P = matrix([[1, -1, 0, 0, 1, 1], [0, 0, 1, 0, 1, 2], [0, 0, 0, 1, 1, 3]])
+            sage: P
             [ 1 -1  0  0  1  1]
             [ 0  0  1  0  1  2]
             [ 0  0  0  1  1  3]
-            sage: ce = CircuitEnumerator(M)
+            sage: ce = CircuitEnumerator(P)
             sage: ce.degenerate_circuits()
             [(-1, -1, 0, 0, 0, 0)]
         """
@@ -782,11 +782,11 @@ class CircuitEnumerator(SageObject):
         EXAMPLES::
 
             sage: from elementary_vectors import *
-            sage: M = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
-            sage: M
+            sage: P = matrix([[1, 0, 1, 0], [0, 0, 1, 1]])
+            sage: P
             [1 0 1 0]
             [0 0 1 1]
-            sage: ce = CircuitEnumerator(M)
+            sage: ce = CircuitEnumerator(P)
             sage: ce.degenerate_cocircuits()
             [(0, 0, -1, -1), (1, 0, 0, -1), (1, 0, 1, 0)]
         """

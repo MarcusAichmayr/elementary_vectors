@@ -34,22 +34,22 @@ def circuit_supports(matrix: Matrix) -> List[List[int]]:
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-        sage: M
+        sage: P = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: P
         [1 2 0 0]
         [0 1 2 3]
-        sage: circuit_supports(M)
+        sage: circuit_supports(P)
         [[0, 1, 2], [0, 1, 3], [2, 3]]
 
     TESTS:
 
     This generates the empty list::
 
-        sage: M = matrix([[1, 0, 0, 0], [0, 1, 0, 0]])
-        sage: M
+        sage: P = matrix([[1, 0, 0, 0], [0, 1, 0, 0]])
+        sage: P
         [1 0 0 0]
         [0 1 0 0]
-        sage: circuit_supports(M)
+        sage: circuit_supports(P)
         [[2], [3]]
     """
     return CircuitSupportEnumerator(matrix).circuits()
@@ -66,11 +66,11 @@ def cocircuit_supports(matrix: Matrix) -> List[List[int]]:
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: M = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
-        sage: M
+        sage: P = matrix([[1, 2, 0, 0], [0, 1, 2, 3]])
+        sage: P
         [1 2 0 0]
         [0 1 2 3]
-        sage: cocircuit_supports(M)
+        sage: cocircuit_supports(P)
         [[1, 2, 3], [0, 2, 3], [0, 1]]
     """
     return CircuitSupportEnumerator(matrix).cocircuits()
