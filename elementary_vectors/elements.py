@@ -191,22 +191,22 @@ def circuit_kernel_matrix(matrix: Matrix) -> Matrix:
     EXAMPLES::
 
         sage: from elementary_vectors import *
-        sage: P = matrix([[1, 0, 1, -1, 0], [0, 1, 1, 1, -1]])
+        sage: P = matrix([[1, 2, 0, 0, 0], [0, 1, 2, -3, 0]])
         sage: P
-        [ 1  0  1 -1  0]
-        [ 0  1  1  1 -1]
+        [ 1  2  0  0  0]
+        [ 0  1  2 -3  0]
         sage: circuit_kernel_matrix(P)
-        [1 0 0 1 1]
-        [0 1 0 0 1]
-        [0 0 1 1 2]
+        [ 4 -2  1  0  0]
+        [-6  3  0  1  0]
+        [ 0  0  0  0  1]
         sage: P = matrix([[1, 1, -1, -1, 0], [2, 1, -1, 0, 1], [1, 1, 1, 1, 1]])
         sage: P
         [ 1  1 -1 -1  0]
         [ 2  1 -1  0  1]
         [ 1  1  1  1  1]
         sage: circuit_kernel_matrix(P)
-        [-1  0  0 -1  2]
-        [ 0 -1  1 -2  2]
+        [-2  2 -2  2  0]
+        [-2  1 -1  0  2]
         sage: var('a')
         a
         sage: P = matrix([[1, 0, 1, -1, 0], [0, 1, a, 1, -1]])
@@ -214,9 +214,9 @@ def circuit_kernel_matrix(matrix: Matrix) -> Matrix:
         [ 1  0  1 -1  0]
         [ 0  1  a  1 -1]
         sage: circuit_kernel_matrix(P)
-        [    1     0     0     1     1]
-        [    0     1     0     0     1]
-        [    0     0     1     1 a + 1]
+        [-1 -a  1  0  0]
+        [ 1 -1  0  1  0]
+        [ 0  1  0  0  1]
 
     TESTS::
 
@@ -243,7 +243,7 @@ def circuit_kernel_matrix(matrix: Matrix) -> Matrix:
     if rank == length:
         return Matrix(matrix.base_ring(), 0, length)
 
-    for indices_minor in Combinations(range(length - 1, -1, -1), rank):
+    for indices_minor in Combinations(length, rank):
         minor = ce.minor(indices_minor)
         if minor != 0 and is_constant(minor):
             return Matrix(ce.circuit(indices) for indices in ce._index_sets_from_minor(indices_minor, kernel=True))
