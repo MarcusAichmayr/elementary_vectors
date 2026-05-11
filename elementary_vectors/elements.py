@@ -551,7 +551,7 @@ class CircuitEnumerator(SageObject):
 
     def _element(self, indices: List[int], kernel: bool, mark_zeros: bool = False) -> vector:
         r"""
-        Compute the elementary vector corresponding to a list of indices.
+        Compute the (co)circuit corresponding to a list of indices.
 
         INPUT:
 
@@ -560,8 +560,7 @@ class CircuitEnumerator(SageObject):
         - ``kernel`` -- a boolean
         - ``prevent_multiple`` -- a boolean
 
-        If ``kernel`` is true, return an elementary vector in the kernel
-        and otherwise in the row space.
+        If ``kernel`` is true, return a circuit and otherwise a cocircuit.
 
         If ``prevent_multiple`` is true, a ``ValueError`` is raised if a multiple
         of this element has been computed before.
