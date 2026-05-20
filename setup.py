@@ -9,7 +9,7 @@ def readfile(filename):
 
 setup(
     name="elementary_vectors",
-    version="2.2",
+    version="2.3",
     description="SageMath package for circuits of a matrix (elementary vectors)",
     long_description=readfile("README.md"),
     long_description_content_type="text/markdown",
