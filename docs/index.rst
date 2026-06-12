@@ -1,4 +1,4 @@
-Elementary vectors
+Elementary Vectors
 ==================
 
 To install this SageMath package, visit the `repository on GitHub <https://github.com/MarcusAichmayr/elementary_vectors>`_.
