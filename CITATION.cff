@@ -14,4 +14,8 @@ date-released: "2026-07-12"
 repository-code: "https://github.com/MarcusAichmayr/elementary_vectors"
 url: "https://pypi.org/project/elementary-vectors/"
 
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.21322641
+
 license: "GPL-3.0"
