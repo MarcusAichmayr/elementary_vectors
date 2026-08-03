@@ -588,7 +588,7 @@ class CircuitEnumerator(SageObject):
             raise ValueError(f"The indices {indices} correspond to the zero vector.")
 
         if mark_zeros and self._mark_zero_minors():
-            raise MultipleException(f"Indices {indices} produce a nonzero multiple of a previously computed elementary vector.")
+            raise MultipleException(f"Indices {indices} produce a nonzero multiple of a previously computed circuit.")
         return element
 
     def _element_kernel(self, indices: List[int], mark_zeros: bool) -> vector:
@@ -663,7 +663,7 @@ class CircuitEnumerator(SageObject):
         self._zero_minors.clear()
 
     def _index_sets_from_minor(self, indices_minor: List[int], kernel: bool) -> Iterator[List[int]]:
-        r"""Generator of index sets corresponding to elementary vectors involving given minor."""
+        r"""Generator of index sets corresponding to circuits involving given minor."""
         if kernel:
             for i in range(self.length):
                 if i in indices_minor:
@@ -681,7 +681,7 @@ class CircuitEnumerator(SageObject):
         return self._generator(kernel=False, prevent_multiples=prevent_multiples, reverse=reverse)
 
     def _generator(self, kernel: bool, prevent_multiples: bool, reverse: bool) -> Iterator[vector]:
-        r"""Return a generator of elementary vectors"""
+        r"""Return a generator of circuits"""
         if prevent_multiples:
             self._reset_set_for_preventing_multiples()
         if kernel:
@@ -793,7 +793,7 @@ class CircuitEnumerator(SageObject):
 
     def _degenerate_elements(self, kernel: bool) -> Iterator[vector]:
         r"""
-        Generator of elementary vectors with smaller-than-usual support.
+        Generator of circuits with smaller-than-usual support.
         """
         self._reset_set_for_preventing_multiples()
         for indices_minor in Combinations(self.length, self.rank):
@@ -815,4 +815,4 @@ class CircuitEnumerator(SageObject):
 
 
 class MultipleException(ValueError):
-    r"""Raised when a multiple of a previously computed elementary vector is detected."""
+    r"""Raised when a multiple of a previously computed circuit is detected."""
